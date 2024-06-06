@@ -1,0 +1,45 @@
+\documentclass{article}
+
+\usepackage{ottalt}
+\usepackage{mathpartir}
+\usepackage{supertabular}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage{color}
+
+
+%% Show admissible premises in rules
+%% This should be false in main body of text and true in the appendix.
+\newif\ifadmissible
+\newcommand\suppress[1]{\ifadmissible{#1}\else{}\fi}
+\inputott{qualitative-rules}
+
+\title{System Specification}
+
+\admissiblefalse
+\begin{document}
+\maketitle
+
+\section{Typing}
+\label{sec:typing}
+\drules[T]{$[[W |- psi a : A]]$}{Typing}{Type, Conv, Var, Pi, Abs, App, Refl, CEq, Transp, T, SSigma, SPair, ProjOne, ProjTwo, TyUnit, TmUnit, Bool, True, False, If}
+\drules[Ctx]{$[[|- W]]$}{Context well-formedness}{Empty,Cons}
+\drules[E]{$[[P |- a == b]]$}{Untyped definitional equality}{One,
+  Trans}
+\drules[GE]{$[[P |- psi a == b]]$}{Untyped graded definitional
+  equality}{Var, Type, Sym, Trans, App, Abs, Pi, AppAbs, Refl, Transp, CEq, TranspRefl, ProjOneCong, ProjTwoCong, ProjOneBeta, ProjTwoBeta, SPair, SSigma, TyUnit, TmUnit, Bool, True, False, If, IfTrue, IfFalse}
+\drules[CGE]{$[[P |- psi psi0 a == b]]$}{Untyped guarded definitional equality}{Leq,NLeq}
+
+\section{Reduction}
+\label{sec:red}
+\drules[R]{$[[a ~> b]]$}{Reduction}{App, AppAbs, Transp, TranspRefl, Unbox, UnboxBox, ProjOneCong, ProjTwoCong, ProjOneBeta, ProjTwoBeta, If, IfTrue, IfFalse}
+
+\section{Parallel reduction}
+\label{sec:par}
+\drules[Par]{$[[P |- psi a => b]]$}{Graded parallel reduction}{Var, Type, App, Abs, Pi, AppBeta, Refl, Transp, CEq, TranspRefl, ProjOneCong, ProjTwoCong, ProjOneBeta, ProjTwoBeta, SPair, SSigma, TyUnit, TmUnit, Bool, True, False, If, IfTrue, IfFalse}
+\drules[CPar]{$[[P |- psi psi0 a => b]]$}{Guarded parallel
+  reduction}{Leq, Nleq}
+
+\end{document}

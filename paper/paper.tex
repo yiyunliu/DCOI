@@ -1,0 +1,2599 @@
+\newif\ifcomments     %% include author discussion
+\newif\ifanonymous    %% include author identities
+\newif\ifextended     %% include appendix
+\newif\ifsubmission   %% prepare the submitted version
+\newif\ifpublic       %% version available for posting / final version
+
+\commentsfalse        %% toggle comments here
+\extendedfalse
+
+\submissionfalse      %% at most one of these must be true (neither for draft version)
+\publictrue          %% but if you want to see comments, these should both be off
+
+
+% If we are going to make a version public, i.e. on arXiv, we should 
+% make sure that there are no comments and our names are on it.
+\ifpublic
+\submissionfalse
+\commentsfalse
+\anonymousfalse
+\fi
+
+%% If we are submission, make sure there are no comments and our names 
+%% are NOT on it.
+\ifsubmission
+\publicfalse
+\commentsfalse
+\anonymoustrue
+\fi
+
+
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{school}
+% \documentclass[acmsmall,screen=true,
+% \ifpublic review=false\else,review=true\fi
+% ,anonymous=\ifanonymous true\else false\fi]{acmart}
+\documentclass[acmsmall]{acmart}
+\citestyle{acmauthoryear}
+%%% The following is specific to POPL '24 and the paper
+%%% 'Internalizing Indistinguishability with Dependent Types'
+%%% by Yiyun Liu, Jonathan Chan, Jessica Shi, and Stephanie Weirich.
+%%%
+\setcopyright{rightsretained}
+\acmDOI{10.1145/3632886}
+\acmYear{2024}
+\copyrightyear{2024}
+\acmSubmissionID{popl24main-p229-p}
+\acmJournal{PACMPL}
+\acmVolume{8}
+\acmNumber{POPL}
+\acmArticle{44}
+\acmMonth{1}
+\received{2023-07-11}
+\received[accepted]{2023-11-07}
+
+\usepackage{natbib}
+\citestyle{acmauthoryear}
+\usepackage{ottalt}
+\usepackage{mathpartir}
+\usepackage{supertabular}
+\usepackage[para]{footmisc}
+\usepackage{amsmath}
+
+\usepackage{draft}  % local
+
+\ifcomments
+\newnote{scw}{blue} % Stephanie Weirich
+\newnote{yl}{purple} % Yiyun Liu
+\newnote{jc}{olive} % Jonathan Chan
+\newnote{jws}{orange} % Jessica Shi
+\else
+\newcommand{\scw}[1]{}
+\newcommand{\yl}[1]{}
+\newcommand{\jc}[1]{}
+\newcommand{\jws}[1]{}
+\fi
+
+
+\usepackage{color}
+\inputott{Qualitative-rules}
+
+\usepackage{url}
+\usepackage{listings}
+\lstset{ % this is from Harry's paper, feel free to replace w other settings
+  basicstyle=\sffamily,
+  columns=flexible,
+  mathescape=true,
+  breaklines=false,
+  morekeywords={data,do,where,return,type,case,of,if,then,else,let,in,levels,constraints,refl,transp},
+  %stringstyle=\color{string},
+  %morestring=*[d]{"}, % chktex 18
+  %morestring=*[d]{'},
+  literate={*>}{{\kl[applicative]{$*\rangle$}}}2
+  {<*>}{{\kl[applicative]{$\langle * \rangle$}}}3
+  {->}{{$\mathrel{\rightarrow}$}}2
+  {\\}{{$\lambda$}}1
+  {==>}{{$\mathrel{\implies}$}}3
+  {=>}{{$\mathrel{\Rightarrow}$}}2
+  {<|>}{{$\langle | \rangle$}}2
+  {|-}{{$\vdash$}}1
+  {pure}{\kl[applicative]{\textsf{pure}}}4
+  {fmap}{{$\fmap$}}3
+  {fst}{{$\pi_1\;$}}1
+  {snd}{{$\pi_2\;$}}1
+  {~}{{$\mathbin{\sim}$}}1
+  {'}{{$^\prime$}}0
+}
+\def\lstinlinecol{\lstinline[columns=fullflexible]}
+
+\usepackage[noend]{algpseudocode}
+\usepackage{xspace}
+
+\newcommand\suppress[1]{}
+\newcommand{\name}{DCOI\xspace}
+\newcommand{\Name}{DCOI\xspace}
+\newcommand{\longname}{Dependent Calculus of Indistinguishability\xspace}
+\newcommand{\subst}[3]{#1\{#2/#3\}}
+\newcommand{\dotv}[3]{\href{#1}{\texttt{#2}}{\texttt{:#3}}}
+\newcommand{\dotpi}[2]{\href{#1/#2}{\texttt{#2}}}
+
+% use this before footnote to stack footnote mark above punctuation
+\newlength{\punctwidth}
+\newcommand{\punctstack}[1]{#1%
+  \settowidth{\punctwidth}{#1}%
+  \hspace*{-\the\punctwidth}%
+}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+\title{Internalizing Indistinguishability with Dependent Types}
+
+\author{Yiyun Liu}
+\orcid{0009-0006-8717-2498}
+\affiliation{%
+  \institution{University of Pennsylvania}
+  \country{USA}
+}
+\email{liuyiyun@seas.upenn.edu}
+
+\author{Jonathan Chan}
+\orcid{0000-0003-0830-3180}
+\affiliation{%
+  \institution{University of Pennsylvania}
+  \country{USA}
+}
+\email{jcxz@seas.upenn.edu}
+
+\author{Jessica Shi}
+\orcid{0000-0002-1507-1122}
+\affiliation{%
+  \institution{University of Pennsylvania}
+  \country{USA}
+}
+\email{jwshi@seas.upenn.edu}
+
+\author{Stephanie Weirich}
+\orcid{0000-0002-6756-9168}
+\affiliation{%
+  \institution{University of Pennsylvania}
+  \country{USA}
+}
+\email{sweirich@seas.upenn.edu}
+
+
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10003752.10003790.10011740</concept_id>
+       <concept_desc>Theory of computation~Type theory</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Theory of computation~Type theory}
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+% \renewcommand{\shortauthors}{Liu et al.}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+  In type systems with dependency tracking, programmers can assign an ordered
+  set of levels to computations and prevent information flow from high-level
+  computations to the low-level ones. The key notion in such systems is
+  \emph{indistinguishability}: a definition of program equivalence that takes
+  into account the parts of the program that an observer may depend on.  In
+  this paper, we investigate the use of dependency tracking in the context of
+  dependently-typed languages. We present the Dependent Calculus of
+  Indistinguishability (DCOI), a system that adopts indistinguishability as
+  the definition of equality used by the type checker. DCOI also internalizes
+  that relation as an observer-indexed propositional equality type, so that
+  programmers may reason about indistinguishability within the language. Our
+  design generalizes and extends prior systems that combine dependency
+  tracking with dependent types and is the first to support conversion and
+  propositional equality at arbitrary observer levels.  We have proven type
+  soundness and noninterference theorems for DCOI and have developed a
+  prototype implementation of its type checker.
+\end{abstract}
+
+% Do we get to pick arbitrary keywords, or are they from a fixed ACM official list?
+% We can pick arbitrary keywords, but don't need to do so until the final version.
+% We will eventually have to pick from ACM's subject classification list, but not until later.
+\keywords{Modes, Dependent Types, Coq, Formalization}
+
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+% In a type system that supports dependency tracking, the notion of
+% indistinguishability can be used to equate programs that are
+% syntactically distinct but appear identical up to erasure at a
+% specific observer level.
+Dependency tracking is a static analysis that determines how computations
+depend on their inputs. Type systems that support dependency tracking assign
+levels drawn from some partial order to computations, and prevent the flow of
+information from higher level computations to lower ones.
+
+For example, consider the type signature of a function \lstinline{f}
+as follows, where the levels $[[Low]]$ (for low) and $[[High]]$ (for high) are ordered
+$[[Low]] < [[High]]$. 
+\begin{lstlisting}
+    f :$^{[[Low]]}$ Nat$^{[[High]]}$ ->  Nat
+\end{lstlisting}
+% Consider a function variable with the
+% following type signature in a type system that supports dependency tracking.
+The type signature reads that \lstinline{f} is a function
+that takes a natural number typed at level $[[High]]$ and returns a natural that is
+typed at level $[[Low]]$. Because $[[Low]] < [[High]]$,
+the function $[[f]]$ may not use its argument and must behave like a constant
+function.
+
+Dependency tracking is a general feature of type systems and has a variety of
+applications~\citep{abadi1999core}, most frequently information flow
+analysis~\citep{denning1977infoflow, sabelfeld2003language}, but also partial
+evaluation~\citep{hatcliff_danvy_1997} and staged
+programming~\citep{sheard1995staged, taha2000metaml}. In the context of
+dependent type systems, it is related to relevance
+tracking~\citep{debruijn1994automath,miquel:icc,mishra2008erasure,choudhury:ddc},
+two-level type theory~\citep{annenkov2023two}, and the phase distinction in the
+ML module system~\citep{sterling-harper:phase-distinction}.
+
+Levels used for dependency tracking take on different meanings depending on
+the specific application. For example, in relevance tracking, the dependency
+levels $[[Low]]$ and $[[High]]$ can represent relevant and irrelevant
+computations, respectively, where irrelevant computations can be erased prior to
+run time. For information flow, the dependency levels correspond to clearance
+levels and only computations typed at level $[[High]]$ can access classified
+information.
+% The dependency levels $[[Low]]$ and
+% $[[High]]$ can be interpreted as security levels or relevance levels.
+% Depending on the specific application, the set of levels can be drawn
+% from a richer structure such as a lattice.
+For each application, dependency levels are drawn from a predetermined
+partially ordered set or a richer structure such as a lattice.
+
+% In both cases, the type system
+% prevents the flow of information from the higher level to the lower
+% level.
+When reasoning about program equivalence in a system that supports dependency
+tracking, the key idea is \emph{indistinguishability}: an equivalence relation
+that is indexed by an observer level~\citep{sabelfeld2003language}. This
+relation defines program equivalence from the point of view of an
+observer---all parts of the program that are unobservable at that level can be
+safely equated because the system prevents the observer from depending on
+those values.
+
+Dependently-typed languages support intrinsic reasoning about program
+equivalence. Calculi such as
+PTS~\citep{barendregt:lambda-calculi-with-types}, CIC~\citep{CIC}, and
+MLTT~\citep{Martin-Lof-1973} characterize what it means for programs to be
+equal and use this definition of equality for type conversion.  In these
+systems, two terms are typically definitionally equal when they are
+$\beta$-equivalent or $\beta\eta$-equivalent. Furthermore, the propositional
+equality type internalizes the equality judgment as a mechanism for intrinsic
+reasoning about program equivalence. In CIC and MLTT, the type $[[a ~ b : A]]$
+asserts that the terms $[[a]]$ and $[[b]]$ (of type $[[A]]$) are equal.  If
+this proposition is provable, we say that $[[a]]$ and $[[b]]$ are
+propositionally equal. In dependent type systems, more terms are
+propositionally equal than definitionally equal: for example, one can use
+induction on naturals to prove $[[x + 0 ~ x : Nat]]$ even when $[[x+0]]$
+and $[[x]]$ are not definitionally equal.  By internalizing definitional
+equality as the equality type, programmers gain a powerful tool for reasoning
+about program equivalence.
+
+However, the power of this tool depends on the definition of equivalence in
+the first place. In the context of dependency tracking, it is sound to equate
+programs that are not necessarily $\beta\eta$-equivalent as long as their
+differences are not observable. To explore this idea, we present the \longname (\name{})\footnote{pronounced ``decoy''}, 
+a dependently-typed calculus that uses
+\emph{indistinguishability} as its definition of equality.
+
+\Name{} can type check programs that would be rejected by CIC or MLTT. For
+example, given a function \lstinline{P} with the signature
+\lstinline{P :$^{[[Low]]}$ Bool$^{[[High]]}$ ->  Type},
+% $ useless comment to fix emacs's broken syntax highlighting
+we should be able to safely convert between the types \lstinline{P True} and
+\lstinline{P False}. During conversion, the type checker can skip the comparison of
+\lstinline{True} and \lstinline{False} because the signature of \lstinline{P}
+tells us that \lstinline{P} cannot use its argument in a way that is
+observable at level $[[Low]]$.
+
+\medskip
+In exploring the design of DCOI, this paper makes the following contributions.
+\begin{itemize}
+\item When using indistinguishability as definitional equality, there is the
+  question of what observer level should be used. While it is tempting to use
+  a fixed observer level for type checking~\citep{choudhury:ddc}, we show here
+  that it is sound to use \emph{any} observer level that is compatible with
+  the terms being compared. Furthermore, this relation can be composed
+  step-wise: if $[[a]]$ is equal to $[[b]]$ at level $[[psi1]]$ and $[[b]]$ is
+  equal to $[[c]]$ at level $[[psi2]]$, then we can also equate $[[a]]$ and
+  $[[c]]$, even though those terms may not be equal at $[[psi1 /\ psi2]]$.
+  We define how
+  dependency tracking works in \name{} in Section~\ref{sec:typing} and 
+  its role in definitional equality in Section~\ref{sec:defeq}.
+
+\item We internalize the indistinguishability judgment in \name{}
+  as an indexed equality type (Section~\ref{sec:equality}). Programmers can
+  use this type to reason about program equivalences at a specified observer
+  level. For security type systems, the observer-indexed equality type can be
+  used to show that two programs appear identical to observers with lower
+  clearance levels, ensuring that no secret information is leaked after, say,
+  a significant refactoring.  In a system with relevance tracking, programmers
+  can reason about programs without concerning themselves with the irrelevant
+  type-level computations that are meant to be erased after compilation.
+  % \jws{Removed word to avoid the orphan.}
+  %
+  This design crucially depends on the flexible definition of equality above:
+  the elimination rule for this type must be able to reason about
+  convertibility at any observer level.
+
+\item To ensure that our design makes sense, we have mechanically checked its
+  metatheoretic properties, including type soundness and noninterference. Our
+  type soundness result requires showing the consistency of definitional
+  equality, or a proof that equal types have the same head form. We provide an
+  overview of these proofs in Section~\ref{sec:metatheory}.
+
+\item We identify constraints on dependency tracking that are imposed
+  by our use of indistinguishability for type conversion and discuss these 
+  constraints in Section~\ref{sec:discussion}. 
+  Our design contrasts with prior
+  work~\citep{abadi1999core,shikuma2008proving, choudhury:ddc}
+  that we have found to be incompatible with our approach. The insights
+  gained in exploring this design space also explain why several
+  existing mechanisms for tracking run-time irrelevance in dependently typed
+  languages cannot be extended to compile-time irrelevance.
+  % \jws{Removed words to avoid the orphan.}
+
+\item To understand how \name works in practice, we have developed a
+  prototype implementation that extends our core language with level-indexed data
+  types. We have used this implementation to experiment with the development
+  of sample programs. In the next section, we use these examples to provide an
+  introduction to \name. We discuss our implementation in more detail in
+  Section~\ref{sec:implementation}.
+
+\end{itemize}
+
+Our Coq proof scripts and prototype implementation are available
+as supplementary materials.
+%\jws{Removed ``to reviewers'' which feels like a strange thing to put in the final version.}
+
+\section{Motivating Examples}
+\label{sec:examples}
+
+In this section,
+we present three applications of dependency analysis as motivating examples:
+run-time irrelevance\punctstack{,}\footnote{\dotpi{impl}{pi/RunTime.pi}}
+compile-time irrelevance\punctstack{,}\footnote{\dotpi{impl}{pi/CompileTime.pi}}
+and secure information flow\punctstack{.}\footnote{\dotpi{impl}{pi/InfoFlow.pi}}
+
+All examples in this section have been type checked by our implementation,
+with footnotes pointing to the corresponding source file. For clarity, we omit
+some type and level annotations and use the concrete syntax of \name{} as
+presented in the next section.
+
+To make these examples more realistic, we use data definitions that are not in
+the \name{} core calculus but are supported by our prototype implementation
+(Section~\ref{sec:implementation}).  We also use constructs desugared from
+\name{}'s dependent pairs: nondependent pairs; dependent pairs where one
+component is labeled with a different level; and box types $[[T psi A]]$,
+similar to the graded modal type of \citet{abadi1999core}, that encapsulate
+terms at a higher level.
+
+\subsection{Run-Time Irrelevance}
+\label{sec:runtimeirrel}
+
+Parts of programs that are not computationally meaningful when run
+can be considered \textit{run-time irrelevant}.
+An optimizing compiler can erase the run-time irrelevant parts
+to yield a more space- and time-efficient program,
+because those arguments do not need to be kept around or reduced needlessly
+~\citep{paulinmohring1989coc,brady:phd}.
+Run-time irrelevance annotations tell the compiler what can be erased,
+and in a well typed program, irrelevant terms are never used relevantly.
+
+For instance, consider the (simplified) polymorphic constant function,
+whose type argument and unused input argument we mark irrelevant with label $[[I]]$. Unlabeled
+arguments and definitions are treated as relevant by default,
+sometimes labeled with $[[R]]$ for clarity, where  $[[R < I]]$.
+% For instance, consider the polymorphic identity function,
+% whose type argument we mark irrelevant with label $[[I]]$.
+% Unlabeled arguments and definitions are treated as relevant by default,
+% sometimes labeled with $[[R]]$ for clarity, where $[[R < I]]$.
+\begin{lstlisting}
+    const :$^[[R]]$ (A :$^[[I]]$ Type) -> A -> A$^[[I]]$ -> A
+    const = \A :$^[[I]]$ Type. \x : A. \y :$^[[I]]$ A. x
+\end{lstlisting}
+The $[[R]]$ annotation next to \lstinline|const| says that
+\lstinline|const| is a relevant computation. Since \lstinline|const|
+is a function, the relevance of \lstinline|const| is determined by the
+relevance of its output. That is, the output of a relevant function
+can only use an irrelevant argument in irrelevant positions, as part
+of a type annotation (as is the case for the type argument
+\lstinline|A|) or as an argument to another function that takes an
+irrelevant argument. If we try to return the irrelevant argument
+\lstinline|y| instead as the output for \lstinline|const|, the
+program will no longer type check.
+Since well-typedness enforces that the first and third arguments of
+\lstinline|const| cannot be used relevantly in its body, both
+arguments can be safely erased at run-time.
+% The type argument \lstinline|A| and the variable
+% \lstinline|y| of type \lstinline|A| are all annotated with
+% $[[I]]$. The type argument \lstinline|A| appears syntactically in the
+% body of \lstinline|const| as the type annotation of
+% \lstinline|y|. 
+
+% The signature reads that \lstinline!id! is a relevant computation that
+% takes an irrelevant type argument \lstinline!A! and a relevant
+% argument of type \lstinline|A| as its inputs 
+
+% Because the type argument only appears in the body of the function as
+% a type annotation for the argument \lstinline!x!,
+% it can safely be erased.
+% On the other hand, if we attempt to ascribe \lstinline!id! with the
+% type \lstinline!(A :$^[[I]]$ Type) -> A$^[[I]]$ -> A!, the program
+% will be rejected since it attempts to return an irrelevant input when
+% \lstinline!id! is itself a relevant computation that does not have
+% access to arguments at level $[[I]]$.
+
+% accidentally label the second argument as irrelevant,
+% well-typedness enforces that the entire function must be used irrelevantly as well,
+% since it returns an irrelevant term.
+% \begin{lstlisting}
+%     id' :$^[[I]]$ (A :$^[[I]]$ Type) -> A$^[[I]]$ ->  A
+%     id' = \A :$^[[I]]$ Type. \x :$^[[I]]$ A. x
+% \end{lstlisting}
+
+Run-time irrelevance is also useful for extracting only the relevant parts out of proof-carrying code.
+Consider the following inductive type representing the proposition that a natural is even.
+Its constructors are labeled as irrelevant because we intend to erase such proofs.
+
+\begin{lstlisting}
+    data Even : Nat -> Type where
+      ZEven  :$^[[I]]$ Even 0
+      SSEven :$^[[I]]$ (n : Nat) -> (Even n)$^[[I]]$ -> Even (Succ (Succ n))
+\end{lstlisting}
+
+To represent the type of even naturals,
+we use the subset type \lstinline!{x :$^[[R]]$ Nat | Even x}!.
+Its elements are relevant dependent pairs whose first component is a relevant natural,
+and whose second component is an irrelevant proof of evenness.
+Using a lemma stating that the sum of two even naturals is even (definition elided),
+
+\begin{lstlisting}
+    evenEven :$^[[I]]$ (n : Nat) -> (m : Nat) -> (Even n)$^[[I]]$ -> (Even m)$^[[I]]$ ->  Even (add n m)
+\end{lstlisting}
+
+we can define addition on even naturals.
+If all its run-time irrelevant parts---%
+the proofs of evenness---%
+are erased, this function corresponds exactly to the usual addition on naturals.
+% For concision below and elsewhere, we use the pattern-matching construct supported by our implementation.
+\scw{why do we say that we are using pattern matching? shouldn't that be implied by datatypes?
+And should we say that our implementation doesn't do type inference?}
+\jc{this is pattern matching as in I'm writing the arguments of functions
+to the left of the equals, which the implementation doesn't have.
+I removed the comment because pattern-matching notation is so common
+people probably aren't even going to notice they're reading it.}
+
+\begin{lstlisting}
+    addEven : {x : Nat | Even x} -> {x : Nat | Even x} -> {x : Nat | Even x}
+    addEven (n, en) (m, em) = (add n m, evenEven n m en em)
+\end{lstlisting}
+
+Consider next the following inductive type for length-indexed vectors,
+whose length index is labeled as irrelevant.
+These vectors can be erased to ordinary inductive lists.
+
+\begin{lstlisting}
+    data Vector (A :$^[[I]]$ Type) :$^[[I]]$ Nat$^[[I]]$ ->  Type where
+      Nil  : Vector A 0
+      Cons : (n :$^[[I]]$ Nat) -> A -> Vector A n -> Vector A (Succ n)
+\end{lstlisting}
+
+If we were to implement a map function over vectors,
+the index of the vector ensures that it returns a vector with the same length,
+and by marking the index as irrelevant,
+the function can be erased at run time to one that looks just like a map function on lists.
+
+\begin{lstlisting}
+    map : (A :$^[[I]]$ Type) -> (B :$^[[I]]$ Type) -> (n :$^[[I]]$ Nat) ->
+          (A -> B) -> Vector A n -> Vector B n
+    map A B n f v = case v of
+      Nil => Nil
+      Cons n' y ys => Cons n' (f y) (map A B n' f ys)
+\end{lstlisting}
+
+It is worth pointing out that the irrelevant arguments \lstinline|A|,\lstinline|B|, and
+\lstinline|n| do appear syntactically in the body of
+\lstinline|map|. However, this is allowed since they all appear as irrelevant
+arguments to a function, which, in this case, is \lstinline|map|
+itself.
+
+\subsection{Compile-Time Irrelevance}
+
+Relevance tracking is not only useful for run-time erasure, but also
+for ignoring terms during type conversion, known as \emph{compile-time
+irrelevance}~\citep{debruijn1994automath}. It allows us to
+type check the following program where the second
+argument is a type constructor that ignores its input.
+%\jws{Removed word to avoid orphan.}
+\begin{lstlisting}
+    substNat : (n :$^[[I]]$ Nat) -> (P :$^[[Low]]$ Nat$^[[I]]$ ->  Type) -> P n -> P 0
+    substNat n P e = e
+\end{lstlisting}
+In \lstinline{substNat}, the type checker converts the type of the
+argument \lstinline{e} from \lstinline{P n} to the return type \lstinline{P 0}.
+This is valid because \lstinline{P} is typed at level $[[Low]]$ with
+an input typed at level $[[High]]$, so these terms are indistinguishable to an
+$[[Low]]$ observer.
+
+However, it is not always possible to type a type constructor at level $[[Low]]$.
+Recall \lstinline{Vector}, which takes in a type parameter and length index that
+we regard as run-time irrelevant, labeled $[[High]]$. If we tried to type the overall
+function \lstinline{Vector} at level $[[Low]]$, then
+\lstinline{Vector Bool 1} and \lstinline{Vector Nat 2} would be indistinguishable,
+which would violate type safety since we can now extract an element
+out of a boolean vector and treat it as a natural number.
+To ensure we do not convert between these two types,
+\lstinline{Vector} must be typed at level at least $[[High]]$.
+
+With only two levels $[[Low]]$ and $[[High]]$,
+we cannot describe what is irrelevant to a type
+already typed at level $[[High]]$. Being able to talk about
+irrelevance at level $[[High]]$ is useful in practice: we may want to treat
+proofs of some propositions as compile-time irrelevant or erase
+irrelevant components to speed up type-level reduction.
+We can add a label $[[S]]$ (for super-high) where
+$[[R]] < [[I]] < [[S]]$. This allows us to define the following
+program where the evenness proof, typed at level $[[S]]$, is ignored
+by a type constructor \lstinline{P} typed at level $[[I]]$.
+
+\begin{lstlisting}
+    substEven : (P :$^[[I]]$ Nat$^[[I]]$ ->  (Even n)$^[[S]]$ ->  Type) -> (n :$^[[I]]$ Nat) ->
+                (en$_1$ :$^[[S]]$ Even n) -> (en$_2$ :$^[[S]]$ Even n) -> P n en$_1$ ->  P n en$_2$
+    substEven n P en$_1$ en$_2$ p = p
+\end{lstlisting}
+
+Intuitively, with the ordering of relevance labels $[[R]] < [[I]] < [[S]]$,
+terms at higher relevance labels are indistinguishable
+from the perspective of observers at lower relevance labels.
+Since the function \lstinline{substEven} is typed at level
+$[[R]]$, all of its argument except for \lstinline{p} are
+erasable at run time. The type constructor \lstinline{P},
+on the other hand, is typed at
+level $[[I]]$. In \lstinline{P n en$_1$} and
+\lstinline{P n en$_2$}, the natural \lstinline{n} is typed at
+level $[[I]]$ and used relevantly at compile time, whereas the evenness proofs
+\lstinline{en$_1$} and \lstinline{en$_2$} are both typed at level
+$[[S]]$ and used irrelevantly at compile time. As a result, we can convert between
+evenness proofs, but the natural must remain the same.
+
+\name{} also includes a propositional equality type $a \sim^[[psi]] b$ 
+that internalizes indistinguishability observed at level $[[psi]]$.
+The $[[refl]]$ term introduces elements of this type. For example, 
+\lstinline{P en$_1$ ~$^[[I]]$ P en$_2$} is inhabited by $[[refl]]$,
+since the two arguments are
+indistinguishable to $[[I]]$ observers.
+
+This level-indexed equality type enables reasoning about equalities at that level.
+For example, suppose we have a lemma showing commutativity of natural numbers (definition elided).
+\begin{lstlisting}
+    addComm : (n : Nat) -> (m : Nat) -> add n m ~$^{[[R]]}$ add m n
+\end{lstlisting}
+We can use this lemma with $[[transp]]$, the elimination term for
+propositional equality, to prove the commutativity of adding two even
+naturals.
+
+\begin{lstlisting}
+    addEvenComm : (en : {n : Nat | Even n}) -> (em : {m : Nat | Even m}) ->
+                   addEven en em ~$^{[[R]]}$ addEven em en
+    addEvenComm (n, en) (m, em) = $[[transp]]$ (addComm n m) $[[refl]]$
+\end{lstlisting}
+
+Given \lstinline{(n, en)} and \lstinline{(m, em)},
+our goal is to show that \lstinline{(add n m, evenEven n m en em)}
+and \lstinline{(add m n, evenEven m n em en)} are propositionally equal.
+In addition to showing that \lstinline{(add n m)} and \lstinline{(add m n)} are equal,
+we would normally need to manually prove that \lstinline{(evenEven n m en em)}
+and \lstinline{(evenEven m n em en)} are equal,
+further complicated by their definitionally unequal types \lstinline{Even (add n m)}
+and \lstinline{Even (add m n)}.
+However, since these proofs are compile-time irrelevant,
+and we wish to prove a relevantly-indexed equality,
+the type checker ignores the irrelevant second components,
+and it suffices to prove the relevant first components equal.
+
+\subsection{Information Flow}
+
+Dependency analysis can be used to model \textit{secure information flow}~\citep{denning1977infoflow},
+where information can never flow from a higher security level $[[High]]$
+to a lower security level $[[Low]]$.
+To an observer at $[[Low]]$, values of a given type at $[[High]]$ are
+indistinguishable from one another,
+and higher-level information therefore cannot be used meaningfully
+except to be passed around.
+On the other hand, observers with higher-level clearance are able to use lower-level information.
+In the following examples, unlabeled arguments and definitions are treated as low-security by default.
+
+Consider the construct $[[box High a]]$
+that hides a secret value $[[a]]$ of type $[[A]]$
+in a high-security box of type $[[T High A]]$. 
+One way a low-clearance function can inspect and branch on a secret natural,
+for instance, is to always box up its output.
+
+\begin{lstlisting}
+    secretPred :$^[[Low]]$ (n :$^[[High]]$ Nat) -> $[[T High Nat]]$
+    secretPred n = $\ottkw{box}^[[High]]$ (case n of
+      Zero => Zero
+      Succ m => m)
+\end{lstlisting}
+
+Unboxing a boxed secret value yields a secret value,
+which a low-clearance function can't do much with except to pass it to a function
+that takes a high security value, such as in the \lstinline{ap} function below.
+All of \lstinline{ap}'s arguments are low-security and it returns a low-security value,
+but it can still run a secret function on a secret value
+without ever knowing what was done and to which value.
+
+\begin{lstlisting}
+    ap :$^[[Low]]$ (A : Type) -> (B : Type) -> $T^[[High]]$ (A$^[[High]]$ ->   B) -> $T^[[High]]$ A ->   $T^[[High]]$ B
+    ap A B f a = $\ottkw{box}^[[High]]$ ($\ottkw{unbox}^[[High]]$ f ($\ottkw{unbox}^[[High]]$ a))
+\end{lstlisting}
+
+We can show metatheoretically that low-clearance functions cannot distinguish between high-level arguments,
+using the noninterference property of \name{} (Section~\ref{sec:noninterference}).
+Furthermore, with internalized indistinguishability, programmers can also reason about noninterference within the language.
+% \scw{Maybe we should stop here and not show indist. Let readers use their imagination.}
+% \jc{Exercise for the reader!}
+
+\section{\longname}
+\label{sec:typing}
+\begin{figure}[h]
+\[
+\begin{array}{lcll}
+% \mathit{Levels, sorts}\\
+% [[psi]]     & ::= & \ldots  & \mbox{levels (a set $\mathcal{L}$ forming a lattice)} \\
+% [[s]]       & ::= & \ldots  & \mbox{sorts (a set $\mathcal{S}$)} \\ \\
+\mathit{Contexts}\\
+[[W]]       & ::= & [[empty]]\ |\ [[W ++ x : psi A]] & \mbox{variables
+                                                       annotated by
+                                                       level and type} \\
+[[P]]       & ::= & [[empty]]\ |\ [[P ++ x : psi]] & \mbox{variables
+                                                       annotated by level} \\ \\
+\mathit{Terms}\\
+[[a]],[[b]],[[A]],[[B]] & ::= & [[s]]\ |\ [[x]]\  |\ [[Unit]] \ |\ [[unit]]
+                  & \mbox{sort, variables, unit type, unit} \\
+            & |   & [[Pi x : psi A. B]]\ |\ [[\psi x : A . a]]\ |\ [[a psi b]]
+                  & \mbox{function types, abstractions, applications} \\
+            & |   & [[x : psi A && B]]\ |\ [[(a psi & b)]]\ |\ [[fst  psi a]]\ |\ [[snd  psi a]]
+                  & \mbox{dependent pair types, pairs, projections} \\
+            & |   & [[psi a ~ b : psi0 A ]]\ |\  [[refl]]\ |\ [[transp
+                    a b]]
+                  & \mbox{equality types, reflexivity proof, transport} \\
+            & |   & [[Bool]]\ |\  [[true]]\ |\  [[false]]\ |\  [[if a b0 b1]]
+                  & \mbox{boolean type, true, false, if}
+% \mathit{Values}\\
+% [[v]] & ::= & [[s]]\ |\ [[Unit]] \ |\ [[unit]]
+%                   & \mbox{sort, unit type, unit} \\
+%             & |   & [[Pi x : psi A. B]]\ |\ [[\psi x : A . a]]
+%                   & \mbox{function types, abstractions} \\
+%             & |   & [[x : psi A && B]]\ |\ [[(a psi & b)]]
+%                   & \mbox{dependent pair types, pairs} \\
+%             & |   & [[psi a ~ b : psi0 A ]]\ |\  [[refl]]
+%                   & \mbox{equality types, reflexivity proof}
+\end{array}
+\]
+  \caption{Syntax of \name}
+  \label{fig:syntax}
+\end{figure}
+\ifextended
+\begin{figure}[t]
+\begin{tabular}{lll}
+\textbf{\emph{Statics}} & %\textit{(Sections \ref{sec:modes}, \ref{sec:relevance}, \ref{sec:dec} and \ref{sec:naturals}) } 
+\\
+$[[W |- psi a : A]]$ & \textit{Typing} & Figures~\ref{fig:typing},
+                                         \ref{fig:typingsum}, \ref{fig:typingeq}  \\
+$[[|- W]]$ & \textit{Context formation} & Figure~\ref{fig:typing}   \\
+$[[P |- a == b]]$ & \textit{Definitional equality} & Figure~\ref{fig:defeq}  \\
+$[[P |- psi a == b]]$ & \textit{Indistinguishability} & Figure~\ref{fig:defeq}  \\
+$[[P |- psi psi0 a == b]]$ & \textit{Guarded indistinguishability} & Figure~\ref{fig:defeq}  \\
+%\\
+\\
+\textbf{\emph{Dynamics}}& %\textit{(Section \ref{sec:semantics}) }
+\\
+$[[a ~> b]]$ & \textit{Reduction} & Figure~\ref{fig:red}   
+\\
+\end{tabular}
+\caption{Summary of \name{} judgment forms}
+\label{fig:judgments}
+\end{figure}
+\fi
+
+\begin{figure}[h]
+\begin{minipage}{0.9\textwidth}
+\drules[T]{$[[W |- psi a : A]]$}{Typing}{Type, Conv, Var, Pi, Abs,
+  App, TyUnit, TmUnit, Bool, True, False, If}
+\drules[Ctx]{$[[ |- W]]$}{Context well-formedness}{Empty, Cons}
+\end{minipage}
+\caption{Typing rules (selected)}
+\label{fig:typing}
+\end{figure}
+
+In this section, we present the syntax, judgments, and derivation rules of
+\name{}.  The syntax of \name{} (Figure~\ref{fig:syntax}) is parameterized
+over a lattice $\mathcal{L}$ of dependency levels (following \citet{abadi1999core}) and a
+set of sorts $\mathcal{S}$ (following \citet{barendregt:lambda-calculi-with-types}).  We use the metavariable
+$[[psi]]$ for dependency levels and $[[s]]$ for sorts. For lattices, we use
+$[[psi1 /\ psi2]]$ and $[[psi1 \/ psi2]]$ for the meet and join operations.  For
+the examples in this section, we instantiate the lattice to $\{[[Low]], [[High]]\}$, where
+$[[Low]] < [[High]]$, and the set of sorts to include the constant $[[star]]$, which
+represents the type of types.
+
+\ifextended
+The judgment forms for \name are summarized in Figure~\ref{fig:judgments}.
+\fi
+The typing judgment of \name takes the form
+$[[W |- psi a : A]]$.
+Ignoring the labels $[[psi]]$ in the judgment
+form and its rules, the typing rules in
+Figure~\ref{fig:typing} are a variant of Barendregt's Pure Type Systems (PTS)~\citep{barendregt:lambda-calculi-with-types}.
+These rules are parameterized over a set of sorts $\mathcal{S}$, a set of axioms $\mathcal{A}\subseteq \mathcal{S}^2$,
+and sets of rules $\mathcal{R}_\Pi \subseteq \mathcal{S}^3$,
+$\mathcal{R}_U \subseteq \mathcal{S}$, $\mathcal{R}_B \subseteq \mathcal{S}$.
+The axioms dictate how sorts are typed in \rref{T-Type},
+and the rules dictate the sorts assigned to types.
+For example, function types are typed with respect to
+the sorts of their domain and codomain types in \rref{T-Pi}.
+The sorts, axioms, and rules can determine the expressiveness
+of the language and its normalization properties.
+For example, by instantiating $\mathcal{S}$ to ${[[star]]}$, $\mathcal{A}$ to $\{([[star]],[[star]])\}$, and
+$\mathcal{R}_\Pi$ to $\{([[star]],[[star]],[[star]])\}$, we obtain a
+system with unrestricted access to type-level computation,
+but which fails the normalization property due to Girard's paradox~\citep{girard-thesis}.\footnote{In Section~\ref{sec:normalization}, we discuss our
+conjectures about the normalization behavior of various instantiations of \name{}.}
+
+\Name supports dependency tracking, as described in Section \ref{sec:dep}. This leads
+to the most significant divergence from Barendregt's system, the definitional equality
+relation used in \rref{T-Conv}.
+This rule permits converting the type of a term to a definitionally equal
+type, but whereas Barendregt uses $\beta$-equivalence, \name{} makes use of the
+indistinguishability relation introduced in Section~\ref{sec:defeq}.
+We also extend the core system with dependent pairs
+(Section~\ref{sec:pair}) and propositional equality
+(Section~\ref{sec:equality}). The boolean type $[[Bool]]$ is used as a
+base type to formulate the noninterference property (Section~\ref{sec:noninterference}).
+For concision, we use $[[A psi -> B]]$ as a shorthand for $[[Pi x :
+psi A . B]]$ when $[[x]]$ does not appear in $[[B]]$. 
+
+\subsection{Dependency Tracking}\label{sec:dep}
+The level $[[psi]]$ from the typing judgment $[[W |- psi a : A]]$ 
+indicates the \emph{observer level} used to type check the term
+$[[a]]$. As enforced in the precondition of \rref{T-Var}, to access a variable,
+the observer level of the computation must be at least as high as the level
+at which the variable is labeled. 
+
+Functions that type check at a lower observer level may still accept a higher-level argument,
+as long as the argument is only used in higher-level positions.
+\Rref{T-Abs} constructs a function that expects a computation
+with observer level $[[psi0]]$ as its argument. Correspondingly, \rref{T-App}
+checks the function argument at level $[[psi0]]$, a level that is
+completely independent of the observer level $[[psi]]$. Both the
+abstraction and application forms are annotated with this argument level.
+
+As an example of how \rref{T-Var, T-Abs, T-App}
+support relevance tracking, consider the following term with a hole ($[[hole]]$).
+\[ [[\High x0 : Bool . \Low x1 : (Bool High -> Bool) . hole]]   \]
+If we want to type check the term at level $[[Low]]$, we cannot fill
+$[[hole]]$ with $[[x0]]$ since the observer level required to access
+$[[x0]]$ is $[[High]]$. However, if we substitute $[[x1 High x0]]$ for
+$[[hole]]$, the term type checks at $[[Low]]$ despite $[[x0]]$
+appearing in the function body; when checking $[[x0]]$ as an argument
+to the function $[[x1]]$, \rref{T-App} changes the observer level from
+$[[Low]]$ to $[[High]]$ so $[[x0]]$ can be legally used.
+\Rref{T-Abs} ensures that all functions that type
+check at level $[[Low]]$ with type
+$[[Bool High -> Bool]]$ behave like constant functions. The function
+$[[\High x : Bool . x]]$, for example, is ill-typed at level $[[Low]]$
+since $[[x]]$ is at level $[[High]]$ whereas the observer level is
+$[[Low]]$. In other words, the declaration $[[x1 : Low Bool High ->
+Bool]]$ encodes the contract that $[[x1]]$ does not use its input to
+construct its result in a way that can be observed at level
+$[[Low]]$. This gives an intuitive justification for why the term $[[\High
+x0 : Bool . \Low x1 : (Bool High -> Bool) . x1 High x0]]$, which type
+checks at $[[Low]]$, does not leak the high-level information from $[[x0]]$.
+
+The observer level $[[psi]]$ at the colon does not have to be
+precise. The following subsumption lemma says if a term type checks at
+level $[[psi]]$, then it also type checks at levels higher than $[[psi]]$.
+It can be viewed as a propagation of variable level subsumption $[[psi0 <= psi]]$
+from \rref{T-Var} to the rest of the system.
+In terms of relevance tracking,
+this lemma embodies the idea that relevant computations can be lifted
+to become irrelevant.
+\begin{lemma}[Subsumption\footnote{\dotv{proofs/upgrade.v}{upgrade.v}{typing\_subsumption}}]
+  \label{lemma:subsumption}
+  If $[[W |- psi0 a : A]]$
+  and $[[ psi0 <= psi ]]$,
+  then $[[W |- psi a : A]]$.
+\end{lemma}
+
+In \rref{T-Abs}, we check that the function type can be assigned a sort
+$[[s]]$. The most interesting part of this premise
+is the choice of the function type level $[[psi1]]$, which is independent of
+the observer level $[[psi]]$ and the argument level $[[psi0]]$. To show
+that a type is well formed, it suffices to show that the type is
+well formed at some arbitrarily chosen level.
+The flexible choice of the
+observer level for the well-formedness check affects how we formulate
+the regularity property.
+
+\begin{lemma}[Regularity\footnote{\dotv{proofs/regularity.v}{regularity.v}{typing\_regularity}}]
+  \label{lemma:regularity}
+  If $[[W |- psi a : A]]$,
+  then there exists a level $[[psi0]]$ and a sort $[[s]]$ such that
+  $[[W |- psi0 A : type s]]$.
+\end{lemma}
+If we instantiate $[[psi]]$ to a bounded lattice, Lemma~\ref{lemma:regularity} is
+equivalent to the statement that the types of terms are always well typed at
+the topmost level.
+Intuitively, we are allowed to check well-formedness
+at our level of choice because given $[[W |- psi a : A]]$, \name{}
+does not have an operator to allow the retrieval of type $[[A]]$
+from the term $[[a]]$ at run time.
+As a result, we can safely allow $[[A]]$ to rely on secrets that are
+not accessible to $[[a]]$ without worrying about any leakage.
+
+\subsection{Dependent Pairs}\label{sec:pair}
+
+\begin{figure}[h]
+\begin{minipage}{0.9\textwidth}
+  \begin{tabular}{c}
+    \fbox{$[[W |- psi a : A]]$}\hfill\textit{(Typing: dependent pairs)}
+    \\ \\
+    \drule[width=2.5in]{T-SSigma} \qquad \drule[width=2.5in]{T-SPair} \\ \\
+    \drule[width=2.5in]{T-ProjOne} \qquad \drule[width=2.5in]{T-ProjTwo}
+  \end{tabular}
+\end{minipage}
+\caption{Typing rules for dependent pairs}
+\label{fig:typingsum}
+\end{figure}
+
+The typing rules for dependent pairs can be found in
+Figure~\ref{fig:typingsum}. Dependent pair types take the form $[[x : psi0 A && B]]$.
+To govern the formation of these types,
+we extend our rule sets to include
+$\mathcal{R}_\Sigma$, the set of rules dictating which pair types are valid,
+analogous to $\mathcal{R}_\Pi$.
+The label $[[psi0]]$ in a type $[[x : psi0 A && B]]$ specifies the level
+of the first component: in \rref{T-SPair}, the first component $[[a]]$
+is checked at the labeled level $[[psi0]]$ rather than the observer
+level $[[psi]]$. This is analogous to \rref{T-App} where the argument
+of the function is also checked independently at the labeled
+level.
+
+Dependent pairs are eliminated by two
+projection operators $[[fst psi0 a]]$ and $[[snd psi0 a]]$. \Rref{T-Proj1}
+projects out the first component when the observer level $[[psi]]$ is
+greater than or equal to the labeled level
+$[[psi0]]$, while \rref{T-Proj2} projects out the second component.
+The precondition
+$[[W |- psi0 fst psi0 a : A]]$ in \rref{T-Proj2} ensures the
+well-formedness of the type $[[B {fst   psi0 a / x}]]$.
+This condition is admissible when
+$[[psi <= psi0]]$. Given $[[W |- psi a : x : psi0 A && B]]$, we can derive
+$[[W |- psi0 a : x : psi0 A && B]]$ by subsumption
+(Lemma~\ref{lemma:subsumption}). We can then
+apply \rref{T-Proj1} to obtain $[[W |- psi0 fst psi0 a :
+A]]$. However, the condition is not admissible in the general case.
+When $[[not (psi <= psi0)]]$, the pair $[[a]]$ may
+depend on variables that are accessible at level $[[psi]]$ but not at
+$[[psi0]]$, so the term $[[fst psi0 a]]$ is not necessarily
+typable at level $[[psi0]]$ given $[[W |- psi a : x : psi0 A && B]]$
+and $[[not (psi <= psi0)]]$.
+
+% Note that this precondition does
+%  not follow from the other precondition $[[W |- psi a : x :psi0 A && B]]$ because $[[a]]$ could be a computation that relies
+% on variables that are accessible at level $[[psi]]$ but not at
+% $[[psi0]]$.
+
+The box type $T^{[[psi0]]}$ from Section~\ref{sec:examples} can be defined in terms of
+a dependent pair type whose first component is the type being boxed,
+and whose second component is unit.
+%
+\[
+    [[T psi0 A]]  :=  [[x : psi0 A && Unit]] \qquad\qquad
+    [[box psi0 a]] := [[(a psi0 & unit)]] \qquad\qquad
+    [[unbox psi0 a]] := [[fst psi0 a]]
+\]
+%
+\Rref{T-Proj1} enforces that we can only unbox a term if the observer level
+$[[psi]]$ is greater than or equal to the box level $[[psi0]]$.
+We can derive the following
+admissible rules for boxes from the rules for dependent pairs,
+where the relation $\mathcal{R}_T$ is defined in terms of $\mathcal{R}_\Sigma$.
+%
+\[ \drule[width=1.8in]{T-T} \  \drule[width=1.8in]{T-Box} \
+  \drule[width=2in]{T-Unbox}\]
+\[([[s1]],[[s2]]) \in \mathcal{R}_T \iff \exists [[s3]],
+  ([[s1]],[[s3]],[[s2]]) \in \mathcal{R}_\Sigma \land s3 \in \mathcal{R}_U \]
+%
+\Rref{T-Box, T-Unbox} behave similarly to \rref{T-SPair, T-Proj1}
+. \Rref{T-Box} allows us to place the term $[[a]]$
+inside a box with level $[[psi0]]$ protection provided that $[[a]]$
+can type check at level $[[psi0]]$. \Rref{T-Unbox} allows us to
+release the data stored in the box, but requires that the observer
+level is greater than or equal to the level associated with the box type.
+
+The box type is a graded modal type. It was first used for dependency
+tracking in DCC~\citep{abadi1999core} as an indexed monad type. Our
+formulation of the box type is most similar to a later variation of
+DCC called the Sealing
+Calculus~\citep{shikuma2008proving}, which releases the boxed content
+through an $\ottkw{unbox}$ operator rather than the monadic
+$\ottkw{bind}$ operator from DCC.
+
+\subsection{Dependency-Aware Definitional Equality}\label{sec:defeq}
+
+\begin{figure}[h]
+\begin{minipage}{0.9\textwidth}
+\fbox{$[[P |- a == b]]$} \hfill \emph{(Definitional equality)}\\
+\[ \drule{E-One} \qquad \drule[width=3in]{E-Trans} \]
+
+\drules[GE]{$ [[P |- psi a == b]] $}{Indistinguishability}{Var, Type, Sym, Trans, App, Abs, AppAbs, Pi, TyUnit, TmUnit, ProjOneCong, ProjTwoCong, ProjOneBeta, ProjTwoBeta, SPair, SSigma}
+\drules[CGE]{$ [[P |- psi psi0 a == b]] $}{Guarded indistinguishability}{Leq,NLeq}
+\end{minipage}
+\caption{Equality rules (selected)}
+\label{fig:defeq}
+\end{figure}
+
+\Rref{T-Conv} allows us to convert between types that are
+definitionally equal. 
+The definitional equality judgment in Figure~\ref{fig:defeq} takes the form $[[P |- a == b]]$
+where $[[P]]$ is an erased context that maps variables to their
+levels. In \rref{T-Conv}, the erased context $[[|W|]]$ is obtained
+from the typing context $[[W]]$ by dropping the type annotations.
+
+Unlike PTS, definitional equality in \name{} is defined in terms of the
+indistinguishability judgment, which takes the form $[[P |- psi a == b]]$.
+Indistinguishability is a coarser relation than $\beta$-equivalence as it
+takes advantage of the dependency information to identify terms that
+are not convertible through $\beta$-equivalence alone. For example, one
+can derive the judgment $[[empty |- Low box High false == box High
+true]]$. Even though the boxes store different boolean values, from an $[[Low]]$
+observer's point of view, the two terms cannot be distinguished. Using
+\rref{E-One}, we can inject indistinguishability into definitional
+equality and show that $[[box High false]]$ and $[[box High true]]$ are
+definitionally equal. 
+
+\Rref{E-Trans} means that two terms are definitionally equal if they can be related by a
+sequence of indistinguishability judgments, each of which may have a
+distinct observer level. Note that there may not be a single observer level that relates all terms in the sequence.
+In other words, for a fixed $[[P]]$, definitional equality can be defined as the transitive
+closure of the relation $ R([[a]],[[b]])=\exists [[psi]], [[P |- psi a == b]]$. 
+\scw{Can delete last sentence if we need space}
+
+Indistinguishability $[[P |- psi a == b]]$ and guarded indistinguishability
+$[[P |- psi psi0 a == b]]$ are mutually defined. 
+In \rref{GE-App},
+we use guarded indistinguishability to skip the comparison of
+unobservable terms.
+In particular, when using guarded indistinguishability to compare terms $[[a]]$ and $[[b]]$ that
+are labeled at level $[[psi0]]$ but being observed at level $[[psi]]$, two cases
+arise. Either $[[psi0]]$ is observable at $[[psi]]$, i.e. $[[psi0 <= psi]]$,
+in which case we revert to indistinguishability due to \rref{CGE-Leq}, or $[[psi0]]$ is not
+observable at $[[psi]]$, in which case we immediately conclude that the terms
+are indistinguishable due to \rref{CGE-NLeq}. As a result, the lower the
+observer level, the coarser, or more general, indistinguishability becomes, since there are more
+opportunities where \rref{CGE-NLeq} is applicable.
+
+\Rref{GE-AppAbs} is the $\beta$-rules for functions,
+and the remaining rules make indistinguishability reflexive, symmetric, transitive, and congruent.
+The box type, defined earlier as syntactic sugar for dependent pairs,
+has the following admissible equality rules.
+The example
+$[[empty |- Low box High false == box High true]]$ from above
+holds by \rref{GE-Box,CGE-NLeq} since $[[not (High <= Low)]]$.
+%
+\[ \drule[width=1.8in]{GE-T} \ \drule[width=1.8in]{GE-Box} \ \drule[width=2in]{GE-Unbox}
+% \ \drule[width=1.8in]{GE-UnboxBox}
+\]
+
+Given $[[P |- High a == b]]$,
+it is not necessarily the case that $[[P |- Low a == b]]$.
+If $[[P |- psi a == b]]$, neither $[[a]]$ nor $[[b]]$ may use variables
+that are unobservable at level $[[psi]]$. This restriction is
+imposed by \rref{GE-Var} and rules related to projecting from pairs, which mirror similar 
+constraints in the typing judgments.
+When lowering $[[psi]]$, the typing might become invalid if the
+observer level becomes too low to access a variable or project
+out a dependent pair.
+On the other hand, 
+given $[[P |- Low a == b]]$, it is not necessarily the case that 
+$[[P |- High a == b]]$. By raising $[[psi]]$, the equivalence becomes
+finer, as more subterms are observable.
+As a result,
+given an arbitrary derivation of $[[P |- psi a == b]]$, we can neither
+raise nor lower $[[psi]]$. 
+
+Hence the label $[[psi]]$ in indistinguishability not only controls
+how fine-grained the equality is but also records the usage of variables
+in the two terms being equated, enforcing an untyped version of
+dependency tracking. The coupling of the two purposes
+within the same label may appear restrictive as we cannot easily
+raise or lower the labels, but it is necessary to ensure that
+\name{} is type sound. If we remove the restriction imposed by
+\rref{GE-Var}, we could end up converting between two arbitrary types
+$[[A]]$ and $[[B]]$ through this chain of equalities:
+\[ [[A]] [[==]]^[[Low]] [[(\High x : type star . x) High A]] [[==]]^[[Low]] [[(\High x : type star . x) High B]] [[==]]^[[High]] B \]
+Without the inequality constraint in \rref{GE-Var}, the
+lambda term $[[\High x : type star . x]]$ would be allowed to appear in the first
+equality labeled at $[[Low]]$. With the observer level set to
+$[[Low]]$, we can derive the second equality without having to show
+that $[[A]]$ and $[[B]]$ are equal. By instantiating $[[A]]$ and
+$[[B]]$ to two types with distinct head forms, we could easily derive a
+program that crashes in \name.
+
+\subsection{Indexed Equality Type}\label{sec:equality}
+
+\begin{figure}[h]
+\begin{minipage}{\textwidth}
+  \begin{tabular}{c}
+    \fbox{$[[W |- psi a : A]]$}\hfill\textit{(Typing: equalities)}
+    \\ \\
+    \drule[width=1.5in]{T-CEq} \ \drule{T-Refl} \  \drule[width=2in]{T-Transp}
+  \end{tabular}
+\end{minipage}
+\caption{Typing rules for indexed equalities}
+\label{fig:typingeq}
+\end{figure}
+
+The indexed equality type internalizes the indistinguishability judgment
+so programmers can reason about indistinguishability within \name itself.
+The typing and equality rules related to
+the equality type can be found in Figure~\ref{fig:typingeq} and \ref{fig:gdefeqeq}.
+Ignoring the levels, the rules for the indexed equality rules in
+\name{} closely correspond to the rules for identity types from
+MLTT~\citep{Martin-Lof-1973}.
+
+An indexed equality type takes the
+form $[[psi0 a ~ b : psi1 A]]$ and is well formed when it satisfies
+the conditions specified in \rref{T-CEq}. The binary relation
+$\mathcal{R}_\sim$ is analogous to $\mathcal{R}_\Pi$ for function
+types and determines the sort we can assign to an equality type.
+Both $[[a]]$ and $[[b]]$
+must have type $[[A]]$ with $[[psi1]]$ as their observer
+level. 
+The level $[[psi0]]$ indicates the observer level at which
+$[[a]]$ and $[[b]]$ are compared and can be distinct from
+$[[psi1]]$, though it must satisfy the constraint that $[[psi1 <=
+psi0]]$. The $[[psi1 <= psi0]]$ constraint will be explained
+when we introduce the elimination form for the equality type.
+We defer the discussion of the second constraint $[[psi0 <=
+psi]]$ to Section~\ref{sec:discussion} since its explanation requires
+some background on the metatheoretic properties of \name{}.
+Similar to the introduction rule of the identity type
+from MLTT, a trivial $[[refl]]$ proof witnesses the reflexive
+indistinguishability through \rref{T-Refl}, provided that the equality type is well formed.
+
+\Rref{T-Transp} allows us to eliminate an equality proof based on the
+(specialized) congruence property of indistinguishability:
+for $[[psi0 <= psi]]$, if $[[P ++ x : psi0 |- psi B0 == B1]]$ and $[[P |-
+psi a0 == a1]]$, then $[[P |- psi B0 {a0 / x} == B1 {a1 / x}]]$.
+Given a motive
+$[[B]]$ % containing a free variable $[[x]]$
+and an equality proof $[[a]]$
+between the terms $[[a0]]$ and $[[a1]]$, \rref{T-Transp} can convert a
+term $[[b]]$ of type $[[B {a0 / x}]]$ to a term of type $[[B {a1 /
+  x}]]$. The observer level $[[psi0]]$ from the equality type matches
+the observer level
+of the motive $[[B]]$, whereas the level $[[psi1]]$ matches the
+level associated with the variable $[[x]]$.
+
+The congruence property of indistinguishability
+requires us carefully to constrain the observer levels so we do not
+accidentally convert between incompatible types. If $[[B0]]$ and
+$[[B1]]$ are indistinguishable at level $[[psi]]$, then we cannot
+substitute in $[[a0]]$ and $[[a1]]$ if they are indistinguishable at
+level $[[psi0]]$ such that $[[psi0]] < [[psi]]$. To see why this is
+problematic, consider the following two judgments.
+\[ [[x : Low  |- High unbox High x == unbox High x ]] \qquad
+   [[empty |- Low box High false  == box High true ]] \]
+The first judgment is true because both sides are identical. The
+second judgment is true since $[[false]]$ and $[[true]]$ both appear in
+high-level boxes and are thus indistinguishable for a low-level
+observer.
+If we were allowed to substitute the second equation for $x$ in the first
+one, we would be able to derive $[[empty |- High unbox High (box High false) == unbox
+High (box High true) ]]$. By reducing each side, we end up proving that
+$[[empty |- High false == true]]$.
+In general, if $[[B0]]$ and $[[B1]]$ are indistinguishable at level $[[psi]]$,
+then we want to only substitute in an indistinguishability judgment that
+is not too coarse for the level $[[psi]]$.
+
+Finally, given an equality type $[[psi0 a ~ b : psi1 A]]$, due to the
+constraint $[[psi1 <= psi0]]$ in \rref{T-CEq}, \rref{T-Transp} can only be
+applied when $[[psi1 <= psi0]]$, so we are only allowed to eliminate an
+indexed equality if the level $[[psi1]]$ of the term we are substituting is
+bounded above by the level of the motive. This constraint does not limit the
+expressiveness of \name{} but is convenient for our proofs. When
+$[[psi1]] \nleq [[psi0]]$, the variable $[[x]]$ can only appear in $[[B]]$ in
+contexts, such as the argument to a function, where the level is high enough
+to use $[[x]]$. In that case, $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$ are
+indistinguishable at level $[[psi0]]$ by equating the subterms containing
+$[[a0]]$ and $[[a1]]$ through \rref{CGE-NLeq} from guarded
+indistinguishability. We can then assign type
+$[[B {a1 / x}]]$ to $a$ by \rref{T-Conv} directly without using \rref{T-Transp}.  We
+make this intuition formal in Section~\ref{sec:metatheory} through the full
+congruence property of indistinguishability (Lemma~\ref{lemma:gdefeqcong}).
+% \jws{This makes sense to me as an explanation for
+%  why the restriction is not a problem, but I'm not yet sure why it's
+%  necessary.}  \yl{That's correct. It doesn't explain the necessity. Necessity
+%  can be explained in terms of Lemma~\ref{lemma:typinggdefeq} but it's way too
+%  technical. I wonder if we can justify the necessity by saying that any
+%  violations of the restriction unnecessarily burns the CPU cycles..}\scw{I said that 
+%  it is convenient for our proofs, without being specific as to why.}
+
+\begin{figure}[h]
+\begin{minipage}{0.9\textwidth}
+  \begin{tabular}{c}
+    \fbox{$[[P |- psi a == b]]$}\hfill\textit{(Indistinguishability: equalities)}
+    \\ \\
+    \drule[width=4.0in]{GE-CEq} \ \drule[width=3.0in]{GE-TranspRefl} \\ \\
+    \drule[width=3.0in]{GE-Transp} \ \drule[width=3.0in]{GE-Refl}
+  \end{tabular}
+\end{minipage}
+\caption{Equality rules for indexed equalities}
+\label{fig:gdefeqeq}
+\end{figure}
+Figure~\ref{fig:gdefeqeq} shows the indistinguishability rules
+for indexed equality. When used in conjunction with \rref{GE-CEq},
+\rref{T-Refl} allows us to use the $[[refl]]$ constructor to witness
+the equality between the two terms $[[a]]$ and $[[b]]$ at observer level
+$[[psi]]$ if we can show that $[[P |- psi a == b]]$. This is analogous
+to how the reflexivity proof term can witness the equality between 
+two $\beta$-equivalent terms in Martin-L{\"o}f type theory.
+In \rref{GE-CEq}, the precondition requires that the observer level $[[psi0]]$ of
+the equality type be lower than the observer level $[[psi]]$ of
+the judgment. Moreover, the observer level used for the equalities in
+the preconditions is $[[psi]]$ rather than $[[psi0]]$ even though
+$[[psi0]]$ is the one labeled on the equality types. We will explain
+the subtleties behind the choice of labels in \rref{GE-CEq} in
+Section~\ref{sec:orderconstraints}.
+
+\section{Metatheory}
+\label{sec:metatheory}
+\begin{figure}[h]
+  \begin{minipage}{\textwidth}
+    \drules[R]{$[[a ~> b]]$}{Reduction}{AppAbs, TranspRefl,
+      ProjOneBeta, ProjTwoBeta, IfTrue, IfFalse}
+
+    
+    \[ [[v]]  ::= [[s]]\ |\ [[Unit]] \ |\ [[unit]] \ |\ [[Pi x : psi
+      A. B]]\ |\ [[\psi x : A . a]] \ |\ [[x : psi A && B]]\ |\ [[(a
+      psi & b)]] \ |\ [[psi a ~ b : psi0 A ]]\ |\  [[refl]]\ |\  [[Bool]]\ |\  [[true]]\ |\  [[false]] \]
+  \end{minipage}
+\caption{Reduction ($\beta$-rules only) and values}
+\label{fig:red}
+\end{figure}
+In this section, we present our main results, including type soundness
+(Theorem~\ref{theorem:preservation} and \ref{theorem:progress})
+and noninterference (Theorem~\ref{theorem:noninterfere}),
+with pointers to the corresponding Coq proof file and name in the footnote.
+To formulate these properties, we first define the operational
+semantics and the syntax of values in Figure~\ref{fig:red}. This figure
+includes the $\beta$-rules only---the compatibility rules
+are standard for a call-by-name language. The full reduction rules can
+be found in the supplementary materials\footnote{\href{spec.pdf}{spec.pdf}}.
+
+\subsection{Structural Lemmas}
+\label{sec:structural}
+The system supports the standard structural rules such as weakening
+and narrowing. Since \rref{T-Conv} depends on the definitional
+equality judgment, we need to first establish the structural lemmas for
+definitional equality and indistinguishability before we can
+derive the structural lemmas for the typing judgment.
+
+\begin{lemma}[Indistinguishability Weakening\footnote{\dotv{proofs/defeq_weak.v}{defeq\_weak.v}{gdefeq\_weak\_nil}}]
+  If $[[P |- psi a == b]]$,
+  then $[[P ++ P0 |- psi a == b]]$.
+\end{lemma}
+
+\begin{lemma}[DefEq weakening\footnote{\dotv{proofs/defeq_weak.v}{defeq\_weak.v}{defeq\_weak\_nil}}]
+  If $[[P |- a == b]]$,
+  then $[[P ++ P0 |- a == b]]$.
+\end{lemma}
+In both weakening lemmas, we use $[[P ++ P0]]$ to indicate the
+concatenation of two erased contexts with disjoint and unique domains.
+
+The narrowing property says that equalities still hold
+after lowering the levels of the variables in the context.
+\begin{lemma}[Indistinguishability Narrowing\footnote{\dotv{proofs/narrow.v}{narrow.v}{gdefeq\_narrow}}]
+  If $[[P |- psi A == B]]$ and $[[P0 <= P]]$, then
+  $[[P0 |- psi A == B]]$.
+\end{lemma}
+
+\begin{lemma}[DefEq Narrowing\footnote{\dotv{narrow.v}{narrow.v}{defeq\_narrow}}]
+  If $[[P |- A == B]]$ and $[[P0 <= P]]$, then
+  $[[P0 |- A == B]]$.
+\end{lemma}
+The relation $[[P0 <= P]]$ compares pointwise the levels of two
+erased contexts with the same domain.
+
+Unlike for the weakening and narrowing properties, indistinguishability
+and definitional equality behave differently when it comes to
+congruence. The congruence lemma for indistinguishability is defined
+as follows.
+\begin{lemma}[GDefEq Congruence\footnote{\dotv{proofs/defeq_subst.v}{defeq\_subst.v}{gdefeq\_cong}}]
+  \label{lemma:gdefeqcong}
+  If $[[P ++ x : psi0 |- psi a0 == a1]]$ and $[[P |- psi psi0 b0 ==
+  b1]]$, then $[[P |- psi a0 {b0 / x} == a1 {b1 / x}]]$.
+\end{lemma}
+
+It is crucial that the label $[[psi]]$ from the guarded
+indistinguishability judgment matches the observer level from the
+indistinguishability judgment. The guarded indistinguishability we are substituting in
+must be as fine as the level of the indistinguishability judgment or
+we may equate two terms with differing head forms. Given $[[P ++ x :
+psi0 |- a0 == a1]]$, its derivation may consist of a sequence of
+indistinguishability judgments with different observer levels. As a
+result, we cannot formulate a congruence property for definitional
+equality in a manner similar to Lemma~\ref{lemma:gdefeqcong}.
+\begin{lemma}[DefEq Congruence\footnote{\dotv{proofs/defeq_subst.v}{defeq\_subst.v}{defeq\_cong}}]
+  \label{lemma:defeqcong}
+    If $[[P ++ x : psi0 |- a0 == a1]]$,  $[[P |- psi0 b0 ==
+  b1]]$, and $[[b0]]$ is $\beta$-equivalent to $[[b1]]$, then $[[P |- a0 {b0 / x} == a1
+  {b1 / x}]]$.
+\end{lemma}
+Since we do not know which observer levels are used underneath the derivation of
+$[[P ++ x : psi0 |- a0 == a1]]$, we can only make the worst-case
+assumption that we cannot skip any comparison between the subterms in $[[b0]]$ and
+$[[b1]]$. That is why Lemma~\ref{lemma:defeqcong} additionally
+requires that $[[b0]]$ and $[[b1]]$ are $\beta$-equivalent.
+
+Indistinguishability does not include reflexivity as an
+axiom, but we can prove that reflexivity holds for well-typed terms.
+\begin{lemma}[Typing Indistinguishability\footnote{\dotv{proofs/typing_defeq.v}{typing\_defeq.v}{typing\_gdefeq}}]
+  \label{lemma:typinggdefeq}
+  % If $[[W |- psi a : A]]$, then for all $[[psi1]]$ such that $[[psi <= psi1]]$, 
+  % we have $[[|W| |- psi1 a == a]]$.
+  If $[[W |- psi a : A]]$, then $[[|W| |- psi a == a]]$. % Furthermore,
+  % the derivation of $[[|W| |- psi a == a]]$ does not use \rref{CGE-NLeq}.
+\end{lemma}
+
+Now we are ready to prove some properties about the typing
+judgments. The proofs follow the same structure as their
+equality counterparts by induction over the derivation, though they
+rely on the structural rules about equalities proven earlier.
+% TODO: move narrowing and subsumption to the relevance tracking section
+\begin{lemma}[Narrowing\footnote{\dotv{proofs/narrow.v}{narrow.v}{typing\_narrow}}]
+  \label{lemma:narrow}
+  If $[[W |- psi a : A]]$
+  and $[[W0 <= W]]$,
+  then $[[W0 |- psi a : A]]$.
+\end{lemma}
+
+Subsumption (Lemma~\ref{lemma:subsumption}) and weakening both follow
+from Lemma~\ref{lemma:narrow}.
+\begin{lemma}[Weakening\footnote{\dotv{proofs/weak.v}{weak.v}{typing\_weak\_nil}}]
+  If $[[W1 |- psi a : A]]$
+  and $[[|- W1 ++ W2]]$,
+  then $[[W1 ++ W2 |- psi a : A]]$.
+\end{lemma}
+
+We can now prove the substitution property for the typing judgment
+through structural induction over derivations.
+\begin{lemma}[Substitution\footnote{\dotv{proofs/subst.v}{subst.v}{typing\_subst\_nil}}]
+  \label{lemma:subst}
+  If $[[W ++ x : psi0 A |- psi b : B]]$
+  and $[[W |- psi0 a : A]]$,
+  then $[[W |- psi b { a / x} : B {a / x} ]]$.
+\end{lemma}
+The \rref{T-Var} case of Lemma~\ref{lemma:subst} relies on
+Lemma~\ref{lemma:subsumption} since we may substitute in a term with a
+lower level when $[[psi0 <= psi]]$. The \rref{T-Conv} case
+requires us to show that $[[ |W| |- A {a / x} == B {a / x} ]]$ given
+$[[|W| ++ x : psi0 |- A == B]]$ and $[[W |- psi0 a : A]]$. This can be
+done by composing Lemma~\ref{lemma:defeqcong} and
+Lemma~\ref{lemma:typinggdefeq}.
+
+\subsection{Preservation}
+\label{sec:preservation}
+\begin{figure}[t]
+  \begin{minipage}{0.9\textwidth}
+    \begin{tabular}{llll}
+      \textbf{\emph{Parallel reductions}} & \\
+      $[[P |- psi a => b]]$ & \textit{Indexed parallel reduction} & $\mapsto$
+                                                                  & $[[P |- psi a == b]]$ \\
+      $[[P |- psi psi0 a => b]]$ & \textit{Guarded parallel reduction} & $\mapsto$
+                                                                  & $[[P |- psi psi0 a == b]]$ \\
+      $[[P |- a => b]]$ & \textit{Parallel reduction} & $\mapsto$ 
+                                                                  & $[[P |- a == b]]$
+    \end{tabular}
+  \end{minipage}
+\caption{Summary of the parallel reduction judgments}
+\label{fig:eqiffred}
+\end{figure}
+Similar to the preservation proof for PTS,
+preservation in \name{} requires inversion lemmas about the typing judgment and
+injectivity lemmas about the definitional equality judgment.
+
+The inversion lemmas witness the fact that given $[[W |- psi v : A]]$, the
+derivation must consist of the introduction rule for $[[v]]$ nested
+under zero or more instances of the conversion rule. The proofs for
+those lemmas, with the exception of the $[[refl]]$ form, can be
+carried out by induction over the derivation. For now, we only show
+the inversion lemma for abstractions and defer the explanation of the
+$[[refl]]$ case until we discuss the injectivity properties; the rest
+of the inversion lemmas follow the same pattern and are thus omitted.
+\begin{lemma}[Inversion (Abs)\footnote{\dotv{proofs/inv.v}{inv.v}{typing\_abs\_inv}}]
+  \label{lemma:absinv}
+  If $[[W |- psi (\psi0 x : A . b) : A0]]$, then there exists a term
+  $[[B]]$ such that the following conditions hold:
+  \begin{itemize}
+  \item $[[W ++ x : psi0 A |- psi b : B]]$
+  \item $[[|W| |- Pi x : psi0 A . B == A0]]$
+  \item $[[W |- psi1 A0 : type s]]$ for some level $[[psi1]]$ and some
+    sort $[[s]]$
+  \end{itemize}
+\end{lemma}
+
+To prove preservation for $\beta$-rules such as
+\rref{R-AppAbs, R-TranspRefl} (Figure~\ref{fig:red}), we need to prove some injectivity lemmas about
+definitional equality. For example, to prove that \rref{R-AppAbs} is
+type preserving, we need to show that the two definitionally equal
+function types must also have definitionally equal argument types and
+return types. A similar proof can be found in the preservation proof
+for PTS, where definitional equality is defined as
+$\beta$-equivalence. 
+To prove the injection lemma for function types
+in a PTS, one needs to first prove the Church-Rosser
+property, which states that two terms are $\beta$-equivalent if and only
+if they can strongly reduce
+to the same term within a finite number of
+steps. The injection lemma then immediately follows since a
+reduction sequence starting from a function type can only consist of
+repeated reductions of its argument type or return type.
+
+We adapt the proof technique and prove the equivalence between
+the equality judgments and their corresponding parallel reduction
+relations, summarized in Figure~\ref{fig:eqiffred}. Each
+reduction relation corresponds to the equivalence relation in the
+following sense: given two terms $[[a0]]$ and $[[a1]]$, the terms
+$[[a0]]$ and $[[a1]]$ are equivalent if and only if there
+exists some term $[[b]]$ such that $[[a0]]$ and $[[a1]]$ both reduce to
+$[[b]]$ after a finite number of steps.
+We omit the
+rules for the parallel reduction relations since they closely correspond to the
+equality rules in Figure~\ref{fig:defeq}. The rules for each
+parallel reduction relation can be obtained from the
+corresponding equivalence rule by removing the
+transitivity and symmetry rules and replacing $\equiv$ with
+$\Rightarrow$. These parallel reduction rules can be found in the
+supplementary materials\footnote{\href{spec.pdf}{spec.pdf}}.
+We also omit the structural lemmas for the reduction
+relations since their specifications and proofs can be obtained with a similar replacement.
+
+
+Similar to the indistinguishability judgment, given $[[P |- psi a =>
+b]]$, neither $[[a]]$ nor $[[b]]$ is allowed to use variables from
+$[[P]]$ that are not observable at level $[[psi]]$. The following
+shows that if $[[P |- psi a => b]]$ or $[[P |- psi a == b]]$, then
+indexed parallel reduction is reflexive on both $[[a]]$ and
+$[[b]]$.
+
+\begin{lemma}[Par Reflexive\footnote{\dotv{proofs/par.v}{par.v}{Par\_grade\_mutual}}]
+  \label{lemma:pargrade}
+  If $[[P |- psi a => b]]$, then $[[P |- psi a => a]]$ and $[[P |- psi
+  b => b]]$.
+\end{lemma}
+
+\begin{lemma}[Indistinguishability Par Reflexive\footnote{\dotv{proofs/defeq\_proj.v}{defeq\_proj.v}{gdefeq\_grade}}]
+  \label{lemma:gdefeqgrade}
+  If $[[P |- psi a == b]]$, then $[[P |- psi a => a]]$ and $[[P |- psi
+  b => b]]$.
+\end{lemma}
+Both lemmas follow from induction on the derivation of the premise.
+
+Indexed parallel reduction generalizes $\beta$-reduction in the same way
+that indistinguishability generalizes $\beta$-equivalence. It is possible
+to embed the $\beta$-reduction relation into the parallel reduction
+relation.
+\begin{lemma}[Red Embed Par\footnote{\dotv{proofs/preservation.v}{preservation.v}{red\_embed}}]
+  \label{lemma:redembed}
+  If $[[a ~> b]]$ and there exists some $[[b0]]$ such that $[[P |- psi
+  a => b0]]$, then $[[P |- psi a => b]]$.
+\end{lemma}
+In Lemma~\ref{lemma:redembed}, the precondition $[[P |- psi a => b0]]$
+tells us that $[[a]]$ does not use variables with labels not
+observable at $[[psi]]$. It provides us a context and a label at which
+we can reduce from $[[a]]$ to $[[b]]$ through indexed parallel
+reduction. The precondition $[[P |- psi a => b0]]$ can be supplied
+through the well-typedness of $[[a]]$ by composing
+Lemma~\ref{lemma:typinggdefeq} and Lemma~\ref{lemma:gdefeqgrade}.
+
+From the structural lemmas, we can show that indexed parallel
+reduction satisfies the following confluence property.
+\begin{lemma}[Indexed Par Confluence\footnote{\dotv{proofs/par.v}{par.v}{Par\_confluence}}]
+  \label{lemma:gparconf}
+  If $[[P |- psi a => b0]]$ and $[[P |- psi a => b1]]$, then there
+  exists some $[[b2]]$ such that $[[P |- psi b0 => b2]]$ and $[[P |-
+  psi b1 => b2]]$.
+\end{lemma}
+
+Before we can use Lemma~\ref{lemma:gparconf} to derive the confluence
+property of parallel reduction, we need to first show the following
+downgrade property about indexed parallel reduction.
+\begin{lemma}[Indexed Par Downgrade\footnote{\dotv{proofs/par.v}{par.v}{Par\_downgrade\_mutual}}]
+  \label{lemma:gpardowngrade}
+  If $[[P |- psi a => b0]]$ and $[[P |- psi0 a => b1]]$, then $[[P |-
+  psi /\ psi0 a => b0]]$.
+\end{lemma}
+The term $[[b1]]$ does not appear in the conclusion. The only
+information we need from the premise $[[P |- psi0 a => b1]]$ is that
+$[[a]]$ has $[[psi0]]$ as its observer level. The proof proceeds by
+induction over the derivation and leverages the fact that $[[psi /\
+psi0]]$ is the greatest lower bound.
+
+Confluence of parallel reduction then follows as a
+corollary of Lemmas~\ref{lemma:gparconf} and \ref{lemma:gpardowngrade}.
+\begin{lemma}[Par Confluent\footnote{\dotv{proofs/par.v}{par.v}{EPar\_confluence}}]
+  \label{lemma:parconf}
+  If $[[P |- a => b0]]$ and $[[P |- a => b1]]$, then there
+  exists some $[[b2]]$ such that $[[P |- b0 => b2]]$ and $[[P |-
+  b1 => b2]]$.
+\end{lemma}
+The proof proceeds by unfolding the definition of parallel
+reduction. This gives us $[[P |- psi a => b0]]$ and $[[P |- psi0 a =>
+b1]]$ for some $[[psi]]$ and $[[psi0]]$.  By applying
+Lemma~\ref{lemma:gpardowngrade} twice, we can conclude that $[[P |- psi /\
+psi0 a => b0]]$ and $[[P |- psi /\ psi0 a => b1]]$. The conclusion
+then follows immediately by applying Lemma~\ref{lemma:gparconf}.
+
+Once Lemma~\ref{lemma:parconf} is proven, we can easily show that
+two terms are definitionally equal if and only if they parallel
+reduce to the same term.
+\begin{lemma}[DefEq Join\footnote{\dotv{proofs/defeq_proj.v}{defeq\_proj.v}{defeq\_ejoins\_iff}}]
+  \label{lemma:defeqjoin}
+$[[P |- a0 == a1]]$ if and only if there exists some $[[b]]$ such that $[[P
+|- a0 =>* b]]$ and $[[P |- a1 =>* b]]$.
+\end{lemma}
+The backward direction is trivial since it is possible to embed
+parallel reduction into definitional equality by simply unfolding definitions. The forward direction uses Lemma~\ref{lemma:parconf} to finish the
+\rref{E-Trans} case and the rest of the cases are straightforward.
+
+The injectivity lemmas for the function types and dependent sum types
+follow as corollaries of Lemma~\ref{lemma:defeqjoin}.
+\begin{lemma}[DefEq $\Pi$-Inj1\footnote{\dotv{proofs/defeq_proj.v}{defeq\_proj.v}{defeq\_pi\_proj1}}]
+  \label{lemma:pifst}
+  If $[[P |- Pi x : psi0 A0 . B0 == Pi x : psi0 A1 . B1]]$, then
+  $[[P |- A0 == A1]]$.
+\end{lemma}
+
+\begin{lemma}[DefEq $\Pi$-Inj2\footnote{\dotv{proofs/defeq_proj.v}{defeq\_proj.v}{defeq\_pi\_proj2}}]
+  \label{lemma:pisnd}
+  If $[[P |- Pi x : psi0 A0 . B0 == Pi x : psi0 A1 . B1]]$, then
+  $[[P ++ x : psi0 |- B0 == B1]]$.
+\end{lemma}
+
+\begin{lemma}[DefEq $\Sigma$-Inj1\footnote{\dotv{proofs/defeq_proj.v}{defeq\_proj.v}{defeq\_sigma\_proj}}]
+  \label{lemma:sigmafst}
+  If $[[P |- x : psi0 A0 && B0 == x : psi0 A1 && B1]]$, then
+  $[[P |- A0 == A1]]$.
+\end{lemma}
+
+\begin{lemma}[DefEq $\Sigma$-Inj2\footnote{\dotv{proofs/defeq_proj.v}{defeq\_proj.v}{defeq\_sigma\_proj}}]
+  \label{lemma:sigmasnd}
+  If $[[P |- x : psi0 A0 && B0 == x : psi0 A1 && B1 ]]$, then
+  $[[P ++ x : psi0 |- B0 == B1]]$.
+\end{lemma}
+
+Furthermore, Lemma~\ref{lemma:defeqjoin} allows us to show the
+following strengthened inversion lemma about the indexed equality type.
+\begin{lemma}[Refl GDefEq\footnote{\dotv{proofs/preservation.v}{preservation.v}{typing\_refl\_gdefeq}}]
+  \label{lemma:reflgdefeq}
+  If $[[W |- psi refl : psi0 a ~ b : psi1 A]]$, then $[[|W| |- psi0 a == b]]$.
+\end{lemma}
+In the proof of Lemma~\ref{lemma:reflgdefeq},
+Lemma~\ref{lemma:defeqjoin} is used to show that given $[[|W| |- psi0
+a0 ~ b0 : psi1 A == psi0 a ~ b : psi1 A ]]$, we can conclude that
+$[[|W| |- psi0 a0 == a]]$ and $[[|W| |- psi0 b0 == b]]$.
+
+Now, we can finally show that the reduction relation is type
+preserving.
+\begin{theorem}[Preservation\footnote{\dotv{proofs/preservation}{preservation.v}{preservation}}]
+  \label{theorem:preservation}
+  If $[[W |- psi a : A]]$
+  and $[[a ~> b]]$,
+  then $[[W |- psi b : A]]$.
+\end{theorem}
+The proof of Theorem~\ref{theorem:preservation} is carried out by
+structural induction over the reduction relation. The inversion lemmas
+are applied to the premise $[[W |- psi a : A]]$ to gain information
+about the derivation. The injectivity lemmas are needed for the cases
+that involve $\beta$-rules. The case for the second projection
+needs some special treatment. As part of the proof, given $[[W |- psi a : x : psi0 A &&
+B]]$ and $[[a ~> a0]]$, we need to prove that $[[snd psi0 a0]]$ can be
+assigned the type $[[B {fst psi0 a / x}]]$. From \rref{T-Proj2} and
+the inductive hypothesis, we can show that $[[W |- psi snd psi0 a0 : B {fst psi0 a0 / x}]]$.
+To finish off the proof, we use Lemma~\ref{lemma:redembed} to inject
+the reduction into the indistinguishability relation to show that
+$[[B {fst psi0 a / x}]]$ is definitionally equal to $[[B {fst psi0 a0
+  / x}]]$.
+
+\subsection{Progress}
+Before we prove progress, it is useful to derive the following simple
+corollary of Lemma~\ref{lemma:defeqjoin}.
+\begin{lemma}[DefEq Consistency\footnote{\dotv{proofs/defeq_par.v}{defeq\_par.v}{defeq\_consist}}]
+  \label{lemma:defeqconsist}
+ If $[[P |- v0 == v1]]$, then $[[v0]]$ and $[[v1]]$ have the same
+ head form.
+\end{lemma}
+By Lemma~\ref{lemma:defeqjoin}, $[[v0]]$ and $[[v1]]$ can reduce to
+the same term through parallel reduction. However, since parallel
+reduction preserves head forms, $[[v0]]$ and $[[v1]]$ cannot have
+conflicting head forms or it would be impossible to reduce them to the
+same term.
+
+Lemma~\ref{lemma:defeqconsist}, when combined with the inversion
+lemmas from Section~\ref{sec:preservation}, can be used to prove the
+following canonical form lemmas.
+\begin{lemma}[$\Pi$-Canon\footnote{\dotv{proofs/progress.v}{progress.v}{typing\_pi\_canon}}]
+  If $[[W |- psi v : Pi x : psi0 A . B]]$,
+  then there exists some $[[A0]]$ and $[[a0]]$ such that
+  $[[v]]=[[\psi0 x : A0 . a0]]$ .
+\end{lemma}
+\begin{lemma}[$\Sigma$-Canon\footnote{\dotv{proofs/progress.v}{progress.v}{typing\_ssigma\_canon}}]
+  If $[[W |- psi v : x : psi0 A0 && B0]]$,
+  then there exists some $[[a0]]$ and $[[a1]]$ such that $[[v = (a0 psi0
+  & a1)]]$.
+\end{lemma}
+\begin{lemma}[Eq-Canon\footnote{\dotv{proofs/progress.v}{progress.v}{typing\_ceq\_canon}}]
+  If $[[W |- psi v : psi0 b0 ~ b1 : psi1 A]]$,
+  then $[[v]]=[[refl]]$.
+\end{lemma}
+
+We can now conclude our type soundness proof by showing the progress theorem.
+\begin{theorem}[Progress\footnote{\dotv{proofs/progress.v}{progress.v}{progress}}]
+  \label{theorem:progress}
+If $[[W |- psi a : A]]$, then $[[a]]$ is a value or there
+exists some $[[b]]$ such that $[[a ~> b]]$.
+\end{theorem}
+The proof proceeds by induction over the derivation $[[W |- psi a :
+A]]$. Each non-value case can be discharged with the help of
+its corresponding canonical form lemma.
+
+Theorem~\ref{theorem:preservation} and \ref{theorem:progress} complete
+our type soundness result. A simple corollary of the type soundness result is
+the erasability of the levels that appear in the term syntax. For
+example, the level $[[psi0]]$ in the application form $[[a psi0 b]]$
+can block \rref{R-AppAbs} if it mismatches the level of
+the lambda term. Preservation and progress imply that a
+well-typed term's execution will never be blocked by mismatching
+levels. Since blocking $\beta$-rules is the only way the levels
+can affect reduction, we can safely erase the levels before running a
+well-typed term. However, levels are still necessary for definitional
+equality and indistinguishability because those relations are untyped. Refactoring 
+to use a typed indistinguishability relation might allow us to remove the levels
+from the term syntax completely, and we leave that as part of our future work.
+
+\subsection{Noninterference}
+\label{sec:noninterference}
+In \name{}, one can formulate the following simulation property in terms of indistinguishability. It states
+that programs that are indistugishable remain indistinguishable during evaluation.
+\begin{lemma}[Simulation\footnote{\dotv{proofs/preservation.v}{preservation.v}{simulation}}]
+  \label{lemma:simulation}
+If $[[P |- psi a0 == b0]]$, $[[a0 ~>* a1]]$, and $[[b0 ~>* b1]]$, then
+$[[P |- psi a1 == b1]]$.
+\end{lemma}
+Theorem~\ref{lemma:simulation} is easily derivable
+from Lemma~\ref{lemma:redembed} and
+Lemma~\ref{lemma:pargrade}. The conclusion of
+Lemma~\ref{lemma:simulation} does not immediately tell us much about
+the relation between $[[a1]]$ and $[[b1]]$ since indistinguishability
+incorporates both reduction and irrelevance.
+
+However, when combined with
+Lemma~\ref{lemma:defeqjoin}, Lemma~\ref{lemma:simulation} imposes very strong
+constraints on how two indistinguishable programs may behave after
+evaluation.
+With the boolean type, we formulate the
+following noninterference theorem, which states that two indistinguishable
+boolean computations reduce to the same boolean value.
+
+\begin{theorem}[Noninterference\footnote{\dotv{proofs/progress.v}{progress.v}{non\_interference}}]
+  \label{theorem:noninterfere}
+If $[[ empty |- psi a == b ]]$, $[[empty |- psi a : Bool ]]$, $[[empty
+|- psi b : Bool]]$, $[[a ~>* v0]]$, and $[[b ~>* v1]]$, then
+$[[v0]] = [[v1]]$.
+\end{theorem}
+% Consider the case where $[[empty |- psi a0 == a1]]$, $[[a0 ~>* v0]]$, $[[a1 ~>* v1]]$,  $[[a0]]$ and $[[a1]]$ are both
+% booleans. By composing Theorem~\ref{lemma:simulation} and the backward direction of
+% Lemma~\ref{lemma:defeqjoin}, we deduce that $[[v0]]$ and $[[v1]]$ must
+% both reduce to some common term, allowing us to conclude that
+% $[[v0]]$ and $[[v1]]$ are syntactically equal.
+
+% In the special case where $[[a0]]$ and $[[b0]]$ from
+% Theorem~\ref{lemma:simulation} are both nautral numbers,
+% Lemma~\ref{lemma:defeqconsist} ensures that both $[[a1]]$ and $[[b1]]$
+% have the same head form.
+% \yl{Is there anything else I need to say? The section is too short.}
+% \scw{What about talking about how if $[[a]]$ is low at type $[[nat]]$ and mentions free high variable $[[x]]$, then $[[a { b1/ x } ]]$ and $[[a {b2 / x} ]]$ both evaluate 
+% to the same number.}
+\section{Discussion}
+\label{sec:discussion}
+\subsection{Incompatibility between Indistinguishability and the
+  Upgrade Property}
+\label{sec:upgrade}
+
+Consider these variants of \rref{T-App, T-Abs},
+with argument level $[[psi \/ psi0]]$ instead of $[[psi]]$.
+\[ \drule[width=2.5in]{T-AppJoin} \qquad \drule[width=3in]{T-AbsJoin} \]
+Compared to the corresponding rules from \name{},
+the alternative rules are more permissive. The following judgment 
+is derivable with the alternative rules but not the existing ones.
+\[ [[ y : High Bool |- High (\Low x : Bool . x) Low y : Bool]]  \]
+With \rref{T-App}, the application is illegal because the
+argument $[[y]]$ is type checked at $[[Low]]$ but $[[y]]$ can
+only be used when the observer level is $[[High]]$. However, with
+\rref{T-AppJoin}, the level for type checking the argument is the
+join of the observer level $[[High]]$ and the annotation $[[Low]]$,
+so the example holds.
+
+The variant of \rref{T-App} and \rref{T-Abs} that raises the argument
+level to be at least high as the observer level can be found in
+systems that track either dependency or usage,
+such as
+QTT~\citep{atkey2018syntax} (after instantiating to the boolean semiring) and
+extensions of DCC~\citep{abadi1999core},
+including DCC$^{\text{pc}}$~\citep{tse2004translating}, the sealing
+calculus~\citep{shikuma2008proving}, and DDC~\citep{choudhury:ddc}.
+Notably, the alternative rules still satisfy noninterference.
+\ifextended
+The intuitive justification is as follows. If
+the observer level for an application form is at $[[High]]$, then the
+argument will eventually be used in a computation that is allowed to
+depend on $[[High]]$ variables. The indistinguishability relation at
+level $[[High]]$ will be able to observe the argument regardless of whether the
+argument is marked as $[[High]]$ or $[[Low]]$. Therefore, it is safe
+to relax the constraint and type check the argument at $[[High]]$
+instead. In other words, if noninterference is the only property we
+desire from our type system, our more restrictive rules may appear to
+be an overkill.
+\fi
+
+In earlier iterations of \name{}, we opted for \rref{T-AppJoin} and \rref{T-AbsJoin}.
+However, we found that these rules were incompatible
+with the use of indistinguishability for conversion,
+since the system no longer
+admitted the subsumption property.
+Consider the following function $f$ that type checks
+with both the alternative and existing rules.
+\[ [[ empty |- Low \Low x : (Bool High -> type star) . \Low y : ((x High true) Low -> Bool) . \Low z : (x High false) . y Low z : Bool ]]  \]
+In the example above, since $[[x High false]]$ and $[[x High true]]$ are
+indistinguishable at level $[[Low]]$,
+we are allowed to pass $[[z]]$, a term with
+type $[[x High false]]$, as an argument to $[[y]]$, a function which
+expects something with type $[[x High true]]$.
+
+If subsumption holds, we can type check $f$ at level $[[High]]$.
+However, we run into a problem when we try to apply $f$ using
+\rref{T-AppJoin}: the first argument for $f$ is type checked
+at $[[High \/ Low]]$, where $[[High]]$ is the observer level
+of $f$ after applying subsumption and $[[Low]]$ is the annotation from the lambda. That is, the
+alternative type system would accept any term $[[a]]$ as an argument
+for $f$
+as long as $[[empty |- High a : Bool High -> type star]]$.
+But since $[[a]]$ is typed at $[[High]]$, it can
+produce different types by pattern matching against its
+input. By instantiating $[[a]]$ properly, $f$ would allow us
+to convert between two arbitrary types!
+On the other hand, with our existing rules, we enforce that $[[a]]$ is
+well typed at $[[Low]]$ regardless of the observer level, so
+$[[a]]$ will always behave
+like a constant function even after applying subsumption.
+
+The above contradiction can also be phrased in terms of the
+incompatibility between indistinguishability and the
+following, which we informally refer to as the upgrade
+property.
+
+\begin{proposition}[Upgrade property, does not hold for \name{}]
+\label{prop:upgrade}
+If $[[W |- psi b : A]]$, then $[[psi \/ W |- psi b : A]]$, where
+$[[psi \/ W]]$ is an operation that joins the levels in $[[W]]$
+pointwise against the level $[[psi]]$.
+\end{proposition}
+
+The proposition states that raising the levels in the context to the
+observer level does not make the term $[[b]]$ more difficult to type
+check. Suppose we have $[[x : Low Bool High -> type star]]$ in
+the typing context $[[W]]$. Then, the derivation of $[[b]]$ could
+convert between $[[x High false]]$ and $[[x High true]]$ via
+indistinguishability. By applying the upgrade property, however,
+we end up with $[[ x : High Bool High -> type star ]]$ and $[[x]]$ can no
+longer be used at observer level $[[Low]]$ in that derivation.
+As a result, the upgrade property does not hold
+in \name{}.
+
+In both QTT and 
+DDC, we can find lemmas that capture the same idea as
+the upgrade property. In QTT, the upgrade property holds when
+its semiring structure is instantiated to $\{0,1\}$, the boolean semiring. In DDC, the
+upgrade property is more interesting. 
+DDC is parameterized by
+some lattice structure $\mathcal{L}$ and additionally adds a two-point
+lattice $\{C, \top\}$ on top of $\mathcal{L}$ such that $[[psi]] < C < \top$
+for all $[[psi]] \in \mathcal{L}$. Like \name{}, DDC uses
+indistinguishability as part of its conversion rule; however, the
+observer level for indistinguishability in the conversion rule is
+always $C$. In fact, DDC treats the level $\{C, \top\}$ differently
+compared to the levels from the lattice $\mathcal{L}$.
+
+The upgrade
+property in DDC only holds when the level $[[psi]]$ is less than or
+equal to $C$. The disjoint treatment between $\{C, \top\}$ and
+$\mathcal{L}$ in DDC is consistent with our finding: since the lower
+levels satisfy the upgrade property, indistinguishability can no
+longer be used for conversion at those levels. In contrast,
+by abandoning \rref{T-AppJoin, T-AbsJoin} and therefore the upgrade property,
+\name{} can use indistinguishability for conversion at any level in the lattice.
+
+\subsection{Order Constraints for Indexed Equality Types}
+\label{sec:orderconstraints}
+
+We explain the necessity of the ordering constraint
+$[[psi0 <= psi]]$ that appears in \rref{GE-CEq}. % Note
+% that \rref{T-CEq} additionally has the constraint $[[psi1 <= psi0]]$,
+% which has already been explained in Section~\ref{sec:equality}.
+\[ % \drule[width=3in]{T-CEq} \quad
+  \drule[width=4.0in]{GE-CEq} \]
+In \rref{GE-CEq},
+to show that the two equality types $[[psi0 a0 ~ b0 : psi1 A0]]$ and
+$[[psi0 a1 ~ b1 : psi1 A1]]$ are equal, the endpoints $[[a0]]$, $[[a1]]$
+and $[[b0]]$, $[[b1]]$ are compared pointwise at the observer level $[[psi]]$,
+where $[[psi]]$ is constrained to be greater than or equal to the
+observer level $[[psi0]]$ of the equality type. The premise of
+\rref{GE-CEq} does not require any relation between $[[A0]]$ and
+$[[A1]]$ since they are type annotations.
+
+It is tempting to
+simplify \rref{GE-CEq} into the following.
+\[\drule[width=4.0in]{GE-CEqWrong}\]
+Compared to \rref{GE-CEq}, this simplified version completely ignores the
+observer level $[[psi]]$ % attached to the equality type 
+in the premises and instead uses the level $[[psi0]]$ to compare the subterms.
+The issue
+with this design is that it breaks the congruence property of
+indistinguishability (Lemma~\ref{lemma:gdefeqcong}).
+Consider the following derivable judgment with \rref{GE-CEqWrong}.
+\[    [[x : High |- Low (High x ~ true : High Bool) == (High
+    x ~ true : High Bool) ]] \]
+Since $[[not (High <= Low)]]$, we can derive the vacuously true guarded
+indistinguishability $[[empty |- Low High false == true]]$. If
+Lemma~\ref{lemma:gdefeqcong} holds, then we can apply substitution and
+derive this indistinguishability judgment.
+\[ [[empty |- Low (High false ~ true : High Bool) == (High true ~ true : High
+  Bool)]] \]
+The equality on the left is bogus, but the equality on the right is
+true by reflexivity. We could thus
+inhabit the equality type $[[High false ~ true : High Bool]]$
+with $[[refl]]$ by composing \rref{T-Refl} and \rref{T-Conv} with
+the indistinguishability judgment from above. By eliminating the bogus proof term, we could easily
+derive a crashing program.
+
+The problem with \rref{GE-CEqWrong} is that
+the two equality types have their own notion of indistinguishability
+based on the level $[[psi0]]$, which is now independent of the observer
+level $[[psi]]$. The congruence lemma allows us
+to substitute in an equality that is sensible for an observer at level $[[psi]]$.
+However, if $[[psi]] < [[psi0]]$, then the equality being
+substituted in is too coarse for an observer at level $[[psi0]]$. In
+the counterexample above, the variable $[[x]]$ is labeled with level
+$[[High]]$. From an $[[Low]]$ observer's perspective, $[[false]]$ and
+$[[true]]$ are indistinguishable when guarded by the level
+$[[High]]$. However, from the $[[High]]$ observer's perspective,
+$[[false]]$ and $[[true]]$ are distinct when guarded by the level
+$[[High]]$. The mismatch between the notion of equivalence allows us
+to break type soundness in a way similar to the $\ottkw{unbox}$
+example from Section~\ref{sec:equality}.
+
+To address this problem, \rref{GE-CEq} restricts the observer level of
+the equality type to be at most the observer level of the
+judgment.
+The same constraint $[[psi0 <= psi]]$ found in
+\rref{T-CEq} is a direct consequence of the constraint in
+\rref{GE-CEq} since we need the order constraint in the typing rule to
+derive Lemma~\ref{lemma:typinggdefeq}.
+
+\subsection{Irrelevance, Relatively}
+\label{sec:irrelrel}
+To talk about whether two
+terms are indistinguishable, we must choose an observer level.
+Terms that are indistinguishable at $[[Low]]$ might be
+distinguishable at $[[High]]$.
+So, irrelevance in \name{} is
+relative. For example, if $[[empty |- Low a : Bool High -> T High Bool]]$, then these terms are both valid candidates for $[[a]]$.
+\[ [[\High x : Bool . box High x]]  \qquad
+  [[\High x : Bool . box High false]] \]
+The second function behaves like a constant function in
+the traditional sense---the input $[[x]]$ does not appear
+in the body. The first function is only a
+constant function if we observe its results at level $[[Low]]$.
+
+Consider the \lstinlinecol{filter} function on vectors as another example,
+where unmarked arguments and the function itself are at level $[[Low]]$.
+Because we do not know the final length of the filtered vector,
+we package the vector and its length together in a dependent pair
+where the first component is at level $[[High]]$,
+which we write as \lstinline{(m :$^[[High]]$ Nat) $\times$ Vec A m}.
+
+\begin{lstlisting}
+    filter : (A :$^[[High]]$ Type) -> (n :$^[[High]]$ Nat) -> (A -> Bool) -> Vector A n ->
+             (m :$^[[High]]$ Nat) $\times$ Vector A m
+    filter A n f v = case v of
+      Nil => (0, Nil)
+      Cons n' y ys => let zs = filter A n' f ys in
+                     if f y then (Succ (fst zs), Cons (fst zs) y (snd zs)) else zs
+\end{lstlisting}
+
+From the perspective of a run-time observer,
+the arguments \lstinline{A} and \lstinline{n} are both irrelevant.
+However, for an observer at level $[[High]]$, these arguments are both relevant.
+In the body of \lstinlinecol{filter},
+the variable \lstinline{zs} is a pair containing a
+vector of unknown length. The length index \lstinline{fst zs} in the
+pair is irrelevant at level $[[Low]]$; after erasure at
+level $[[Low]]$,
+\lstinlinecol{filter} should have the run-time performance of the
+\lstinlinecol{filter} function for lists.
+On the other hand, the length index in the pair is used relevantly
+in the type of the second component, \lstinline{Vector A (fst zs)}.
+Because the notion of relevance is relative, we
+can still make sense of the \lstinlinecol{filter} function even though
+the length index is used both relevantly and irrelevantly.
+
+\ifextended
+\subsection{Indistinguishability and Type Conversion}
+\scw{Because this alternative does not actually change the language, if we are short 
+on space, we can skip this section. It's mostly an observation that we want definitional 
+equality to be transitive.}
+\Rref{T-Conv} can alternatively be
+formulated in terms of indistinguishability directly.
+\[\drule[width=3.0in]{T-ConvAlt}\]
+Given $[[P |- a == b]]$, it is not always possible to find some level
+$[[psi]]$ such that $[[P |- psi a == b]]$. It turns out
+this alternative design is not more restrictive than the
+\rref{T-Conv} since a single derivation of \rref{T-Conv} can be
+decomposed into multiple applications of \rref{T-ConvAlt}. 
+
+However, in Section~\ref{sec:preservation}, the statement of the
+inversion lemma relies on definitional equality. For example, given 
+$[[W |- psi \psi0 x : A . a : A0]]$, \rref{T-ConvAlt} could
+be applied multiple times to convert from the function type to
+$[[A0]]$. Each application of \rref{T-ConvAlt} may apply
+indistinguishability at a different level and therefore we still need
+to rely on definitional equality to relate the function type and
+$[[A0]]$. We choose to use definitional equality in \rref{T-Conv}
+to be more consistent with the formulation of PTS, which uses
+$\beta$-equivalence for both the conversion rule and the statement of the
+inversion lemmas.
+
+\scw{We could move this example to the explanation of $[[ P |- a == b ]]$. I think it 
+helps explain the expressiveness of the relationship.}
+\yl{I find the example  too pathological to help explain
+  expressiveness. That's why I moved it here from Section 3.}
+
+Finally, we note that given two definitionally equal terms $[[a]]$ and $[[b]]$,
+it is not always possible to find some level $[[psi]]$ such that
+$[[a]]$ and $[[b]]$ are indistinguishable at $[[psi]]$.
+\begin{align*}
+&[[y : Low |- High (unbox High (box High y)) High false   == y High true ]]\\
+&[[y : Low |- Low y High false == y High true ]]
+\end{align*}
+The definitional equality  $[[y : Low |- (unbox High (box High y)) High false == y High true]] $
+holds by chaining the two indistinguishability judgments above.
+However, these two terms cannot be equated through
+indistinguishability at either $[[Low]]$ or $[[High]]$.
+
+\yl{Removed some text here because they were meant to be intuitive
+explanations of the conversion rule but I don't find my explanation
+intuitive after all..}
+
+\yl{deleted the text here because there's a section that already
+  discusses relative irrelevance }
+\fi
+
+\subsection{Normalization Proof}
+\label{sec:normalization}
+
+In PTS, particular instantiations of the sorts, axioms, and rules lead
+to systems that are known to satisfy the strong normalization
+property.
+We have not proven normalization for any instance of \name{};
+however, since it is based on PTS, we believe that there is a close
+correspondence between the normalization behavior of PTS and of \name{}.
+If a specific instantiation of the sorts results in a
+normalizing PTS, we would expect the same instantiation to result in a
+normalizing \name{}. In particular, we expect all instances from the
+lambda cube~\citep{barendregt1991introduction} to satisfy the strong normalization property when
+reformulated as their corresponding \name{} instance.
+
+Having a normalization proof for such instantiations of sorts is
+desirable to allow for relevance tracking with proof erasure.
+In \rref{T-Transp},
+the level of the equality proof must be the same as the level of the term being cast,
+so we run into the awkward situation where an
+irrelevant proof cannot be used to cast a relevant term. In a system
+where equality types can be inhabited by a diverging computation, the
+proof being eliminated must be treated as relevant since the erasure
+of a bogus proof can cause the resulting program to crash.
+However, if we know that a particular instance of \name{} is normalizing,
+then we are able to justify the elimination of an irrelevant equality proof in a
+relevant context through the canonicity of closed equality proofs.
+Because of its importance, we will investigate the normalization behavior of \name{} as
+part of our future work.
+
+\ifextended
+Furthermore, in a normalizing system, we are allowed to
+define an extensional version of the indexed equality
+type. Unlike intensional equality, extensional equality does not
+induce any run-time overhead since an equality proof can be directly
+reflected into definitional equality without having an elimination
+form in the term syntax. In instantiations of \name{} that do not
+normalize (e.g. with the axiom $\{(\ast, \ast)\}$),
+it would be possible to convert between arbitrary types by
+reflecting bogus proofs, and we would no longer be able to show type
+soundness with an extensional equality type.
+\fi
+
+\section{Implementation}
+\label{sec:implementation}
+
+We have implemented a type checker for an instantiation
+of \name{} with the naturals and its usual total order as our lattice of labels,
+and a single type universe \lstinline{Type} with type-in-type\punctstack{.}%
+\footnote{The code in this section has been stylized to match existing examples;
+the actual concrete syntax is introduced in \dotpi{impl}{README.pi}.}
+The biggest difference between \name{} and the implementation is that
+the implementation contains data types,
+which subsumes the unit type and dependent pair types.
+Below is a data definition for dependent pairs
+where the first component is fixed to level 1;
+we use it to discuss some design decisions for data definitions.
+
+\begin{lstlisting}
+    data Pair (A :$^0$ Type) (B :$^0$ A$^1$ ->  Type) :$^0$ Type where
+      MkPair :$^k$ (x :$^1$ A) -> (B x)$^k$ -> Pair A B
+\end{lstlisting}
+
+The level of type parameters \lstinline{A} and \lstinline{B}
+and of the \lstinline{Pair A B} type are fixed to level 0,
+in contrast to the primitive dependent pair type of \name{},
+which are implicitly level-polymorphic in the sense that they can be
+type checked at any level
+as long as the parameters can be type checked at the same level.
+Instead of fixing to level 0, we could assign \lstinline{A} and \lstinline{B} different levels,
+as long as the level of \lstinline{Pair A B} is greater than or equal to
+the larger of these levels. This condition ensures that the parameters are always relevant:
+we should not to equate \lstinline{Pair A$_1$ B$_1$} and \lstinline{Pair A$_2$ B$_2$}
+unless \lstinline{A$_1$}, \lstinline{A$_2$} and \lstinline{B$_1$}, \lstinline{B$_2$} are themselves equal.
+\scw{Is there a sound extension that allows irrelevant parameters to datatypes?}
+\jc{Seems unlikely. The parameter would probably have to never be used later,
+but if that were the case, why would the parameter exist at all?
+If there's a different scenario where it's irrelevant but also used in a valid way,
+we could speculate in the extensions section.}
+To retain the subsumption property, data types can be used at any level
+greater than or equal to the level they are declared at,
+similar to how variables are checked by \rref{T-Var}.
+
+On the other hand, constructors are explicitly level-polymorphic:
+the second component of the pair is type checked at the same level variable $k$ as the overall pair,
+so that when given a pair declared at a given level,
+we can use the second component at the same level.
+This minimal amount of polymorphism appears to be sufficient for practical examples.
+As with \rref{T-SPair}, there is no relation between the level of pair type and $k$.
+
+Pairs are eliminated by case expressions rather than projections,
+but projection functions can still be defined.
+
+\begin{lstlisting}
+    proj1 :$^1$ (A :$^0$ Type) -> (B :$^0$ A$^1$  -> Type) -> (Pair A B)$^0$ ->  A
+    proj1 = \A B p. case p of
+      MkPair x y => x
+
+    proj2 :$^0$ (A :$^0$ Type) -> (B :$^0$ A$^1$  -> Type) -> (p :$^0$ Pair A B) -> B (proj1 A B p)
+    proj2 = \A B p. case p of
+      MkPair x y => y
+\end{lstlisting}
+
+The branches of a case expression must be checked at a level greater or equal to that of the scrutinee.
+Intuitively, this prevents extracting relevant information out of something irrelevant.
+As a minor detail, in the type of the branch for a given constructor,
+the scrutinee is replaced by the constructor pattern,
+so the branch of \lstinline{proj2} requires a term of type \lstinline{B (proj1 A B (MkPair x y))},
+reducing to \lstinline{B x}, which is exactly the type of \lstinline{y}.
+
+If we have pairs at level 0, then as expected,
+two pairs are indistinguishable at level 0 merely if their second components are,
+since their first components (at level 1) are automatically indistinguishable at this level.
+With internalized indistinguishability, this can be proven as a lemma.
+
+\begin{lstlisting}
+    pairEq :$^0$ (A :$^0$ Type) -> (B :$^0$ A$^1$ -> Type) -> (p1 :$^0$ Pair A B) -> (p2 :$^0$ Pair A B) ->
+             (proj2 A B p1 ~$^0$ proj2 A B p2) -> p1 ~$^0$ p2
+    pairEq = \A B p1 p2 q. case p1 of
+      MkPair x1 y1 => case p2 of
+        MkPair x2 y2 => transp q refl
+\end{lstlisting}
+
+In \name{}, definitional equality is the transitive closure of indistinguishability
+at existentially-quantified levels; in the implementation, when converting between two types,
+we simply use indistinguishability at an arbitrary generated level metavariable
+at which both types are well typed.
+
+The conversion checker checks guarded indistinguishability $[[P |- psi psi0 a == b]]$
+by first asking the constraints whether $[[psi < psi0]]$ is implied.
+If so, this corresponds to the \rref{CGE-NLeq} case;
+otherwise, it adds $[[psi0 <= psi]]$ as a new constraint
+and continues on as in the \rref{CGE-Leq} case.
+Conversion checking is therefore incomplete with respect to the rules,
+since it may turn out that $[[psi < psi0]]$ was the appropriate constraint to add.
+Adding backtracking might make conversion complete,
+but it seems that with explicit level annotations,
+enough of the guesswork is eliminated.
+
+To accommodate level metavariables, type checking always takes a level as an input,
+collecting constraints for generated level metavariables,
+and solves the level constraints with minimal level instantiations at the end,
+or fails with a type error.
+
+\scw{What is the largest example that you have checked with the implementation?}
+
+\section{Future work}
+\label{sec:extensions}
+
+\paragraph{Level polymorphism}
+There are multiple forms of level polymorphism that could be added to \name{}.
+The simplest is prenex polymorphism which,
+in combination with global or let-bound definitions, can reduce code duplication.
+By quantifying a definition over the levels it uses,
+it can be instantiated at different levels as needed.
+We might however wish to also enforce constraints among the levels quantified,
+so that we have guarantees about their relative relevancies.
+This can be done by bounded quantification,
+which can only be instantiated by levels bounded above by the one or more other levels given.
+Adding such forms of polymorphism likely would not violate any of our metatheoretical properties,
+since each instantiation of a polymorphic definition with particular levels could be inlined
+as an ordinary \name{} term with those levels substituted in.
+
+\ifextended
+On the other hand, it isn't evident how higher-rank level polymorphism might work,
+where functions can abstract over level-polymorphic terms.
+In particular, if the relevance of a level-polymorphic term depends
+the levels it's instantiated with,
+it's unclear what the overall relevance of a function abstracting over it should be.
+Additionally, the usefulness of higher-rank level polymorphism needs further investigation.
+
+Finally, we might go as far as first-class levels that can depend on terms.
+Such levels could have applications in secure information flow,
+where the observer's security access level is only known dynamically at run time.
+\fi
+
+\paragraph{Inductive types}
+
+While our prototype implementation contains data types with levels,
+adding inductive types to \name{} with proper type indices, strict positivity checking, and eliminators,
+and updating the Coq development to ensure none of the metatheoretical properties are broken,
+remain future work.
+Aside from increasing expressivity,
+another goal of adding inductive types is to subsume the existing unit,
+dependent pair, and propositional equality primitive types.
+Although we won't know what rules for inductive types are correct until the proofs are done,
+we can use the implementation's type checker and the rules for the existing types
+to guide the design of expressive yet well-behaved inductive types.
+\ifextended
+For instance, consider the following proposal for propositional equality as an inductive type.
+
+\begin{lstlisting}
+    data Eq (A :$^{[[psi2]]}$ Type) (x :$^{[[psi1]]}$ A) :$^{[[psi]]}$ A$^{[[psi1]]}$ -> Type where
+      Refl :$^{[[psi3]]}$ Eq A x x @ $[[psi0]]$
+\end{lstlisting}
+
+$[[psi]]$ is the level of the fully-applied inductive type,
+$[[psi0]]$ the observer level of the equality,
+$[[psi1]]$ the level of the equated terms,
+$[[psi2]]$ the level of the type of the equated terms,
+and $[[psi3]]$ the level of the reflexive proof.
+\Rref{T-CEq} enforces $[[psi1]] \leq [[psi0]] \leq [[psi]]$.
+In general, we want to make sure that inductive types applied to different parameters and indices
+are always distinguishable, so we would additionally enforce $[[psi2 <= psi]]$ like in the implementation.
+Next, we might type a case expression for propositional equality as follows.
+
+\[ \drule[width=6.5in]{T-CaseEq} \]
+
+\Rref{T-Transp} enforces $[[psi3 = psi4]]$.
+As discussed in Section~\ref{sec:normalization},
+in nonnormalizing instances of \name{},
+allowing $[[psi4 < psi3]]$ would be invalid,
+since this would incorrectly leak the normalization behavior of the higher-level $c$ to a lower level.
+However, $[[psi3 <= psi4]]$ may be valid,
+and is currently in the implementation,
+since it allows destructing an inductive without having to cast its level up first.
+\fi
+Lastly, inductive definitions should be prenex-polymorphic in all levels mentioned
+to be as flexible as the primitives, which are not fixed in their levels.
+
+\paragraph{Staged programming\protect\footnote{\dotpi{impl}{pi/Staged.pi}}}
+
+A potential application of \name{} is in \textit{staged programming}~\citep{sheard1995staged},
+where different pieces of code are marked with different levels or \emph{stages},
+which can be thought of as different stages of metaprogramming.
+Our reduction rules could be extended by indexing with a stage
+and modified to proceed stage by stage,
+corresponding to expanding metaprograms at each stage in order.
+
+Although the dynamic behavior does not yet correspond to staged evaluation,
+we can use the existing static types for staged programs.
+In particular, the box construct represents a way to manipulate code at different stages;
+for example, a value of type \lstinline{$T^1$ ((Nat$^1$) -> Nat)} is a function over naturals available at stage 1
+but is manipulable as an opaque piece of object code at stage 0.
+
+Consider the following implementation of exponentiation of naturals at stage 0
+in terms of multiplication at stage 1.
+In other words, exponentiation resembles a macro that expands to applications of multiplication.
+
+\begin{lstlisting}
+    mul :$^1$ Nat$^1$ -> Nat$^1$ ->  Nat
+    exp :$^0$ Nat$^1$ ->  Nat$^0$ ->  $T^1$ Nat
+    exp b e = case e of
+      Zero => $\ottkw{box}^1$ 1
+      Succ e' => $\ottkw{box}^1$ (mul b ($\ottkw{unbox}^1$ (exp b e')))
+\end{lstlisting}
+
+With proper staged evaluation,
+when we reach stage 1, expressions at stage 0 will have been evaluated,
+and applications of exponentiation to a concrete exponent will have been expanded
+into iterated multiplication.
+For instance, \lstinline{($\ottkw{unbox}^1$ (exp b 3))}
+evaluates to \lstinline{(mul b (mul b (mul b 1)))} at stage 1.
+
+Analogously to previous applications of dependency analysis,
+pieces of code from later stages are indistinguishable from code from earlier stages.
+Intuitively, this means that metaprograms can't tell what programs are doing,
+since programs can't run before the metaprograms expand.
+
+Aside from separating programs into different stages of evaluation,
+levels could also separate proofs into different type theories,
+as is done in two-level type theory~\citep{annenkov2023two},
+which also has applications in staged compilation~\citep{kovacs2022staged}.
+
+\begin{comment}
+This is provably true within the language as well, thanks to the propositional equality type,
+which allows us to reason about code in later stages.
+
+\begin{lstlisting}
+    cubed :$^0$ (b : Nat$^1$) -> cube b ~$^1$ mul b (mul b (mul b 1))
+    cubed b = $[[refl]]$
+\end{lstlisting}
+
+Inductive types can be staged as,
+for instance encoding the definition of length-indexed vectors at stage 0
+in terms of pairs at stage 1.
+Here, we use the nondependent pair type $A \times B$,
+where $A$ and $B$ are both also at stage 1,
+and arguments without stage annotations are at stage 0 by default.
+
+\yl{What are the benefits of staging a Vector type? Is the idea to have
+  staged computation for type-level reduction so type-checking becomes
+  faster?}
+\jc{I'm not sure. the 2LTT paper included it as an example so it seemed important.
+They were demonstrating that it was \emph{possible} to stage types as well as terms.
+(They did have a typo in their example, though, missing an unboxing of Vector
+in the types of nil and cons.)}
+\begin{lstlisting}
+    Vector :$^0$ Type$^1$ -> Nat -> $T^1$ Type
+    Vector A n = case n of
+      Zero => $\ottkw{box}^1$ $[[Unit]]$
+      Succ n' => $\ottkw{box}^1$ (A $\times$ $\ottkw{unbox}^1$ (Vector A n'))
+
+    nil :$^0$ (A :$^1$ Type) -> $\ottkw{unbox}^1$ (Vector A 0)
+    nil A = $[[unit]]$
+
+    cons :$^0$ (A :$^1$ Type) -> (n : Nat) -> A ->
+            $\ottkw{unbox}^1$ (Vector A n) -> $\ottkw{unbox}^1$ (Vector A (Succ n))
+    cons A n a v = (a, v)
+
+    fold :$^0$ (A :$^1$ Type) -> (P : (n : Nat) -> $\ottkw{unbox}^1$ (Vector A n) -> Type) -> P 0 (nil A) ->
+           ((n : Nat) -> (a : A) -> (v : $\ottkw{unbox}^1$ (Vector A n)) ->
+            P n v -> P (Succ n) (cons A n a v)) ->
+           (n : Nat) -> (v : $\ottkw{unbox}^1$ (Vector A n)) -> P n v
+    fold A P pnil pcons n v = case n of
+      Zero => pnil
+      Succ n' => pcons n' (proj1 v) (proj2 v) (fold A P pnil pcons n' (proj2 v))
+\end{lstlisting}
+
+Code at stage 0 interacts with vectors through this interface,
+while applications to vectors of concrete lengths get compiled away to functions on pairs at stage 1.
+For example, \lstinline{$\ottkw{unbox}^1$ Vector A 2} becomes \lstinline{A $\times$ A $\times$ $[[Unit]]$},
+\lstinline{cons A 1 a$_1$ (cons A 0 a$_0$ (nil A))} becomes \lstinline{(a$_1$, a$_0$, $[[unit]]$)},
+and \lstinline{fold A P pnil pcons 2 v} becomes \lstinline{pcons 1 (fst v) (snd v) (pcons 0 (fst (snd v)) (snd (snd v)) pnil)}.
+These equalities, too, are provable propositionally.
+
+\jc{I'm reluctant to mention 2LTT (HoTT + MLTT) at this point.
+All of the references I can find talk about how HoTT is the ``inner'' type theory
+and MLTT is the ``outer'' type theory. The Annenkov paper also says:
+\begin{quote}
+  Thus, we can convert inner types into outer one, but not always vice versa.
+\end{quote}
+But this is the \emph{opposite} of how our system works:
+level 0 is the metalevel, level 1 is the object level,
+and by subsumption, anything typeable at level 0 can also be typeable at level 1,
+meaning it should be possible to go from MLTT (the meta) to HoTT (the object),
+but that's exactly the opposite situation here.
+(It's certainly not valid to lift axiom K into HoTT!)
+None of the papers use a secret third type theory that's the meet of MLTT and HoTT either,
+it's always an inner HoTT and an outer MLTT.
+I don't want to speculate on something unconventional in the examples;
+maybe it's better suited for the discussion,
+but even then I don't know if it's worth saying many things incorrectly
+over saying fewer things correctly.
+Maybe reviewers would take more kindly to suggesting a missing connection
+than to correct a blantant misunderstanding.
+And if one of them \emph{does} point out the connection to 2LTT,
+then we'd know with greater certainty that the speculation was on track.}
+\end{comment}
+
+\section{Related work}
+\label{sec:related}
+
+\subsection{Systems with Dependency Tracking}
+The Dependency Core Calculus (DCC)~\citep{abadi1999core} introduces the
+graded model type $[[T psi A]]$ for dependency tracking. Similar to the box
+type from \name{}, given a term $[[a]]$ of type $[[T psi A]]$, the
+content stored inside $[[a]]$ can only be used in a context that
+can observe $[[psi]]$. DCC enforces
+information flow by restricting the type of the \lstinline{bind}
+operator that inspects the content of $[[a]]$. For example, supposing
+$[[a]]$ has type $[[T psi0 Bool]]$, the return type of the bind
+must then be protected at level $[[psi0]]$. Intuitively, a type is
+protected at $[[psi0]]$ when every branch node of the type's syntax
+tree is guarded by some $T^{[[psi]]}$ constructor where $[[psi0 <=
+psi]]$, excluding domain types.
+
+Variations of DCC, such as DCC$^{\text{pc}}$ from
+\citet{tse2004translating} and the sealing
+calculus from \citet{shikuma2008proving}, introduce a program counter
+or observer level to the typing judgment. Accessing the data
+stored in a box of type $[[T psi0 A]]$ is done by comparing the observer
+level $[[psi]]$ against the level of the box $[[psi0]]$, similar to
+the admissible \rref{T-Unbox} in \name{}. 
+
+The Dependent Dependency Calculus (DDC)~\citep{choudhury:ddc} extends
+PTS~\citep{barendregt:lambda-calculi-with-types} with dependency tracking.
+Compared to previous systems,
+DDC's design was influenced by systems with coeffects, and the
+variables in the typing context are labeled with levels.
+The lattice $\mathcal{L}$ in DDC is augmented with two elements $\{C, T\}$ such that
+$[[psi]] \leq C \leq T$ for every $[[psi]] \in \mathcal{L}$.
+The dependency tracking mechanism for levels
+below $C$ is similar to previous systems,
+whereas the levels $C$ and $T$
+are handled differently through the 
+resurrection mechanism~\citep{pfenning:irrelevance} in order to support
+compile-time irrelevance. The type conversion rule of DDC is based on
+indistinguishability, though the observer level of the
+indistinguishability judgment must be fixed to $C$, due to the
+limitation discussed in Section~\ref{sec:upgrade}.
+The design of DDC directly inspired the use of indistinguishability in
+\name{}'s conversion rule. However, this work handles dependency tracking and
+compile-time irrelevance through a uniform mechanism, generalizes
+the conversion rule to arbitrary observer levels, and includes propositional equality.
+
+\subsection{Compile-Time Irrelevance}
+The ability to convert between types based on indistinguishability can
+be viewed as a generalization of a form of compile-time
+irrelevance. This feature plays an important role in
+reasoning about data structures containing embedded proofs: the type checker
+should treat different witnesses of the same proposition as equal and
+only compare relevant components.
+
+In Coq and Agda, the respective sorts \lstinline{SProp} and
+\lstinline{Prop}~\citep{gilbert2019definitional} classify types whose
+inhabitants are treated as definitionally equal. The system then ensures that
+terms whose types are in this sort can never be pattern matched to produce
+terms of other sorts, preventing the flow of information from irrelevant types
+to computationally relevant types. The \lstinline{Squash} constructor
+allows one to embed data types of the relevant sort into
+\lstinline{SProp} and is analogous to the graded modal type $[[T psi
+A]]$ from \name{}.
+In \citet{gilbert2019definitional}, it is
+impossible to construct the choice function with the
+signature \lstinline{Squash (Squash A -> A)}. Instead, the choice
+function most be postulated as an axiom.
+In \name{}, the choice function with the analogous type $[[T High (Bool
+High -> Bool)]]$ can be defined as the term $[[ box High (\High x : Bool
+. x)]]$.
+
+% DCOI, on the other hand, does not
+% associate sorts with relevance and is more closely related to
+% \citet{pfenning:irrelevance} and \citet{Abel12}, which implement proof
+% irrelevance with irrelevant function types.
+
+Resurrection, introduced by \citet{pfenning:irrelevance}, is used by DDC,
+EPTS~\citep{mishra2008erasure}, and Agda~\citep{Abel12}. Similar to
+\name{} and unlike \citet{gilbert2019definitional}, proof irrelevance
+in \citet{pfenning:irrelevance}
+is not determined by sorts.
+As in \name{}, the type system
+can label variables as either relevant or irrelevant. However, a type system
+based on resurrection does not require an observer level in its typing
+judgment. Instead, when checking irrelevant parts of the term, the type system
+uses the resurrection operation on the typing context to make irrelevant
+variables accessible.
+
+To see how resurrection behaves differently from the
+dependency tracking mechanism of \name{}, consider the terms
+$ [[ \High x : Bool . box High x]]$ and $[[ box High (\High x : Bool
+. x)]]$, the latter of which is the choice function we have seen earlier.
+In \name{}, both terms type check at level $[[Low]]$. However, with
+resurrection, only the first term type checks. 
+% To understand why, let
+% us first see how the first type checks through resurrection.
+In the first term,
+by the
+abstraction rule, it suffices to show that $[[box High x]]$ is well typed given the typing context $[[x : High
+Bool]]$. Before checking the subterm wrapped inside an $[[High]]$ box,
+the typing context is resurrected and the level of the variable $[[x]]$ is lowered
+to $[[L]]$. As a result, the $[[x]]$ can legally appear inside the
+box.
+%
+In the second term, the $[[High]]$ box wraps around
+the entire lambda expression. Before checking $[[(\High x : Bool
+. x)]]$, the empty context is resurrected. In this case, resurrection
+has no effect on the variable $[[x]]$, which has yet to be introduced
+to the typing context, so
+its usage in the
+body of the lambda is rejected.
+
+Resurrection interacts poorly with strong dependent pairs because
+projections, unlike pattern matching, do not introduce
+variables that can be resurrected later on.
+Consider a term \lstinline{xs} of type
+\lstinline{(m :$^[[High]]$ Nat) $\times$ Vector A m}. %When checking
+% terms, the resurrection mechanism correctly rejects
+% \lstinline{proj1 m} since the first component of \lstinline{as} is
+% irrelevant and should be erased.
+We cannot check the second projection \lstinline{proj2 xs}
+because its type, \lstinline{Vector A (proj1 xs)}, contains the
+ill-typed term \lstinline{proj1 xs}. If we interpret the level
+$[[High]]$ as describing irrelevance at runtime, 
+rejecting \lstinline{proj1 xs} in the term but accepting
+\lstinline{proj1 xs} in the type is the desired behavior. 
+However, without an observer level on the typing judgment,
+there is no way to distinguish
+between the illegal use of \lstinline{proj1 xs} in the term and
+the legal use of \lstinline{proj1 xs} as an argument to
+\lstinline{Vector}. Both must be
+rejected.
+
+As pointed out by \citet{choudhury:ddc}, a direct consequence of the above
+limitation is that the \textsf{filter} function from
+Section~\ref{sec:irrelrel} must pattern match the returned existential from
+the recursive call. \citet{eisenberg:existentials} observe that
+\textsf{filter} defined using pattern matching is needlessly strict and loses
+the streaming behavior of an ordinary list filter function in a
+call-by-name language.
+
+To overcome the limitations of the resurrection mechanism, DDC restricts labels
+for run-time irrelevance from being used as the observer in definitional
+equality. In Agda, there is a disjoint mechanism for run-time irrelevance and
+function arguments are considered independently for run-time and compile-time
+irrelevance. \Name{} provides a uniform mechanism that works the same for
+reasoning about run-time erasure and compile-time equality.
+
+% https://agda.readthedocs.io/en/v2.6.3/language/runtime-irrelevance.html
+% https://agda.readthedocs.io/en/v2.6.3/language/irrelevance.html
+% https://agda.github.io/agda/Agda-TypeChecking-Irrelevance.html
+
+\subsection{Quantitative Type Systems}
+Unlike systems that track only what depends on what, quantitative type systems
+track usage more precisely. In these systems, inputs are
+annotated with abstract usage information drawn from an arbitrary
+semiring. This 
+information specifies how many times a variable may be
+used in the computation. These systems are related to dependency tracking because
+computation may not depend on a variable marked with $0$ usage.
+
+The run-time irrelevance mechanism in Agda~\citep{abel:icfp2020} and Idris~\citep{brady:idris2}
+is based on Quantitative Type Theory (QTT)~\citep{mcbride2016got,atkey2018syntax}.
+The typing judgment in QTT takes the form $\Gamma \vdash M:^\sigma S$
+where $\sigma \in \{0,1\}$.
+The $\sigma$ at the colon indicates the relevance of the term being
+constructed, similar to the observer level in \name{}.
+When $\sigma = 1$, the term $M$ is computationally relevant.
+When $\sigma = 0$, the term $M$ is irrelevant.
+A variable with $0$ usage can only be used when
+constructing irrelevant terms or in types.
+
+While QTT judgments resemble those of \name{}, QTT only tracks usage at the
+term level: in types, all tracking is effectively disabled.  As a result,
+QTT's definitional equality cannot rely on usage information.  Furthermore, as
+mentioned in Section~\ref{sec:upgrade}, when instantiated with the boolean
+semiring, QTT satisfies the upgrade property (Proposition~\ref{prop:upgrade})
+using the $1 \leq 0$ ordering. As a result, QTT cannot replace
+$\beta$-equivalence with a usage-aware equality without breaking type
+soundness.
+
+% Note that when QTT's semiring is instantiated with the boolean semiring, 
+% then 
+% \yl{My conjecture is that QTT with a boolean semiring is isomorphic
+%   to DDC Top with a two-point lattice.}
+% \yl{If you find the following discussion too risky to include, we can
+% remove it. We would need to also remember to remove the atkey citation
+% in Section~\ref{sec:upgrade}}
+%Interestingly, when the semiring $R$ is instantiated to the boolean
+%semiring $\{0,1\}$, the multiplication and addition operators
+%correspond to join and meet for the two-point lattice $\{0,1\}$ with
+%the ordering $1 \leq 0$. 
+%
+% the following property, which holds in QTT,
+% can be interpreted as the upgrade property
+% (Proposition~\ref{prop:upgrade}) using the $1 \leq 0$ ordering.
+% \begin{proposition}[QTT: Tm-Zero]
+%   \label{prop:tmzero}
+%  If $\Gamma \vdash M :^\sigma S$, then $0\Gamma\vdash M :^0 S$ where $0
+% \Gamma$ is defined as $\Gamma$ with all usages reset to $0$.
+% \end{proposition}
+% Based on the reasoning in Section~\ref{sec:upgrade},
+% Proposition~\ref{prop:tmzero} implies that QTT  % if we were to extend QTT with usage tracking for types.
+
+The more recent systems, GraD~\citep{weirich:graded-haskell} and
+GRTT~\citep{moon2021graded}, track usage in both terms and types. However,
+both systems require a fixed point of reference; the typing judgment is not
+annotated by a level. (One can view the typing judgment as implicitly indexed
+by usage $1$, meaning that the term being constructed is always
+computationally relevant or ``public''.)
+
+In GraD, the typing judgment takes the form $\Delta; \Gamma \vdash a : A$
+where $\Gamma$ is the typing context with usage information and $\Delta$ is
+the same as $\Gamma$ but without usage information. GraD's regularity property
+(shown below) is reminiscent of the regularity property
+(Lemma~\ref{lemma:regularity}) of \name{}.
+\begin{lemma}[GraD: Regularity]
+If $\Delta; \Gamma \vdash a : A$, then there exists some $\Gamma'$
+such that $\Delta;\Gamma' \vdash A : type$.
+\end{lemma}
+% Note that the judgments from the premise and the conclusion share the
+% same $\Delta$: ignoring the usage information, the context used for checking the
+% type $[[A]]$ is identical to the context for checking the term $[[a]]$. 
+As in \name{}, there is independence between term-level and type-level usage
+information. However, in GraD, the independence appears in the context
+($\Gamma'$ vs. $\Gamma$), whereas in \name{}, the independence appears in the
+observer level of the judgment.
+
+\ifextended
+The ability to track usage at the type level suggests that it might be
+possible to implement a usage-aware conversion rule in GraD. In fact,
+GraD parameterizes over the equivalence relation $A \equiv B$ used for type
+conversion and imposes certain axioms on the binary relation to ensure
+type soundness.
+While an explicit instantiation is not given besides
+$\beta$-equivalence, \citet{weirich:graded-haskell} hints that it is
+possible to instantiate the relation to take advantage of usage
+information and implement a form of compile-time irrelevance, though
+such a claim seems unlikely since the equivalence relation is not
+parameterized over the context and thus has no way to access the usage information.
+\scw{I'm not sure that I would make this claim today. I don't believe GraD can 
+  support compile-time irrelevance any more.}
+\yl{I put the entire paragraph to extended. When you say ``I don't believe GraD can 
+  support compile-time irrelevance any more.'' is it because the relation is binary and is not indexed by the context?}
+\fi
+
+GRTT takes a more fine-grained approach to tracking type-level resource
+usage. Each variable in GRTT is associated with two usage levels, one for
+term-level usage and one for type-level usage. A variable may be restricted to
+the $0$ usage at the term level, but still have a nonzero usage in the type,
+and vice versa. In \name{}, we allow a function's argument to be used
+relevantly in its type but irrelevantly in its body. However, there is no
+way to enforce the invariant that a function's argument is never used in
+its type since well-formedness checks in \name{} can be done at an
+arbitrarily chosen level.
+% \scw{I don't understand what this next sentence is trying to
+%   say, so I can't update it. However, it should replace ``parametricity
+%   properties'' with something more specific---maybe about reasoning about the
+%   use of large eliminations.}
+% \yl{I'm fine with deleting the comment about parametricity. }
+Despite GRTT's fine-grained usage tracking, its conversion rule is 
+$\beta$-equivalence. % In \name{}, given $[[W |- Low \High x : A . a : Pi x : High A . B]]$, we know that $[[x]]$ is used
+% in irrelevantly in $[[a]]$ at observer level $[[Low]]$, but the type
+% $[[Pi x : High A . B]]$ can be independently checked at level
+% $[[High]]$. As a result, the dependency tracking mechanism in \name{}
+% cannot recover parametricity like GRTT does.
+
+\section{Conclusion}
+In this work, we present \name{}, an extension of Pure Type Systems
+with dependency tracking that uses indistinguishability for
+type conversion and internalizes indistinguishability as an indexed
+equality type. These new features allow reasoning about
+information flow within the type system,
+extending the expressiveness of the language.
+Our design also handles run-time and compile-time irrelevance
+in a uniform way, using the same mechanism for
+generating more efficient code and reducing the type-checking effort for
+programs that rely heavily on type-level computations. 
+
+%These new features allow programmers to reason about 
+%information flow within the type system, extending the expressiveness
+%of the language. This design also handles run-time and compile-time
+%irrelevance in a uniform way, allowing us to use the same mechanism
+%to generate more efficient code and reduce the compile
+%time of programs that rely heavily on type-level computations.
+
+%%% SCW - no: this future work is still to specific and tied to us. 
+%%% we have a section already saying what we will do. Future speculation
+%%% should only be about what can be built on top of our ideas.
+%%% (But we are out of space anyways, so just cutting.)
+% As part of our future work, we will explore ways to reduce the
+% level annotations to better integrate our relevance tracking mechanism
+% into existing proof assistants and dependently typed languages.
+
+
+\begin{acks} 
+The authors would like to thank the anonymous reviewers for their comments and suggestions.
+This work was supported by the \grantsponsor{}{National Science Foundation}{} under Grant Nos.~\grantnum{}{2006535} and
+\grantnum{}{2327738}.
+\end{acks}
+
+\section*{Data Availability Statement}
+The Coq proofs and the Haskell prototype implementation are
+available on the ACM Digital Library~\citep{dcoiartifact}.
+
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{weirich, refs, students}
+
+% \appendix
+\scw{TODO (later): revise proofs to only require semilattice, not lattice}
+\jws{TODO (later): do you all prefer Section rather than $\S$?}
+\jc{TODO (never): we should really be using `\\cref' for this :p}
+\jws{TODO (later): I think the names of the defeq rules are still based on the old conventions (e.g. GE, CGE)}
+
+% \renewcommand\ranchor[1]{{\ranchorstyle{#1}}}
+
+% \section{Rules}
+
+% \subsection{Definitional Equality}
+% \label{sec:defeqrules}
+
+% \drules[E]{$ [[P |- a == b]] $}{Definitional equality}{One, Trans}
+% \drules[GE]{$ [[P |- psi a == b]] $}{Indistinguishability}{Var, Type, Sym, Trans, App, Abs, AppAbs, Pi, TyUnit, TmUnit,
+%   SSigma, ProjOneBeta, ProjTwoBeta, SPair, ProjOneCong,
+%   ProjTwoCong,CEq,TranspRefl,Transp,Refl, Bool, True, False, If,
+%   IfTrue, IfFalse}
+% \drules[CGE]{$ [[P |- psi psi0 a == b]] $}{Guarded indistinguishability}{Leq,NLeq}
+
+% \subsection{Reduction}
+% \label{sec:red}
+% \drules[R]{$[[a ~> b]]$}{Reduction}{App, AppAbs, Transp, TranspRefl,
+%   ProjOneCong, ProjTwoCong,  ProjOneBeta, ProjTwoBeta , If, IfTrue, IfFalse}
+
+% \subsection{Parallel Reductions}
+% \label{sec:parrules}
+% \drules[EP]{$[[ P |- a => b]]$}{Parallel reduction}{One}
+% \drules[Par]{$[[P |- psi a => b]]$}{Indexed parallel reduction}{Var,
+%   Type, Pi, AppBeta, App, Abs, Refl, Transp, CEq, TranspRefl,
+%   ProjOneCong, ProjTwoCong, ProjOneBeta, ProjTwoBeta, SPair, SSigma, Bool, True, False, If,
+%   IfTrue, IfFalse}
+% \drules[CPar]{$[[P |- psi psi0 a => b]]$}{Guarded parallel
+%   reduction}{Leq, Nleq}
+
+\end{document}
+\endinput
+%%
