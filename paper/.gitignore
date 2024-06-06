@@ -1,0 +1,11 @@
+*.log
+*.aux
+*.bbl
+*.out
+*.synctex.gz
+dcoi-rules.tex
+spec.tex
+spec.pdf
+paper-output.*
+auto/*
+.vscode/
