@@ -1,11 +1,14 @@
 *.log
 *.aux
 *.bbl
+*.blg
+*.cut
 *.out
 *.synctex.gz
 dcoi-rules.tex
 spec.tex
 spec.pdf
+paper.pdf
 paper-output.*
 auto/*
 .vscode/
