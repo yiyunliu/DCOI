@@ -44,7 +44,7 @@ tm, a, b, c, A, B, C, p, t, u, v :: 'a_' ::=
   | Pi x : l A . B :: :: Pi
     (+ bind x in B +)
     {{ com dependent function type }}
-    {{ tex \Pi [[x]] \colon^{[[l]]} [[A]] \mathpunct{.} [[B]] }}
+    {{ tex \Pi [[x]] :^{[[l]]} \! [[A]] \mathpunct{.} [[B]] }}
   | \ l x . b :: :: Abs
     (+ bind x in b +)
     {{ com function abstraction }}
@@ -77,7 +77,7 @@ tm, a, b, c, A, B, C, p, t, u, v :: 'a_' ::=
   | Sig x : l A . B :: :: Sig
     (+ bind x in B +)
     {{ com dependent pair type }}
-    {{ tex \Sigma [[x]] \colon^{[[l]]} A \mathpunct{.} [[B]] }}
+    {{ tex \Sigma [[x]] :^{[[l]]} \! A \mathpunct{.} [[B]] }}
   | ( l a , b ) :: :: Pack
     {{ com pair constructor }}
     {{ tex ([[a]]^{[[l]]}, [[b]]) }}
@@ -120,7 +120,7 @@ context, G {{ tex \Gamma }} :: 'ctx_' ::=
   | x : l A :: S :: One
     {{ com singleton context }}
     {{ coq ([[x]], ([[l]], [[A]])) }}
-    {{ tex [[x]] \colon^{[[l]]} [[A]] }}
+    {{ tex [[x]] :^{[[l]]} \! [[A]] }}
   | G ++ G' :: S :: Append
     {{ com appending two contexts }}
     {{ coq [[G]] ++ [[G']] }}
@@ -144,7 +144,7 @@ econtext, E {{ tex \Xi }} :: 'ectx_' ::=
   | x @ l :: S :: One
     {{ com singleton context }}
     {{ coq ([[x]], [[l]]) }}
-    {{ tex [[x]] @ [[l]] }}
+    {{ tex [[x]] \mathbin{@} [[l]] }}
   | E ++ E' :: S :: Append
     {{ com appending two contexts }}
     {{ coq [[E]] ++ [[E']] }}
@@ -180,10 +180,10 @@ formula :: 'formula_' ::=
   | formula1 .. formulaidx :: :: dots % DON'T DELETE THIS
   | x : l A in G :: :: inG
     {{ coq binds [[x]] ([[l]], [[A]]) [[G]] }}
-    {{ tex [[x]] \colon^{[[l]]} \in [[G]] }}
+    {{ tex [[x]] :^{[[l]]} \! \in [[G]] }}
   | x @ l in E :: :: inE
     {{ coq binds [[x]] [[l]] [[E]] }}
-    {{ tex [[x]] @ [[l]] \in [[E]] }}
+    {{ tex [[x]] \mathbin{@} [[l]] \in [[E]] }}
   | x notin G :: :: notInG
     {{ coq ~ AtomSetImpl.In [[x]] (dom [[G]]) }}
     {{ tex [[x]] \notin [[G]] }}
@@ -371,7 +371,7 @@ E |- b0 == b1 @ l
 E |- (l0 a0, b0) == (l0 a1, b1) @ l
 
 E |- a0 == a1 @ l1
-E ++ x @ l0 ++ y @ l1 |- b0 == b1 @ l
+(# E ++ x @ l0 #) ++ y @ l1 |- b0 == b1 @ l
 l1 <= l
 ------------------------------------------------------------------- :: Let
 E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l
@@ -397,7 +397,7 @@ defns
   DefEq :: '' ::=
 
 defn
-  E |- a == b :: :: Conv :: 'C_'
+  E |- a == b :: :: DefEq :: 'E_'
   {{ com definitional equality }}
   {{ tex [[E]] \vdash [[a]] \equiv [[b]] }}
 by
@@ -423,8 +423,8 @@ by
 |- nil
 
 |- G
-G |- A : l (Univ i)
-------------------- :: Cons
+G |- A : l Univ i
+----------------- :: Cons
 |- G ++ x : l A
 
 defn
@@ -482,10 +482,10 @@ G |- a : l1 A
 G |- b : l1 A
 G |- A : l2 Univ i
 G |- p : l3 a ~ l0 b : A
-G ++ x : l1 A ++ y : l3 a ~ l0 x : A |- C : l0 Univ i
+(# G ++ x : l1 A #) ++ y : l3 a ~ l0 x : A |- C : l0 Univ i
 G |- t : l C { a / x } { refl / y }
 l3 <= l
------------------------------------------------------ :: J
+----------------------------------------------------------- :: J
 G |- J C t p : l C { b / x } { p / y }
 
 G |- A : l Univ i
@@ -502,10 +502,10 @@ G |- (l0 a, b) : l Sig x : l0 A . B
 G |- A : l2 Univ i
 G ++ x : l0 A |- B : l2 Univ i
 G |- a : l1 Sig x : l0 A . B
-G ++ x : l0 A ++ y : l1 B |- b : l C { (l0 x, y) / z }
+(# G ++ x : l0 A #) ++ y : l1 B |- b : l C { (l0 x, y) / z }
 G ++ z : l1 Sig x : l0 A . B |- C : l2 Univ i
 l1 <= l
------------------------------------------------------- :: Let
+------------------------------------------------------------ :: Let
 G |- let (l0 x, y) = l1 a in b : l C { a / z }
 
 G |- a : l A
@@ -520,7 +520,7 @@ defns
 defn
   E |- a @ l :: :: Wg :: 'Wg_'
   {{ com well-gradedness }}
-  {{ tex [[E]] \vdash [[a]] @ [[l]] }}
+  {{ tex [[E]] \vdash [[a]] \mathbin{@} [[l]] }}
 by
 
 x @ l0 in E
@@ -578,7 +578,7 @@ E |- b @ l
 E |- (l0 a, b) @ l
 
 E |- a @ l1
-E ++ x @ l0 ++ y @ l1 |- b @ l
+(# E ++ x @ l0 #) ++ y @ l1 |- b @ l
 l1 <= l
----------------------------------- :: Let
+------------------------------------ :: Let
 E |- let (l0 x, y) = l1 a in b @ l
