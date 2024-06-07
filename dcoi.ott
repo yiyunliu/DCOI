@@ -20,9 +20,15 @@ luniv, i, j :: 'u_' ::=
   {{ coq luniv }}
   | n :: :: Level
     {{ tex [[n]] }}
-  | n + 1 :: S :: Succ
-    {{ coq S [[n]] }}
-    {{ tex [[n]] + 1 }}
+  | i + 1 :: S :: Succ
+    {{ coq S [[i]] }}
+    {{ tex [[i]] + 1 }}
+  | ( i ) :: S :: Parens
+    {{ coq ([[i]]) }}
+    {{ tex ([[i]]) }}
+  | (# i #) :: S :: SecretParens
+    {{ coq ([[i]]) }}
+    {{ tex [[i]] }}
 
 grade, k, l {{ tex \ell }} :: 'l_' ::=
   {{ coq grade }}
@@ -32,6 +38,9 @@ grade, k, l {{ tex \ell }} :: 'l_' ::=
 tm, a, b, c, A, B, C, p, t, u, v :: 'a_' ::=
   {{ com terms and types }}
   {{ coq-universe Type }}
+  | x :: :: Var
+    {{ com variables }}
+    {{ tex [[x]] }}
   | Pi x : l A . B :: :: Pi
     (+ bind x in B +)
     {{ com dependent function type }}
@@ -105,7 +114,7 @@ context, G {{ tex \Gamma }} :: 'ctx_' ::=
   {{ com contexts }}
   {{ coq list (atom * (grade * tm)) }}
   {{ coq-universe Type }}
-  | empty :: S :: Empty
+  | nil :: S :: Nil
     {{ com empty context }}
     {{ coq nil }}
   | x : l A :: S :: One
@@ -272,7 +281,13 @@ defn
   {{ tex \vdash [[G]] }}
 by
 
-% TODO
+------ :: Nil
+|- nil
+
+|- G
+G |- A : l (Univ i)
+------------------- :: Cons
+|- G ++ x : l A
 
 defn
   G |- a : l A :: :: Wt :: 'Wt_'
@@ -280,7 +295,66 @@ defn
   {{ tex [[G]] \vdash [[a]] :^{[[l]]} [[A]] }}
 by
 
-% TODO
+|- G
+x : l0 A in G
+l0 <= l
+------------- :: Var
+G |- x : l A
+
+G |- A : l Univ i
+G ++ x : l0 A |- B : l Univ i
+------------------------------- :: Pi
+G |- Pi x : l0 A . B : l Univ i
+
+G ++ x : l0 A |- b : l B
+G |- Pi x : l0 A . B : l1 Univ i
+----------------------------------- :: Abs
+G |- \ l0 x . b : l Pi x : l0 A . B
+
+G |- b : l Pi x : l0 A . B
+G |- a : l0 A
+--------------------------- :: App
+G |- b l0 a : l B { a / x }
+
+|- G
+-------------------------------- :: Univ
+G |- Univ i : l Univ (# i + 1 #)
+
+|- G
+-------------------- :: Void
+G |- Void : l Univ i
+
+G |- b : l0 Void
+G |- A : l1 Univ i
+------------------- :: Absurd
+G |- absurd b : l A
+
+% TODO: rules for Eq, Refl, J
+
+G |- A : l Univ i
+G ++ x : l0 A |- B : l Univ i
+-------------------------------- :: Pi
+G |- Sig x : l0 A . B : l Univ i
+
+G |- a : l0 A
+G |- b : l B { a / x }
+G |- Sig x : l0 A . B : l1 Univ i
+----------------------------------- :: Pack
+G |- (l0 a, b) : l Sig x : l0 A . B
+
+G |- A : l2 Univ i
+G ++ x : l0 A |- B : l2 Univ i
+G |- a : l1 Sig x : l0 A . B
+G ++ x : l0 A ++ y : l1 B |- b : l C { (l0 x, y) / z }
+G ++ z : l1 Sig x : l0 A . B |- C : l2 Univ i
+------------------------------------------------------ :: Let
+G |- let (l0 x , y) = l1 a in b : l C { a / z }
+
+G |- a : l A
+G |- B : l0 Univ i
+| G | |- A == B
+------------------ :: Conv
+G |- a : l B
 
 defns
   IOk :: '' ::=
