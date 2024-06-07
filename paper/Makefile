@@ -10,14 +10,14 @@ OTT := ott -tex_wrap false -tex_show_meta false -picky_multiple_parses false -me
 -include overrides.mk
 
 MAKEDEPS  := Makefile
-OTTDEPS := ../dcoi.ott Auxiliary.ott
+OTTDEPS := ../old.ott Auxiliary.ott
 LATEXDEPS := weirich.bib refs.bib
 MOREDEPS := ACM-Reference-Format.bst acmart.cls listproc.sty ottalt.sty draft.sty
 GENERATED := $(MAIN).pdf $(MAIN)-output.tex $(RULES).tex
 
 all : $(MAIN).pdf
 
-spec.tex: ../dcoi.ott Auxiliary.ott dcoi-rules.tex
+spec.tex: ../old.ott Auxiliary.ott dcoi-rules.tex
 	$(OTT) -tex_filter spec.mng spec.tex
 
 spec.pdf: spec.tex
