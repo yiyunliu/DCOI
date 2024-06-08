@@ -189,7 +189,7 @@ formula :: 'formula_' ::=
   | formula1 .. formulaidx :: :: dots % DON'T DELETE THIS
   | x : l A in G :: :: inG
     {{ coq binds [[x]] ([[l]], [[A]]) [[G]] }}
-    {{ tex [[x]] :^{[[l]]} \! \in [[G]] }}
+    {{ tex [[x]] :^{[[l]]} \! [[A]] \in [[G]] }}
   | x : l in E :: :: inE
     {{ coq binds [[x]] [[l]] [[E]] }}
     {{ tex [[x]] : [[l]] \in [[E]] }}
@@ -435,6 +435,16 @@ G |- A : l Univ i
 |- G ++ x : l A
 
 defn
+  G |- a : A :: :: Wtg :: 'Wtg_'
+  {{ com ungraded well-typedness }}
+  {{ tex [[G]] \vdash [[a]] : [[A]] }}
+by
+
+G |- a : l A
+------------ :: Grade
+G |- a : A
+
+defn
   G |- a : l A :: :: Wt :: 'Wt_'
   {{ com well-typedness }}
   {{ tex [[G]] \vdash [[a]] :^{[[l]]} [[A]] }}
@@ -452,7 +462,7 @@ G ++ x : l0 A |- B : l Univ i
 G |- Pi x : l0 A . B : l Univ i
 
 G ++ x : l0 A |- b : l B
-G |- Pi x : l0 A . B : l1 Univ i
+G |- Pi x : l0 A . B : Univ i
 ----------------------------------- :: Abs
 G |- \ l0 x . b : l Pi x : l0 A . B
 
@@ -469,12 +479,12 @@ G |- Univ i : l Univ (# i + 1 #)
 -------------------- :: Void
 G |- Void : l Univ i
 
-G |- b : l0 Void
-G |- A : l1 Univ i
+G |- b : Void
+G |- A : Univ i
 ------------------- :: Absurd
 G |- absurd b : l A
 
-G |- A : l1 Univ i
+G |- A : Univ i
 G |- a : l A
 G |- b : l A
 l0 <= l
@@ -487,11 +497,11 @@ G |- refl : l a ~ l0 a : A
 
 G |- a : l1 A
 G |- b : l1 A
-G |- A : l2 Univ i
-G |- p : l3 a ~ l0 b : A
-(# G ++ x : l1 A #) ++ y : l3 a ~ l0 x : A |- C : l0 Univ i
+G |- A : Univ i
+G |- p : l2 a ~ l0 b : A
+(# G ++ x : l1 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ i
 G |- t : l C { a , refl / x , y }
-l3 <= l
+l2 <= l
 ----------------------------------------------------------- :: J
 G |- J C t p : l C { b , p / x , y }
 
@@ -502,21 +512,21 @@ G |- Sig x : l0 A . B : l Univ i
 
 G |- a : l0 A
 G |- b : l B { a / x }
-G |- Sig x : l0 A . B : l1 Univ i
+G |- Sig x : l0 A . B : Univ i
 ----------------------------------- :: Pack
 G |- (l0 a, b) : l Sig x : l0 A . B
 
-G |- A : l2 Univ i
-G ++ x : l0 A |- B : l2 Univ i
+G |- A : Univ i
+G ++ x : l0 A |- B : Univ i
 G |- a : l1 Sig x : l0 A . B
 (# G ++ x : l0 A #) ++ y : l1 B |- b : l C { (l0 x, y) / z }
-G ++ z : l1 Sig x : l0 A . B |- C : l2 Univ i
+G ++ z : l1 Sig x : l0 A . B |- C : Univ i
 l1 <= l
 ------------------------------------------------------------ :: Let
 G |- let (l0 x, y) = l1 a in b : l C { a / z }
 
 G |- a : l A
-G |- B : l0 Univ i
+G |- B : Univ i
 | G | |- A == B
 ------------------ :: Conv
 G |- a : l B
