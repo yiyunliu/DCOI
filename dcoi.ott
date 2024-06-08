@@ -1,3 +1,6 @@
+embed
+  {{ tex-preamble \newcommand{\mt}{ \raisebox{1ex-0.5\height}{$\centerdot$} } }}
+
 metavar tmvar, x, y, z, f, g ::=
   {{ repr-locally-nameless }}
   {{ com variables }}
@@ -117,6 +120,7 @@ context, G {{ tex \Gamma }} :: 'ctx_' ::=
   | nil :: S :: Nil
     {{ com empty context }}
     {{ coq nil }}
+    {{ tex \mt }}
   | x : l A :: S :: One
     {{ com singleton context }}
     {{ coq ([[x]], ([[l]], [[A]])) }}
@@ -141,10 +145,11 @@ econtext, E {{ tex \Xi }} :: 'ectx_' ::=
   | empty :: S :: Empty
     {{ com empty context }}
     {{ coq nil }}
-  | x @ l :: S :: One
+    {{ tex \mt }}
+  | x : l :: S :: One
     {{ com singleton context }}
     {{ coq ([[x]], [[l]]) }}
-    {{ tex [[x]] \mathbin{@} [[l]] }}
+    {{ tex [[x]] : [[l]] }}
   | E ++ E' :: S :: Append
     {{ com appending two contexts }}
     {{ coq [[E]] ++ [[E']] }}
@@ -181,9 +186,9 @@ formula :: 'formula_' ::=
   | x : l A in G :: :: inG
     {{ coq binds [[x]] ([[l]], [[A]]) [[G]] }}
     {{ tex [[x]] :^{[[l]]} \! \in [[G]] }}
-  | x @ l in E :: :: inE
+  | x : l in E :: :: inE
     {{ coq binds [[x]] [[l]] [[E]] }}
-    {{ tex [[x]] \mathbin{@} [[l]] \in [[E]] }}
+    {{ tex [[x]] : [[l]] \in [[E]] }}
   | x notin G :: :: notInG
     {{ coq ~ AtomSetImpl.In [[x]] (dom [[G]]) }}
     {{ tex [[x]] \notin [[G]] }}
@@ -317,17 +322,17 @@ defn
   {{ tex [[E]] \vdash [[a]] \equiv^{[[l]]} [[b]] }}
 by
 
-x @ l0 in E
+x : l0 in E
 l0 <= l
 --------------- :: Var
 E |- x == x @ l
 
 E |- A0 == A1 @ l
-E ++ x @ l0 |- B0 == B1 @ l
+E ++ x : l0 |- B0 == B1 @ l
 --------------------------------------------- :: Pi
 E |- Pi x : l0 A . B == Pi x : l0 A1 . B1 @ l
 
-E ++ x @ l0 |- b0 == b1 @ l
+E ++ x : l0 |- b0 == b1 @ l
 ----------------------------------- :: Abs
 E |- \ l0 x . b0 == \ l0 x . b1 @ l
 
@@ -361,7 +366,7 @@ l0 <= l
 E |- J C0 t0 p0 == J C1 t1 p1 @ l
 
 E |- A0 == A1 @ l
-E ++ x @ l0 |- B0 == B1 @ l
+E ++ x : l0 |- B0 == B1 @ l
 ----------------------------------------------- :: Sig
 E |- Sig x : l0 A0 . B0 == Sig x : l0 A1 . B1 @ l
 
@@ -371,7 +376,7 @@ E |- b0 == b1 @ l
 E |- (l0 a0, b0) == (l0 a1, b1) @ l
 
 E |- a0 == a1 @ l1
-(# E ++ x @ l0 #) ++ y @ l1 |- b0 == b1 @ l
+(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l
 l1 <= l
 ------------------------------------------------------------------- :: Let
 E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l
@@ -390,8 +395,6 @@ E |- a == b @ l l0
 not (l0 <= l)
 ------------------ :: Indist
 E |- a == b @ l l0
-
-%% Definitional equality
 
 defns
   DefEq :: '' ::=
@@ -518,67 +521,67 @@ defns
   IOk :: '' ::=
 
 defn
-  E |- a @ l :: :: Wg :: 'Wg_'
+  E |- a : l :: :: Wg :: 'Wg_'
   {{ com well-gradedness }}
-  {{ tex [[E]] \vdash [[a]] \mathbin{@} [[l]] }}
+  {{ tex [[E]] \vdash [[a]] : [[l]] }}
 by
 
-x @ l0 in E
+x : l0 in E
 l0 <= l
 ----------- :: Var
-E |- x @ l
+E |- x : l
 
-E |- A @ l
-E ++ x @ l0 |- B @ l
+E |- A : l
+E ++ x : l0 |- B : l
 ------------------------ :: Pi
-E |- Pi x : l0 A . B @ l
+E |- Pi x : l0 A . B : l
 
-E ++ x @ l0 |- b @ l
+E ++ x : l0 |- b : l
 -------------------- :: Abs
-E |- \ l0 x . b @ l
+E |- \ l0 x . b : l
 
-E |- b @ l
-E |- a @ l0
+E |- b : l
+E |- a : l0
 --------------- :: App
-E |- b l0 a @ l
+E |- b l0 a : l
 
 --------------- :: Univ
-E |- Univ i @ l
+E |- Univ i : l
 
 ------------- :: Void
-E |- Void @ l
+E |- Void : l
 
-E |- b @ l0
+E |- b : l0
 ----------------- :: Absurd
-E |- absurd b @ l
+E |- absurd b : l
 
-E |- a @ l
-E |- b @ l
+E |- a : l
+E |- b : l
 l0 <= l
 --------------------- :: Eq
-E |- a ~ l0 b : A @ l
+E |- a ~ l0 b : A : l
 
 ------------- :: Refl
-E |- refl @ l
+E |- refl : l
 
-E |- p @ l0
-E |- t @ l
+E |- p : l0
+E |- t : l
 l0 <= l
 ---------------- :: J
-E |- J C t p @ l
+E |- J C t p : l
 
-E |- A @ l
-E ++ x @ l0 |- B @ l
+E |- A : l
+E ++ x : l0 |- B : l
 ------------------------- :: Sig
-E |- Sig x : l0 A . B @ l
+E |- Sig x : l0 A . B : l
 
-E |- a @ l0
-E |- b @ l
+E |- a : l0
+E |- b : l
 ------------------ :: Pack
-E |- (l0 a, b) @ l
+E |- (l0 a, b) : l
 
-E |- a @ l1
-(# E ++ x @ l0 #) ++ y @ l1 |- b @ l
+E |- a : l1
+(# E ++ x : l0 #) ++ y : l1 |- b : l
 l1 <= l
 ------------------------------------ :: Let
-E |- let (l0 x, y) = l1 a in b @ l
+E |- let (l0 x, y) = l1 a in b : l
