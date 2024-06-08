@@ -110,8 +110,12 @@ tm, a, b, c, A, B, C, p, t, u, v :: 'a_' ::=
     {{ tex [[a]] }}
   | a { b / x } :: S :: Subst
     {{ com single substitution }}
-    {{ coq (open_tm_wrt_tm [[x a]] [[b]]) }}
+    {{ coq (open_tm_wrt_tm [[x]] [[a]] [[b]]) }}
     {{ tex [[a]] \lbrack [[x]] \mapsto [[b]] \rbrack }}
+  | a { b , c / x , y } :: S :: Substs
+    {{ com double substitution }}
+    {{ coq (open_tm_wrt_tm [[y]] (open_tm_wrt_tm [[x]] [[a]] [[b]]) [[c]]) }}
+    {{ tex [[a]] \lbrack [[x]], [[y]] \mapsto [[b]], [[c]] \rbrack }}
 
 context, G {{ tex \Gamma }} :: 'ctx_' ::=
   {{ com contexts }}
@@ -232,7 +236,7 @@ a0 => a1
 b0 => b1
 c0 => c1
 ---------------------------------------------------------------- :: LetPack
-let (l0 x, y) = l1 (l0 a0, b0) in c0 => c1 { a1 / x } { b1 / y }
+let (l0 x, y) = l1 (l0 a0, b0) in c0 => c1 { a1 , b1 / x , y }
 
 % congruence rules
 
@@ -486,10 +490,10 @@ G |- b : l1 A
 G |- A : l2 Univ i
 G |- p : l3 a ~ l0 b : A
 (# G ++ x : l1 A #) ++ y : l3 a ~ l0 x : A |- C : l0 Univ i
-G |- t : l C { a / x } { refl / y }
+G |- t : l C { a , refl / x , y }
 l3 <= l
 ----------------------------------------------------------- :: J
-G |- J C t p : l C { b / x } { p / y }
+G |- J C t p : l C { b , p / x , y }
 
 G |- A : l Univ i
 G ++ x : l0 A |- B : l Univ i
