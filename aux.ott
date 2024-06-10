@@ -41,7 +41,7 @@ branches, bs :: 'bs_' ::=
     {{ tex [[bs]] \\ [[amps]] \mid [[branch]] }}
 
 tm :: 'a_' ::=
-  | phantom :: :: Phantom
+  | phantom :: S :: Phantom
     {{ com invisible placeholder for typesetting }}
     {{ tex }}
   | ! x :: S :: Const
@@ -55,7 +55,7 @@ tm :: 'a_' ::=
     {{ com indistinguishability (no type annotation) }}
     {{ coq a_Eq [[a]] [[l]] [[b]] _ }}
     {{ tex [[a]] \sim^{[[l]]} \! [[b]] }}
-  | case a return c of bs :: :: Case
+  | case a return c of bs :: S :: Case
     {{ com case expressions }}
     {{ tex \ottkw{case} \, [[a]] \, \ottkw{return} \, [[c]] \, \ottkw{of} \, [[bs]] }}
 
