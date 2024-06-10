@@ -10,7 +10,7 @@ OTT := ott -tex_wrap false -tex_show_meta false -picky_multiple_parses false -me
 -include overrides.mk
 
 MAKEDEPS  := Makefile
-OTTDEPS := dcoi.ott
+OTTDEPS := dcoi.ott aux.ott
 LATEXDEPS := refs.bib
 MOREDEPS := ACM-Reference-Format.bst acmart.cls listproc.sty ottalt.sty draft.sty
 GENERATED := $(MAIN).pdf $(MAIN)-output.tex $(RULES).tex

@@ -166,6 +166,28 @@
 
 \maketitle
 
+\begin{spreadlines}{0em}
+\begin{align*}
+  [[:concrete: Ifz & : H ! Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
+  [[:concrete: Ifz & := \ H n . \ H A . \ H B . phantom]] \\
+  & [[:concrete: case n return Univ 0 of
+      & Z => A ++
+      & S n => B]] \\
+  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n : ! Nat) -> A @ H]] \\
+  [[:concrete: discr & := \ H A . \ H n . \ H p . J (\ H m . \ H q . ! Ifz H m H ! Nat H A) ! Z p]] \\
+  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L ! Vec H A H n -> A @ L]] \\
+  [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
+  & [[:concrete: (case v return \ H m . L (m ~ H ! S H n : ! Nat) -> A of
+      & vnil => \ H p . absurd (! discr H Void H n H p) ++
+      & vcons n x xs => \ H p . x) H refl]]
+\end{align*}
+\end{spreadlines}
+
+\begin{alignat*}{2}
+  [[G]] &\Coloneqq [[nil]] \mid [[G ++ x : l A]] \\
+  [[E]] &\Coloneqq [[nil]] \mid [[E ++ x : l]]
+\end{alignat*}
+\nonterms{tm}
 \drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Void,Absurd,Eq,Refl,J,Sig,Pack,Let,Conv}
 \drules[Wtg]{$[[G |- a : A]]$}{Existentially-graded typing}{Grade}
 \drules[Wf]{$[[ |- G]]$}{Context well-formedness rules}{Nil, Cons}

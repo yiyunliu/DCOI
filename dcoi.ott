@@ -1,5 +1,8 @@
 embed
-  {{ tex-preamble \newcommand{\mt}{ \raisebox{1ex-0.5\height}{$\centerdot$} } }}
+  {{ tex-preamble
+    \newcommand{\mt}{ \raisebox{1ex-0.5\height}{$\centerdot$} }
+    \newcommand{\const}[1]{ \mathsf{#1} }
+  }}
 
 metavar tmvar, x, y, z, f, g ::=
   {{ repr-locally-nameless }}
@@ -14,7 +17,7 @@ indexvar idx ::=
   {{ tex \mathit{i} }}
 
 %%%%%%%%%%%%%%%
-%%  GRAMMAR  %%
+%%  Grammar  %%
 %%%%%%%%%%%%%%%
 
 grammar
@@ -63,14 +66,10 @@ tm, a, b, c, A, B, C, p, t, u, v :: 'a_' ::=
     {{ tex \bot }}
   | absurd b :: :: Absurd
     {{ com ex falso quodlibet }}
-    {{ tex \mathop{ \ottkw{absurd} } b }}
+    {{ tex \ottkw{absurd} \, [[b]] }}
   | a ~ l b : A :: :: Eq
     {{ com indistinguishability }}
-    {{ tex a \sim^{[[l]]} \! b \in [[A]] }}
-  | a ~ l b :: S :: EqS
-    {{ com indistinguishability (no type annotation) }}
-    {{ coq a_Eq [[a]] [[l]] [[b]] _ }}
-    {{ tex a \sim^{[[l]]} \! b }}
+    {{ tex [[a]] \sim^{[[l]]} \! [[b]] \in [[A]] }}
   | refl :: :: Refl
     {{ com reflexivity }}
     {{ tex \ottkw{refl} }}

@@ -1,0 +1,69 @@
+grammar
+
+indent, amps :: 'ind_' ::=
+  {{ com hack for LaTeX indentation }}
+  | ^ :: :: None
+    {{ tex }}
+  | & :: :: One
+    {{ tex & }}
+  | amps & :: :: Many
+    {{ tex [[amps]] & }}
+
+luniv :: 'u_' ::=
+  {{ com concrete universe levels }}
+  | 0 :: :: Zero
+    {{ tex 0 }}
+
+grade :: 'l_' ::=
+  {{ com concrete grades }}
+  | L :: :: Low
+    {{ tex \const{L} }}
+  | H :: :: High
+    {{ tex \const{H} }}
+
+pat :: 'p_' ::=
+  {{ com case branch patterns }}
+  | x :: :: Head
+    {{ tex \const{[[x]]} }}
+  | pat x :: :: Arg
+    {{ tex [[pat]] \, [[x]] }}
+
+branch :: 'b_' ::=
+  {{ com case branch }}
+  | pat => b :: :: Branch
+    {{ tex [[pat]] \Rightarrow [[b]] }}
+
+branches, bs :: 'bs_' ::=
+  {{ com case branches }}
+  | amps branch :: :: One
+    {{ tex \\ [[amps]] \mid [[branch]] }}
+  | bs ++ amps branch :: :: Many
+    {{ tex [[bs]] \\ [[amps]] \mid [[branch]] }}
+
+tm :: 'a_' ::=
+  | phantom :: :: Phantom
+    {{ com invisible placeholder for typesetting }}
+    {{ tex }}
+  | ! x :: S :: Const
+    {{ com constant }}
+    {{ coq [[x]] }}
+    {{ tex \const{[[x]]} }}
+  | l A -> B :: S :: Arrow
+    {{ com nondependent function type }}
+    {{ tex [[A]] \overset{[[l]]}{\rightarrow} [[B]] }}
+  | a ~ l b :: S :: EqS
+    {{ com indistinguishability (no type annotation) }}
+    {{ coq a_Eq [[a]] [[l]] [[b]] _ }}
+    {{ tex [[a]] \sim^{[[l]]} \! [[b]] }}
+  | case a return c of bs :: :: Case
+    {{ com case expressions }}
+    {{ tex \ottkw{case} \, [[a]] \, \ottkw{return} \, [[c]] \, \ottkw{of} \, [[bs]] }}
+
+toplevel :: 'tl_' ::=
+  {{ com top-level statements }}
+  | x amps : a @ l :: :: Decl
+    {{ com declaration }}
+    {{ tex \const{[[x]]} [[amps]] :^{[[l]]} [[a]] }}
+  | x amps := a :: :: Defn
+    {{ com definition }}
+    {{ tex \const{[[x]]} [[amps]] \coloneqq [[a]] }}
