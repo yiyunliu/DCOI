@@ -174,7 +174,7 @@
       & Z => A ++
       & S n => B]] \\
   [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n : ! Nat) -> A @ H]] \\
-  [[:concrete: discr & := \ H A . \ H n . \ H p . J (\ H m . \ H q . ! Ifz H m H ! Nat H A) ! Z p]] \\
+  [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
   [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L ! Vec H A H n -> A @ L]] \\
   [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
   & [[:concrete: (case v return \ H m . L (m ~ H ! S H n : ! Nat) -> A of
