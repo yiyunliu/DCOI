@@ -26,12 +26,10 @@ luniv, i, j :: 'u_' ::=
   {{ coq luniv }}
   | n :: :: Level
     {{ tex [[n]] }}
-  | i + 1 :: S :: Succ
-    {{ coq S [[i]] }}
+  | i + 1 :: :: Succ
     {{ tex [[i]] + 1 }}
-  | max i j :: S :: Max
-    {{ coq max [[i]] [[j]] }}
-    {{ tex \mathop{ \const{max} }([[i]], [[j]]) }}
+  | max i j :: :: Max
+    {{ tex [[i]] \vee [[j]] }}
   | ( i ) :: S :: Parens
     {{ coq ([[i]]) }}
     {{ tex ([[i]]) }}
@@ -43,6 +41,14 @@ grade, k, l {{ tex \ell }} :: 'l_' ::=
   {{ coq grade }}
   | n :: :: Level
     {{ tex [[n]] }}
+  | k /\ l :: :: Meet
+    {{ tex [[k]] \wedge [[l]] }}
+  | ( l ) :: S :: Parens
+    {{ coq ([[l]]) }}
+    {{ tex ([[l]]) }}
+  | (# l #) :: S :: SecretParens
+    {{ coq ([[l]]) }}
+    {{ tex [[l]] }}
 
 tm, a, b, c, A, B, C, p :: 'a_' ::=
   {{ com terms and types }}

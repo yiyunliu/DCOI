@@ -51,7 +51,7 @@
 \usepackage{natbib}
 \usepackage{mathpartir,mathtools,stmaryrd}
 \usepackage{listings,xspace,color,doi}
-\usepackage[para,flushmargin,multiple]{footmisc}
+\usepackage[flushmargin,multiple]{footmisc} % option para seems to be broken?
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
 
@@ -97,16 +97,21 @@
 \newcommand{\name}{DCOI\@\xspace}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
-\newcommand{\subst}[3]{#1[#2 \mapsto #3]}
-\newcommand{\dotv}[3]{\href{#1}{\texttt{#2}}{\texttt{:#3}}}
-\newcommand{\dotpi}[2]{\href{#1/#2}{\texttt{#2}}}
+\newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
 
-% e.g. \punctstack{.}\footnote{...}
-% stacks the footnote marker above .
 \newlength{\punctwidth}
+% \punctstack{<punct>} treats <punct> as having no width,
+% so that footnotes after it can stack on top
 \newcommand{\punctstack}[1]{#1%
+  \settowidth{\punctwidth}{#1}%
+  \hspace*{-\the\punctwidth}%
+}
+% \stack{<punct>} is a negative space the size of <punct>
+% to manually stack existing punctuation and footnotes
+% atop one another; essentially \punctstack without the punct
+\newcommand{\stack}[1]{%
   \settowidth{\punctwidth}{#1}%
   \hspace*{-\the\punctwidth}%
 }
@@ -188,6 +193,65 @@
 \end{align*}
 \end{spreadlines}
 
+\section{Lemmas}
+
+\begin{lemma}[Transitivity of indistinguishability]
+  \stack{.~}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
+  If $[[E |- a == b @ l0]]$ and $[[E |- b == c @ l1]]$,
+  then $[[E |- a == c @ l0 /\ l1]]$
+\end{lemma}
+
+\begin{lemma}[Congruence of indistinguishability]
+  \stack{.~}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
+  Suppose $[[E |- b0 == b1 @ l l0]]$.
+  If $[[E ++ x : l0 |- a0 == a1 @ l]]$,
+  then $[[E |- a0 { b0 / x } == a1 { b1 / x } @ l]]$;
+  and if $[[E ++ x : l0 |- a0 == a1 @ l l1]]$,
+  then $[[E |- a0 { b0 / x } == a1 { b1 / x } @ l l1]]$.
+\end{lemma}
+
+\begin{lemma}[Simulation]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation}}
+  \label{lem:simulation}
+  If $[[E |- a0 == b0 @ l]]$ and $[[a0 => a1]]$,
+  then there exists some $[[b1]]$ such that $[[b0 => b1]]$
+  and $[[E |- a1 == b1 @ l]]$.
+\end{lemma}
+
+\begin{lemma}[Preservation of definitional equality]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}
+  If $[[E |- a0 == b0]]$, $[[a0 => a1]]$, and $[[b0 => b1]]$,
+  then $[[E |- a1 == b1]]$.
+\end{lemma}
+
+\begin{lemma}[Transitivity of definitional equality]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  If $[[E |- a == b]]$ and $[[E |- b == c]]$,
+  then $[[E |- a == c]]$.
+\end{lemma}
+
+\begin{lemma}[Substitutivity of definitional equality]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
+  If $[[E ++ x : l |- a0 == a1]]$ and $[[E |- b : l]]$,
+  then $[[E |- a0 { b / x } == a1 { b / x }]]$.
+\end{lemma}
+
+\begin{lemma}[Subsumption]
+  \stack{.~}{\footnote{\jc{I couldn't find the lemma for this one?}}}
+  If $[[G |- a : l0 A]]$ and $[[l0 <= l1]]$,
+  then $[[G |- a : l1 A]]$.
+\end{lemma}
+
+\begin{lemma}[Well-gradedness of well-typed terms]
+  \stack{.~}\footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
+  If $[[G |- a : l A]]$, then $[[| G | |- a : l]]$.
+\end{lemma}
+
+\begin{lemma}[Reflexive equality of well-typed terms]
+  \stack{.~}\footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
+  If $[[G |- a : l A]]$, then $[[| G | |- a == a]]$.
+\end{lemma}
+
 \section{Notes}
 
 The level of scrutinees must be bounded by the level of the overall eliminator.
@@ -195,7 +259,7 @@ In particular, in \rref{Wt-J}, the level of an equality proof $[[p]]$
 must be bounded by that of its elimination $[[J c p]]$,
 and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
 must be bounded by that of its elimination $[[let (l0 x, y) = l1 a in b]]$.
-The bound is required to prove the simulation property.
+The bound is required to prove the simulation property (\cref{lem:simulation}).
 Suppose that scrutinees could instead be typed at any level.
 First, the indistinguishability rules need to be updated
 so that scrutinees are indistinguishable if their level is higher
