@@ -93,6 +93,9 @@
 \newcommand{\jc}[1]{}
 \fi
 
+\DeclarePairedDelimiter{\bracks}{\llbracket}{\rrbracket}
+\DeclarePairedDelimiter{\braces}{\lbrace}{\rbrace}
+
 \newcommand{\suppress}[1]{}
 \newcommand{\name}{DCOI\@\xspace}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
@@ -100,6 +103,20 @@
 \newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
+
+\newcommand{\interp}[4]{\bracks{#1 \vDash_{#2} #3} \searrow #4}
+\newcommand{\buildset}[3]{\braces{#1^{#2} \mid #3}}
+\newcommand{\member}[3]{#1 \in^{#2} #3}
+\newcommand{\dom}{\mathop{\mathsf{dom}}}
+\newcommand{\subst}[2]{#1[#2]}
+\newcommand{\substcons}[3]{#1, #3 / #2}
+\newcommand{\sws}[3]{#1 \vDash #2 : #3}
+\newcommand{\swt}[4]{#1 \vDash #2 :^{#3} #4}
+\newcommand{\swf}[1]{\vDash #1}
+\newcommand{\prodspace}{\hat{\Pi}}
+\newcommand{\sigspace}{\hat{\Sigma}}
+\newcommand{\univspace}[1]{\hat{\mathcal{U}}_{#1}}
+\newcommand{\eqspace}{\hat{\sim}}
 
 \newlength{\punctwidth}
 % \punctstack{<punct>} treats <punct> as having no width,
@@ -309,7 +326,8 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   [[G]] &\Coloneqq [[nil]] \mid [[G ++ x : l A]] \\
   [[E]] &\Coloneqq [[nil]] \mid [[E ++ x : l]]
 \end{alignat*}
-\nonterms{tm}
+
+% \nonterms{tm} % this is behaving weird rn
 \drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let,Conv}
 \drules[Wtg]{$[[G |- a : A]]$}{Existentially-graded typing}{Grade}
 \drules[Wf]{$[[ |- G]]$}{Context well-formedness rules}{Nil, Cons}
@@ -319,6 +337,149 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 \drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
 \drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
+
+\section{Semantics}
+
+\begin{align*}
+  \member{[[a]]}{[[l0]]}{\buildset{[[x]]}{[[l]]}{P}} &\mathrel{\mathit{iff}} [[:concrete: P { a / x, l0 / l }]] ~ \mathit{holds} \\
+  \prodspace([[b]], [[l]], [[l0]], S_A, R) &\coloneqq
+    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
+  \sigspace([[c]], [[l]], [[l0]], S_A, R) &\coloneqq
+    \exists a, b, [[c =>* (l0 a, b)]] \wedge
+    \member{x}{[[l0]]}{S_A} \wedge
+    (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
+  \univspace{j}([[A]], [[E]]) &\coloneqq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S} \\
+  \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) &\coloneqq
+    [[p =>* refl]] \wedge \exists a', b', [[a =>* a']] \wedge [[b =>* b']] \wedge [[E |- a == b @ l0]]
+\end{align*}
+
+\begin{mathpar}
+  \infer[SWt-Pi]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
+    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+  }{
+    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}}
+  }
+  \and
+  \infer[SWt-Sigma]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
+    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+  }{
+    \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge \sigspace([[c]], [[l]], [[l0]], S_A, R)}}
+  }
+  \and
+  \infer[SWt-Univ]{
+    j < i
+  }{
+    \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \univspace{j}([[E]], [[A]])}}
+  }
+  \and
+  \infer[SWt-Empty]{~}{
+    \interp{[[E]]}{[[i]]}{[[Void]]}{\varnothing}
+  }
+  \and
+  \infer[SWt-Eq]{~}{
+    \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]])}}
+  }
+  \and
+  \infer[SWt-Step]{
+    [[A => B]] \\
+    \interp{[[E]]}{[[i]]}{[[B]]}{S}
+  }{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S}
+  }
+\end{mathpar}
+
+\jc{These are translated directly from the Coq proofs,
+which deal with simultaneous substitution maps,
+but maybe they should be reformulated in terms of single substitutions
+since the rest of the paper will probably work with variables and single substitutions?
+For instance, a single substitution $[[{ a / x }]]$ would be semantically well formed
+if there exist $i$, $S$ such that
+$\interp{[[|D|]]}{[[i]]}{[[A {a / x}]]}{S}$
+and $\member{a}{[[l]]}{S}$.}
+
+\begin{definition}[Substitution maps]
+  A substitution map $\rho$ is a mapping from variables to terms.
+  We use $\dom(\rho)$ to denote the variables in the domain of $\rho$,
+  $\rho(x)$ the term to which $\rho$ maps $[[x]]$,
+  and $\subst{[[a]]}{\rho}$ to denote the simultaneous substitution
+  of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
+\end{definition}
+
+\begin{definition}[Semantic substitution]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
+  A substitution map is semantically well formed
+  with respect to a context $[[G]]$ under a context $[[D]]$,
+  written $\sws{[[D]]}{\rho}{[[G]]}$,
+  if for every $[[x : l A in G]]$,
+  there exist $i$, $S$ such that
+  $\interp{[[|D|]]}{[[i]]}{\subst{[[A]]}{\rho}}{S}$
+  and $\member{\rho(x)}{[[l]]}{S}$.
+  Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
+  and the terms $\rho$ replaces them by have free variables in $[[D]]$.
+\end{definition}
+
+\begin{definition}[Semantic well-typedness]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
+  A term $[[a]]$ is semantically well typed with type $[[A]]$
+  at level $[[l]]$ under context $[[G]]$,
+  written $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$,
+  if for every $\rho$, $[[D]]$,
+  given $\sws{[[D]]}{\rho}{[[G]]}$,
+  there exist $i$, $S$ such that
+  $\interp{[[|D|]]}{[[i]]}{\subst{[[A]]}{\rho}}{S}$
+  and $\member{\subst{[[a]]}{\rho}}{[[l]]}{S}$.
+\end{definition}
+
+\begin{definition}[Semantic well-formedness]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff}}
+  A context $[[G]]$ is semantically well formed,
+  written $\swf{[[G]]}$,
+  if for every $[[x : l A in G]]$,
+  there exist $j$, $[[l0]]$ such that
+  $\swt{[[G]]}{[[A]]}{[[l0]]}{[[Univ j]]}$.
+\end{definition}
+
+\begin{lemma}[Semantic substitution, nil]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_nil}}
+  $\sws{[[nil]]}{\rho}{[[nil]]}$ holds for any $\rho$.
+\end{lemma}
+
+\begin{lemma}[Semantic substitution, cons]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_cons}}
+  Suppose $\sws{[[D]]}{\rho}{[[G]]}$.
+  If $\interp{[[|D|]]}{[[i]]}{\subst{[[A]]}{\rho}}{S}$
+  and $\member{[[a]]}{[[l]]}{S}$,
+  then $\sws{[[D]]}{\substcons{\rho}{[[x]]}{[[a]]}}{[[G ++ x : l A]]}$.
+\end{lemma}
+
+\begin{lemma}[Semantic well-formedness, nil]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff\_nil}}
+  $\swf{[[nil]]}$ holds.
+\end{lemma}
+
+\begin{lemma}[Semantic well-formedness, cons]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff\_cons}}
+  Suppose $\swf{[[G]]}$.
+  If $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$,
+  then $\swf{[[G ++ x : l A]]}$.
+\end{lemma}
+
+\begin{lemma}[Semantic type inversion]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
+  The following are equivalent:
+  \begin{itemize}
+    \item $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$;
+    \item For every $\rho$, $[[D]]$ such that $\sws{[[D]]}{\rho}{[[G]]}$,
+      \begin{itemize}
+        \item $[[| D | |- A { rho } : l]]$ holds, and
+        \item there exists $S$ such that $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$.
+      \end{itemize}
+  \end{itemize}
+\end{lemma}
 
 \cite{liu:dcoi}
 

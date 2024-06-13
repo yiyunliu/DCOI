@@ -40,6 +40,12 @@ branches, bs :: 'bs_' ::=
   | bs ++ amps branch :: :: Many
     {{ tex [[bs]] \\ [[amps]] \mid [[branch]] }}
 
+subst, rho {{ tex \rho }} :: 's_' ::=
+  {{ com simultaneous substitution }}
+  | { a / x } :: :: Single
+    {{ com single subsitution }}
+    {{ tex [[a]] / [[x]] }}
+
 tm :: 'a_' ::=
   | phantom :: S :: Phantom
     {{ com invisible placeholder for typesetting }}
@@ -48,6 +54,9 @@ tm :: 'a_' ::=
     {{ com constant }}
     {{ coq [[x]] }}
     {{ tex \const{[[x]]} }}
+  | a { rho } :: S :: Substs
+    {{ com simultaneous substitution }}
+    {{ tex [[a]] \lbrack [[rho]] \rbrack }}
   | l A -> B :: S :: Arrow
     {{ com nondependent function type }}
     {{ tex [[A]] \overset{[[l]]}{\rightarrow} [[B]] }}
@@ -71,6 +80,3 @@ toplevel :: 'tl_' ::=
   | x amps := a :: :: Defn
     {{ com definition }}
     {{ tex \const{[[x]]} [[amps]] \coloneqq [[a]] }}
-
-defns
-  Indist :: '' ::=
