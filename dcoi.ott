@@ -64,7 +64,7 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
   | Univ i :: :: Univ
     {{ com type universe }}
     {{ tex \mathcal{U}_{[[i]]} }} % or perhaps \star_{[[i]]}
-  | Void :: :: Void
+  | Void :: :: Empty
     {{ com empty type }}
     {{ tex \bot }}
   | absurd b :: :: Absurd
@@ -113,7 +113,7 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
   | a { b / x } :: S :: Subst
     {{ com single substitution }}
     {{ coq (open_tm_wrt_tm [[x]] [[a]] [[b]]) }}
-    {{ tex [[a]] \lbrack [[x]] \mapsto [[b]] \rbrack }}
+    {{ tex [[a]] \lbrack [[b]] / [[x]] \rbrack }}
   | a { b / x , c / y } :: S :: Substs
     {{ com double substitution }}
     {{ coq (open_tm_wrt_tm [[y]] (open_tm_wrt_tm [[x]] [[a]] [[b]]) [[c]]) }}
@@ -262,7 +262,7 @@ b0 l0 a0 => b1 l0 a1
 ---------------- :: Univ
 Univ i => Univ i
 
------------- :: Void
+------------ :: Empty
 Void => Void
 
 b0 => b1
@@ -302,7 +302,7 @@ defns
   Parallels :: '' ::=
 
 defn
-  a =>* b :: :: Pars :: 'PS_'
+  a =>* b :: :: Pars :: 'Ps_'
   {{ com multi-step parallel reduction }}
   {{ tex [[a]] \Rightarrow^{\ast} [[b]] }}
 by
@@ -349,7 +349,7 @@ E |- b0 l0 a0 == b1 l0 a1 @ l
 ------------------------- :: Univ
 E |- Univ i == Univ i @ l
 
---------------------- :: Void
+--------------------- :: Empty
 E |- Void == Void @ l
 
 ------------------------------- :: Absurd
@@ -475,7 +475,7 @@ G |- b l0 a : l B { a / x }
 G |- Univ i : l Univ (# i + 1 #)
 
 |- G
--------------------- :: Void
+-------------------- :: Empty
 G |- Void : l Univ i
 
 G |- b : Void
@@ -498,7 +498,7 @@ G |- a : l1 A
 G |- b : l1 A
 G |- A : Univ i
 G |- p : l2 a ~ l0 b : A
-(# G ++ x : l1 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ i
+(# G ++ x : l1 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ j
 G |- c : l C { a / x , refl / y }
 l1 <= l0
 l2 <= l
@@ -516,11 +516,11 @@ G |- Sig x : l0 A . B : Univ i
 ----------------------------------- :: Pack
 G |- (l0 a, b) : l Sig x : l0 A . B
 
-G |- A : Univ i
-G ++ x : l0 A |- B : Univ i
+G |- A : Univ i0
+G ++ x : l0 A |- B : Univ i1
 G |- a : l1 Sig x : l0 A . B
 (# G ++ x : l0 A #) ++ y : l1 B |- b : l C { (l0 x, y) / z }
-G ++ z : l1 Sig x : l0 A . B |- C : Univ i
+G ++ z : l1 Sig x : l0 A . B |- C : Univ j
 l1 <= l
 ------------------------------------------------------------ :: Let
 G |- let (l0 x, y) = l1 a in b : l C { a / z }
@@ -562,7 +562,7 @@ E |- b l0 a : l
 --------------- :: Univ
 E |- Univ i : l
 
-------------- :: Void
+------------- :: Empty
 E |- Void : l
 
 E |- b : l0

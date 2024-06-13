@@ -96,9 +96,12 @@
 \newcommand{\suppress}[1]{}
 \newcommand{\name}{DCOI\@\xspace}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
+\newcommand{\apriori}{\textit{a priori}\@\xspace}
 \newcommand{\subst}[3]{#1[#2 \mapsto #3]}
 \newcommand{\dotv}[3]{\href{#1}{\texttt{#2}}{\texttt{:#3}}}
 \newcommand{\dotpi}[2]{\href{#1/#2}{\texttt{#2}}}
+\newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
+\newcommand{\hlcolor}{yellow}
 
 % e.g. \punctstack{.}\footnote{...}
 % stacks the footnote marker above .
@@ -166,6 +169,8 @@
 
 \maketitle
 
+\section{Examples}
+
 \begin{spreadlines}{0em}
 \begin{align*}
   [[:concrete: Ifz & : H ! Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
@@ -183,18 +188,73 @@
 \end{align*}
 \end{spreadlines}
 
+\section{Notes}
+
+The level of scrutinees must be bounded by the level of the overall eliminator.
+In particular, in \rref{Wt-J}, the level of an equality proof $[[p]]$
+must be bounded by that of its elimination $[[J c p]]$,
+and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
+must be bounded by that of its elimination $[[let (l0 x, y) = l1 a in b]]$.
+The bound is required to prove the simulation property.
+Suppose that scrutinees could instead be typed at any level.
+First, the indistinguishability rules need to be updated
+so that scrutinees are indistinguishable if their level is higher
+than that of the overall eliminator, just like in \rref{I-App}.
+The modified premises are highlighted in \hlcolor{} below.
+%
+\begin{mathpar}
+  \setlength{\fboxsep}{1.5pt}
+  \infer[I-J-bad]{
+    \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l0]]} \\
+    [[E |- c0 == c1 @ l]]
+  }{
+    [[E |- J c0 l0 p0 == J c1 l0 p1 @ l]]
+  }
+  \and
+  \infer[I-Let-bad]{
+    \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l1]]} \\
+    [[(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l]]
+  }{
+    [[E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l]]
+  }
+\end{mathpar}
+
+As concrete examples, by these alternate rules,
+supposing $[[J c p]]$ were well typed in context $[[G]]$
+at level $[[L]]$ with $[[G |- p : H a ~ L a]]$,
+we can conclude that $[[| G | |- J c refl == J c p @ L]]$.
+The problem is that the left-hand side reduces to $[[c]]$,
+while the right-hand side does not necessarily reduce to something indistinguishable from $[[c]]$,
+thereby violating the simulation property.
+The same issue arises with pairs, where we may be able to conclude that
+$[[| G | |- let (H x, y) = H (H a, b) in c == let (H x, y) = H d in c @ L]]$,
+and the left-hand side reduces to $[[c {a / x, b / y}]]$,
+while the right-hand side again does not necessarily reduce to something indistinguishable from it.
+Even if the context were empty, the simulation property still cannot be proven
+without knowing \apriori that a closed proof of equality $[[p]]$ normalizes to $[[refl]]$,
+or that a closed term of a pair type normalizes to a pair.
+
+The one exception is the eliminator for the empty type,
+whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
+Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
+ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
+
+\section{Rules}
+
 \begin{alignat*}{2}
   [[G]] &\Coloneqq [[nil]] \mid [[G ++ x : l A]] \\
   [[E]] &\Coloneqq [[nil]] \mid [[E ++ x : l]]
 \end{alignat*}
 \nonterms{tm}
-\drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Void,Absurd,Eq,Refl,J,Sig,Pack,Let,Conv}
+\drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let,Conv}
 \drules[Wtg]{$[[G |- a : A]]$}{Existentially-graded typing}{Grade}
 \drules[Wf]{$[[ |- G]]$}{Context well-formedness rules}{Nil, Cons}
-\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Void,Absurd,Eq,Refl,J,Sig,Pack,Let}
+\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
 \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability rules}{Dist,Indist}
 \drules[E]{$[[E |- a == b]]$}{Definitional equality}{Conv}
-\drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Void,Absurd,Eq,Refl,J,Sig,Pack,Let}
+\drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
+\drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 
 \cite{liu:dcoi}
 

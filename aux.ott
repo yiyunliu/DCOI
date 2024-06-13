@@ -55,6 +55,10 @@ tm :: 'a_' ::=
     {{ com indistinguishability (no type annotation) }}
     {{ coq a_Eq [[a]] [[l]] [[b]] _ }}
     {{ tex [[a]] \sim^{[[l]]} \! [[b]] }}
+  | J c l p :: S :: JAnnot
+    {{ com eliminator for equality (with level annotation) }}
+    {{ coq a_J [[c]] [[p]] }}
+    {{ tex \ottkw{[[J]]} \, [[c]] \, [[p]]^{[[l]]} }}
   | case a return c of bs :: S :: Case
     {{ com case expressions }}
     {{ tex \ottkw{case} \, [[a]] \, \ottkw{return} \, [[c]] \, \ottkw{of} \, [[bs]] }}
@@ -67,3 +71,6 @@ toplevel :: 'tl_' ::=
   | x amps := a :: :: Defn
     {{ com definition }}
     {{ tex \const{[[x]]} [[amps]] \coloneqq [[a]] }}
+
+defns
+  Indist :: '' ::=
