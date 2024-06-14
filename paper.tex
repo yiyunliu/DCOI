@@ -212,6 +212,15 @@
 
 \section{Lemmas}
 
+\begin{lemma}[Confluence]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
+  \label{lem:confluence}
+  If $[[a =>* b]]$ and $[[a =>* c]]$,
+  then there exists a term $d$ such that
+  $[[:concrete: b =>* d]]$ and
+  $[[:concrete: c =>* d]]$.
+\end{lemma}
+
 \begin{lemma}[Simulation]
   \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation}}
   \label{lem:simulation}
@@ -219,6 +228,14 @@
   then there exists some $[[b1]]$ such that $[[b0 => b1]]$
   and $[[E |- a1 == b1 @ l]]$.
 \end{lemma}
+
+\jc{idk if it's worthwhile to state all of the inversion, injectivity, and head forms lemmmas here}
+
+\begin{theorem}[Type preservation]
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction}}
+  If $[[a => b]]$ and $[[G |- a : l A]]$
+  then $[[G |- b : l A]]$.
+\end{theorem}
 
 \iffalse
 \begin{lemma}[Transitivity of indistinguishability]
@@ -296,6 +313,7 @@ Maybe just use the footnote just as the rule is being described in the text.}
   \drule{E-subst}     % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
   % not needed for the fundamental theorem but useful for examples
   \drule{Wt-sub}      % \footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}
+  \drule{Wt-subst}    % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
 \end{mathpar}
 
 \section{Notes}
