@@ -80,3 +80,128 @@ toplevel :: 'tl_' ::=
   | x amps := a :: :: Defn
     {{ com definition }}
     {{ tex \const{[[x]]} [[amps]] \coloneqq [[a]] }}
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% Admissible rules %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+defns
+  Indist :: '' ::=
+
+defn
+  E |- a == b @ l :: :: IEq :: 'I_'
+  {{ com indistinguishability }}
+  {{ tex [[E]] \vdash [[a]] \equiv^{[[l]]} [[b]] }}
+by
+
+E |- a == b @ l0
+E |- a == c @ l1
+---------------- :: downgrade
+E |- a == b @ l0 /\ l1
+
+E |- a : l0
+l0 <= l1
+---------------- :: refl
+E |- a == a @ l1
+
+E |- a == b @ l
+--------------- :: sym
+E |- b == a @ l
+
+E |- a == b @ l0
+E |- b == c @ l1
+---------------------- :: trans
+E |- a == c @ l0 /\ l1
+
+E ++ x : l0 |- a0 == a1 @ l
+E |- b0 == b1 @ l l0
+--------------------------------------- :: subst
+E |- a0 { b0 / x } == a1 { b1 / x } @ l
+
+defn
+  E |- a == b @ l l0 :: :: GIEq :: 'GI_'
+  {{ com guarded indistinguishability }}
+  {{ tex [[E]] \vdash [[a]] \equiv^{[[l]]}_{[[l0]]} [[b]] }}
+by
+
+defns
+  DefEq :: '' ::=
+
+defn
+  E |- a == b :: :: DefEq :: 'E_'
+  {{ com definitional equality }}
+  {{ tex [[E]] \vdash [[a]] \equiv [[b]] }}
+by
+
+E |- a0 == b0
+a0 => a1
+b0 => b1
+------------- :: par
+E |- a1 == b1
+
+G |- a : l A
+--------------- :: refl
+| G | |- a == a
+
+E |- a == b
+----------- :: sym
+E |- b == a
+
+E |- a == b
+E |- b == c
+----------- :: trans
+E |- a == c
+  
+E ++ x : l |- a0 == a1
+E |- b : l
+--------------------------------- :: subst
+E |- a0 { b / x } == a1 { b / x }
+
+defns
+  Typing :: '' ::=
+
+defn
+  |- G :: :: Wf :: 'Wf_'
+  {{ com well-formedness }}
+  {{ tex \vdash [[G]] }}
+by
+
+defn
+  G |- a : A :: :: Wtg :: 'Wtg_'
+  {{ com ungraded well-typedness }}
+  {{ tex [[G]] \vdash [[a]] : [[A]] }}
+by
+
+defn
+  G |- a : l A :: :: Wt :: 'Wt_'
+  {{ com well-typedness }}
+  {{ tex [[G]] \vdash [[a]] :^{[[l]]} [[A]] }}
+by
+
+G |- a : l0 A
+l0 <= l1
+------------- :: sub
+G |- a : l1 A
+
+defns
+  IOk :: '' ::=
+
+defn
+  E |- a : l :: :: Wg :: 'Wg_'
+  {{ com well-gradedness }}
+  {{ tex [[E]] \vdash [[a]] : [[l]] }}
+by
+
+G |- a : l A
+-------------- :: Wt
+| G | |- a : l
+
+E |- a : l0
+l0 <= l1
+----------- :: sub
+E |- a : l1
+
+E ++ x : l0 |- a : l
+E |- b : l0
+-------------------- :: subst
+E |- a { b / x } : l

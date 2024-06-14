@@ -280,101 +280,21 @@ One problem is that I haven't figured out how to include footnotes along with th
 
 \begin{mathpar}
   \mprset{fraction={===}}
-  \infer[Wg-Wt\footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}]{
-    [[G |- a : l A]]
-  }{
-    [[| G | |- a : l]]
-  }
-  \and
-  \infer[Wg-sub\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}]{
-    [[E |- a : l0]] \\
-    [[l0 <= l1]]
-  }{
-    [[E |- a : l1]]
-  }
-  \and
-  \infer[Wg-subst\footnote{\suppl{theories}{geq.v}{iok\_subst}}]{
-    [[E ++ x : l0 |- a : l]] \\
-    [[E |- b : l0]]
-  }{
-    [[E |- a { b / x } : l]]
-  }
-  \and
-  \infer[I-downgrade\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}]{
-    [[E |- a == b @ l0]] \\
-    [[E |- a == c @ l1]]
-  }{
-    [[E |- a == b @ l0 /\ l1]]
-  }
-  \and
-  \infer[I-refl\footnote{\suppl{theories}{geq.v}{iok\_ieq}}]{
-    [[E |- a : l0]] \\
-    [[l0 <= l1]]
-  }{
-    [[E |- a == a @ l1]]
-  }
-  \and
-  \infer[I-sym\footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}]{
-    [[E |- a == b @ l]]
-  }{
-    [[E |- b == a @ l]]
-  }
-  \and
-  \infer[I-trans\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}]{
-    [[E |- a == b @ l0]] \\
-    [[E |- b == c @ l1]]
-  }{
-    [[E |- a == c @ l0 /\ l1]]
-  }
-  \and
-  \infer[I-subst\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}]{
-    [[E ++ x : l0 |- a0 == a1 @ l]] \\
-    [[E |- b0 == b1 @ l l0]]
-  }{
-    [[E |- a0 { b0 / x } == a1 { b1 / x } @ l]]
-  }
-  \and
-  \infer[E-par\footnote{\suppl{theories}{conv.v}{iconv\_par2}}]{
-    [[E |- a0 == b0]] \\
-    [[a0 => a1]] \\
-    [[b0 => b1]]
-  }{
-    [[E |- a1 == b1]]
-  }
-  \and
-  \infer[E-refl\footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}]{
-    [[G |- a : l A]]
-  }{
-    [[| G | |- a == a]]
-  }
-  \and
-  \infer[E-sym\footnote{\suppl{theories}{conv.v}{conv\_sym}}]{
-    [[E |- a == b]]
-  }{
-    [[E |- b == a]]
-  }
-  \and
-  \infer[E-trans\footnote{\suppl{theories}{conv.v}{conv\_trans}}]{
-    [[E |- a == b]] \\
-    [[E |- b == c]]
-  }{
-    [[E |- a == c]]
-  }
-  \and
-  \infer[E-subst\footnote{\suppl{theories}{conv.v}{conv\_subst}}]{
-    [[E ++ x : l |- a0 == a1]] \\
-    [[E |- b : l]]
-  }{
-    [[E |- a0 { b / x } == a1 { b / x }]]
-  }
-  \and
+  \drule{Wg-Wt}\footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
+  \drule{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
+  \drule{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}}
+  \drule{I-downgrade}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
+  \drule{I-refl}\footnote{\suppl{theories}{geq.v}{iok\_ieq}}
+  \drule{I-sym}\footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
+  \drule{I-trans}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
+  \drule{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
+  \drule{E-par}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}
+  \drule{E-refl}\footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
+  \drule{E-sym}\footnote{\suppl{theories}{conv.v}{conv\_sym}}
+  \drule{E-trans}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  \drule{E-subst}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
   % not needed for the fundamental theorem but useful for examples
-  \infer[Wt-sub\footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}]{
-    [[G |- a : l0 A]] \\
-    [[l0 <= l1]]
-  }{
-    [[G |- a : l1 A]]
-  }
+  \drule{Wt-sub}\footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}
 \end{mathpar}
 
 \section{Notes}
