@@ -212,6 +212,15 @@
 
 \section{Lemmas}
 
+\begin{lemma}[Simulation]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation}}
+  \label{lem:simulation}
+  If $[[E |- a0 == b0 @ l]]$ and $[[a0 => a1]]$,
+  then there exists some $[[b1]]$ such that $[[b0 => b1]]$
+  and $[[E |- a1 == b1 @ l]]$.
+\end{lemma}
+
+\iffalse
 \begin{lemma}[Transitivity of indistinguishability]
   \stack{.~}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
   If $[[E |- a == b @ l0]]$ and $[[E |- b == c @ l1]]$,
@@ -225,14 +234,6 @@
   then $[[E |- a0 { b0 / x } == a1 { b1 / x } @ l]]$;
   and if $[[E ++ x : l0 |- a0 == a1 @ l l1]]$,
   then $[[E |- a0 { b0 / x } == a1 { b1 / x } @ l l1]]$.
-\end{lemma}
-
-\begin{lemma}[Simulation]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation}}
-  \label{lem:simulation}
-  If $[[E |- a0 == b0 @ l]]$ and $[[a0 => a1]]$,
-  then there exists some $[[b1]]$ such that $[[b0 => b1]]$
-  and $[[E |- a1 == b1 @ l]]$.
 \end{lemma}
 
 \begin{lemma}[Preservation of definitional equality]
@@ -268,6 +269,113 @@
   \stack{.~}\footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
   If $[[G |- a : l A]]$, then $[[| G | |- a == a]]$.
 \end{lemma}
+\fi
+
+\section{Admissible rules}
+
+\jc{It may be more compact to explain some lemmas as admissible rules.
+I've commented out the lemmas above that can be formulated as such rules,
+but we can go back to the lemma presentation if it's clearer.
+One problem is that I haven't figured out how to include footnotes along with the rules.}
+
+\begin{mathpar}
+  \mprset{fraction={===}}
+  \infer[Wg-Wt\footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}]{
+    [[G |- a : l A]]
+  }{
+    [[| G | |- a : l]]
+  }
+  \and
+  \infer[Wg-sub\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}]{
+    [[E |- a : l0]] \\
+    [[l0 <= l1]]
+  }{
+    [[E |- a : l1]]
+  }
+  \and
+  \infer[Wg-subst\footnote{\suppl{theories}{geq.v}{iok\_subst}}]{
+    [[E ++ x : l0 |- a : l]] \\
+    [[E |- b : l0]]
+  }{
+    [[E |- a { b / x } : l]]
+  }
+  \and
+  \infer[I-downgrade\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}]{
+    [[E |- a == b @ l0]] \\
+    [[E |- a == c @ l1]]
+  }{
+    [[E |- a == b @ l0 /\ l1]]
+  }
+  \and
+  \infer[I-refl\footnote{\suppl{theories}{geq.v}{iok\_ieq}}]{
+    [[E |- a : l0]] \\
+    [[l0 <= l1]]
+  }{
+    [[E |- a == a @ l1]]
+  }
+  \and
+  \infer[I-sym\footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}]{
+    [[E |- a == b @ l]]
+  }{
+    [[E |- b == a @ l]]
+  }
+  \and
+  \infer[I-trans\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}]{
+    [[E |- a == b @ l0]] \\
+    [[E |- b == c @ l1]]
+  }{
+    [[E |- a == c @ l0 /\ l1]]
+  }
+  \and
+  \infer[I-subst\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}]{
+    [[E ++ x : l0 |- a0 == a1 @ l]] \\
+    [[E |- b0 == b1 @ l l0]]
+  }{
+    [[E |- a0 { b0 / x } == a1 { b1 / x } @ l]]
+  }
+  \and
+  \infer[E-par\footnote{\suppl{theories}{conv.v}{iconv\_par2}}]{
+    [[E |- a0 == b0]] \\
+    [[a0 => a1]] \\
+    [[b0 => b1]]
+  }{
+    [[E |- a1 == b1]]
+  }
+  \and
+  \infer[E-refl\footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}]{
+    [[G |- a : l A]]
+  }{
+    [[| G | |- a == a]]
+  }
+  \and
+  \infer[E-sym\footnote{\suppl{theories}{conv.v}{conv\_sym}}]{
+    [[E |- a == b]]
+  }{
+    [[E |- b == a]]
+  }
+  \and
+  \infer[E-trans\footnote{\suppl{theories}{conv.v}{conv\_trans}}]{
+    [[E |- a == b]] \\
+    [[E |- b == c]]
+  }{
+    [[E |- a == c]]
+  }
+  \and
+  \infer[E-subst\footnote{\suppl{theories}{conv.v}{conv\_subst}}]{
+    [[E ++ x : l |- a0 == a1]] \\
+    [[E |- b : l]]
+  }{
+    [[E |- a0 { b / x } == a1 { b / x }]]
+  }
+  \and
+  % not needed for the fundamental theorem but useful for examples
+  \infer[Wt-sub\footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}]{
+    [[G |- a : l0 A]] \\
+    [[l0 <= l1]]
+  }{
+    [[G |- a : l1 A]]
+  }
+\end{mathpar}
 
 \section{Notes}
 
@@ -480,6 +588,17 @@ and $\member{a}{[[l]]}{S}$.}
       \end{itemize}
   \end{itemize}
 \end{lemma}
+
+\begin{theorem}[Fundamental theorem]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{soundness}}
+  If $[[G |- a : l A]]$ then $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$;
+  if $[[|- G]]$ then $\swf{[[G]]}$.
+\end{theorem}
+
+\begin{corollary}[Logical consistency]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{consistency}}
+  There are no $[[a]]$, $[[l]]$ such that $[[nil |- a : l Void]]$.
+\end{corollary}
 
 \cite{liu:dcoi}
 
