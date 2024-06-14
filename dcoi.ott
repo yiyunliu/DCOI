@@ -209,6 +209,9 @@ formula :: 'formula_' ::=
   | x notin E :: :: notInE
     {{ coq ~ AtomSetImpl.In [[x]] (dom [[E]]) }}
     {{ tex [[x]] \notin [[E]] }}
+  | i <= j :: :: uleq
+    {{ coq [[i]] <= [[j]] }}
+    {{ tex [[i]] \leq [[j]] }}
   | l1 <= l2 :: :: leq
     {{ coq [[l1]] <= [[l2]] }}
     {{ tex [[l1]] \leq [[l2]] }}

@@ -50,6 +50,9 @@ tm :: 'a_' ::=
   | phantom :: S :: Phantom
     {{ com invisible placeholder for typesetting }}
     {{ tex }}
+  | poltergeist :: S :: Poltergeist
+    {{ com visible placeholder for typesetting }}
+    {{ tex \cdot }}
   | ! x :: S :: Const
     {{ com constant }}
     {{ coq [[x]] }}

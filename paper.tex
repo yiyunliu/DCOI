@@ -276,25 +276,26 @@
 \jc{It may be more compact to explain some lemmas as admissible rules.
 I've commented out the lemmas above that can be formulated as such rules,
 but we can go back to the lemma presentation if it's clearer.
-One problem is that I haven't figured out how to include footnotes along with the rules.}
+One problem is that I haven't figured out how to include footnotes along with the rules.
+Maybe just use the footnote just as the rule is being described in the text.}
 
 \begin{mathpar}
   \mprset{fraction={===}}
-  \drule{Wg-Wt}\footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
-  \drule{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
-  \drule{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}}
-  \drule{I-downgrade}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
-  \drule{I-refl}\footnote{\suppl{theories}{geq.v}{iok\_ieq}}
-  \drule{I-sym}\footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
-  \drule{I-trans}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
-  \drule{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
-  \drule{E-par}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}
-  \drule{E-refl}\footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
-  \drule{E-sym}\footnote{\suppl{theories}{conv.v}{conv\_sym}}
-  \drule{E-trans}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
-  \drule{E-subst}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
+  \drule{Wg-Wt}       % \footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
+  \drule{Wg-sub}      % \footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
+  \drule{Wg-subst}    % \footnote{\suppl{theories}{geq.v}{iok\_subst}}
+  \drule{I-downgrade} % \footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
+  \drule{I-refl}      % \footnote{\suppl{theories}{geq.v}{iok\_ieq}}
+  \drule{I-sym}       % \footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
+  \drule{I-trans}     % \footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
+  \drule{I-subst}     % \footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
+  \drule{E-par}       % \footnote{\suppl{theories}{conv.v}{iconv\_par2}}
+  \drule{E-refl}      % \footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
+  \drule{E-sym}       % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
+  \drule{E-trans}     % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  \drule{E-subst}     % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
   % not needed for the fundamental theorem but useful for examples
-  \drule{Wt-sub}\footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}
+  \drule{Wt-sub}      % \footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}
 \end{mathpar}
 
 \section{Notes}
@@ -420,7 +421,94 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
 \end{mathpar}
 
-\jc{These are translated directly from the Coq proofs,
+\begin{mathpar}
+  \mprset{fraction={===}}
+  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_nopf}}
+  \infer[SWt-Pi-alt]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+  }{
+    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, \interp{[[E]]}{[[i]]}{[[B {poltergeist / x}]]}{[[poltergeist]]})}}
+  }
+  \and
+  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Sig\_nopf}}
+  \infer[SWt-Sigma-alt]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+  }{
+    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \sigspace([[b]], [[l]], [[l0]], S_A, \interp{[[E]]}{[[i]]}{[[B {poltergeist / x}]]}{[[poltergeist]]})}}
+  }
+  \and
+  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_cumulative}}
+  \infer[SWt-cumul]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
+    [[i <= j]]
+  }{
+    \interp{[[E]]}{[[j]]}{[[A]]}{S}
+  }
+  \and
+  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation\_star}}
+  \infer[SWt-fwd]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
+    [[A =>* B]]
+  }{
+    \interp{[[E]]}{[[i]]}{[[B]]}{S}
+  }
+  \and
+  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_preservation\_star}}
+  \infer[SWt-bwd]{
+    \interp{[[E]]}{[[i]]}{[[B]]}{S} \\
+    [[A =>* B]]
+  }{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S}
+  }
+  \and
+  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
+  \infer[SWt-I]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
+    [[E |- A == B @ l]]
+  }{
+    \interp{[[E]]}{[[i]]}{[[B]]}{S}
+  }
+  \and
+  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Conv}}
+  \infer[SWt-E]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
+    [[E |- A == B]]
+  }{
+    \interp{[[E]]}{[[i]]}{[[B]]}{S}
+  }
+\end{mathpar}
+
+\begin{lemma}[Semantic subsumption]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
+  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
+  then $\member{[[a]]}{[[l1]]}{S}$.
+\end{lemma}
+
+\begin{lemma}[Determinism]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_deterministic'}}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$
+  and $\interp{[[E]]}{[[j]]}{[[A]]}{S_2}$,
+  then $S_1 = S_2$.
+\end{lemma}
+
+\begin{lemma}[Well-gradedness]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUniv\_Ok}}
+  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  If $\member{[[a]]}{[[l]]}{S}$,
+  then $[[E |- a : l]]$.
+\end{lemma}
+
+\begin{lemma}[Backward closure]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos\_star}}
+  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[E |- a : l]]$.
+  If $[[a =>* b]]$ and $\member{[[b]]}{[[l]]}{S}$,
+  then $\member{[[a]]}{[[l]]}{S}$.
+\end{lemma}
+
+\jc{The below are translated directly from the Coq proofs,
 which deal with simultaneous substitution maps,
 but maybe they should be reformulated in terms of single substitutions
 since the rest of the paper will probably work with variables and single substitutions?
