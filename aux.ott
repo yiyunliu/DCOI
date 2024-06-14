@@ -45,6 +45,9 @@ subst, rho {{ tex \rho }} :: 's_' ::=
   | { a / x } :: :: Single
     {{ com single subsitution }}
     {{ tex [[a]] / [[x]] }}
+  | rho ++ { a / x } :: :: Cons
+    {{ com substitution extension }}
+    {{ tex [[rho]], [[a]] / [[x]] }}
 
 tm :: 'a_' ::=
   | phantom :: S :: Phantom
@@ -87,6 +90,29 @@ toplevel :: 'tl_' ::=
 %%%%%%%%%%%%%%%%%%%%%%
 %% Admissible rules %%
 %%%%%%%%%%%%%%%%%%%%%%
+
+defns
+  Parallel :: '' ::=
+
+defn
+  a => b :: :: Par :: 'P_'
+  {{ com parallel reduction }}
+  {{ tex [[a]] \Rightarrow [[b]] }}
+by
+
+defns
+  Parallels :: '' ::=
+
+defn
+  a =>* b :: :: Pars :: 'Ps_'
+  {{ com multi-step parallel reduction }}
+  {{ tex [[a]] \Rightarrow^{\ast} [[b]] }}
+by
+
+a0 =>* a1
+b0 =>* b1
+--------------------------- :: subst
+a0 {b0 / x} =>* a1 {b1 / x}
 
 defns
   Indist :: '' ::=

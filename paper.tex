@@ -108,8 +108,6 @@
 \newcommand{\buildset}[3]{\braces{#1^{#2} \mid #3}}
 \newcommand{\member}[3]{#1 \in^{#2} #3}
 \newcommand{\dom}{\mathop{\mathsf{dom}}}
-\newcommand{\subst}[2]{#1[#2]}
-\newcommand{\substcons}[3]{#1, #3 / #2}
 \newcommand{\sws}[3]{#1 \vDash #2 : #3}
 \newcommand{\swt}[4]{#1 \vDash #2 :^{#3} #4}
 \newcommand{\swf}[1]{\vDash #1}
@@ -298,6 +296,7 @@ Maybe just use the footnote just as the rule is being described in the text.}
 
 \begin{mathpar}
   \mprset{fraction={===}}
+  \drule{Ps-subst}    % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
   \drule{Wg-Wt}       % \footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
   \drule{Wg-sub}      % \footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
   \drule{Wg-subst}    % \footnote{\suppl{theories}{geq.v}{iok\_subst}}
@@ -498,7 +497,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
 \end{mathpar}
 
-\begin{lemma}[Semantic subsumption]
+\begin{lemma}[Subsumption]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
   Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
@@ -539,8 +538,11 @@ and $\member{a}{[[l]]}{S}$.}
   A substitution map $\rho$ is a mapping from variables to terms.
   We use $\dom(\rho)$ to denote the variables in the domain of $\rho$,
   $\rho(x)$ the term to which $\rho$ maps $[[x]]$,
-  and $\subst{[[a]]}{\rho}$ to denote the simultaneous substitution
+  $[[rho ++ { a / x }]]$ the extension of $[[rho]]$
+  by a mapping from $[[x]]$ to $[[a]]$, and
+  and $[[a { rho }]]$ to denote the simultaneous substitution
   of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
+  
 \end{definition}
 
 \begin{definition}[Semantic substitution]
@@ -550,7 +552,7 @@ and $\member{a}{[[l]]}{S}$.}
   written $\sws{[[D]]}{\rho}{[[G]]}$,
   if for every $[[x : l A in G]]$,
   there exist $i$, $S$ such that
-  $\interp{[[|D|]]}{[[i]]}{\subst{[[A]]}{\rho}}{S}$
+  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
   and $\member{\rho(x)}{[[l]]}{S}$.
   Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
   and the terms $\rho$ replaces them by have free variables in $[[D]]$.
@@ -564,8 +566,8 @@ and $\member{a}{[[l]]}{S}$.}
   if for every $\rho$, $[[D]]$,
   given $\sws{[[D]]}{\rho}{[[G]]}$,
   there exist $i$, $S$ such that
-  $\interp{[[|D|]]}{[[i]]}{\subst{[[A]]}{\rho}}{S}$
-  and $\member{\subst{[[a]]}{\rho}}{[[l]]}{S}$.
+  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
+  and $\member{[[a { rho }]]}{[[l]]}{S}$.
 \end{definition}
 
 \begin{definition}[Semantic well-formedness]
@@ -585,9 +587,9 @@ and $\member{a}{[[l]]}{S}$.}
 \begin{lemma}[Semantic substitution, cons]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_cons}}
   Suppose $\sws{[[D]]}{\rho}{[[G]]}$.
-  If $\interp{[[|D|]]}{[[i]]}{\subst{[[A]]}{\rho}}{S}$
+  If $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
   and $\member{[[a]]}{[[l]]}{S}$,
-  then $\sws{[[D]]}{\substcons{\rho}{[[x]]}{[[a]]}}{[[G ++ x : l A]]}$.
+  then $\sws{[[D]]}{[[rho ++ {a / x}]]}{[[G ++ x : l A]]}$.
 \end{lemma}
 
 \begin{lemma}[Semantic well-formedness, nil]
