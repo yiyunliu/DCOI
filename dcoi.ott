@@ -90,7 +90,7 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
   | Sig x : l A . B :: :: Sig
     (+ bind x in B +)
     {{ com dependent pair type }}
-    {{ tex \Sigma [[x]] :^{[[l]]} \! A \mathpunct{.} [[B]] }}
+    {{ tex \Sigma [[x]] :^{[[l]]} \! [[A]] \mathpunct{.} [[B]] }}
   | ( l a , b ) :: :: Pack
     {{ com pair constructor }}
     {{ tex ([[a]]^{[[l]]}, [[b]]) }}
@@ -618,3 +618,106 @@ E |- a : l1
 l1 <= l
 ------------------------------------ :: Let
 E |- let (l0 x, y) = l1 a in b : l
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Neutral and normal forms %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+defns
+  NFE :: '' ::=
+
+defn
+  ne a :: :: Ne :: 'Ne_'
+  {{ tex \ottkw{ne} \, [[a]] }}
+by
+
+---- :: Var
+ne x
+
+ne b
+nf a
+-------- :: App
+ne b l a
+
+ne b
+----------- :: Absurd
+ne absurd b
+
+nf c
+ne p
+-------- :: J
+ne J c p
+
+ne a
+nf b
+----------------------------- :: Let
+ne let ( l x , y ) = k a in b
+
+defn
+  nf a :: :: Nf :: 'Nf_'
+  {{ tex \ottkw{nf} \, [[a]] }}
+by
+
+ne a
+---- :: Ne
+nf a
+
+nf A
+nf B
+----------------- :: Pi
+nf Pi x : l A . B
+
+nf b
+------------ :: Abs
+nf \ l x . b
+
+--------- :: Univ
+nf Univ i
+
+------- :: Void
+nf Void
+
+nf a
+nf b
+nf A
+-------------- :: Eq
+nf a ~ l b : A
+
+------- :: Refl
+nf refl
+
+nf A
+nf B
+------------------ :: Sig
+nf Sig x : l A . B
+
+nf a
+nf b
+-------------- :: Pack
+nf ( l a , b )
+
+defns
+  WNE :: '' ::=
+
+defn
+  wne a :: :: Wne :: 'W_'
+  {{ tex \ottkw{wne} \, [[a]] }}
+by
+
+a =>* b
+ne b
+-------- :: ne
+wne a
+
+defns
+  WNF :: '' ::=
+
+defn
+  wnf a :: :: Wnf :: 'W_'
+  {{ tex \ottkw{wnf} \, [[a]] }}
+by
+
+a =>* b
+nf b
+-------- :: nf
+wnf a

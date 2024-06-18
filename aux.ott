@@ -63,6 +63,9 @@ tm :: 'a_' ::=
   | a { rho } :: S :: Substs
     {{ com simultaneous substitution }}
     {{ tex [[a]] \lbrack [[rho]] \rbrack }}
+  | rho ( x ) :: S :: Substituted
+    {{ com term substituted for x }}
+    {{ tex [[rho]]([[x]]) }}
   | l A -> B :: S :: Arrow
     {{ com nondependent function type }}
     {{ tex [[A]] \overset{[[l]]}{\rightarrow} [[B]] }}

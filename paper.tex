@@ -202,13 +202,23 @@
   [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
   [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L ! Vec H A H n -> A @ L]] \\
   [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
-  & [[:concrete: (case v return \ H m . L (m ~ H ! S H n : ! Nat) -> A of
+  & [[:concrete: (case v return \ H m . H (m ~ H ! S H n : ! Nat) -> A of
       & vnil => \ H p . absurd (! discr H Void H n H p) ++
       & vcons n x xs => \ H p . x) H refl]]
 \end{align*}
 \end{spreadlines}
 
 \section{Lemmas}
+
+\begin{lemma}[Irreducibility of neutral and normal forms]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
+  \label{lem:irred-ne-nf}
+  Suppose $[[a => b]]$.
+  If $[[ne a]]$ or $[[nf a]]$, then $[[b]] = [[a]]$.
+\end{lemma}
+
+\jc{not sure how to state all of the antirenaming lemmas here
+or whether they're important enough to be stated}
 
 \begin{lemma}[Confluence]
   \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
@@ -317,7 +327,7 @@ Maybe just use the footnote just as the rule is being described in the text.}
 
 \section{Notes}
 
-The level of scrutinees must be bounded by the level of the overall eliminator.
+The level of the scrutinee must be bounded by the level of the overall eliminator.
 In particular, in \rref{Wt-J}, the level of an equality proof $[[p]]$
 must be bounded by that of its elimination $[[J c p]]$,
 and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
@@ -373,7 +383,6 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   [[E]] &\Coloneqq [[nil]] \mid [[E ++ x : l]]
 \end{alignat*}
 
-% \nonterms{tm} % this is behaving weird rn
 \drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let,Conv}
 \drules[Wtg]{$[[G |- a : A]]$}{Existentially-graded typing}{Grade}
 \drules[Wf]{$[[ |- G]]$}{Context well-formedness rules}{Nil, Cons}
@@ -383,6 +392,10 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 \drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
 \drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
+\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Let}
+\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pack}
+\drules[W]{$[[wne a]]$}{Weak neutral forms}{ne}
+\drules[W]{$[[wnf a]]$}{Weak normal forms}{nf}
 
 \section{Semantics}
 
@@ -400,6 +413,12 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 \end{align*}
 
 \begin{mathpar}
+  \infer[SWt-Ne]{
+    [[ne A]]
+  }{
+    \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+  }
+  \and
   \infer[SWt-Pi]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
     \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
@@ -413,7 +432,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
     \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
     \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
   }{
-    \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge \sigspace([[c]], [[l]], [[l0]], S_A, R)}}
+    \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace([[c]], [[l]], [[l0]], S_A, R) \vee [[wne c]])}}
   }
   \and
   \infer[SWt-Univ]{
@@ -423,11 +442,11 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
   \and
   \infer[SWt-Empty]{~}{
-    \interp{[[E]]}{[[i]]}{[[Void]]}{\varnothing}
+    \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
   }
   \and
   \infer[SWt-Eq]{~}{
-    \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]])}}
+    \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
   }
   \and
   \infer[SWt-Step]{
@@ -525,6 +544,19 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   then $\member{[[a]]}{[[l]]}{S}$.
 \end{lemma}
 
+\begin{definition}[Reducibility candidates]
+  $S$ is a set of reducibility candidates if its elements are all weakly normalizing
+  (that is, $\member{[[a]]}{[[l]]}{S}$ implies $[[wnf a]]$),
+  and it contains all well-graded, weak neutral terms
+  (that is, $[[E |- a : l]]$ and $[[wne a]]$ implies $\member{[[a]]}{[[l]]}{S}$).
+\end{definition}
+
+\begin{lemma}[Adequacy]
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$,
+  then $[[wnf A]]$ holds,
+  and $S$ is a set of reducibility candidates.
+\end{lemma}
+
 \jc{The below are translated directly from the Coq proofs,
 which deal with simultaneous substitution maps,
 but maybe they should be reformulated in terms of single substitutions
@@ -551,7 +583,8 @@ and $\member{a}{[[l]]}{S}$.}
   with respect to a context $[[G]]$ under a context $[[D]]$,
   written $\sws{[[D]]}{\rho}{[[G]]}$,
   if for every $[[x : l A in G]]$,
-  there exist $i$, $S$ such that
+  $[[| D | |- rho(x) : l]]$ holds,
+  and there exist $i$, $S$ such that
   $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
   and $\member{\rho(x)}{[[l]]}{S}$.
   Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
@@ -570,11 +603,21 @@ and $\member{a}{[[l]]}{S}$.}
   and $\member{[[a { rho }]]}{[[l]]}{S}$.
 \end{definition}
 
+\begin{mathpar}
+  \infer[SWf-nil]{~}{\swf{[[nil]]}}
+  \and
+  \infer[SWf-cons]{
+    \swf{[[G]]} \\
+    \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}
+  }{
+    \swf{[[G ++ x : l A]]}
+  }
+\end{mathpar}
+
 \begin{definition}[Semantic well-formedness]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff}}
-  A context $[[G]]$ is semantically well formed,
-  written $\swf{[[G]]}$,
-  if for every $[[x : l A in G]]$,
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff\_lookup}}
+  If $\swf[[G]]$ holds,
+  then for every $[[x : l A in G]]$,
   there exist $j$, $[[l0]]$ such that
   $\swt{[[G]]}{[[A]]}{[[l0]]}{[[Univ j]]}$.
 \end{definition}
@@ -590,18 +633,6 @@ and $\member{a}{[[l]]}{S}$.}
   If $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
   and $\member{[[a]]}{[[l]]}{S}$,
   then $\sws{[[D]]}{[[rho ++ {a / x}]]}{[[G ++ x : l A]]}$.
-\end{lemma}
-
-\begin{lemma}[Semantic well-formedness, nil]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff\_nil}}
-  $\swf{[[nil]]}$ holds.
-\end{lemma}
-
-\begin{lemma}[Semantic well-formedness, cons]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff\_cons}}
-  Suppose $\swf{[[G]]}$.
-  If $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$,
-  then $\swf{[[G ++ x : l A]]}$.
 \end{lemma}
 
 \begin{lemma}[Semantic type inversion]
@@ -622,6 +653,12 @@ and $\member{a}{[[l]]}{S}$.}
   If $[[G |- a : l A]]$ then $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$;
   if $[[|- G]]$ then $\swf{[[G]]}$.
 \end{theorem}
+
+\begin{corollary}[Weak normalization]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{normalization}}
+  If $[[G |- a : l A]]$,
+  then $[[wnf a]]$ and $[[wnf A]]$.
+\end{corollary}
 
 \begin{corollary}[Logical consistency]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{consistency}}
