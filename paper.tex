@@ -97,7 +97,7 @@
 \DeclarePairedDelimiter{\braces}{\lbrace}{\rbrace}
 
 \newcommand{\suppress}[1]{}
-\newcommand{\name}{DCOI\@\xspace}
+\newcommand{\name}{DCOI$\omega$\@\xspace}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
 \newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
@@ -133,7 +133,7 @@
 
 \inputott{dcoi-rules}
 
-\title{DCOI}
+\title{\name}
 
 \author{Yiyun Liu}
 \orcid{0009-0006-8717-2498}
@@ -188,6 +188,33 @@
 \end{abstract}
 
 \maketitle
+
+\section{Introduction}
+
+\section{Examples}
+
+\section{\name}
+
+\section{Metatheory}
+
+\section{Implementation}
+
+\section{Discussion}
+
+% future work/related work
+\cite{liu:dcoi}
+
+\section{Conclusion}
+
+\begin{acks} 
+The authors would like to thank the anonymous reviewers for their comments and suggestions.
+This work was supported by the \grantsponsor{}{National Science Foundation}{} under Grant Nos.~\grantnum{}{2006535} and \grantnum{}{2327738}.
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\appendix
 
 \section{Examples}
 
@@ -321,7 +348,7 @@ Maybe just use the footnote just as the rule is being described in the text.}
   \drule{E-trans}      % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
   \drule{E-subst}      % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
   % not needed for the fundamental theorem but useful for examples
-  \drule{Wt-sub}       % \footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}
+  \drule{Wt-sub}       % \footnote{\suppl{theories}{preservation.v}{subsumption}}
   \drule{Wt-subst}     % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
   \drule{Wt-downgrade} % \footnote{\suppl{theories}{preservation.v}{Wt\_IOk\_Downgrade}}
 \end{mathpar}
@@ -665,15 +692,5 @@ and $\member{a}{[[l]]}{S}$.}
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{consistency}}
   There are no $[[a]]$, $[[l]]$ such that $[[nil |- a : l Void]]$.
 \end{corollary}
-
-\cite{liu:dcoi}
-
-\begin{acks} 
-The authors would like to thank the anonymous reviewers for their comments and suggestions.
-This work was supported by the \grantsponsor{}{National Science Foundation}{} under Grant Nos.~\grantnum{}{2006535} and \grantnum{}{2327738}.
-\end{acks}
-
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{refs}
 
 \end{document}
