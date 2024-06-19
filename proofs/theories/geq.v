@@ -49,7 +49,7 @@ Module Type geq_sig
     IOk Ξ ℓ t ->
     IOk Ξ ℓp p ->
     (* --------------- *)
-    IOk Ξ ℓ (tJ t p)
+    IOk Ξ ℓ (tJ ℓp t p)
 
   | IO_Sig ℓ0 A B :
     IOk Ξ ℓ A ->
@@ -111,11 +111,12 @@ Module Type geq_sig
     IEq Ξ ℓ b0 b1 ->
     (* -------------- *)
     IEq Ξ ℓ (tEq ℓ0 a0 b0 A0) (tEq ℓ0 a1 b1 A1)
-  | I_J t0 t1 p0 p1 :
+  | I_J ℓp t0 t1 p0 p1 :
+    ℓp ⊆ ℓ ->
     IEq Ξ ℓ t0 t1 ->
     IEq Ξ ℓ p0 p1 ->
     (* --------------- *)
-    IEq Ξ ℓ (tJ t0 p0) (tJ t1 p1)
+    IEq Ξ ℓ (tJ ℓp t0 p0) (tJ ℓp t1 p1)
   | I_Sig ℓ0 A0 B0 A1 B1 :
     IEq Ξ ℓ A0 A1 ->
     IEq (ℓ0 :: Ξ) ℓ B0 B1 ->
@@ -160,6 +161,7 @@ Module Type geq_sig
 
   Combined Scheme IEq_mutual from IEq_ind', GIEq_ind'.
 
+  Derive Inversion IOk_inv with (forall Ξ ℓ a, IOk Ξ ℓ a).
   Derive Inversion IEq_inv with (forall Ξ ℓ a b, IEq Ξ ℓ a b).
   Derive Inversion GIEq_inv with (forall Ξ ℓ ℓ0 a b, GIEq Ξ ℓ ℓ0 a b).
 
@@ -250,6 +252,7 @@ Module geq_facts
     - move => Ξ ℓ ℓ0 a b A hℓ ha iha hb ihb ℓ1 hℓ'.
       have : ℓ0 ⊆ ℓ1 by eauto using leq_trans.
       hauto lq:on ctrs:IEq.
+    - hauto lq:on drew:off ctrs:IEq solve+:solve_lattice.
     - move => Ξ ℓ ℓ0 a b ha iha hb ihb ℓ1 ?.
       apply I_Pack; eauto.
       case : (sub_eqdec ℓ0 ℓ1) => //; hauto l:on ctrs:GIEq.
@@ -275,6 +278,7 @@ Module geq_facts
       apply : I_Var; eauto.
       have ? : ℓ0 = ℓ2 by eauto using elookup_deterministic. subst.
       solve_lattice.
+    - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto q:on inv:GIEq ctrs:GIEq solve+:solve_lattice.
     - hauto lq:on use:GI_InDist solve+:(solve_lattice).

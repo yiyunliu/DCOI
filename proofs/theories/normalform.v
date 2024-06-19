@@ -12,7 +12,7 @@ Fixpoint ne (a : tm) : bool :=
   | tApp a ℓ0 b => ne a && nf b
   | tAbs _ _ => false
   | tPi _ A B => false
-  | tJ t p => nf t &&  ne p
+  | tJ _ t p => nf t &&  ne p
   | tUniv _ => false
   (* | tZero => false *)
   (* | tSuc _ => false *)
@@ -34,7 +34,7 @@ with nf (a : tm) : bool :=
   | tApp a ℓ0 b => ne a && nf b
   | tAbs _ a => nf a
   | tPi _ A B => nf A && nf B
-  | tJ t p => nf t && ne p
+  | tJ _ t p => nf t && ne p
   | tUniv _ => true
   (* | tZero => true *)
   (* | tSuc a => nf a *)
@@ -202,9 +202,9 @@ Proof.
   - move => > + + + + []//.
     hauto q:on use:ren_with_d_imp.
     hauto q:on ctrs:Par.
-  - move => t0 t1 h0 h1 []//.
+  - move => ? t0 t1 h0 h1 []//.
     hauto q:on use:ren_with_d_imp.
-    move => t []//.
+    move => ? t []//.
     hauto q:on use:ren_with_d_imp.
     move => ξ [?]. subst.
     hauto q:on ctrs:Par.
@@ -304,11 +304,11 @@ Proof.
   sfirstorder use:S_Absurd.
 Qed.
 
-Lemma wne_j (t p : tm) :
-  wn t -> wne p -> wne (tJ t p).
+Lemma wne_j ℓp (t p : tm) :
+  wn t -> wne p -> wne (tJ ℓp t p).
 Proof.
   move => [t0 [? ?]] [p0 [? ?]].
-  exists (tJ t0 p0).
+  exists (tJ ℓp t0 p0).
   hauto lq:on b:on use:S_J.
 Qed.
 

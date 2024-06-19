@@ -95,16 +95,16 @@ Proof.
     move => ?.
     exists (tEq ℓ0 a1' b1' A1).
     hauto lq:on ctrs:Par, IEq use:Par_refl.
-  - move => Ξ ℓ t0 t1 p0 p1 ? ht ? hp q.
+  - move => Ξ ℓ ℓp t0 t1 p0 p1 ? ? ht ? hp p.
     elim /Par_inv=>// _.
-    + move => ? ? t2 p2 + + [*]. subst.
+    + move => ? ? ? t2 p2 + + [*]. subst.
       move /ht => {}ht.
       move /hp => {}hp.
       move : ht => [t']?.
       move : hp => [p']?.
-      exists (tJ t' p').
+      exists (tJ ℓp t' p').
       hauto lq:on ctrs:IEq, Par use:Par_refl.
-    + move => t2 t3 + [*]. subst.
+    + move => ℓp0 t2 t3 + [*]. subst.
       have ? : p1 = tRefl by qauto l:on inv:IEq. subst.
       hauto l:on ctrs:Par, IEq.
   - hauto lq:on ctrs:IEq, Par inv:Par, IEq.

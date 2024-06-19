@@ -85,7 +85,7 @@ Lemma T_J'  Γ t a b p A i j C ℓ ℓp ℓT ℓ0 ℓ1 T :
   Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) ->
   ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
   Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) ->
-  Γ ⊢ (tJ t p) ; ℓ ∈ T.
+  Γ ⊢ (tJ ℓp t p) ; ℓ ∈ T.
 Proof. move =>> ->. apply T_J. Qed.
 
 Lemma T_Pack' Γ ℓ ℓ0 a A b B ℓT i B0:
@@ -638,7 +638,7 @@ Lemma T_J_simpl Γ t a b p A i C ℓ ℓp ℓ0 ℓ1:
   Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) ->
   ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
   Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) ->
-  Γ ⊢ (tJ t p) ; ℓ ∈ (C [p .: b..]).
+  Γ ⊢ (tJ ℓp t p) ; ℓ ∈ (C [p .: b..]).
 Proof.
   move=> ? ? /[dup] /Wt_regularity.
   move => [ℓ2][i0]hA hb hp hC ht.
@@ -665,8 +665,8 @@ Proof.
   hauto lq:on use:subsumption, T_Pi solve+:(by solve_lattice).
 Qed.
 
-Lemma Wt_J_inv Γ ℓ t p U (h : Γ ⊢ (tJ t p) ; ℓ ∈ U) :
-  exists ℓp ℓT ℓ0 ℓ1 a b A i C,
+Lemma Wt_J_inv Γ ℓ ℓp t p U (h : Γ ⊢ (tJ ℓp t p) ; ℓ ∈ U) :
+  exists ℓT ℓ0 ℓ1 a b A i C,
     ℓ1 ⊆ ℓ0 /\
     ℓp ⊆ ℓ /\
     Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) /\
@@ -678,19 +678,17 @@ Lemma Wt_J_inv Γ ℓ t p U (h : Γ ⊢ (tJ t p) ; ℓ ∈ U) :
     conv (c2e Γ) C[p .: b..]  U /\
     exists ℓ j, Γ ⊢ U ; ℓ ∈ (tUniv j).
 Proof.
-  move E : (tJ t p) h => T h.
+  move E : (tJ ℓp t p) h => T h.
   move : t p E.
   elim :  Γ ℓ T U / h => //.
   - move => Γ ℓ ℓB a A B i ha iha hB _ hAB.
     move => t p ?. subst.
     specialize iha with (1 := eq_refl).
-    move  : iha => [ℓp][ℓT][ℓ0][ℓ1]?.
-    exists ℓp, ℓT, ℓ0, ℓ1. hauto lq:on rew:off use:cfacts.conv_trans.
-  - move => Γ t a b p A i j C ℓ ℓp ℓT ℓ0 ℓ1 ? ? ha _ hb _ hA _ hp _ hC _ ht _ ? ?  [] *; subst.
-    have /Wt_regularity ? : Γ ⊢ tJ t p ; ℓ ∈ C[p.:b..] by eauto using T_J.
-    exists ℓp, ℓT, ℓ0, ℓ1, a, b, A, i, C. repeat split => //.
-    sfirstorder.
-    sfirstorder use:typing_conv.
+    move  : iha => [ℓT][ℓ0][ℓ1]?.
+    exists ℓT, ℓ0, ℓ1. hauto lq:on rew:off use:cfacts.conv_trans.
+  - move => Γ t a b p A i j C ℓ ℓT ℓ0 ℓ1 ℓ2 ? ? ha _ hb _ hA _ hp _ hC _ ht _ ? ?  [] *; subst.
+    have /Wt_regularity ? : Γ ⊢ tJ ℓT t p ; ℓ ∈ C[p.:b..] by eauto using T_J.
+    hauto lq:on use:typing_conv.
 Qed.
 
 Lemma preservation_helper ℓ ℓ0 ℓ1 A0 A1 i Γ a A :
@@ -976,8 +974,8 @@ Proof.
     intros (? & ha0' & hb0' & (q & hA0') & (i & eq) & (ℓ1 & j & hA)).
     eapply T_Conv with (A := (tUniv i)) (i := j); eauto.
     hauto q:on use:T_Par, T_Eq.
-  - move => t0 p0 t1 p1 ht iht hp ihp Γ ℓ U /Wt_J_inv.
-    intros (ℓp & ℓT & ℓ0 & ℓ1 & a & b & A & i & C & ? & ? & hp0 & ha0 & hb0 & (k & hA) & hC0 & ht0 & heq & (ℓ2 & j & hU)).
+  - move => ℓp t0 p0 t1 p1 ht iht hp ihp Γ ℓ U /Wt_J_inv.
+    intros (ℓT & ℓ0 & ℓ1 & a & b & A & i & C & ? & ? & hp0 & ha0 & hb0 & (k & hA) & hC0 & ht0 & heq & (ℓ2 & j & hU)).
     have ? : ⊢ Γ by eauto with wff.
     have ? : C[p0.:b..] ⇒C[p1.:b..] by
       sfirstorder use:cfacts.pfacts.Par_cong2, cfacts.pfacts.Par_refl.
@@ -985,8 +983,8 @@ Proof.
     apply : T_Conv; eauto.
     eapply T_J_simpl with (a := a) (A := A) (ℓ0 := ℓ0) (ℓp := ℓp) (ℓ1 := ℓ1); eauto.
   (* JRefl *)
-  - move => t0 t1 ht iht Γ ℓ U /Wt_J_inv.
-    intros (ℓp & ℓT & ℓ0 & ℓ1 & a & b & A & i & C & ? & ? & hp0 & ha0 & hb0 & (j & hA) & hC & ht0 & heq & (ℓ2 & k & hU')).
+  - move => ℓp t0 t1 ht iht Γ ℓ U /Wt_J_inv.
+    intros (ℓT & ℓ0 & ℓ1 & a & b & A & i & C & ? & ? & hp0 & ha0 & hb0 & (j & hA) & hC & ht0 & heq & (ℓ2 & k & hU')).
     apply iht.
     move : T_Conv ht0. move/[apply]. apply; eauto.
     apply : cfacts.conv_trans;eauto.

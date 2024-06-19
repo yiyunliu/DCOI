@@ -287,7 +287,7 @@ Proof.
   (* J *)
   - move => Γ t a b p A i j C ℓ ℓp ℓA ℓ0 ℓ1 ? ?.
     move => _ha ha _hb hb hA ihA _hp hp hC /SemWt_Univ ihC _t ht.
-    have hJ : exists A, Γ ⊢ tJ t p; ℓ ∈ A by hauto l:on use:T_J.
+    have hJ : exists A, Γ ⊢ tJ ℓp t p; ℓ ∈ A by hauto l:on use:T_J.
     move => Δ ρ hρ.
     move : hp (hρ); move/[apply] => /=. intros (m & PA & hPA & hp).
     move  /InterpUnivN_Eq_inv : (hPA) (hp) ->.  move => [?].
@@ -356,7 +356,7 @@ Proof.
       do 2 eexists.
       split.
       asimpl. apply hPC.
-      suff : wne (tJ t[ρ] p[ρ]) /\ IOk (c2e Δ) ℓ (tJ t p)[ρ] by hauto q:on use:adequacy.
+      suff : wne (tJ ℓp t[ρ] p[ρ]) /\ IOk (c2e Δ) ℓ (tJ ℓp t p)[ρ] by hauto q:on use:adequacy.
       split.
       apply nfacts.wne_j => //.
       move /ht : (hρ).

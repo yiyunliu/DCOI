@@ -64,16 +64,16 @@ Inductive Par : tm -> tm -> Prop :=
   (* ---------- *)
   (tEq ℓ0 a0 b0 A0) ⇒ (tEq ℓ0 a1 b1 A1)
 
-| P_J t0 p0 t1 p1 :
+| P_J ℓp t0 p0 t1 p1 :
   (t0 ⇒ t1) ->
   (p0 ⇒ p1) ->
   (* ---------- *)
-  (tJ t0 p0) ⇒ (tJ t1 p1)
+  (tJ ℓp t0 p0) ⇒ (tJ ℓp t1 p1)
 
-| P_JRefl t0 t1 :
+| P_JRefl ℓp t0 t1 :
   (t0 ⇒ t1) ->
   (* ---------- *)
-  (tJ t0 tRefl) ⇒ t1
+  (tJ ℓp t0 tRefl) ⇒ t1
 
 | P_Sig ℓ A0 A1 B0 B1 :
   (A0 ⇒ A1) ->
@@ -439,9 +439,9 @@ Qed.
 (*   (tInd a b c  ⇒* t). *)
 (* Proof. move => > <-. apply P_IndSuc_star. Qed. *)
 
-Lemma P_JRefl_star t p :
+Lemma P_JRefl_star ℓp t p :
   (p ⇒* tRefl)  ->
-  ((tJ t p) ⇒* t).
+  ((tJ ℓp t p) ⇒* t).
 Proof.
   move E : tRefl => v h.
   move : E.
@@ -516,8 +516,8 @@ Function tstar (a : tm) :=
   (* | tNat => tNat *)
   | tRefl => tRefl
   | tEq ℓ a b A => tEq ℓ (tstar a) (tstar b) (tstar A)
-  | tJ t tRefl => tstar t
-  | tJ t p => tJ (tstar t) (tstar p)
+  | tJ ℓp t tRefl => tstar t
+  | tJ ℓp t p => tJ ℓp (tstar t) (tstar p)
   | tLet ℓ0 ℓ1 (tPack ℓ2 a b) c =>
       if T_eqb ℓ0 ℓ2
       then (tstar c)[(tstar b) .: (tstar a)..]
@@ -593,10 +593,10 @@ Proof.
   - solve_s_rec.
 Qed.
 
-Lemma S_J t0 t1 : forall p0 p1,
+Lemma S_J ℓp t0 t1 : forall p0 p1,
     t0 ⇒* t1 ->
     p0 ⇒* p1 ->
-    (tJ t0 p0) ⇒* (tJ t1 p1).
+    (tJ ℓp t0 p0) ⇒* (tJ ℓp t1 p1).
 Proof.
   move => + + h.
   elim : t0 t1 /h; last by solve_s_rec.
