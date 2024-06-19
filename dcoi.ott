@@ -584,7 +584,6 @@ E |- Univ i : l
 ------------- :: Empty
 E |- Void : l
 
-E |- b : l0
 ----------------- :: Absurd
 E |- absurd b : l
 
