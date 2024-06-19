@@ -306,23 +306,24 @@ Maybe just use the footnote just as the rule is being described in the text.}
 
 \begin{mathpar}
   \mprset{fraction={===}}
-  \drule{Ps-subst}    % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
-  \drule{Wg-Wt}       % \footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
-  \drule{Wg-sub}      % \footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
-  \drule{Wg-subst}    % \footnote{\suppl{theories}{geq.v}{iok\_subst}}
-  \drule{I-downgrade} % \footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
-  \drule{I-refl}      % \footnote{\suppl{theories}{geq.v}{iok\_ieq}}
-  \drule{I-sym}       % \footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
-  \drule{I-trans}     % \footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
-  \drule{I-subst}     % \footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
-  \drule{E-par}       % \footnote{\suppl{theories}{conv.v}{iconv\_par2}}
-  \drule{E-refl}      % \footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
-  \drule{E-sym}       % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
-  \drule{E-trans}     % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
-  \drule{E-subst}     % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
+  \drule{Ps-subst}     % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
+  \drule{Wg-Wt}        % \footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
+  \drule{Wg-sub}       % \footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
+  \drule{Wg-subst}     % \footnote{\suppl{theories}{geq.v}{iok\_subst}}
+  \drule{I-downgrade}  % \footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
+  \drule{I-refl}       % \footnote{\suppl{theories}{geq.v}{iok\_ieq}}
+  \drule{I-sym}        % \footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
+  \drule{I-trans}      % \footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
+  \drule{I-subst}      % \footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
+  \drule{E-par}        % \footnote{\suppl{theories}{conv.v}{iconv\_par2}}
+  \drule{E-refl}       % \footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
+  \drule{E-sym}        % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
+  \drule{E-trans}      % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  \drule{E-subst}      % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
   % not needed for the fundamental theorem but useful for examples
-  \drule{Wt-sub}      % \footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}
-  \drule{Wt-subst}    % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
+  \drule{Wt-sub}       % \footnote{\suppl{theories}{syntactic\_soundness.v}{subsumption}}
+  \drule{Wt-subst}     % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
+  \drule{Wt-downgrade} % \footnote{\suppl{theories}{preservation.v}{Wt\_IOk\_Downgrade}}
 \end{mathpar}
 
 \section{Notes}
@@ -570,7 +571,7 @@ and $\member{a}{[[l]]}{S}$.}
   A substitution map $\rho$ is a mapping from variables to terms.
   We use $\dom(\rho)$ to denote the variables in the domain of $\rho$,
   $\rho(x)$ the term to which $\rho$ maps $[[x]]$,
-  $[[rho ++ { a / x }]]$ to denote the extension of $[[rho]]$
+  $([[rho ++ { a / x }]])$ to denote the extension of $[[rho]]$
   by a mapping from $[[x]]$ to $[[a]]$, and
   and $[[a { rho }]]$ to denote the simultaneous substitution
   of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
