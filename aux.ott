@@ -77,6 +77,10 @@ tm :: 'a_' ::=
     {{ com eliminator for equality (with level annotation) }}
     {{ coq a_J [[c]] [[p]] }}
     {{ tex \ottkw{[[J]]} \, [[c]] \, [[p]]^{[[l]]} }}
+  | let ( l0 x , y ) = l1 a in b :: :: LetAnnot
+    (+ bind x union y in b +)
+    {{ com weak pair projection (with level annotation) }}
+    {{ tex \ottkw{let} \, ([[x]]^{[[l0]]}, [[y]]) = [[a]]^{[[l1]]} \mathrel{ \ottkw{in} } [[b]] }}
   | case a return c of bs :: S :: Case
     {{ com case expressions }}
     {{ tex \ottkw{case} \, [[a]] \, \ottkw{return} \, [[c]] \, \ottkw{of} \, [[bs]] }}

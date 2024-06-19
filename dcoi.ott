@@ -38,13 +38,13 @@ luniv, i, j :: 'u_' ::=
     {{ coq ([[i]]) }}
     {{ tex [[i]] }}
 
-grade, k, l {{ tex \ell }} :: 'l_' ::=
+grade, l {{ tex \ell }} :: 'l_' ::=
   {{ com grades/levels }}
   {{ coq-universe Type }}
   | n :: :: Level
     {{ tex [[n]] }}
-  | k /\ l :: :: Meet
-    {{ tex [[k]] \wedge [[l]] }}
+  | l0 /\ l1 :: :: Meet
+    {{ tex [[l0]] \wedge [[l1]] }}
   | ( l ) :: S :: Parens
     {{ coq ([[l]]) }}
     {{ tex ([[l]]) }}
@@ -97,10 +97,10 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
   | ( l a , b ) :: :: Pack
     {{ com pair constructor }}
     {{ tex ([[a]]^{[[l]]}, [[b]]) }}
-  | let ( l x , y ) = k a in b :: :: Let
+  | let ( l0 x , y ) = a in b :: :: Let
     (+ bind x union y in b +)
     {{ com weak pair projection }}
-    {{ tex \ottkw{let} \, ([[x]]^{[[l]]}, [[y]]) = [[a]]^{[[k]]} \mathrel{ \ottkw{in} } [[b]] }}
+    {{ tex \ottkw{let} \, ([[x]]^{[[l0]]}, [[y]]) = [[a]] \mathrel{ \ottkw{in} } [[b]] }}
   | T l A :: S :: T
     {{ com boxed type }}
     {{ coq }}
@@ -262,8 +262,8 @@ down l0 refl => refl
 a0 => a1
 b0 => b1
 c0 => c1
----------------------------------------------------------------- :: LetPack
-let (l0 x, y) = l1 (l0 a0, b0) in c0 => c1 { a1 / x , b1 / y }
+----------------------------------------------------------- :: LetPack
+let (l0 x, y) = (l0 a0, b0) in c0 => c1 { a1 / x , b1 / y }
 
 % congruence rules
 
@@ -324,8 +324,8 @@ b0 => b1
 
 a0 => a1
 b0 => b1
----------------------------------------------------------- :: Let
-let (l0 x, y) = l1 a0 in b0 => let (l0 x, y) = l1 a1 in b1
+---------------------------------------------------- :: Let
+let (l0 x, y) = a0 in b0 => let (l0 x, y) = a1 in b1
 
 defns
   Parallels :: '' ::=
@@ -414,8 +414,8 @@ E |- (l0 a0, b0) == (l0 a1, b1) @ l
 
 E |- a0 == a1 @ l
 (# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l
-------------------------------------------------------------------- :: Let
-E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l
+------------------------------------------------------------- :: Let
+E |- let (l0 x, y) = a0 in b0 == let (l0 x, y) = a1 in b1 @ l
 
 defn
   E |- a == b @ l l0 :: :: GIEq :: 'GI_'
@@ -563,7 +563,7 @@ G |- a : l1 Sig x : l0 A . B
 G ++ z : l1 Sig x : l0 A . B |- C : Univ j
 l1 <= l
 ------------------------------------------------------------ :: Let
-G |- let (l0 x, y) = l1 a in b : l C { a / z }
+G |- let (l0 x, y) = a in b : l C { a / z }
 
 G |- a : l A
 G |- B : Univ i
@@ -641,7 +641,7 @@ E |- a : l1
 (# E ++ x : l0 #) ++ y : l1 |- b : l
 l1 <= l
 ------------------------------------ :: Let
-E |- let (l0 x, y) = l1 a in b : l
+E |- let (l0 x, y) = a in b : l
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Neutral and normal forms %%
@@ -679,7 +679,7 @@ ne down l p
 ne a
 nf b
 ----------------------------- :: Let
-ne let ( l x , y ) = k a in b
+ne let ( l0 x , y ) = a in b
 
 defn
   nf a :: :: Nf :: 'Nf_'
