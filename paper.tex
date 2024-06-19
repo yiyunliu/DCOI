@@ -383,16 +383,16 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   [[E]] &\Coloneqq [[nil]] \mid [[E ++ x : l]]
 \end{alignat*}
 
-\drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let,Conv}
+\drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let,Conv}
 \drules[Wtg]{$[[G |- a : A]]$}{Existentially-graded typing}{Grade}
 \drules[Wf]{$[[ |- G]]$}{Context well-formedness rules}{Nil, Cons}
-\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
+\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,DownSig,Pack,Let}
 \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability rules}{Dist,Indist}
 \drules[E]{$[[E |- a == b]]$}{Definitional equality}{Conv}
-\drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
-\drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pack,Let}
+\drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,JRefl,DownRefl,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
-\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Let}
+\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pack}
 \drules[W]{$[[wne a]]$}{Weak neutral forms}{ne}
 \drules[W]{$[[wnf a]]$}{Weak normal forms}{nf}
