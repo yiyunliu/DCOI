@@ -41,19 +41,28 @@ Lemma good_renaming_up ℓ0 ξ Γ Δ A :
   lookup_good_renaming (upRen_tm_tm ξ)  ((ℓ0, A) :: Γ) ((ℓ0, A⟨ξ⟩) :: Δ).
 Proof.
   rewrite /lookup_good_renaming => h.
-  move => i B.
-  inversion 1 =>*; subst.
-  - apply here'. by asimpl.
-  - asimpl. apply : there'; eauto. by asimpl.
+  move => i ℓ B.
+  elim /lookup_inv=> //= _.
+  - move => ℓ1 A0 Γ0 ? [*]. subst.
+    exists ℓ. asimpl.
+    split.
+    apply here'. by asimpl.
+    solve_lattice.
+  - move => n A0 Γ0 ℓ1 B0 h0 ? [*]. subst.
+    move /h : h0.
+    move => [ℓ1][h0]h1.
+    exists ℓ1. split; last by solve_lattice.
+    apply : there'; eauto. by asimpl.
 Qed.
 
 Lemma good_renaming_suc ℓ0 ξ Γ A Δ
   (h : lookup_good_renaming ξ Γ Δ) :
   lookup_good_renaming (ξ >> S) Γ ((ℓ0, A⟨ξ⟩) :: Δ).
 Proof.
-  rewrite /lookup_good_renaming in h *.
-  move => i ℓ A0 /h ?.
-  asimpl. apply : there'; eauto. by asimpl.
+  move => i ℓ A0 /h.
+  move => [ℓ1][h0]h1.
+  exists ℓ1.
+  split=>//. apply : there'; eauto. by asimpl.
 Qed.
 (* -------------------------------------------------- *)
 
@@ -229,6 +238,10 @@ Lemma renaming_Syn
     ⊢ Δ ->  Δ ⊢ a⟨ξ⟩ ; ℓ ∈ A⟨ξ⟩.
 Proof.
   elim : Γ ℓ a A / h; try qauto l:on depth:1 ctrs:Wt,lookup unfold:lookup_good_renaming.
+  (* Var *)
+  - move => Γ ℓ0 ℓ i A hΓ + ? Δ ξ.
+    move => /[swap] /[apply].
+    hauto lq:on use:leq_trans, T_Var.
   (* Pi *)
   - hauto q:on ctrs:Wt,Wff use:good_renaming_up.
   - move => Γ ℓ ℓ0 ℓ1 A a B i hPi ihPi ha iha Δ ξ hξ hΔ //=.
@@ -316,7 +329,7 @@ Lemma weakening_Syn Γ ℓ ℓ0 ℓ1 a A B i
   ((ℓ1, B) :: Γ) ⊢ (ren_tm shift a) ; ℓ ∈ (ren_tm shift A).
 Proof.
   apply : renaming_Syn; eauto with wff.
-  hauto lq:on ctrs:lookup unfold:lookup_good_renaming.
+  hauto lq:on ctrs:lookup unfold:lookup_good_renaming solve+:solve_lattice.
 Qed.
 
 Lemma weakening_Syn' Γ ℓ ℓ0 ℓ1 a A A0 B i
@@ -712,6 +725,10 @@ Proof.
         eapply weakening_Syn with (i := i) => //; eauto.
       * simpl.
         apply cfacts.conv_renaming with (Ξ := c2e Γ)=>//.
+        rewrite /iok_ren_ok.
+        move => k ℓ0 ?.
+        exists ℓ0.
+        hauto lq:on solve+:solve_lattice.
     + move => n A2 Γ0 ℓ4 B ? ? [] *. subst. asimpl.
       change (var_tm (S n)) with (ren_tm shift (var_tm n)).
       eapply weakening_Syn with (i := i) => //; eauto.
@@ -746,7 +763,7 @@ Proof.
     + asimpl => /=.
       eapply cfacts.conv_renaming; eauto.
       rewrite /iok_ren_ok.
-      sfirstorder inv:nat.
+      hauto lq:on inv:nat solve+:solve_lattice.
   - move => lookm n C' Γ' ℓ3 B' lookn ? [*]. subst.  asimpl.
     elim /lookup_inv : lookn.
     + move => lookn A0' Γ'' ? E' [*]. subst.
@@ -756,8 +773,10 @@ Proof.
       * apply cfacts.conv_renaming with (Ξ := ℓ2 :: c2e Γ); eauto.
         apply cfacts.conv_renaming with (Ξ := c2e Γ); eauto.
         rewrite /iok_ren_ok.
-        sfirstorder inv:nat.
-        sfirstorder inv:nat unfold:elookup.
+        hauto lq:on inv:nat solve+:solve_lattice.
+        rewrite /iok_ren_ok.
+        move => i0 ℓ1 ?.
+        exists ℓ1. split. sfirstorder. solve_lattice.
     + move => *. apply : T_Var; hauto lq:on use:meet_idempotent ctrs:lookup db:wff.
 Qed.
 
@@ -769,7 +788,6 @@ Lemma T_Refl' Γ ℓ ℓ0 a0 a1 A
   Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a0 a1 A).
 Proof.
   move => ha0 ha1.
-  Check T_Eq_simpl.
   move : T_Eq_simpl (ha0) (ha1) => /[apply]/[apply] /(_ 0). move => ?.
   eapply T_Conv with (A := tEq ℓ0 a0 a0 A) (i := 0).
   - by apply T_Refl.

@@ -89,8 +89,13 @@ Proof.
   move => Δ ξ hscope h1.
   rewrite /ρ_ok => i ℓ A hi.
   move /hscope: hi => ld.
-  move /h1 : ld.
-  by asimpl.
+  move : ld => [ℓ0][ld0]?.
+  move /h1 in ld0.
+  split. asimpl.
+  sfirstorder use:ifacts.iok_subsumption.
+  move : ld0.
+  asimpl.
+  hauto lq:on use:InterpUnivN_subsumption.
 Qed.
 
 (* Typing is stable under renaming *)
@@ -112,7 +117,7 @@ Lemma weakening_Sem Γ ℓ ℓ0 ℓ1 a A B i
    SemWt ((ℓ1, B) :: Γ) ℓ (a ⟨S⟩) (A ⟨S⟩).
 Proof.
   apply : renaming_SemWt; eauto.
-  hauto lq:on ctrs:lookup unfold:lookup_good_renaming.
+  hauto lq:on ctrs:lookup unfold:lookup_good_renaming solve+:solve_lattice.
 Qed.
 
 (* Well-formed types have interpretations *)
@@ -142,7 +147,7 @@ Proof.
       change (tUniv i) with (tUniv i)⟨S⟩.
       apply : renaming_SemWt; eauto.
       rewrite /lookup_good_renaming.
-      hauto l:on.
+      hauto l:on solve+:solve_lattice.
     + move => n A1 Γ0 ℓ2 B + ? [*]. subst.
       move /ihΓ.
       move => [ℓ2][j]h.
@@ -150,7 +155,7 @@ Proof.
       change (tUniv j) with (tUniv j)⟨S⟩.
       apply : renaming_SemWt; eauto.
       rewrite /lookup_good_renaming.
-      hauto l:on.
+      hauto l:on solve+:solve_lattice.
 Qed.
 
 Lemma wt_ρ_ok_morphing_iok Γ Δ ρ ℓ a A (h : Γ ⊢ a ; ℓ ∈ A) (h0 : ρ_ok Γ Δ ρ) : IOk (c2e Δ) ℓ a[ρ].

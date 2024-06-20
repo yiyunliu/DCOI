@@ -165,7 +165,7 @@ Module Type geq_sig
   Derive Inversion IEq_inv with (forall Ξ ℓ a b, IEq Ξ ℓ a b).
   Derive Inversion GIEq_inv with (forall Ξ ℓ ℓ0 a b, GIEq Ξ ℓ ℓ0 a b).
 
-  Definition iok_ren_ok ρ Ξ Δ := forall i ℓ, elookup i Ξ ℓ -> elookup (ρ i) Δ ℓ.
+  Definition iok_ren_ok ρ Ξ Δ := forall i ℓ, elookup i Ξ ℓ -> exists ℓ0, elookup (ρ i) Δ ℓ0 /\ ℓ0 ⊆ ℓ.
 
   Definition iok_subst_ok ρ Ξ Δ := forall i ℓ, elookup i Ξ ℓ -> IOk Δ ℓ (ρ i).
 
@@ -194,6 +194,7 @@ Module geq_facts
     move => ℓ0.
     rewrite /iok_ren_ok /elookup.
     case=>//=.
+    hauto lq:on solve+:solve_lattice.
   Qed.
 
   Lemma iok_renaming Ξ ℓ a (h : IOk Ξ ℓ a) :
@@ -216,7 +217,7 @@ Module geq_facts
       by rewrite meet_idempotent.
     - move => n ℓ ?.
       asimpl. apply : iok_renaming; eauto.
-      sfirstorder.
+      hauto lq:on rew:off unfold:iok_ren_ok solve+:solve_lattice.
   Qed.
 
   Lemma iok_morphing Ξ ℓ a (h : IOk Ξ ℓ a) :
@@ -336,6 +337,8 @@ Module geq_facts
     move => ℓ0 ξ Ξ Δ h.
     rewrite /iok_ren_ok.
     case => //.
+    move => ℓ. rewrite /elookup/= => [->].
+    hauto lq:on inv:option solve+:solve_lattice .
   Qed.
 
   Lemma ieq_weakening_mutual : forall Ξ ℓ,
@@ -346,8 +349,8 @@ Module geq_facts
                    forall ξ Δ, iok_ren_ok ξ Ξ Δ ->
                           GIEq Δ ℓ ℓ0 (ren_tm ξ a) (ren_tm ξ b)).
   Proof.
-    apply IEq_mutual; try qauto l: on ctrs:IEq,GIEq use:ieq_weakening_helper unfold:iok_ren_ok.
-    move => *; constructor; first by sfirstorder.
+    apply IEq_mutual; try qauto l: on ctrs:IEq,GIEq use:ieq_weakening_helper unfold:iok_ren_ok solve+:solve_lattice.
+    hauto use:I_Var, leq_trans unfold:iok_ren_ok.
   Qed.
 
 Definition ieq_good_morphing ℓ ξ0 ξ1 Ξ Δ :=
@@ -368,7 +371,7 @@ Proof.
   case => [|i] ℓ1 //=.
   - sfirstorder use:gieq_refl.
   - asimpl.
-    sfirstorder use:ieq_weakening_mutual unfold:iok_ren_ok.
+    hauto lq:on rew:off use:ieq_weakening_mutual unfold:iok_ren_ok solve+:solve_lattice.
 Qed.
 
 Lemma ieq_morphing_helper2 ℓ ℓ0 ℓ1 ξ0 ξ1 Ξ Δ :

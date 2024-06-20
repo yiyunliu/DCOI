@@ -14,8 +14,9 @@ Inductive lookup : nat -> context -> T -> tm -> Prop :=
   | there n A Γ ℓ B :
       lookup n Γ ℓ A -> lookup (S n) (B :: Γ) ℓ (A ⟨shift⟩).
 
+
 Definition lookup_good_renaming ξ Γ Δ :=
-  forall i ℓ A, lookup i Γ ℓ A -> lookup (ξ i) Δ ℓ A⟨ξ⟩.
+  forall i ℓ A, lookup i Γ ℓ A -> exists ℓ0, lookup (ξ i) Δ ℓ0 A⟨ξ⟩ /\ ℓ0 ⊆ ℓ.
 
 Derive Inversion lookup_inv with (forall i Γ ℓ A, lookup i Γ ℓ A).
 
