@@ -131,6 +131,10 @@
   \hspace*{-\the\punctwidth}%
 }
 
+% reduce spacing surrounding captions
+\setlength\abovecaptionskip{1pt plus 1pt minus 1pt}
+\setlength\belowcaptionskip{1pt plus 1pt minus 1pt}
+
 \inputott{dcoi-rules}
 
 \title{\name}
@@ -183,6 +187,10 @@
 
 \begin{document}
 
+% squish lines in align environments
+% inexplicably this has to be inside the document
+\setlength{\jot}{0pt}
+
 \begin{abstract}
 
 \end{abstract}
@@ -194,6 +202,21 @@
 \section{Examples}
 
 \section{\name}
+
+\begin{figure}[h]
+\begin{alignat*}{2}
+  [[G]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Contexts of variables with levels and types} \\
+  [[E]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Contexts of variables with levels} \\
+  [[A]], [[B]], [[C]], &&& \\
+  [[a]], [[b]], [[c]], [[p]] & \Coloneqq & \quad & \text{Terms} \\
+  & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
+  & \mid [[Pi x : l A . B]] \mid [[\ l x . b]] \mid [[b l a]] & \quad & \textit{function types, abstractions, applications} \\
+  & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l x, y) = a in b]] & \quad & \textit{pair types, pairs, matching} \\
+  & \mid [[a ~ l b : A]] \mid [[refl]] \mid [[J c p]] \mid [[down l p]] & \quad & \textit{equality types, reflexivity, J eliminator, downgrade}
+\end{alignat*}
+\label{fig:grammar}
+\caption{Grammar of contexts and terms}
+\end{figure}
 
 \section{Metatheory}
 
@@ -218,7 +241,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \section{Examples}
 
-\begin{spreadlines}{0em}
 \begin{align*}
   [[:concrete: Ifz & : H ! Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
   [[:concrete: Ifz & := \ H n . \ H A . \ H B . phantom]] \\
@@ -233,7 +255,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
       & vnil => \ H p . absurd (! discr H Void H n H p) ++
       & vcons n x xs => \ H p . x) H refl]]
 \end{align*}
-\end{spreadlines}
 
 \section{Lemmas}
 
@@ -405,11 +426,6 @@ Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd
 ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
 \section{Rules}
-
-\begin{alignat*}{2}
-  [[G]] &\Coloneqq [[nil]] \mid [[G ++ x : l A]] \\
-  [[E]] &\Coloneqq [[nil]] \mid [[E ++ x : l]]
-\end{alignat*}
 
 \drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let,Conv}
 \drules[Wtg]{$[[G |- a : A]]$}{Existentially-graded typing}{Grade}
