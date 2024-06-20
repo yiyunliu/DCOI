@@ -97,6 +97,7 @@
 \DeclarePairedDelimiter{\braces}{\lbrace}{\rbrace}
 
 \newcommand{\suppress}[1]{}
+\newcommand{\dcoi}{DCOI\@\xspace}
 \newcommand{\name}{DCOI$\omega$\@\xspace}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
@@ -134,6 +135,10 @@
 % reduce spacing surrounding captions
 \setlength\abovecaptionskip{1pt plus 1pt minus 1pt}
 \setlength\belowcaptionskip{1pt plus 1pt minus 1pt}
+
+% reduce spacing surrounding figures
+\setlength{\intextsep}{6pt plus 2.0pt minus 2.0pt}
+\setlength{\textfloatsep}{6pt plus 2.0pt minus 2.0pt}
 
 \inputott{dcoi-rules}
 
@@ -203,6 +208,14 @@
 
 \section{\name}
 
+In this section, we present the grammar and judgements of \name,
+which is an instantiation of the \longname (\dcoi)~\citep{liu:dcoi} with
+the Pure Type System (PTS)~\citep{barendregt:PTS} axioms and rules
+of a predicative universe hierarchy.
+The grammar is given in \cref{fig:grammar},
+which is parameterized over a meet-semilattice of dependency levels
+(following \citet{abadi:dependency}).
+
 \begin{figure}[h]
 \begin{alignat*}{2}
   [[G]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Contexts of variables with levels and types} \\
@@ -214,8 +227,88 @@
   & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l x, y) = a in b]] & \quad & \textit{pair types, pairs, matching} \\
   & \mid [[a ~ l b : A]] \mid [[refl]] \mid [[J c p]] \mid [[down l p]] & \quad & \textit{equality types, reflexivity, J eliminator, downgrade}
 \end{alignat*}
-\label{fig:grammar}
 \caption{Grammar of contexts and terms}
+\label{fig:grammar}
+\end{figure}
+
+We use the metavariable $[[l]]$ for dependency levels,
+$[[l0 /\ l1]]$ for the meet operation,
+and the metavariables $[[i]], [[j]], [[k]]$ for universe levels,
+which we take to be meta-level naturals.
+Although our mechanization uses de Bruijn indices for representing binding
+and simultaneous substitutions,
+for clarity we use named variables and single substitutions for our presentation.
+We use the metavariables $[[x]], [[y]], [[z]]$ for variables
+and $[[a { b / x }]]$ for the substitution of a term $[[b]]$ in place of the variable $[[x]]$
+inside the term $[[a]]$.
+
+% In addition to universes,
+% there are a number of other differences from \dcoi in the syntax of \name,
+% highlighted in yellow.
+% We add an empty type and its eliminator,
+% which enables using some higher-level terms at lower levels.
+% We also replace pair projections with a pair-matching expression,
+% and substitution over equality proofs with a full J eliminator.
+% Finally, we add a downgrade operator on equality proofs,
+% which permits lowering the observer level of the equality.
+% We examine all of the constructs in the subsections to follow.
+
+The main judgement is the typing judgement,
+which has the form $[[G |- a : l A]]$ for a term $[[a]]$
+that is well type under context $[[G]]$ at level $[[l]]$
+with type $[[A]]$.
+To reduce clutter,
+we use the judgement $[[G |- a : A]]$ to mean that there exists some level $[[l]]$
+such that $[[G |- a : l A]]$ holds.
+
+We present the rules for this judgement incrementally,
+beginning with universes, dependent function types, and the empty type (\cref{sec:dep}),
+then dependent pair types (\cref{sec:pairs}).
+Typing uses a definitional equality that is defined in terms of indistinguishability (\cref{sec:indist}).
+Finally, we look at the rules for propositional equality types (\cref{sec:eq}),
+which internalize indistinguishability.
+
+\subsection{Dependency tracking} \label{sec:dep}
+
+\begin{figure}[h]
+  \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
+  \drules[Wt]{$[[G |- a : l A]]$}{Typing}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  \caption{Well-formedness and typing rules (universes, empty, functions)}
+  \label{fig:typing:dep}
+\end{figure}
+
+\subsection{Dependent pairs} \label{sec:pairs}
+
+\begin{figure}[h]
+  \drule{Wt-Sig}
+  \drule{Wt-Pack}
+  \drule{Wt-Let}
+  \vspace{0.5\baselineskip}
+  \caption{Typing rules (pairs)}
+  \label{fig:typing:pairs}
+\end{figure}
+
+\subsection{Definitional equality and indistinguishability} \label{sec:indist}
+
+\jc{TODO: not all of these need to be presented. pick out the ones that do}
+
+\drule{Wt-Conv}
+\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
+\drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability rules}{Dist,Indist}
+\drules[E]{$[[E |- a == b]]$}{Definitional equality}{Conv}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,JRefl,DownRefl,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
+\drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
+
+\subsection{Propositional equality} \label{sec:eq}
+
+\begin{figure}[h]
+  \drule{Wt-Eq}
+  \drule{Wt-Refl}
+  \drule{Wt-J}
+  \drule{Wt-Down}
+  \vspace{0.5\baselineskip}
+  \caption{Typing rules (equality)}
+  \label{fig:typing:eq}
 \end{figure}
 
 \section{Metatheory}
@@ -427,15 +520,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
 \section{Rules}
 
-\drules[Wt]{$[[G |- a : l A]]$}{Typing rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let,Conv}
-\drules[Wtg]{$[[G |- a : A]]$}{Existentially-graded typing}{Grade}
-\drules[Wf]{$[[ |- G]]$}{Context well-formedness rules}{Nil, Cons}
-\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
-\drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability rules}{Dist,Indist}
-\drules[E]{$[[E |- a == b]]$}{Definitional equality}{Conv}
 \drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
-\drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,JRefl,DownRefl,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
-\drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pack}
 \drules[W]{$[[wne a]]$}{Weak neutral forms}{ne}
