@@ -218,8 +218,8 @@ which is parameterized over a meet-semilattice of dependency levels
 
 \begin{figure}[h]
 \begin{alignat*}{2}
-  [[G]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Contexts of variables with levels and types} \\
-  [[E]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Contexts of variables with levels} \\
+  [[G]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Typing contexts with levels and types} \\
+  [[E]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Grading contexts with levels} \\
   [[A]], [[B]], [[C]], &&& \\
   [[a]], [[b]], [[c]], [[p]] & \Coloneqq & \quad & \text{Terms} \\
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
@@ -312,6 +312,25 @@ which internalize indistinguishability.
 \end{figure}
 
 \section{Metatheory}
+
+In this section, we develop the metatheory of \name.
+Our ultimate goals are weak normalization,
+that all well-typed terms reduce to a normal form;
+and logical consistency,
+that there is no closed term of the empty type.
+We begin with proving various syntactic properties of our judgements,
+culminating in subject reduction,
+that a well-typed term remains well typed after reduction.
+We then establish a logical relation between types and sets of terms,
+and define semantic typing in terms of the logical relation.
+Normalization and consistency follow as corollaries of the fundamental theorem,
+which states that syntactic typing implies semantic typing.
+
+\subsection{Syntactic properties}
+
+\subsection{Semantic typing}
+
+\subsection{Soundness}
 
 \section{Implementation}
 
