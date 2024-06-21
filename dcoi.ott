@@ -252,9 +252,9 @@ b0 => b1
 ------------------------------------ :: AppAbs
 (\ l0 x . b0) l0 a0 => b1 { a1 / x }
 
-t0 => t1
+c0 => c1
 ----------------- :: JRefl
-J t0 refl => t1
+J c0 refl => c1
 
 -------------------- :: DownRefl
 down l0 refl => refl

@@ -262,10 +262,10 @@ we use the judgement $[[G |- a : A]]$ to mean that there exists some level $[[l]
 such that $[[G |- a : l A]]$ holds.
 
 We present the rules for this judgement incrementally,
-beginning with universes, dependent function types, and the empty type (\cref{sec:dep}),
-then dependent pair types (\cref{sec:pairs}).
+beginning with universes, dependent function types, and the empty type (\cref{sec:dep}).
 Typing uses a definitional equality that is defined in terms of indistinguishability (\cref{sec:indist}).
-Finally, we look at the rules for propositional equality types (\cref{sec:eq}),
+We then look at the rules for dependent pair types (\cref{sec:pairs}),
+and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
 
 \subsection{Dependency tracking} \label{sec:dep}
@@ -277,6 +277,36 @@ which internalize indistinguishability.
   \label{fig:typing:dep}
 \end{figure}
 
+\subsection{Definitional equality and indistinguishability} \label{sec:indist}
+
+\begin{figure}[h]
+  \drule{Wt-Conv} % maybe this should go back in the previous figure
+  \drule{E-Conv}
+  \drule{P-AppAbs}
+  \vspace{0.5\baselineskip}
+  \caption{Conversion, definitional equality, and parallel reduction ($\beta$ only) rules}
+  \label{fig:conv}
+\end{figure}
+
+The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
+wich allows converting the type of a well-typed term to a definitionally equal type.
+Our definitional equality is untyped, but eventually relies on the levels of variables,
+so its judgement form $[[E |- a == b]]$ requires a grading context $[[E]]$.
+In \rref{Wt-Conv}, this is provided by $[[| G |]]$,
+which denotes dropping all type annotations to convert a typing context into a grading context.
+
+Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv},
+which separately incorporates parallel reduction and indistinguishability.
+Parallel reduction consists of the $\beta$-reduction rules for our elimination forms,
+listed in \cref{fig:conv} and in following subsections,
+along with rules for the reflexive, congruent closure, omitted here.
+Multi-step parallel reduction $[[a =>* b]]$ is then the transitive closure of parallel reduction.
+This formulation of equality is in contrast to the system by \citet{liu:dcoi},
+where parallel reduction is merely a metatheoretic tool for proving type safety.
+
+\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd}
+\drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability rules}{Dist,Indist}
+
 \subsection{Dependent pairs} \label{sec:pairs}
 
 \begin{figure}[h]
@@ -284,20 +314,19 @@ which internalize indistinguishability.
   \drule{Wt-Pack}
   \drule{Wt-Let}
   \vspace{0.5\baselineskip}
-  \caption{Typing rules (pairs)}
+  \caption{Typing and indistinguishability rules (pairs)}
   \label{fig:typing:pairs}
 \end{figure}
 
-\subsection{Definitional equality and indistinguishability} \label{sec:indist}
-
-\jc{TODO: not all of these need to be presented. pick out the ones that do}
-
-\drule{Wt-Conv}
-\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
-\drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability rules}{Dist,Indist}
-\drules[E]{$[[E |- a == b]]$}{Definitional equality}{Conv}
-\drules[P]{$[[a => b]]$}{Parallel reduction}{AppAbs,JRefl,DownRefl,LetPack,Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
-\drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
+\begin{figure}[h]
+  \drule{P-LetPack}
+  \drule{I-Sig}
+  \drule{I-Pack}
+  \drule{I-Let}
+  \vspace{0.5\baselineskip}
+  \caption{Parallel reduction and indistinguishability rules (pairs)}
+  \label{fig:conv:pairs}
+\end{figure}
 
 \subsection{Propositional equality} \label{sec:eq}
 
@@ -307,8 +336,20 @@ which internalize indistinguishability.
   \drule{Wt-J}
   \drule{Wt-Down}
   \vspace{0.5\baselineskip}
-  \caption{Typing rules (equality)}
+  \caption{Typing and indistinguishability rules (equality)}
   \label{fig:typing:eq}
+\end{figure}
+
+\begin{figure}[h]
+  \drule{P-JRefl}
+  \drule{P-DownRefl}
+  \drule{I-Eq}
+  \drule{I-Refl}
+  \drule{I-J}
+  \drule{I-Down}
+  \vspace{0.5\baselineskip}
+  \caption{Parallel reduction and indistinguishability rules (equality)}
+  \label{fig:conv:eq}
 \end{figure}
 
 \section{Metatheory}
@@ -539,6 +580,8 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
 \section{Rules}
 
+\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
+\drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 \drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
 \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pack}
