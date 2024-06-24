@@ -400,11 +400,11 @@ Inductive LoRed : tm -> tm -> Prop :=
   (* -------------------- *)
   LoRed (tAbs ℓ0 a0) (tAbs ℓ0 a1)
 
-| LoR_App0 a0 a1 ℓ0 b0 b1 :
+| LoR_App0 a0 a1 ℓ0 b :
   ~~ isAbs a0 ->
   LoRed a0 a1 ->
   (* ------------------------- *)
-  LoRed (tApp a0 ℓ0 b0) (tApp a1 ℓ0 b1)
+  LoRed (tApp a0 ℓ0 b) (tApp a1 ℓ0 b)
 
 | LoR_App1 a ℓ0 b0 b1 :
   ne a ->
@@ -890,6 +890,155 @@ Proof.
     move => [p0][?]h. subst.
     apply : rtc_transitive; eauto.
     sfirstorder use:LoRed_Down_Cong, ne_nf, NPars_Pars.
+Qed.
+
+Fixpoint LoRedOpt a :=
+  match a with
+  | tPi ℓ0 A B =>
+      match LoRedOpt A with
+      | Some A0 => Some (tPi ℓ0 A0 B)
+      | None => match LoRedOpt B with
+               | Some B0 => Some (tPi ℓ0 A B0)
+               | None => None
+               end
+      end
+  | tAbs ℓ0 a =>
+      match LoRedOpt a with
+      | Some a0 => Some (tAbs ℓ0 a0)
+      | None => None
+      end
+  | tApp a ℓ0 b =>
+      match a with
+      | tAbs _ a0 =>
+          Some a0[b..]
+      | _ => match LoRedOpt a with
+            | Some a0 => Some (tApp a0 ℓ0 b)
+            | None => match LoRedOpt b with
+                     | Some b0 => Some (tApp a ℓ0 b0)
+                     | None => None
+                     end
+            end
+      end
+  | tAbsurd a =>
+      match LoRedOpt a with
+      | Some a0 => Some (tAbsurd a0)
+      | None => None
+      end
+  | tEq ℓ0 a b A =>
+      match LoRedOpt a with
+      | Some a0 => Some (tEq ℓ0 a0 b A)
+      | None => match LoRedOpt b with
+               | Some b0 => Some (tEq ℓ0 a b0 A)
+               | None => match LoRedOpt A with
+                        | Some A0 => Some (tEq ℓ0 a b A0)
+                        | None => None
+                        end
+               end
+      end
+  | tJ ℓp t p =>
+      match p with
+      | tRefl => Some t
+      | _ =>
+          match LoRedOpt p with
+          | Some p0 => Some (tJ ℓp t p0)
+          | None => match LoRedOpt t with
+                   | Some t0 => Some (tJ ℓp t0 p)
+                   | None => None
+                   end
+          end
+      end
+  | tSig ℓ0 A B =>
+      match LoRedOpt A with
+      | Some A0 => Some (tSig ℓ0 A0 B)
+      | None => match LoRedOpt B with
+               | Some B0 => Some (tSig ℓ0 A B0)
+               | None => None
+               end
+      end
+
+  | tPack ℓ0 A B =>
+      match LoRedOpt A with
+      | Some A0 => Some (tPack ℓ0 A0 B)
+      | None => match LoRedOpt B with
+               | Some B0 => Some (tPack ℓ0 A B0)
+               | None => None
+               end
+      end
+
+
+  | tLet ℓ0 ℓ1 (tPack ℓ2 a b) c => Some c[b .: a..]
+  | tLet ℓ0 ℓ1 a b => match LoRedOpt a with
+                     | Some a0 => Some (tLet ℓ0 ℓ1 a0 b)
+                     | None => match LoRedOpt b with
+                              | Some b0 => Some (tLet ℓ0 ℓ1 a b0)
+                              | None => None
+                              end
+                     end
+  | tDown ℓ0 tRefl => Some tRefl
+  | tDown ℓ0 p => match LoRedOpt p with
+                 | Some p0 => Some (tDown ℓ0 p0)
+                 | None => None
+                 end
+
+  | var_tm _ => None
+  | tD => None
+  | tUniv _ => None
+  | tRefl => None
+  | tVoid => None
+  end.
+
+Lemma nf_no_red a : nf a -> LoRedOpt a = None.
+Proof.
+  elim : a=> //=; hauto q:on use:ne_nf b:on inv:tm.
+Qed.
+
+Lemma LoRed_LoRedOpt a b : LoRed a b -> LoRedOpt a = Some b.
+Proof.
+  move => h. elim : a b /h => //=.
+  - hauto lq:on.
+  - hauto lq:on use:nf_no_red.
+  - hauto lq:on rew:off use:nf_no_red.
+  - move => > ? ? iha /=.
+    rewrite {}iha.
+    hauto lq:on b:on.
+  - move => a ℓ0 b0 b1 nea hb ihb /=.
+    rewrite ihb.
+    have -> : LoRedOpt a = None by hauto lq:on use:nf_no_red, ne_nf.
+    hauto q:on inv:tm.
+  - hauto lq:on.
+  - hauto lq:on.
+  - hauto lq:on use:nf_no_red.
+  - hauto q:on use:nf_no_red.
+  - hauto q:on inv: LoRed lq:on rew:off.
+  - move => ℓp t0 t1 p hp ha iha.
+    rewrite !{}iha.
+    hauto b:on use:nf_no_red, ne_nf.
+  - hauto lq:on.
+  - hauto lq:on use:nf_no_red.
+  - hauto lq:on.
+  - hauto lq:on use:nf_no_red.
+  - move => ℓ0 ℓ1 a0 a1 b hp ha iha.
+    rewrite !{}iha.
+    hauto q:on inv:LoRed.
+  - move => ℓ0 ℓ1 a b0 b1 nea hb ihb.
+    rewrite !{}ihb.
+    hauto b:on drew:off inv:tm use:nf_no_red, ne_nf.
+  - hauto lq:on rew:off inv:LoRed.
+Qed.
+
+Definition LoRed' a b := LoRedOpt a = Some b.
+
+Lemma LoRed_LoRed' : subrelation LoRed LoRed'.
+Proof. sfirstorder use:LoRed_LoRedOpt unfold:subrelation, LoRed'. Qed.
+
+Lemma LoReds_LoReds' a b : rtc LoRed a b -> rtc LoRed' a b.
+Proof. sfirstorder use:LoRed_LoRed', relations.rtc_subrel unfold:LoRed', subrelation. Qed.
+
+Lemma standardization' a b :
+  rtc Par a b -> nf b ->
+  rtc LoRed' a b.
+Proof.
+  sfirstorder use:LoReds_LoReds', standardization.
 Qed.
 
 End factorization_sig.
