@@ -352,5 +352,43 @@ Proof.
   - hauto lq:on ctrs:starseq, HRed, Par, NPar.
 Qed.
 
+Lemma split t s (h : t ⇒ s) :
+  starseq t s.
+Proof.
+  elim : t s /h ; try hauto q:on ctrs:NPar, starseq.
+  - eauto using starseq_app_cong.
+  - move => *.
+    apply : S_Step.
+    by apply HR_AppAbs.
+    by apply P_AppAbs.
+    hauto lq:on ctrs:starseq inv:nat use:ipar_starseq_morphing.
+  - eauto using starseq_j_cong.
+  - move => *.
+    apply : S_Step=>//.
+    by apply HR_JRefl.
+    by apply P_JRefl.
+    exact.
+  - eauto using starseq_let_cong.
+  - move => *.
+    apply : S_Step=>//.
+    by apply HR_LetPack.
+    by apply P_LetPack.
+    hauto lq:on ctrs:starseq inv:nat use:ipar_starseq_morphing.
+  - eauto using starseq_down_cong.
+  - hauto lq:on ctrs:NPar,Par,starseq,HRed.
+Qed.
+
+(* Erase the information about one step par from starseq *)
+Lemma starseq_erase a b (h : starseq a b) :
+  exists u, rtc HRed a u /\ NPar u b.
+Proof.
+  elim : a b /h; hauto lq:on ctrs:rtc.
+Qed.
+
+Lemma local_postponement t a u  :
+  NPar t a ->
+  HRed a u ->
+  exists q, rtc HRed t q /\ NPar q u.
+Proof. sfirstorder use:split, merge, starseq_erase. Qed.
 
 End factorization_sig.
