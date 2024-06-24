@@ -412,9 +412,9 @@ Inductive LoRed : tm -> tm -> Prop :=
   (* ------------------------- *)
   LoRed (tApp a ℓ0 b0) (tApp a ℓ0 b1)
 
-| LoR_AppAbs a b ℓ0 :
+| LoR_AppAbs a b ℓ0 ℓ1 :
   (* ---------------------------- *)
-  LoRed (tApp (tAbs ℓ0 a) ℓ0 b) (a [b..])
+  LoRed (tApp (tAbs ℓ0 a) ℓ1 b) (a [b..])
 
 | LoR_Absurd a b :
   LoRed a b ->
@@ -488,9 +488,9 @@ Inductive LoRed : tm -> tm -> Prop :=
   (* --------------------- *)
   LoRed (tLet ℓ0 ℓ1 a b0) (tLet ℓ0 ℓ1 a b1)
 
-| LoR_LetPack ℓ0 ℓ1 a b c :
+| LoR_LetPack ℓ0 ℓ1 ℓ2 a b c :
   (* --------------------------------------------- *)
-  LoRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) c[b .: a ..]
+  LoRed (tLet ℓ0 ℓ1 (tPack ℓ2 a b) c) c[b .: a ..]
 
 | LoR_Down ℓ0 p0 p1 :
   LoRed p0 p1 ->
