@@ -206,6 +206,10 @@
 
 \section{Examples}
 
+\jc{TODO: Remember to introduce $[[l A -> B]]$ as sugar for $[[Pi x : l A . B]]$
+where $[[B]]$ is not dependent on $[[x]]$
+and $[[Unit]]$ as sugar for $[[l Void -> Void]]$}
+
 \section{\name}
 
 In this section, we present the grammar and judgements of \name,
@@ -233,6 +237,8 @@ which is parameterized over a meet-semilattice of dependency levels
 
 We use the metavariable $[[l]]$ for dependency levels,
 and $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$.
+As in the previous section, we use the low $[[L]]$ and high $[[H]]$ levels in our examples,
+with $[[L < H]]$.
 Similarly, we use the metavariables $[[i]], [[j]], [[k]]$ for universe levels,
 which we take to be meta-level naturals,
 and $[[max i j]]$ for the maximum of $[[i]]$ and $[[j]]$.
@@ -312,8 +318,50 @@ Multi-step parallel reduction $[[a =>* b]]$ is then the transitive closure of pa
 This formulation of equality is in contrast to the system by \citet{liu:dcoi},
 where parallel reduction is merely a metatheoretic tool for proving type safety.
 
-\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability rules}{Var,Pi,Abs,App,Univ,Empty,Absurd}
-\drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability rules}{Dist,Indist}
+\begin{figure}[h]
+  \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability}{Dist,Indist}    
+  \caption{(Guarded) indistinguishability rules (universes, empty, functions)}
+  \label{fig:indist}
+\end{figure}
+
+Indistinguishability is mutually defined with guarded indistinguishability,
+given in \cref{fig:indist}.
+Guarded indistinguishability is used in \rref{I-App};
+otherwise, two terms are indistinguishable at observer level $[[l]]$
+if they have the same shape and their subterms are also indistinguishable at $[[l]]$.
+
+We say that indistinguishability is \emph{coarser} than mere $\alpha$-equivalence
+(and hence $[[E |- a == b]]$ is coarser than mere $\beta$-equivalence of $[[a]]$ and $[[b]]$)
+because more terms may be indistinguishable while not necessarily being $\alpha$-equivalent.
+This is because the use of guarded indistinguishability when comparing arguments in \rref{I-App},
+which are labelled at $[[l0]]$, but observed at $[[l]]$.
+If $[[l0 <= l]]$, meaning that the observer can fully see the arguments,
+then \rref{GI-Dist} applies, and the applications are indistinguishable
+if both the functions and the arguments are indistinguishable at $[[l]]$ respectively.
+Otherwise, if $[[not (l0 <= l)]]$, then \rref{GI-Indist} applies,
+and the arguments are too high to be observed at $[[l]]$,
+so indistinguishability of the applications does not consider the arguments.
+As a simple example,
+$[[:concrete: (# w : L ++ x : H #) ++ y : H |- (\ H z . w) H x == (\ H z . w) H y @ L]]$
+holds even though $[[x]]$ and $[[y]]$ could be anything,
+because the observer level is $[[L]]$,
+while the arguments' levels are $[[H]]$ and therefore unobservable.
+Indistinguishability of unobservable arguments articulates the intuition that
+since functions cannot meaningfully use unobservable arguments,
+they may safely be ignored.
+
+A level comparison also occurs in \rref{I-Var},
+where a variable may only be indistinguishable from itself
+if the observer level is high enough to observe it.
+This prevents equating arbitrary terms via function applications, such as
+$[[:concrete: x : H ++ y : H |- (\ H z . z) H x == (\ H z . z) H y]]$,
+since the bodies of the functions are not indistinguishable.
+Without this level comparison,
+we have via \rref{E-Conv} the equalities $[[nil |- Unit == (\ H z . z) H Unit]]$,
+$[[nil |- (\ H z . z) H Unit == (\ H z . z) H Void]]$,
+and $[[nil |- (\ H z . z) H Void == Void]]$,
+which would permit a closed term of $[[Void]]$ via repeated applications of \rref{Wt-Conv}.
 
 \subsection{Dependent pairs} \label{sec:pairs}
 

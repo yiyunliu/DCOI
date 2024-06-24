@@ -66,6 +66,9 @@ tm :: 'a_' ::=
   | rho ( x ) :: S :: Substituted
     {{ com term substituted for x }}
     {{ tex [[rho]]([[x]]) }}
+  | Unit :: S :: Unit
+    {{ com unit type }}
+    {{ tex \top }}
   | l A -> B :: S :: Arrow
     {{ com nondependent function type }}
     {{ tex [[A]] \overset{[[l]]}{\rightarrow} [[B]] }}
@@ -93,6 +96,11 @@ toplevel :: 'tl_' ::=
   | x amps := a :: :: Defn
     {{ com definition }}
     {{ tex \const{[[x]]} [[amps]] \coloneqq [[a]] }}
+
+formula :: 'formula_' ::=
+  | l1 < l2 :: :: lt
+    {{ coq [[l1]] < [[l2]] }}
+    {{ tex [[l1]] < [[l2]] }}
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Admissible rules %%

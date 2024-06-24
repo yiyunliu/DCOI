@@ -159,7 +159,7 @@ econtext, E {{ tex \Xi }} :: 'ectx_' ::=
   {{ com erased contexts }}
   {{ coq list ( atom * grade ) }}
   {{ coq-universe Type }}
-  | empty :: S :: Empty
+  | nil :: S :: Empty
     {{ com empty context }}
     {{ coq nil }}
     {{ tex \mt }}
