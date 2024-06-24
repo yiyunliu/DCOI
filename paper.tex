@@ -232,9 +232,10 @@ which is parameterized over a meet-semilattice of dependency levels
 \end{figure}
 
 We use the metavariable $[[l]]$ for dependency levels,
-$[[l0 /\ l1]]$ for the meet operation,
-and the metavariables $[[i]], [[j]], [[k]]$ for universe levels,
-which we take to be meta-level naturals.
+and $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$.
+Similarly, we use the metavariables $[[i]], [[j]], [[k]]$ for universe levels,
+which we take to be meta-level naturals,
+and $[[max i j]]$ for the maximum of $[[i]]$ and $[[j]]$.
 Although our mechanization uses de Bruijn indices for representing binding
 and simultaneous substitutions,
 for clarity we use named variables and single substitutions for our presentation.
@@ -260,15 +261,11 @@ with type $[[A]]$.
 To reduce clutter,
 we use the judgement $[[G |- a : A]]$ to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
-
-We present the rules for this judgement incrementally,
-beginning with universes, dependent function types, and the empty type (\cref{sec:dep}).
-Typing uses a definitional equality that is defined in terms of indistinguishability (\cref{sec:indist}).
-We then look at the rules for dependent pair types (\cref{sec:pairs}),
-and finally for propositional equality types (\cref{sec:eq}),
-which internalize indistinguishability.
-
-\subsection{Dependency tracking} \label{sec:dep}
+The typing rules are defined mutually with the context well-formedness rules,
+both given in \cref{fig:typing:dep}.
+When viewed as a PTS, the \rref{Wt-Univ,Wt-Pi} correspond
+to the sort axioms $([[Univ i]], [[Univ i + 1]])$ for every $[[i]]$
+and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]], [[j]]$.
 
 \begin{figure}[h]
   \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
@@ -276,6 +273,17 @@ which internalize indistinguishability.
   \caption{Well-formedness and typing rules (universes, empty, functions)}
   \label{fig:typing:dep}
 \end{figure}
+
+Deferring our discussion of using levels for dependency tracking to \cref{sec:dep},
+the remaining rules for variables, function abstractions, function applications,
+the empty type, and its eliminator are standard for dependent type theory.
+To change the type of a term to an equivalent one,
+typing uses a definitional equality that is defined in terms of indistinguishability (\cref{sec:indist}).
+We then look at the rules for dependent pair types (\cref{sec:pairs}),
+and finally for propositional equality types (\cref{sec:eq}),
+which internalize indistinguishability.
+
+\subsection{Dependency tracking} \label{sec:dep}
 
 \subsection{Definitional equality and indistinguishability} \label{sec:indist}
 

@@ -462,8 +462,8 @@ by
 |- nil
 
 |- G
-G |- A : l Univ i
------------------ :: Cons
+G |- A : Univ i
+---------------- :: Cons
 |- G ++ x : l A
 
 defn
