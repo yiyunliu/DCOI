@@ -204,6 +204,16 @@ Proof.
   by apply Par_renaming.
 Qed.
 
+Lemma Par_morphing_lift (ξ0 ξ1 : fin -> tm)
+  (h : forall i, (ξ0 i ⇒ ξ1 i)) :
+  forall i, (up_tm_tm ξ0 i ⇒ up_tm_tm ξ1 i).
+Proof. sfirstorder use:(Par_morphing_lift_n 1). Qed.
+
+Lemma Par_morphing_lift2 (ξ0 ξ1 : fin -> tm)
+  (h : forall i, (ξ0 i ⇒ ξ1 i)) :
+  forall i, (up_tm_tm (up_tm_tm ξ0) i ⇒ up_tm_tm (up_tm_tm ξ1) i).
+Proof. sfirstorder use:(Par_morphing_lift_n 2). Qed.
+
 (* ------------------------------------------------------------ *)
 
 (* Now we want to show all of the ways that these relations are closed
