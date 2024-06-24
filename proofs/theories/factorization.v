@@ -658,6 +658,24 @@ Proof.
   - hauto lq:on inv:NPar ctrs:Par, rtc.
 Qed.
 
+Lemma NPar_Refl_inv u :
+  rtc NPar u tRefl ->
+  u = tRefl.
+Proof.
+  move E : tRefl => T h.
+  move : E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Down_inv u ℓ p :
+  rtc NPar u (tDown ℓ p) ->
+  exists p0, u = tDown ℓ p0 /\ rtc NPar p0 p.
+Proof.
+  move E : (tDown ℓ p) => T h.
+  move : ℓ p E.
+  elim : u T/h; hauto lq:on ctrs:Par, rtc inv:NPar.
+Qed.
+
 Lemma LoRed_App_Cong a0 a1 ℓ b0 b1 :
   rtc LoRed a0 a1 ->
   ne a1 ->
@@ -760,15 +778,6 @@ Proof.
   - hauto lq:on ctrs:rtc, LoRed.
 Qed.
 
-Lemma NPar_Refl_inv u :
-  rtc NPar u tRefl ->
-  u = tRefl.
-Proof.
-  move E : tRefl => T h.
-  move : E.
-  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
-Qed.
-
 Lemma LoRed_Let_Cong ℓ0 ℓ1 a0 a1 b0 b1 :
   rtc LoRed a0 a1 ->
   ne a1 ->
@@ -789,6 +798,10 @@ Proof.
     move : ha2; clear. elim : a2 => //=.
 Qed.
 
+Lemma LoRed_Down_Cong ℓ p0 p1 :
+  rtc LoRed p0 p1 ->
+  rtc LoRed (tDown ℓ p0) (tDown ℓ p1).
+Proof. induction 1; hauto lq:on ctrs:rtc,LoRed. Qed.
 
 Lemma standardization a b :
   rtc Par a b -> nf b ->
@@ -872,7 +885,11 @@ Proof.
     apply : rtc_transitive; eauto.
     sfirstorder use:ne_nf, NPars_Pars, LoRed_Let_Cong.
   - hauto l:on use:NPar_D_inv, HReds_LoReds, factorization.
-  - move => ℓ.
-Admitted.
+  - move => ℓ a iha u /factorization.
+    move => [u0][/HReds_LoReds hu0]/NPar_Down_inv + ?.
+    move => [p0][?]h. subst.
+    apply : rtc_transitive; eauto.
+    sfirstorder use:LoRed_Down_Cong, ne_nf, NPars_Pars.
+Qed.
 
 End factorization_sig.
