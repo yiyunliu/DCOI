@@ -1,5 +1,6 @@
 Require Import imports syntax par normalform.
 
+(* A simplified standardization proof based on the proof by Takahashi *)
 Module Type factorization_sig
   (Import lattice : Lattice)
   (Import syntax : syntax_sig lattice)
@@ -574,19 +575,88 @@ Proof.
   elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
 Qed.
 
+Lemma NPar_D_inv u :
+  rtc NPar u tD ->
+  u = tD.
+Proof.
+  move E : tD => T h.
+  move : E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
 Lemma NPar_Absurd_inv u v:
   rtc NPar u (tAbsurd v) ->
   exists u0, u = tAbsurd u0 /\ rtc Par u0 v.
 Proof.
   move E : (tAbsurd v) => T h.
   move : E.
-  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+  elim : u T/h.
+  hauto lq:on ctrs:rtc.
+  move => x y z hx hy /[swap] <- /(_ eq_refl); move => [u0][?]hu0. subst.
+  hauto lq:on inv:NPar ctrs:rtc,NPar.
+Qed.
+
+Lemma NPar_Eq_inv u ℓ0 a b A :
+  rtc NPar u (tEq ℓ0 a b A) ->
+  exists a0 b0 A0, u = tEq ℓ0 a0 b0 A0  /\ rtc Par a0 a /\ rtc Par b0 b /\ rtc Par A0 A.
+Proof.
+  move E : (tEq ℓ0 a b A) => T h.
+  move : a b A E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_J_inv u ℓ0 t p :
+  rtc NPar u (tJ ℓ0 t p) ->
+  exists t0 p0, u = tJ ℓ0 t0 p0 /\ rtc NPar p0 p /\ rtc Par t0 t.
+Proof.
+  move E : (tJ ℓ0 t p) => T h. move : t p E.
+  elim : u T /h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Sig_inv u ℓ0 A B :
+  rtc NPar u (tSig ℓ0 A B) ->
+  exists A0 B0, u = tSig ℓ0 A0 B0 /\ rtc Par A0 A /\ rtc Par B0 B.
+Proof.
+  move E : (tSig ℓ0 A B) => T h.
+  move : A B E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Pack_inv u ℓ0 A B :
+  rtc NPar u (tPack ℓ0 A B) ->
+  exists A0 B0, u = tPack ℓ0 A0 B0 /\ rtc Par A0 A /\ rtc Par B0 B.
+Proof.
+  move E : (tPack ℓ0 A B) => T h.
+  move : A B E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
 Qed.
 
 Lemma LoRed_Abs_inv a b :
   rtc LoRed a b ->
   isAbs a -> isAbs b.
 Proof. induction 1; hauto inv:LoRed. Qed.
+
+Lemma LoRed_Pack_inv a b :
+  rtc LoRed a b ->
+  isPack a -> isPack b.
+Proof. induction 1; hauto inv:LoRed. Qed.
+
+Lemma NPar_Let_inv u a ℓ0 ℓ1 b :
+  rtc NPar u (tLet ℓ0 ℓ1 a b) ->
+  exists a0 b0, u = tLet ℓ0 ℓ1 a0 b0 /\ rtc NPar a0 a /\ rtc Par b0 b.
+Proof.
+  move E : (tLet ℓ0 ℓ1 a b) => T h.
+  move : a b E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
 
 Lemma LoRed_App_Cong a0 a1 ℓ b0 b1 :
   rtc LoRed a0 a1 ->
@@ -624,10 +694,101 @@ Proof.
     apply LoR_Pi0=>//.
 Qed.
 
+Lemma LoRed_Sig_Cong ℓ A0 A1 B0 B1 :
+  rtc LoRed A0 A1 ->
+  nf A1 ->
+  rtc LoRed B0 B1 ->
+  rtc LoRed (tSig ℓ A0 B0) (tSig ℓ A1 B1).
+Proof.
+  move => h. move : B0 B1.
+  elim : A0 A1 /h.
+  - move => a b0 b1 h h0.
+    elim : b0 b1 /h0; hauto lq:on ctrs:rtc,LoRed.
+  - move => a0 a1 a2 h0 h1 ih b0 b1 ha2 h.
+    move : ih h (ha2) => /[apply]/[apply] h.
+    apply : rtc_l; eauto.
+    apply LoR_Sig0=>//.
+Qed.
+
+Lemma LoRed_Pack_Cong ℓ A0 A1 B0 B1 :
+  rtc LoRed A0 A1 ->
+  nf A1 ->
+  rtc LoRed B0 B1 ->
+  rtc LoRed (tPack ℓ A0 B0) (tPack ℓ A1 B1).
+Proof.
+  move => h. move : B0 B1.
+  elim : A0 A1 /h.
+  - move => a b0 b1 h h0.
+    elim : b0 b1 /h0; hauto lq:on ctrs:rtc,LoRed.
+  - move => a0 a1 a2 h0 h1 ih b0 b1 ha2 h.
+    move : ih h (ha2) => /[apply]/[apply] h.
+    apply : rtc_l; eauto.
+    apply LoR_Pack0=>//.
+Qed.
+
 Lemma LoRed_Absurd_Cong a b :
   rtc LoRed a b ->
   rtc LoRed (tAbsurd a) (tAbsurd b).
 Proof. induction 1; hauto lq:on ctrs:rtc,LoRed. Qed.
+
+Lemma LoRed_Eq_Cong ℓ a0 a1 b0 b1 A0 A1 :
+  rtc LoRed a0 a1 ->
+  nf a1 ->
+  rtc LoRed b0 b1 ->
+  nf b1 ->
+  rtc LoRed A0 A1 ->
+  rtc LoRed (tEq ℓ a0 b0 A0) (tEq ℓ a1 b1 A1).
+Proof.
+  move => h. move : b0 b1 A0 A1.
+  elim : a0 a1 /h; last by hauto lq:on ctrs:rtc, LoRed.
+  move => ? b0 b1 + + ? h.
+  elim : b0 b1 /h; last by hauto lq:on ctrs:rtc,LoRed.
+  move => ? A0 A1 ? h.
+  elim : A0 A1 / h; hauto lq:on ctrs:rtc, LoRed.
+Qed.
+
+Lemma LoRed_J_Cong a0 a1 ℓ b0 b1 :
+  rtc LoRed a0 a1 ->
+  ne a1 ->
+  rtc LoRed b0 b1 ->
+  rtc LoRed (tJ ℓ b0 a0) (tJ ℓ b1 a1).
+Proof.
+  move => h. move : b0 b1.
+  elim : a0 a1 /h.
+  - move => a b0 b1 h h0.
+    elim : b0 b1 /h0; hauto lq:on ctrs:rtc,LoRed.
+  - hauto lq:on ctrs:rtc, LoRed.
+Qed.
+
+Lemma NPar_Refl_inv u :
+  rtc NPar u tRefl ->
+  u = tRefl.
+Proof.
+  move E : tRefl => T h.
+  move : E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma LoRed_Let_Cong ℓ0 ℓ1 a0 a1 b0 b1 :
+  rtc LoRed a0 a1 ->
+  ne a1 ->
+  rtc LoRed b0 b1 ->
+  rtc LoRed (tLet ℓ0 ℓ1 a0 b0) (tLet ℓ0 ℓ1 a1 b1).
+Proof.
+  move => h. move : b0 b1.
+  elim : a0 a1 /h.
+  - move => a b0 b1 h h0.
+    elim : b0 b1 /h0; hauto lq:on ctrs:rtc,LoRed.
+  - move => a0 a1 a2 h0 h1 ih b0 b1 ha2 h.
+    move : ih h (ha2) => /[apply]/[apply] h.
+    apply : rtc_l; eauto.
+    apply LoR_Let0=>//.
+    apply /negP.
+    move => ?.
+    have : isPack a2 by hauto q:on ctrs:rtc use:LoRed_Pack_inv.
+    move : ha2; clear. elim : a2 => //=.
+Qed.
+
 
 Lemma standardization a b :
   rtc Par a b -> nf b ->
@@ -674,6 +835,44 @@ Proof.
     move /HReds_LoReds in hu.
     apply : rtc_transitive; eauto.
     sfirstorder use:LoRed_Absurd_Cong, ne_nf.
+  - move => ℓ a iha b ihb c ihc u /factorization.
+    move => [u0][hu]hu0 ?.
+    have ? : nf a /\ nf b /\ nf c by sfirstorder b:on.
+    move /HReds_LoReds in hu. apply : rtc_transitive; eauto.
+    move /NPar_Eq_inv : hu0 => [a0][b0][A0][?][h0][h1]h2. subst.
+    sfirstorder use:LoRed_Eq_Cong, ne_nf.
+  - move => ℓ a iha b ihb u /factorization.
+    move => [u0][hu]hu0 /andP.
+    move => [*].
+    move /NPar_J_inv : hu0 => [t0][p0][?][h0]h1. subst.
+    move /HReds_LoReds in hu.
+    apply : rtc_transitive; eauto.
+    sfirstorder use:LoRed_J_Cong, ne_nf, NPars_Pars.
+  - move => u /factorization.
+    move => [u0][hu0]hu1 _.
+    move /NPar_Refl_inv : hu1 => ?. subst.
+    eauto using HReds_LoReds.
+  - move => ℓ A ihA B ihB u /factorization.
+    move => [u0][hu]hu0 /andP.
+    move => [? ?].
+    move /NPar_Sig_inv : hu0.
+    move => [a0][b0][?][h0]h1. subst.
+    qauto l:on use:LoRed_Sig_Cong, rtc_transitive, HReds_LoReds.
+  - move => ℓ a iha b ihb u /factorization.
+    move => [u0][hu0]hu1 /andP.
+    move => [? ?].
+    move /HReds_LoReds in hu0.
+    apply : rtc_transitive; eauto.
+    move /NPar_Pack_inv : hu1 => [A0][B0][?][h0]h1. subst.
+    sfirstorder use:LoRed_Pack_Cong.
+  - move => ℓ ℓ0 a iha b ihb u /factorization.
+    move => [u0][/HReds_LoReds hu0].
+    move /NPar_Let_inv => [a0][b0][?][h0]h1. subst.
+    move /andP => ?.
+    apply : rtc_transitive; eauto.
+    sfirstorder use:ne_nf, NPars_Pars, LoRed_Let_Cong.
+  - hauto l:on use:NPar_D_inv, HReds_LoReds, factorization.
+  - move => ℓ.
 Admitted.
 
 End factorization_sig.
