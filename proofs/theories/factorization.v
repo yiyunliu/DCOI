@@ -8,17 +8,6 @@ Module Type factorization_sig
 
 (* Weak head reduction *)
 Inductive HRed : tm -> tm -> Prop :=
-(* | HR_Pi0 ℓ0 A0 A1 B : *)
-(*   HRed A0 A1 -> *)
-(*   (* --------------------- *) *)
-(*   HRed (tPi ℓ0 A0 B) (tPi ℓ0 A1 B) *)
-
-(* | HR_Pi1 ℓ0 A B0 B1 : *)
-(*   nf A -> *)
-(*   HRed B0 B1  -> *)
-(*   (* --------------------- *) *)
-(*   HRed (tPi ℓ0 A B0) (tPi ℓ0 A B1) *)
-
 | HR_App a0 a1 ℓ0 b :
   HRed a0 a1 ->
   (* ------------------------- *)
@@ -28,29 +17,6 @@ Inductive HRed : tm -> tm -> Prop :=
   (* ---------------------------- *)
   HRed (tApp (tAbs ℓ0 a) ℓ0 b) (a [b..])
 
-(* | HR_Absurd a b : *)
-(*   HRed a b -> *)
-(*   (* ---------- *) *)
-(*   HRed (tAbsurd a) (tAbsurd b) *)
-
-(* | HR_Eq0 ℓ0 a0 a1 b A : *)
-(*   HRed a0 a1 -> *)
-(*   (* ---------- *) *)
-(*   HRed (tEq ℓ0 a0 b A) (tEq ℓ0 a1 b A) *)
-
-(* | HR_Eq1 ℓ0 a b0 b1 A : *)
-(*   nf a -> *)
-(*   HRed b0 b1 -> *)
-(*   (* ---------- *) *)
-(*   HRed (tEq ℓ0 a b0 A) (tEq ℓ0 a b1 A) *)
-
-(* | HR_Eq2 ℓ0 a b A0 A1 : *)
-(*   nf a -> *)
-(*   nf b -> *)
-(*   HRed A0 A1 -> *)
-(*   (* ---------- *) *)
-(*   HRed (tEq ℓ0 a b A0) (tEq ℓ0 a b A1) *)
-
 | HR_J ℓp  t p0 p1 :
   HRed p0 p1 ->
   (* ---------- *)
@@ -59,17 +25,6 @@ Inductive HRed : tm -> tm -> Prop :=
 | HR_JRefl ℓp t :
   (* ---------- *)
   HRed (tJ ℓp t tRefl) t
-
-(* | HR_Sig0 ℓ0 A0 A1 B : *)
-(*   HRed A0 A1 -> *)
-(*   (* --------------------- *) *)
-(*   HRed (tSig ℓ0 A0 B) (tSig ℓ0 A1 B) *)
-
-(* | HR_Sig1 ℓ0 A B0 B1 : *)
-(*   nf A -> *)
-(*   HRed B0 B1  -> *)
-(*   (* --------------------- *) *)
-(*   HRed (tSig ℓ0 A B0) (tSig ℓ0 A B1) *)
 
 | HR_Let ℓ0 ℓ1 a0 a1 b :
   HRed a0 a1 ->
@@ -390,5 +345,335 @@ Lemma local_postponement t a u  :
   HRed a u ->
   exists q, rtc HRed t q /\ NPar q u.
 Proof. sfirstorder use:split, merge, starseq_erase. Qed.
+
+Lemma local_postponement_star t a u :
+  NPar t a ->
+  rtc HRed a u ->
+  exists q, rtc HRed t q /\ NPar q u.
+  move => + h. move : t. elim : a u / h.
+  sfirstorder.
+  qauto l:on ctrs:rtc use:local_postponement, rtc_transitive.
+Qed.
+
+Lemma factorization t u :
+  rtc Par t u ->
+  exists v, rtc HRed t v /\ rtc NPar v u.
+Proof.
+  move => h. elim:t u/h=>//=.
+  - hauto lq:on ctrs:rtc.
+  - move => a b c ha hb [v][ihb0]ihb1.
+    move /split /starseq_erase : ha.
+    move => [u][hu0]hu1.
+    move : local_postponement_star ihb0 hu1; repeat move/[apply].
+    move => [q][hq0]hq1.
+    exists q. hauto lq:on ctrs:rtc use:rtc_transitive.
+Qed.
+
+Definition isAbs a :=
+  match a with
+  | tAbs _ _ => true
+  | _ => false
+  end.
+
+Definition isPack a :=
+  match a with
+  | tPack _ _ _ => true
+  | _ => false
+  end.
+
+(* Leftmost-outermost reduction *)
+Inductive LoRed : tm -> tm -> Prop :=
+| LoR_Pi0 ℓ0 A0 A1 B :
+  LoRed A0 A1 ->
+  (* --------------------- *)
+  LoRed (tPi ℓ0 A0 B) (tPi ℓ0 A1 B)
+
+| LoR_Pi1 ℓ0 A B0 B1 :
+  nf A ->
+  LoRed B0 B1 ->
+  (* --------------------- *)
+  LoRed (tPi ℓ0 A B0) (tPi ℓ0 A B1)
+
+| LoR_Abs ℓ0 a0 a1 :
+  LoRed a0 a1 ->
+  (* -------------------- *)
+  LoRed (tAbs ℓ0 a0) (tAbs ℓ0 a1)
+
+| LoR_App0 a0 a1 ℓ0 b0 b1 :
+  ~~ isAbs a0 ->
+  LoRed a0 a1 ->
+  (* ------------------------- *)
+  LoRed (tApp a0 ℓ0 b0) (tApp a1 ℓ0 b1)
+
+| LoR_App1 a ℓ0 b0 b1 :
+  ne a ->
+  LoRed b0 b1 ->
+  (* ------------------------- *)
+  LoRed (tApp a ℓ0 b0) (tApp a ℓ0 b1)
+
+| LoR_AppAbs a b ℓ0 :
+  (* ---------------------------- *)
+  LoRed (tApp (tAbs ℓ0 a) ℓ0 b) (a [b..])
+
+| LoR_Absurd a b :
+  LoRed a b ->
+  (* ---------- *)
+  LoRed (tAbsurd a) (tAbsurd b)
+
+| LoR_Eq0 ℓ0 a0 a1 b A :
+  LoRed a0 a1 ->
+  (* ---------- *)
+  LoRed (tEq ℓ0 a0 b A) (tEq ℓ0 a1 b A)
+
+| LoR_Eq1 ℓ0 a b0 b1 A :
+  nf a ->
+  LoRed b0 b1 ->
+  (* ---------- *)
+  LoRed (tEq ℓ0 a b0 A) (tEq ℓ0 a b1 A)
+
+| LoR_Eq2 ℓ0 a b A0 A1 :
+  nf a ->
+  nf b ->
+  LoRed A0 A1 ->
+  (* ---------- *)
+  LoRed (tEq ℓ0 a b A0) (tEq ℓ0 a b A1)
+
+| LoR_J0 ℓp t p0 p1 :
+  LoRed p0 p1 ->
+  (* ---------- *)
+  LoRed (tJ ℓp t p0) (tJ ℓp t p1)
+
+| LoR_J1 ℓp t0 t1 p :
+  ne p ->
+  LoRed t0 t1 ->
+  (* ---------- *)
+  LoRed (tJ ℓp t0 p) (tJ ℓp t1 p)
+
+| LoR_JRefl ℓp t :
+  (* ---------- *)
+  LoRed (tJ ℓp t tRefl) t
+
+| LoR_Sig0 ℓ0 A0 A1 B :
+  LoRed A0 A1 ->
+  (* --------------------- *)
+  LoRed (tSig ℓ0 A0 B) (tSig ℓ0 A1 B)
+
+| LoR_Sig1 ℓ0 A B0 B1 :
+  nf A ->
+  LoRed B0 B1 ->
+  (* --------------------- *)
+  LoRed (tSig ℓ0 A B0) (tSig ℓ0 A B1)
+
+| LoR_Pack0 ℓ a0 a1 b :
+  LoRed a0 a1 ->
+  (* ------------------------- *)
+  LoRed (tPack ℓ a0 b) (tPack ℓ a1 b)
+
+| LoR_Pack1 ℓ a b0 b1 :
+  nf a ->
+  LoRed b0 b1 ->
+  (* ------------------------- *)
+  LoRed (tPack ℓ a b0) (tPack ℓ a b1)
+
+| LoR_Let0 ℓ0 ℓ1 a0 a1 b :
+  ~~ isPack a0 ->
+  LoRed a0 a1 ->
+  (* --------------------- *)
+  LoRed (tLet ℓ0 ℓ1 a0 b) (tLet ℓ0 ℓ1 a1 b)
+
+| LoR_Let1 ℓ0 ℓ1 a b0 b1 :
+  ne a ->
+  LoRed b0 b1 ->
+  (* --------------------- *)
+  LoRed (tLet ℓ0 ℓ1 a b0) (tLet ℓ0 ℓ1 a b1)
+
+| LoR_LetPack ℓ0 ℓ1 a b c :
+  (* --------------------------------------------- *)
+  LoRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) c[b .: a ..]
+
+| LoR_Down ℓ0 p0 p1 :
+  LoRed p0 p1 ->
+  (* -------------------------------- *)
+  LoRed (tDown ℓ0 p0) (tDown ℓ0 p1)
+
+| LoR_DownRefl ℓ0 :
+  (* -------------------------- *)
+  LoRed (tDown ℓ0 tRefl) tRefl.
+
+Module nfact := normalform_fact lattice syntax par normalform.
+Import nfact.
+
+Lemma NPar_Var_inv a i :
+  rtc NPar a (var_tm i) ->
+  a = var_tm i.
+Proof.
+  move E : (var_tm i) => T h. move : i E.
+  elim: a T/h; hauto lq:on rew:off inv:NPar ctrs:NPar, rtc.
+Qed.
+
+Lemma NPar_Abs_inv a ℓ b :
+  rtc NPar a (tAbs ℓ b) ->
+  exists a0, a = tAbs ℓ a0 /\ rtc Par a0 b.
+Proof.
+  move E : (tAbs ℓ b) => T h.
+  move : ℓ b E.
+  elim : a T/h; hauto lq:on ctrs:rtc inv:NPar.
+Qed.
+
+Lemma HRed_LoRed : subrelation HRed LoRed.
+Proof. induction 1; hauto lq:on inv:HRed ctrs:LoRed. Qed.
+
+Lemma HReds_LoReds : subrelation (rtc HRed) (rtc LoRed).
+Proof. sfirstorder use:relations.rtc_subrel, HRed_LoRed. Qed.
+
+Lemma NPars_Pars : subrelation (rtc NPar) (rtc Par).
+Proof. sfirstorder use:relations.rtc_subrel, NPar_Par. Qed.
+
+Lemma LoRed_Abs_Cong a b ℓ :
+  rtc LoRed a b ->
+  rtc LoRed (tAbs ℓ a) (tAbs ℓ b).
+Proof. move => h. elim:a b/h; hauto lq:on ctrs:LoRed, rtc. Qed.
+
+Lemma NPar_App_inv u a ℓ0 b :
+  rtc NPar u (tApp a ℓ0 b) ->
+  exists a0 b0, u = tApp a0 ℓ0 b0 /\ rtc NPar a0 a /\ rtc Par b0 b.
+Proof.
+  move E : (tApp a ℓ0 b) => T h.
+  move : a b E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Pi_inv u ℓ0 A B :
+  rtc NPar u (tPi ℓ0 A B) ->
+  exists A0 B0, u = tPi ℓ0 A0 B0 /\ rtc Par A0 A /\ rtc Par B0 B.
+Proof.
+  move E : (tPi ℓ0 A B) => T h.
+  move : A B E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Univ_inv u i :
+  rtc NPar u (tUniv i) ->
+  u = tUniv i.
+Proof.
+  move E : (tUniv i) => T h.
+  move : i E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Void_inv u :
+  rtc NPar u tVoid ->
+  u = tVoid.
+Proof.
+  move E : tVoid => T h.
+  move : E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Absurd_inv u v:
+  rtc NPar u (tAbsurd v) ->
+  exists u0, u = tAbsurd u0 /\ rtc Par u0 v.
+Proof.
+  move E : (tAbsurd v) => T h.
+  move : E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma LoRed_Abs_inv a b :
+  rtc LoRed a b ->
+  isAbs a -> isAbs b.
+Proof. induction 1; hauto inv:LoRed. Qed.
+
+Lemma LoRed_App_Cong a0 a1 ℓ b0 b1 :
+  rtc LoRed a0 a1 ->
+  ne a1 ->
+  rtc LoRed b0 b1 ->
+  rtc LoRed (tApp a0 ℓ b0) (tApp a1 ℓ b1).
+Proof.
+  move => h. move : b0 b1.
+  elim : a0 a1 /h.
+  - move => a b0 b1 h h0.
+    elim : b0 b1 /h0; hauto lq:on ctrs:rtc,LoRed.
+  - move => a0 a1 a2 h0 h1 ih b0 b1 ha2 h.
+    move : ih h (ha2) => /[apply]/[apply] h.
+    apply : rtc_l; eauto.
+    apply LoR_App0=>//.
+    apply /negP.
+    move => ?.
+    have : isAbs a2 by hauto q:on ctrs:rtc use:LoRed_Abs_inv.
+    move : ha2; clear. elim : a2 => //=.
+Qed.
+
+Lemma LoRed_Pi_Cong ℓ A0 A1 B0 B1 :
+  rtc LoRed A0 A1 ->
+  nf A1 ->
+  rtc LoRed B0 B1 ->
+  rtc LoRed (tPi ℓ A0 B0) (tPi ℓ A1 B1).
+Proof.
+  move => h. move : B0 B1.
+  elim : A0 A1 /h.
+  - move => a b0 b1 h h0.
+    elim : b0 b1 /h0; hauto lq:on ctrs:rtc,LoRed.
+  - move => a0 a1 a2 h0 h1 ih b0 b1 ha2 h.
+    move : ih h (ha2) => /[apply]/[apply] h.
+    apply : rtc_l; eauto.
+    apply LoR_Pi0=>//.
+Qed.
+
+Lemma LoRed_Absurd_Cong a b :
+  rtc LoRed a b ->
+  rtc LoRed (tAbsurd a) (tAbsurd b).
+Proof. induction 1; hauto lq:on ctrs:rtc,LoRed. Qed.
+
+Lemma standardization a b :
+  rtc Par a b -> nf b ->
+  rtc LoRed a b.
+Proof.
+  elim : b a =>//=.
+  - move => n a /factorization.
+    hauto lq:on rew:off use:NPar_Var_inv, HReds_LoReds unfold:subrelation.
+  - move => ℓ b ihb a /factorization.
+    move => [a0][h0].
+    move /NPar_Abs_inv => [a1][?]ha1. subst.
+    move : ihb ha1; repeat move/[apply].
+    move => ?. move/HReds_LoReds in h0.
+    apply : rtc_transitive; eauto.
+    by apply LoRed_Abs_Cong.
+  - move => a iha ℓ b ihb u /factorization.
+    move => [u0][hu]hu0 /andP.
+    move => [].
+    move /NPar_App_inv : hu0.
+    move => [a0][b0][?][h0]h1. subst.
+    move /[dup] /ne_nf => *.
+    have {}iha:rtc LoRed a0 a by sfirstorder use:NPars_Pars.
+    have {}ihb:rtc LoRed b0 b by sfirstorder.
+    move /HReds_LoReds in hu.
+    apply : rtc_transitive; eauto.
+    sfirstorder use:LoRed_App_Cong.
+  - move => ℓ A ihA B ihB u /factorization.
+    move => [u0][hu]hu0 /andP.
+    move => [? ?].
+    move /NPar_Pi_inv : hu0.
+    move => [a0][b0][?][h0]h1. subst.
+    qauto l:on use:LoRed_Pi_Cong, rtc_transitive, HReds_LoReds.
+  - move => n a /factorization.
+    move => [u][hu]hu0 _.
+    move /HReds_LoReds in hu.
+    move /NPar_Univ_inv in hu0. by subst.
+  - move => a /factorization.
+    move => [u0][hu]hu0 _.
+    move /HReds_LoReds in hu.
+    move /NPar_Void_inv in hu0. by subst.
+  - move => a iha u /factorization.
+    move => [u0][hu]hu0 ?.
+    move /NPar_Absurd_inv : hu0 => [u1][hu1]hu2. subst.
+    move /HReds_LoReds in hu.
+    apply : rtc_transitive; eauto.
+    sfirstorder use:LoRed_Absurd_Cong, ne_nf.
+Admitted.
 
 End factorization_sig.
