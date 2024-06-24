@@ -1041,4 +1041,27 @@ Proof.
   sfirstorder use:LoReds_LoReds', standardization.
 Qed.
 
+Lemma LoRedOpt_Par a b :
+  LoRedOpt a = Some b -> a ⇒ b.
+Proof.
+  elim : a b => //=.
+  - hauto lq:on rew:off ctrs:Par.
+  - move => a iha ℓ b ihb u.
+    case E : (isAbs a).
+    + move => h.
+
+      have {}h : exists ℓ a0, a = tAbs ℓ a0 /\ u = a0[b..] by hauto b:on.
+      move : h => [ℓ1][a0][?]?{E}. subst.
+    + move E0 : (LoRedOpt a) => n.
+      case : n E0 => //=.
+      * move => a0 ? h.
+        have {}h : u = tApp a0 ℓ b by hauto b:on drew:off. subst.
+        hauto lq:on ctrs:Par use:Par_refl.
+      * move E1 : (LoRedOpt b) => t.
+        case : t E1 => //=.
+        ** hauto qb:on drew:off ctrs:Par use:Par_refl.
+        ** hauto qb:on drew:off.
+  -
+
+
 End factorization_sig.
