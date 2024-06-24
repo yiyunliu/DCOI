@@ -104,6 +104,11 @@
 \newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
+\newcommand{\repo}{%
+  \ifpublic our public repository at \mathcolorbox{red}{TODO: replace with repo URL}%
+  \else the supplementary materials%
+  \fi
+}
 
 \newcommand{\interp}[4]{\bracks{#1 \vDash_{#2} #3} \searrow #4}
 \newcommand{\buildset}[3]{\braces{#1^{#2} \mid #3}}
@@ -422,6 +427,21 @@ We then establish a logical relation between types and sets of terms,
 and define semantic typing in terms of the logical relation.
 Normalization and consistency follow as corollaries of the fundamental theorem,
 which states that syntactic typing implies semantic typing.
+
+All of the metatheory has been mechanized in Coq.
+The development can be found in \repo{} under the \texttt{proofs} directory.
+Definitions, lemmas, and theorems given here are annotated with a footnote
+to the corresponding file and top-level name in the development.
+Some lemmas are presented as admissible derivation rules of the corresponding judgement,
+which are written with a double horizontal bar instead of a single bar.
+Their corresponding mechanizations are annotated where mentioned in the prose.
+While the mechanizations use de Bruijn indices and simultaneous substitutions,
+we continue to present the corresponding definitions, lemmas, and theorems
+using named variables and single substitutions.
+
+\jc{Do we present well-gradedness here now? Some of the lemmas require it as a premise.}
+\jc{Should we switch to substitution maps and simultaneous substitutions here?
+A number of the lemmas seem to be structured a little strangely otherwise.}
 
 \subsection{Syntactic properties}
 
