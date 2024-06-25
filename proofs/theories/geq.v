@@ -154,6 +154,61 @@ Module Type geq_sig
     (* -------------- *)
     GIEq Ξ ℓ ℓ0 A B.
 
+  Fixpoint compute_level (Ξ : econtext) a : option T :=
+    match a with
+    | var_tm i => nth_error Ξ i
+    | tApp a ℓ0 b => compute_level Ξ a
+    | tAbs ℓ0 a => compute_level (ℓ0 :: Ξ) a
+    | tJ ℓp t p => match compute_level Ξ t with
+                  | Some ℓ => Some (ℓ ∪ ℓp)
+                  | None => Some ℓp
+                  end
+    | tEq ℓ0 a b A => match compute_level Ξ a with
+                  | Some ℓa =>
+                      match compute_level Ξ b with
+                      | Some ℓb => Some (ℓa ∪ ℓb)
+                      | None => Some ℓa
+                      end
+                  | None => compute_level Ξ b
+                  end
+    | tRefl => None
+    | tVoid => None
+    | tD => None
+    | tUniv _ => None
+    | tAbsurd _ => None
+    | tPi ℓ0 A B =>
+        match compute_level Ξ A with
+        | Some ℓA => match compute_level (ℓ0::Ξ) B with
+                    | Some ℓB => Some (ℓA ∪ ℓB)
+                    | None => Some ℓA
+                    end
+        | None => compute_level (ℓ0::Ξ) B
+        end
+    | tSig ℓ0 A B =>
+        match compute_level Ξ A with
+        | Some ℓA => match compute_level (ℓ0::Ξ) B with
+                    | Some ℓB => Some (ℓA ∪ ℓB)
+                    | None => Some ℓA
+                    end
+        | None => compute_level (ℓ0::Ξ) B
+        end
+
+    | tPack ℓ0 A B =>
+        match compute_level Ξ A with
+        | Some ℓA => match compute_level (ℓ0::Ξ) B with
+                    | Some ℓB => Some (ℓA ∪ ℓB)
+                    | None => Some ℓA
+                    end
+        | None => compute_level (ℓ0::Ξ) B
+        end
+
+    | tDown ℓ0 a => compute_level Ξ a
+    | tLet ℓ0 ℓ1 a b => match compute_level (ℓ1::ℓ0::Ξ) b with
+                       | Some ℓb => Some (ℓb ∪ ℓ1)
+                       | None => Some ℓ1
+                       end
+    end.
+
   #[export]Hint Constructors IOk IEq GIEq : ieq.
 
   Scheme IEq_ind' := Induction for IEq Sort Prop
