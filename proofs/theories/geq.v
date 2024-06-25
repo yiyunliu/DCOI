@@ -229,14 +229,18 @@ Module Type geq_sig
         T_eqb ℓ0 ℓ1 && T_eqb (ℓ0 ∩ ℓ) ℓ0 && IEqb Ξ ℓ a0 a1 && IEqb Ξ ℓ b0 b1
     | tJ ℓ0 t0 p0, tJ ℓ1 t1 p1 =>
         T_eqb ℓ0 ℓ1 && T_eqb (ℓ0 ∩ ℓ) ℓ0 && IEqb Ξ ℓ t0 t1 && IEqb Ξ ℓ p0 p1
-    | tPack ℓ0 a0 b0, tSig ℓ1 a1 b1 =>
+    | tPack ℓ0 a0 b0, tPack ℓ1 a1 b1 =>
         T_eqb ℓ0 ℓ1 && (if T_eqb (ℓ0 ∩ ℓ) ℓ0 then IEqb Ξ ℓ a0 a1 else true)
         && IEqb Ξ ℓ b0 b1
     | tDown ℓ0 p0, tDown ℓ1 p1 =>
         T_eqb ℓ0 ℓ1 && IEqb Ξ ℓ p0 p1
+    | tLet ℓ0 ℓ1 a0 b0, tLet ℓ0' ℓ1' a1 b1 =>
+        T_eqb ℓ0 ℓ0' && T_eqb ℓ1 ℓ1' &&
+          T_eqb (ℓ1 ∩ ℓ) ℓ1 &&
+          IEqb Ξ ℓ a0 a1 &&
+          IEqb (ℓ1::ℓ0::Ξ) ℓ b0 b1
     | _, _ => false
     end.
-
 
   #[export]Hint Constructors IOk IEq GIEq : ieq.
 
@@ -265,6 +269,90 @@ Module geq_facts
   Import lprop.
   Module solver  :=  Solver lattice.
   Import solver.
+
+  Lemma T_leqb_iff ℓ0 ℓ : ℓ0 ⊆ ℓ <-> T_eqb (ℓ0 ∩ ℓ) ℓ0.
+  Proof.
+    split => h.
+    rewrite h.
+    case : T_eqdec => //=.
+    move : h.
+    case : T_eqdec => //=.
+  Qed.
+
+  Lemma IEq_IEqb : forall Ξ ℓ,
+      (forall a b, IEq Ξ ℓ a b -> IEqb Ξ ℓ a b) /\
+      (forall ℓ0 a b, GIEq Ξ ℓ ℓ0 a b -> if T_eqb (ℓ0 ∩ ℓ) ℓ0 then IEqb Ξ ℓ a b else true).
+  Proof.
+    apply IEq_mutual=>//=.
+    - move => Ξ ℓ i ℓ0 //=.
+      rewrite PeanoNat.Nat.eqb_refl /elookup.
+      move => ->.
+      by move/T_leqb_iff.
+    - move => * //=. by rewrite PeanoNat.Nat.eqb_refl.
+    - move => * //=.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+    - move => * //=.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+    - move => *//=.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+      sfirstorder use:T_leqb_iff.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+      sfirstorder use:T_leqb_iff.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+      case : T_eqdec=>//=.
+      sfirstorder use:T_leqb_iff.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
+  Qed.
+
+  Lemma nat_eqdec m n :
+    Bool.reflect (m = n) (Nat.eqb m n).
+  Proof.
+    case E : (Nat.eqb m n);
+      hauto l:on use:PeanoNat.Nat.eqb_eq.
+  Qed.
+
+  Lemma IEqb_IEq Ξ ℓ a b :
+      IEqb Ξ ℓ a b ->
+      IEq Ξ ℓ a b.
+  Proof.
+    move : Ξ ℓ.
+    elim : a b.
+    - move => n. case=>//=.
+      move => n0 Ξ ℓ.
+      case : nat_eqdec => //=.
+      hauto l:on ctrs:IEq use:T_leqb_iff.
+    - move => ℓ a0 iha0 [] //= ℓ1 b0 Ξ ℓ0.
+      move /andP => [h0 h1].
+      move : h0.
+      case : T_eqdec => //=.
+      hauto lq:on ctrs:IEq.
+  Admitted.
+
+  (* Lemma IEq_dec Ξ ℓ a b : Bool.reflect (IEq Ξ ℓ a b) (IEqb Ξ ℓ ) *)
 
   Lemma iok_subsumption Ξ ℓ a (h : IOk Ξ ℓ a) :
     forall ℓ0, ℓ ⊆ ℓ0 -> IOk Ξ ℓ0 a.
