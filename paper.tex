@@ -280,7 +280,7 @@ and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]]
 
 \begin{figure}[h]
   \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
-  \drules[Wt]{$[[G |- a : l A]]$}{Typing}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
   \caption{Well-formedness and typing rules (universes, empty, functions)}
   \label{fig:typing:dep}
 \end{figure}
@@ -456,6 +456,100 @@ the single extension of the identity substitution.
 
 \subsection{Syntactic properties}
 
+\subsubsection{Well-gradedness and substitution}
+
+As indistinguishability and definitional equality involve a grading context,
+we require a well-gradedness judgement on terms to be able to prove some substitution lemmas.
+The judgement specifies the dependency level that a term may be assigned.
+In later sections, we will see that semantic typing and the logical relation
+also need to carry around some well-gradedness information.
+The rules for the judgement can be seen as the same as the typing rules,
+but with all typing information stripped out, leaving only the levels,
+and are listed in \cref{fig:grading}.
+
+\begin{figure}[h]
+\drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Down,Sig,Pack,Let}
+\caption{Term grading rules}
+\label{fig:grading}
+\end{figure}
+
+Just as terms have notions of well-gradedness and indistinguishability,
+so too do substitution maps.
+The intuition is that a substitution map is a transformation from one grading context to another,
+and two substitution maps are indistinguishable by some observer
+if the terms they substitute in are indistinguishable by that observer.
+
+\begin{definition}[Substitution well-gradedness]
+  A substitution map $[[rho]]$ for a grading context $[[E]]$
+  under a grading context $[[F]]$ is well-graded,
+  written $[[F |- rho : E]]$,
+  if for every $[[x : l in E]]$,
+  $[[F |- rho(x) : l]]$ holds.
+  We also say that $[[rho]]$ is a substitution from $[[E]]$ to $[[F]]$.
+\end{definition}
+
+\begin{definition}[Substitution indistinguishability]
+  Two substitution maps $[[rho0]], [[rho1]]$
+  for a grading context $[[E]]$ under a grading context $[[F]]$
+  are indistinguishable at level $[[l]]$, written $[[F |- rho0 == rho1 : E @ l]]$,
+  if for every $[[x : l0 in E]]$,
+  $[[F |- rho0(x) == rho1(x) @ l l0]]$ holds.
+\end{definition}
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \drule{Sg-nil}
+  \drule{Sg-cons}
+  \drule{Sg-weak}
+  \drule{SI-nil}
+  \drule{SI-cons}
+  \drule{SI-weak}
+  \vspace{0.5\baselineskip}
+  \caption{Admissible rules for well-gradedness and indistinguishability of substitutions}
+  \label{fig:subst-lemmas}
+\end{figure}
+
+These judgements satisfy some standard properties,
+listed as admissible rules in \cref{fig:subst-lemmas}.
+They assert that identity substitutions indeed do not change the grading context
+(\rref*{Sg-nil}\footnote{\suppl{theories}{geq.v}{iok\_subst\_nil}})
+and are indistinguishable from one another
+(\rref*{SI-nil}\footnote{\suppl{theories}{geq.v}{ieq\_subst\_nil}});
+well-graded substitutions can be extended with a single substitution by a well-graded term
+(\rref*{Sg-cons}\footnote{\suppl{theories}{geq.v}{iok\_subst\_cons}});
+indistinguishable substitutions can be extended with single substitutions by indistinguishable terms
+(\rref*{SI-cons}\footnote{\suppl{theories}{geq.v}{ieq\_subst\_cons}});
+and the context under which substitutions act can be weakened
+(\rref*{Sg-weak,SI-weak}\footnote{\suppl{theories}{geq.v}{iok\_subst\_ok\_suc}, \suppl{theories}{geq.v}{ieq\_morphing\_helper}}).
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \drule{Wg-morph}
+  \drule{Wg-subst}
+  \drule{Wg-sub}
+  % \drule{Wg-Wt}
+  \caption{Admissible rules for well-gradedness of terms}
+  \label{fig:grading-lemmas}
+\end{figure}
+
+The morphing lemma
+\rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}}
+in \cref{fig:grading-lemmas}
+shows how a well-graded substitution $[[rho]]$ from $[[E]]$ to $[[F]]$
+turns a well-graded term $[[a]]$ under $[[E]]$
+to a well-graded term $[[a { rho }]]$ under $[[F]]$,
+from which the substitution lemma
+\rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} follows.
+Well-gradedness is additionally subsumptive
+(\rref*{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
+the level of a well-graded term may be raised.
+
+\subsubsection{Indistinguishability}
+
+\subsubsection{Definitional equality and simulation}
+
+\subsubsection{Typing and type preservation}
+
 \subsection{Semantic typing}
 
 \subsection{Soundness}
@@ -594,14 +688,7 @@ Maybe just use the footnote just as the rule is being described in the text.}
 
 \begin{mathpar}
   \mprset{fraction={===}}
-  \drule{Sg-nil}       % \footnote{\suppl{theories}{geq.v}{iok\_subst\_nil}}
-  \drule{Sg-cons}      % \footnote{\suppl{theories}{geq.v}{iok\_subst\_cons}}
-  \drule{SI-nil}       % \footnote{\suppl{theories}{geq.v}{ieq\_subst\_nil}}
-  \drule{SI-cons}      % \footnote{\suppl{theories}{geq.v}{ieq\_subst\_cons}}
   \drule{Ps-subst}     % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
-  \drule{Wg-Wt}        % \footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
-  \drule{Wg-sub}       % \footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
-  \drule{Wg-subst}     % \footnote{\suppl{theories}{geq.v}{iok\_subst}}
   \drule{I-downgrade}  % \footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
   \drule{I-refl}       % \footnote{\suppl{theories}{geq.v}{iok\_ieq}}
   \drule{I-sym}        % \footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
@@ -673,7 +760,6 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
-\drules[Wg]{$[[E |- a : l]]$}{Grading rules}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
 \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pack}
 \drules[W]{$[[wne a]]$}{Weak neutral forms}{ne}
