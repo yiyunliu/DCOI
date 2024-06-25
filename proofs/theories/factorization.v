@@ -412,9 +412,9 @@ Inductive LoRed : tm -> tm -> Prop :=
   (* ------------------------- *)
   LoRed (tApp a ℓ0 b0) (tApp a ℓ0 b1)
 
-| LoR_AppAbs a b ℓ0 ℓ1 :
+| LoR_AppAbs a b ℓ :
   (* ---------------------------- *)
-  LoRed (tApp (tAbs ℓ0 a) ℓ1 b) (a [b..])
+  LoRed (tApp (tAbs ℓ a) ℓ b) (a [b..])
 
 | LoR_Absurd a b :
   LoRed a b ->
@@ -488,9 +488,9 @@ Inductive LoRed : tm -> tm -> Prop :=
   (* --------------------- *)
   LoRed (tLet ℓ0 ℓ1 a b0) (tLet ℓ0 ℓ1 a b1)
 
-| LoR_LetPack ℓ0 ℓ1 ℓ2 a b c :
+| LoR_LetPack ℓ0 ℓ1 a b c :
   (* --------------------------------------------- *)
-  LoRed (tLet ℓ0 ℓ1 (tPack ℓ2 a b) c) c[b .: a ..]
+  LoRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) c[b .: a ..]
 
 | LoR_Down ℓ0 p0 p1 :
   LoRed p0 p1 ->
@@ -637,15 +637,28 @@ Proof.
   - hauto lq:on inv:NPar ctrs:Par, rtc.
 Qed.
 
-Lemma LoRed_Abs_inv a b :
+Lemma LoRed_IsAbs_inv a b :
   rtc LoRed a b ->
   isAbs a -> isAbs b.
 Proof. induction 1; hauto inv:LoRed. Qed.
 
-Lemma LoRed_Pack_inv a b :
+Lemma LoRed_IsPack_inv a b :
   rtc LoRed a b ->
   isPack a -> isPack b.
 Proof. induction 1; hauto inv:LoRed. Qed.
+
+Lemma LoRed_Abs_inv ℓ a b :
+  rtc LoRed (tAbs ℓ a) b ->
+  exists a0, b = tAbs ℓ a0 /\ rtc LoRed a a0.
+Proof.
+  move E : (tAbs ℓ a) => u h.
+  move : ℓ a E.
+  elim : u b / h.
+  - hauto lq:on ctrs:rtc.
+  - move => a b c h hb ih ℓ a0 ?. subst.
+    inversion h; subst.
+    hauto lq:on ctrs:rtc.
+Qed.
 
 Lemma NPar_Let_inv u a ℓ0 ℓ1 b :
   rtc NPar u (tLet ℓ0 ℓ1 a b) ->
@@ -692,7 +705,7 @@ Proof.
     apply LoR_App0=>//.
     apply /negP.
     move => ?.
-    have : isAbs a2 by hauto q:on ctrs:rtc use:LoRed_Abs_inv.
+    have : isAbs a2 by hauto q:on ctrs:rtc use:LoRed_IsAbs_inv.
     move : ha2; clear. elim : a2 => //=.
 Qed.
 
@@ -794,7 +807,7 @@ Proof.
     apply LoR_Let0=>//.
     apply /negP.
     move => ?.
-    have : isPack a2 by hauto q:on ctrs:rtc use:LoRed_Pack_inv.
+    have : isPack a2 by hauto q:on ctrs:rtc use:LoRed_IsPack_inv.
     move : ha2; clear. elim : a2 => //=.
 Qed.
 
@@ -909,8 +922,10 @@ Fixpoint LoRedOpt a :=
       end
   | tApp a ℓ0 b =>
       match a with
-      | tAbs _ a0 =>
-          Some a0[b..]
+      | tAbs ℓ1 a0 =>
+          if T_eqb ℓ0 ℓ1
+          then Some a0[b..]
+          else None
       | _ => match LoRedOpt a with
             | Some a0 => Some (tApp a0 ℓ0 b)
             | None => match LoRedOpt b with
@@ -966,7 +981,10 @@ Fixpoint LoRedOpt a :=
       end
 
 
-  | tLet ℓ0 ℓ1 (tPack ℓ2 a b) c => Some c[b .: a..]
+  | tLet ℓ0 ℓ1 (tPack ℓ2 a b) c =>
+      if T_eqb ℓ0 ℓ2
+      then Some c[b .: a..]
+      else None
   | tLet ℓ0 ℓ1 a b => match LoRedOpt a with
                      | Some a0 => Some (tLet ℓ0 ℓ1 a0 b)
                      | None => match LoRedOpt b with
@@ -1005,6 +1023,8 @@ Proof.
     rewrite ihb.
     have -> : LoRedOpt a = None by hauto lq:on use:nf_no_red, ne_nf.
     hauto q:on inv:tm.
+  - move => a b ℓ.
+    case : T_eqdec => //.
   - hauto lq:on.
   - hauto lq:on.
   - hauto lq:on use:nf_no_red.
@@ -1023,6 +1043,8 @@ Proof.
   - move => ℓ0 ℓ1 a b0 b1 nea hb ihb.
     rewrite !{}ihb.
     hauto b:on drew:off inv:tm use:nf_no_red, ne_nf.
+  - move => ℓ0 ℓ1 a b c.
+    case : T_eqdec => //.
   - hauto lq:on rew:off inv:LoRed.
 Qed.
 
@@ -1045,13 +1067,14 @@ Lemma LoRedOpt_Par a b :
   LoRedOpt a = Some b -> a ⇒ b.
 Proof.
   elim : a b => //=.
-  - hauto lq:on rew:off ctrs:Par.
+  - hauto q:on ctrs:Par.
   - move => a iha ℓ b ihb u.
     case E : (isAbs a).
-    + move => h.
-
-      have {}h : exists ℓ a0, a = tAbs ℓ a0 /\ u = a0[b..] by hauto b:on.
-      move : h => [ℓ1][a0][?]?{E}. subst.
+    + have {}h : exists ℓ a0, a = tAbs ℓ a0 by hauto qb:on inv:tm.
+      move : h => [ℓ0][a0]?{E}. subst.
+      case : T_eqdec => // ?. subst.
+      move => [?]. subst.
+      hauto lq:on ctrs:Par use:Par_refl.
     + move E0 : (LoRedOpt a) => n.
       case : n E0 => //=.
       * move => a0 ? h.
@@ -1061,7 +1084,28 @@ Proof.
         case : t E1 => //=.
         ** hauto qb:on drew:off ctrs:Par use:Par_refl.
         ** hauto qb:on drew:off.
-  -
+  - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
+  - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
+  - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
+  - hauto q:on dep:on ctrs:Par inv:tm use:Par_refl.
+  - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
+  - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
+  - move => ℓ0 ℓ1 a iha b ihb u.
+    case E : (isPack a) => //=.
+    + have : exists ℓ0 a0 b0, a = tPack ℓ0 a0 b0 by destruct a; eauto.
+      move => [ℓ2][a0][b0]?{E}. subst.
+      case : T_eqdec => // ?. subst.
+      hauto lq:on use:Par_refl ctrs:Par.
+    + move E0 : (LoRedOpt a) => T.
+      case : T E0=> //=.
+      * move => a0 ? h.
+        have {}h :u = tLet ℓ0 ℓ1 a0 b by hauto b:on drew:off. subst.
+        hauto lq:on ctrs:Par use:Par_refl.
+      * move E0 : (LoRedOpt b) => T.
+        elim : T E0=>//=;
+                 hauto qb:on drew:off ctrs:Par use:Par_refl.
+  - hauto q:on dep:on ctrs:Par inv:tm use:Par_refl.
+Qed.
 
 
 End factorization_sig.
