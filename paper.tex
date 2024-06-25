@@ -435,13 +435,24 @@ to the corresponding file and top-level name in the development.
 Some lemmas are presented as admissible derivation rules of the corresponding judgement,
 which are written with a double horizontal bar instead of a single bar.
 Their corresponding mechanizations are annotated where mentioned in the prose.
-While the mechanizations use de Bruijn indices and simultaneous substitutions,
-we continue to present the corresponding definitions, lemmas, and theorems
-using named variables and single substitutions.
 
-\jc{Do we present well-gradedness here now? Some of the lemmas require it as a premise.}
-\jc{Should we switch to substitution maps and simultaneous substitutions here?
-A number of the lemmas seem to be structured a little strangely otherwise.}
+While we continue to used named variables rather than de Bruijn indices,
+to bring the presentation closer to the mechanization,
+in this section we frame substitution in terms of substitution maps and simultaneous substitutions.
+
+\begin{definition}[Substitution maps]
+  A substitution map $\rho$ is a mapping from variables to terms.
+  We use $\dom(\rho)$ to denote the variables in the domain of $\rho$,
+  $\rho(x)$ the term to which $\rho$ maps $[[x]]$,
+  $[[nil]]$ the identity substitution,
+  $[[(rho ++ { a / x })]]$ the extension of $[[rho]]$
+  by a mapping from $[[x]]$ to $[[a]]$, and
+  and $[[a { rho }]]$ the simultaneous substitution
+  of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
+\end{definition}
+
+The singleton substitution $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
+the single extension of the identity substitution.
 
 \subsection{Syntactic properties}
 
@@ -583,6 +594,10 @@ Maybe just use the footnote just as the rule is being described in the text.}
 
 \begin{mathpar}
   \mprset{fraction={===}}
+  \drule{Sg-nil}       % \footnote{\suppl{theories}{geq.v}{iok\_subst\_nil}}
+  \drule{Sg-cons}      % \footnote{\suppl{theories}{geq.v}{iok\_subst\_cons}}
+  \drule{SI-nil}       % \footnote{\suppl{theories}{geq.v}{ieq\_subst\_nil}}
+  \drule{SI-cons}      % \footnote{\suppl{theories}{geq.v}{ieq\_subst\_cons}}
   \drule{Ps-subst}     % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
   \drule{Wg-Wt}        % \footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
   \drule{Wg-sub}       % \footnote{\suppl{theories}{geq.v}{iok\_subsumption}}
@@ -823,26 +838,6 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   then $[[wnf A]]$ holds,
   and $S$ is a set of reducibility candidates.
 \end{lemma}
-
-\jc{The below are translated directly from the Coq proofs,
-which deal with simultaneous substitution maps,
-but maybe they should be reformulated in terms of single substitutions
-since the rest of the paper will probably work with variables and single substitutions?
-For instance, a single substitution $[[{ a / x }]]$ would be semantically well formed
-if there exist $i$, $S$ such that
-$\interp{[[|D|]]}{[[i]]}{[[A {a / x}]]}{S}$
-and $\member{a}{[[l]]}{S}$.}
-
-\begin{definition}[Substitution maps]
-  A substitution map $\rho$ is a mapping from variables to terms.
-  We use $\dom(\rho)$ to denote the variables in the domain of $\rho$,
-  $\rho(x)$ the term to which $\rho$ maps $[[x]]$,
-  $([[rho ++ { a / x }]])$ to denote the extension of $[[rho]]$
-  by a mapping from $[[x]]$ to $[[a]]$, and
-  and $[[a { rho }]]$ to denote the simultaneous substitution
-  of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
-  
-\end{definition}
 
 \begin{definition}[Semantic substitution]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}

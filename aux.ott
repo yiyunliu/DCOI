@@ -42,12 +42,21 @@ branches, bs :: 'bs_' ::=
 
 subst, rho {{ tex \rho }} :: 's_' ::=
   {{ com simultaneous substitution }}
+  | nil :: :: Empty
+    {{ com identity substitution }}
+    {{ tex \mt }}
   | { a / x } :: :: Single
     {{ com single subsitution }}
     {{ tex [[a]] / [[x]] }}
   | rho ++ { a / x } :: :: Cons
     {{ com substitution extension }}
     {{ tex [[rho]], [[a]] / [[x]] }}
+  | ( rho ) :: S :: Parens
+    {{ com parentheses }}
+    {{ tex ([[rho]]) }}
+  | (# rho #) :: S :: SecretParens
+    {{ com invisible parentheses }}
+    {{ tex [[rho]] }}
 
 tm :: 'a_' ::=
   | phantom :: S :: Phantom
@@ -259,3 +268,37 @@ E ++ x : l0 |- a : l
 E |- b : l0
 -------------------- :: subst
 E |- a { b / x } : l
+
+defns
+  IOk_Subst :: '' ::=
+
+defn
+  F |- rho : E :: :: Sg :: 'Sg_'
+  {{ com substitution well-gradedness }}
+  {{ tex [[F]] \vdash [[rho]] : [[E]] }}
+by
+
+------------ :: nil
+E |- nil : E
+
+F |- rho : E
+F |- a : l
+-------------------------------------- :: cons
+F |- (rho ++ { a / x }) : (E ++ x : l)
+
+defns
+  IEq_Subst :: '' ::=
+
+defn
+  F |- rho0 == rho1 : E @ l :: :: SI :: 'SI_'
+  {{ com substitution indisinguishability }}
+  {{ tex [[F]] \vdash [[rho0]] \equiv^{[[l]]} [[rho1]] : [[E]] }}
+by
+
+----------------------- :: nil
+E |- nil == nil : E @ l
+
+F |- rho0 == rho1 : E @ l
+F |- a0 == a1 @ l l0
+--------------------------------------------------------------------- :: cons
+F |- (rho0 ++ { a0 / x }) == (rho1 ++ { a1 / x }) : (E ++ x : l0) @ l

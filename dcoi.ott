@@ -155,7 +155,7 @@ context, G {{ tex \Gamma }}, D {{ tex \Delta }} :: 'ctx_' ::=
     {{ coq ([[G]]) }}
     {{ tex [[G]] }}
 
-econtext, E {{ tex \Xi }} :: 'ectx_' ::=
+econtext, E {{ tex \Xi }} , F {{ tex \Phi }} :: 'ectx_' ::=
   {{ com erased contexts }}
   {{ coq list ( atom * grade ) }}
   {{ coq-universe Type }}
