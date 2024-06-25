@@ -1107,5 +1107,80 @@ Proof.
   - hauto q:on dep:on ctrs:Par inv:tm use:Par_refl.
 Qed.
 
+Lemma LoRed'_Par a b :
+  LoRed' a b -> a ⇒ b.
+Proof. hauto lq:on use:LoRedOpt_Par unfold:LoRed'. Qed.
+
+Lemma LoReds'_Pars a b :
+  rtc LoRed' a b -> a ⇒* b.
+Proof.
+  hauto l:on use:relations.rtc_subrel, LoRed'_Par unfold:subrelation.
+Qed.
+
+Lemma nf_no_lored a : nf a -> LoRedOpt a = None.
+Proof.
+  rewrite /LoRed'.
+  elim : a => //=; hauto q:on inv:tm b:on drew:off.
+Qed.
+
+Lemma LoRed_wn_sn a b :
+  rtc LoRed' a b -> nf b ->
+  relations.sn LoRed' a.
+Proof.
+  rewrite /LoRed'.
+  induction 1.
+  - hauto q:on ctrs:Acc use:nf_no_lored.
+  - hauto l:on ctrs:Acc.
+Qed.
+
+(* Lemma LoRed'_sequence a b c : *)
+(*   rtc LoRed' a b -> *)
+(*   rtc LoRed' a c -> *)
+(*   rtc LoRed' b c \/ rtc LoRed' c b. *)
+(* Proof. *)
+(*   move => h. move : c. *)
+(*   elim : a b / h. hauto lq:on. *)
+(*   - move => a b c ha hb ih d had. *)
+(*     destruct had. *)
+(*     hauto lq:on rew:off ctrs:rtc. *)
+(*     hauto l:on unfold:LoRed'. *)
+(* Qed. *)
+
+Lemma LoRed'_nf_unique a b c :
+  rtc LoRed' a b ->
+  rtc LoRed' a c ->
+  LoRedOpt b = None ->
+  LoRedOpt c = None ->
+  b = c.
+Proof.
+  induction 1; hauto l:on inv:rtc unfold:LoRed'.
+Qed.
+
+Definition LoRed_normalize a (h : wn a) : {x : tm | nf x /\ rtc Par a x}.
+Proof.
+  unfold wn in h.
+  have {}h : relations.sn LoRed' a /\ exists b, rtc LoRed' a b /\ nf b /\ rtc Par a b by hauto lq:on use:LoRed_wn_sn, standardization'.
+  move : h => [h0 h1].
+  induction h0 as [a h ih]. simpl in *. rewrite {1}/LoRed' in ih.
+  destruct (LoRedOpt a) as [a0 |] eqn:eq .
+  - specialize ih with (1 := eq_refl).
+    have {}eq : LoRed' a a0 by sfirstorder unfold:LoRed'.
+    destruct ih.
+    + move : h1 => [b][hb0][hb1]hb2.
+      exists b. move => [:tr0].
+      repeat split => //.
+      abstract : tr0.
+      destruct hb0.
+      hauto q:on use:nf_no_lored unfold:LoRed'.
+      scongruence unfold:LoRed'.
+      hauto l:on use:LoReds'_Pars.
+    + exists x.
+      split; first by tauto.
+      hauto lq:on ctrs:rtc use:LoRed'_Par unfold:LoRed'.
+  - exists a.
+    case : h1 => [b [h10 [h11 h12]]].
+    suff : a = b by hauto lq:on.
+    hauto lq:on use:LoRed'_nf_unique, nf_no_lored.
+Defined.
 
 End factorization_sig.
