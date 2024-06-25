@@ -99,7 +99,7 @@ Proof.
       hauto l:on ctrs:Par, IEq.
   - hauto lq:on ctrs:IEq, Par inv:Par, IEq.
   - hauto lq:on ctrs:IEq, Par inv:Par, IEq.
-  - move => Ξ ℓ ℓ0 ℓ1 a0 b0 a1 b1 ha iha hb ihb a'.
+  - move => Ξ ℓ ℓ0 ℓ1 a0 b0 a1 b1 ? ha iha hb ihb a'.
     elim /Par_inv => //= _.
     + hauto lq:on ctrs:IEq, Par.
     + move => ? ? a2 b2 c0 a3 b3 c1 ? ? hbc [*]. subst.

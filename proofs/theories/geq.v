@@ -130,6 +130,7 @@ Module Type geq_sig
     IEq Ξ ℓ (tPack ℓ0 a0 b0) (tPack ℓ0 a1 b1)
 
   | I_Let ℓ0 ℓ1 a0 b0 a1 b1 :
+    ℓ1 ⊆ ℓ ->
     IEq Ξ ℓ a0 a1 ->
     IEq (ℓ1::ℓ0::Ξ) ℓ b0 b1 ->
     (* -------------------- *)
@@ -193,15 +194,7 @@ Module Type geq_sig
         | None => compute_level (ℓ0::Ξ) B
         end
 
-    | tPack ℓ0 A B =>
-        match compute_level Ξ A with
-        | Some ℓA => match compute_level (ℓ0::Ξ) B with
-                    | Some ℓB => Some (ℓA ∪ ℓB)
-                    | None => Some ℓA
-                    end
-        | None => compute_level (ℓ0::Ξ) B
-        end
-
+    | tPack ℓ0 a b => compute_level Ξ b
     | tDown ℓ0 a => compute_level Ξ a
     | tLet ℓ0 ℓ1 a b => match compute_level (ℓ1::ℓ0::Ξ) b with
                        | Some ℓb => Some (ℓb ∪ ℓ1)
@@ -311,9 +304,10 @@ Module geq_facts
       have : ℓ0 ⊆ ℓ1 by eauto using leq_trans.
       hauto lq:on ctrs:IEq.
     - hauto lq:on drew:off ctrs:IEq solve+:solve_lattice.
-    - move => Ξ ℓ ℓ0 a b ha iha hb ihb ℓ1 ?.
+    - move => Ξ ℓ ℓ0 a b  ha iha hb ihb ℓ1 ?.
       apply I_Pack; eauto.
       case : (sub_eqdec ℓ0 ℓ1) => //; hauto l:on ctrs:GIEq.
+    - hauto lq:on drew:off ctrs:IEq solve+:solve_lattice.
   Qed.
 
   Lemma elookup_deterministic : forall Ξ i ℓ0 ℓ1,
@@ -336,6 +330,7 @@ Module geq_facts
       apply : I_Var; eauto.
       have ? : ℓ0 = ℓ2 by eauto using elookup_deterministic. subst.
       solve_lattice.
+    - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto q:on inv:GIEq ctrs:GIEq solve+:solve_lattice.
@@ -502,6 +497,30 @@ Proof.
   - apply ieq_sym_mutual in h0.
     rewrite meet_commutative.
     eapply ieq_downgrade_mutual; eauto.
+Qed.
+
+Lemma iok_ieq_downgrade Ξ a b ℓ0 ℓ1 :
+  IOk Ξ ℓ0 a ->
+  IEq Ξ ℓ1 a b ->
+  IOk Ξ (ℓ0 ∩ ℓ1) a.
+Proof.
+  move => h. move : ℓ1 b.
+  elim : Ξ ℓ0 a /h;
+    try by (move => *; lazymatch goal with
+    | [|-context[tJ]] => idtac
+    | [|-context[var_tm]] => idtac
+    | [h : context[IEq] |- _ ] =>
+        inversion h; hauto lq:on depth:1 ctrs:IOk solve+:solve_lattice
+    end).
+  - move => Ξ ℓ i ℓ0 h ? ℓ1 b.
+    elim/IEq_inv => //_ j ℓ2 ? ? [*]. subst.
+    have ? : ℓ2 = ℓ0 by sfirstorder unfold:elookup. subst.
+    apply : IO_Var; eauto. solve_lattice.
+  - move => Ξ ℓ ℓp t p hℓ ht iht hp ihp ℓ1 b.
+    elim /IEq_inv=>//= _.
+    move => ℓp0 t0 t1 p0 p1 hℓ' ? ? [*]. subst.
+    apply IO_J=>//=; eauto.
+    solve_lattice.
 Qed.
 
 End geq_facts.
