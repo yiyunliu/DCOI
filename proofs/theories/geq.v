@@ -188,6 +188,19 @@ Module geq_facts
     elim : Ξ ℓ a / h; hauto lq:on ctrs:IOk use:leq_trans.
   Qed.
 
+  Lemma iok_subst_id Ξ : iok_subst_ok ids Ξ Ξ.
+  Proof.
+    hauto lq:on ctrs:IOk unfold:iok_subst_ok solve+:solve_lattice.
+  Qed.
+
+  Lemma iok_subst_cons ρ Ξ Δ ℓ a (h : iok_subst_ok ρ Ξ Δ) (ha : IOk Δ ℓ a) :
+    iok_subst_ok (a .: ρ) (ℓ :: Ξ) Δ.
+  Proof.
+    rewrite /iok_subst_ok /elookup.
+    case => //= ?.
+    case => //= <- //.
+  Qed.
+
   Lemma iok_ren_ok_suc ρ Ξ Δ (h : iok_ren_ok ρ Ξ Δ) :
     forall ℓ0, iok_ren_ok (upRen_tm_tm ρ) (ℓ0 :: Ξ) (ℓ0 :: Δ).
   Proof.
@@ -229,18 +242,7 @@ Module geq_facts
 
   Lemma iok_subst Ξ ℓ ℓ0 a b (h : IOk Ξ ℓ0 a)
     (h0 : IOk (ℓ0::Ξ) ℓ b) : IOk Ξ ℓ b[a..].
-  Proof.
-    apply : iok_morphing; eauto.
-    case.
-    - rewrite /elookup //=.
-      scongruence.
-    - move => n ℓ1. asimpl.
-      move => ?.
-      have : elookup n Ξ ℓ1 by sfirstorder.
-      move => h2.
-      apply : IO_Var; eauto.
-      by rewrite meet_idempotent.
-  Qed.
+  Proof. sfirstorder use:iok_morphing, iok_subst_cons, iok_subst_id. Qed.
 
   Lemma iok_ieq Ξ ℓ a (h : IOk Ξ ℓ a) :
     forall ℓ0, ℓ ⊆ ℓ0 -> IEq Ξ ℓ0 a a.
@@ -363,6 +365,22 @@ Proof.
   case : (sub_eqdec ℓ0 ℓ); hauto lq:on ctrs:IEq, GIEq.
 Qed.
 
+Lemma ieq_subst_id ℓ Ξ : ieq_good_morphing ℓ ids ids Ξ Ξ.
+Proof.
+  move => *.
+  hauto lq:on ctrs:IEq use:ieq_gieq.
+Qed.
+
+Lemma ieq_subst_cons ℓ ℓ0 ξ0 ξ1 Ξ Δ a0 a1
+  (h : ieq_good_morphing ℓ ξ0 ξ1 Ξ Δ)
+  (ha : GIEq Δ ℓ ℓ0 a0 a1) :
+  ieq_good_morphing ℓ (a0 .: ξ0) (a1 .: ξ1) (ℓ0 :: Ξ) Δ.
+Proof.
+  rewrite /ieq_good_morphing /elookup.
+  case => //= ?.
+  case => //= <- //.
+Qed.
+
 Lemma ieq_morphing_helper ℓ ℓ0 ξ0 ξ1 Ξ Δ :
   ieq_good_morphing ℓ ξ0 ξ1 Ξ Δ ->
   ieq_good_morphing ℓ (up_tm_tm ξ0) (up_tm_tm ξ1) (ℓ0 :: Ξ) (ℓ0 :: Δ).
@@ -413,17 +431,7 @@ Qed.
 Lemma ieq_iok_subst Ξ ℓ ℓ0 b0 b1 a (h : IOk Ξ ℓ0 a) (h0 : IEq (ℓ0:: Ξ) ℓ b0 b1) :
   IEq Ξ ℓ b0[a..] b1[a..].
 Proof.
-  eapply ieq_morphing_mutual; eauto.
-  case => //=.
-  move => ℓ1.
-  rewrite /elookup //=.
-  move => [<-]{ℓ1}.
-  by apply : iok_gieq.
-  move => n ℓ1 he.
-  have {}he : elookup n Ξ ℓ1 by sfirstorder unfold:elookup.
-  apply : ieq_gieq.
-  move => *.
-  apply : I_Var; eauto.
+  sfirstorder use:ieq_morphing_mutual, ieq_subst_cons, ieq_subst_id, iok_gieq.
 Qed.
 
 Lemma ieq_trans_heterogeneous Ξ ℓ ℓ0 a b c :
