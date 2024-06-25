@@ -202,6 +202,42 @@ Module Type geq_sig
                        end
     end.
 
+  Fixpoint IEqb Ξ ℓ a b :=
+    match a, b with
+    | var_tm i, var_tm j =>
+        if Nat.eqb i j
+        then match nth_error Ξ i with
+             | Some ℓ0 => T_eqb (ℓ0 ∩ ℓ) ℓ0
+             | None => false
+             end
+        else false
+    | tUniv i, tUniv j => Nat.eqb i j
+    | tPi ℓ0 A0 B0, tPi ℓ1 A1 B1 =>
+        T_eqb ℓ0 ℓ1 && IEqb Ξ ℓ A0 A1 && IEqb (ℓ0::Ξ) ℓ B0 B1
+    | tSig ℓ0 A0 B0, tSig ℓ1 A1 B1 =>
+        T_eqb ℓ0 ℓ1 && IEqb Ξ ℓ A0 A1 && IEqb (ℓ0::Ξ) ℓ B0 B1
+    | tAbs ℓ0 a0, tAbs ℓ1 a1 =>
+        T_eqb ℓ0 ℓ1 && IEqb (ℓ0::Ξ) ℓ a0 a1
+    | tApp a0 ℓ0 b0, tApp a1 ℓ1 b1 =>
+        T_eqb ℓ0 ℓ1 && IEqb Ξ ℓ a0 a1 &&
+          (if T_eqb (ℓ0 ∩ ℓ) ℓ0 then  IEqb Ξ ℓ b0 b1 else true)
+    | tVoid, tVoid => true
+    | tRefl, tRefl => true
+    | tD, tD => true
+    | tAbsurd a, tAbsurd b => true
+    | tEq ℓ0 a0 b0 A0, tEq ℓ1 a1 b1 A1 =>
+        T_eqb ℓ0 ℓ1 && T_eqb (ℓ0 ∩ ℓ) ℓ0 && IEqb Ξ ℓ a0 a1 && IEqb Ξ ℓ b0 b1
+    | tJ ℓ0 t0 p0, tJ ℓ1 t1 p1 =>
+        T_eqb ℓ0 ℓ1 && T_eqb (ℓ0 ∩ ℓ) ℓ0 && IEqb Ξ ℓ t0 t1 && IEqb Ξ ℓ p0 p1
+    | tPack ℓ0 a0 b0, tSig ℓ1 a1 b1 =>
+        T_eqb ℓ0 ℓ1 && (if T_eqb (ℓ0 ∩ ℓ) ℓ0 then IEqb Ξ ℓ a0 a1 else true)
+        && IEqb Ξ ℓ b0 b1
+    | tDown ℓ0 p0, tDown ℓ1 p1 =>
+        T_eqb ℓ0 ℓ1 && IEqb Ξ ℓ p0 p1
+    | _, _ => false
+    end.
+
+
   #[export]Hint Constructors IOk IEq GIEq : ieq.
 
   Scheme IEq_ind' := Induction for IEq Sort Prop
