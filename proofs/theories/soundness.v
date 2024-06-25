@@ -318,7 +318,7 @@ Proof.
       * move : hPA. asimpl => /[dup] hPA.
         have : iconv (c2e Δ) ℓ0 C[p[ρ] .: (b[ρ] .: ρ)] C[tRefl .: (a[ρ] .: ρ)].
         rewrite /iconv.
-        move : hab => [a'][b']hab.
+        move : hab => [a'][b'][?][?]?.
         exists C[tRefl .: (b' .: ρ)], C[tRefl .: (a' .: ρ)].
         repeat split.
         ** apply : Pars_morphing_star; auto using rtc_refl.
@@ -330,24 +330,18 @@ Proof.
            move /cfacts.ifacts.iok_ieq => /[dup] hC.
            move  /(_ ℓ0 ltac:(by rewrite meet_idempotent)) /(proj1 (cfacts.ifacts.ieq_morphing_mutual _ _)).
            apply.
-           rewrite /cfacts.ifacts.ieq_good_morphing.
-           rewrite /elookup.
-           case => //=.
-           *** move => ℓ2 [*]. subst.
-               apply cfacts.ifacts.ieq_gieq.
-               hauto lq:on ctrs:IEq.
-           *** case => ℓ2 //=.
-               **** move => [?]. subst.
-                    case : (sub_eqdec ℓ2 ℓ0).
-                    move => ?.
-                    apply GI_Dist=>//.
-                    apply cfacts.ifacts.ieq_sym_mutual. tauto.
-                    move => ?. apply GI_InDist=>//.
-               **** suff : iok_subst_ok ρ (c2e Γ) (c2e Δ).
-                    rewrite /iok_subst_ok.
-                    rewrite /elookup.
-                    sauto lq:on rew:off use:cfacts.ifacts.iok_gieq.
-                    hauto l:on use:ρ_ok_iok.
+           apply cfacts.ifacts.ieq_subst_cons.
+           apply cfacts.ifacts.ieq_subst_cons.
+           *** rewrite /cfacts.ifacts.ieq_good_morphing.
+               suff : iok_subst_ok ρ (c2e Γ) (c2e Δ).
+               rewrite /iok_subst_ok.
+               rewrite /elookup.
+               sauto lq:on rew:off use:cfacts.ifacts.iok_gieq.
+               hauto l:on use:ρ_ok_iok.
+           *** case : (sub_eqdec ℓ1 ℓ0) => ? //.
+               apply GI_Dist => //.
+               apply cfacts.ifacts.ieq_sym_mutual => //.
+           *** hauto lq:on ctrs:IEq use:cfacts.ifacts.ieq_gieq.
         ** move /cfacts.iconv_conv.
            move /cfacts.conv_sym.
            move : InterpUnivN_Conv (hPC); repeat move/[apply].

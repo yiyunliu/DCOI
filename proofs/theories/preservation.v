@@ -947,11 +947,7 @@ Proof.
       have ? : B0[b0..] ⇒ B0[b1..] by sfirstorder use:pfacts.Par_cong, pfacts.Par_refl.
       have : iok_subst_ok b0.. (ℓ0 :: c2e Γ) (c2e Γ); last by
         hauto lq:on use:cfacts.iconv_par.
-      rewrite /iok_subst_ok.
-      case. rewrite/elookup//=. scongruence.
-      move => n ℓ5 ?.
-      have : elookup n (c2e Γ) ℓ5 by sfirstorder.
-      move /IO_Var. apply. solve_lattice.
+      hauto l:on use:iok_subst_cons, iok_subst_id.
   (* Suc *)
   (* - move => a b h ih Γ ℓ A /Wt_Suc_inv. *)
   (*   move => [h0][h1][i]h2. *)
@@ -1020,16 +1016,7 @@ Proof.
       apply : cfacts.pfacts.good_Pars_morphing_ext2; eauto using rtc_refl.
     + move /iok_ieq /(_ ℓ0 ltac:(by rewrite meet_idempotent)) in hC.
       eapply ieq_morphing_mutual; eauto.
-      rewrite /ieq_good_morphing.
-      case.
-      * hauto lq:on ctrs:IEq, GIEq use:ieq_gieq unfold:elookup.
-      * move => n ℓ3 h.
-        have {}h: elookup n (ℓ1 :: c2e Γ) ℓ3 by sfirstorder unfold:elookup. simpl.
-        case: n h; first by hauto q:on ctrs:IEq, GIEq use:ieq_gieq unfold:elookup.
-        move => n h.
-        have {}h: elookup n (c2e Γ) ℓ3 by sfirstorder unfold:elookup.
-        asimpl.
-        apply ieq_gieq. eauto with ieq.
+      hauto ctrs:IEq, GIEq use:ieq_subst_cons, ieq_subst_id, ieq_gieq.
   (* Sig *)
   - move => ℓ0 A0 A1 B0 B1 h0 ih0 h1 ih1 Γ ℓ A /Wt_Sig_inv.
     intros (i & j & hA0 & hAB0 & hACoherent & ℓ1 & k & hA).

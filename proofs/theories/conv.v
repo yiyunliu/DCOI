@@ -42,13 +42,8 @@ Proof.
     + hauto lq:on ctrs:IOk.
     + move => ? ℓ2 a0 b0 c0 a1 b1 c1 ? ? ? [*]. subst.
       apply : iok_morphing; eauto.
-      rewrite /iok_subst_ok.
-      have /iha {}iha  : tPack ℓ0 a0 b0 ⇒ tPack ℓ0 a1 b1 by eauto with par. inversion iha.
-      case; rewrite /elookup //=.
-      * scongruence.
-      * case => /=.
-        scongruence.
-        sfirstorder use:meet_idempotent,IO_Var.
+      have /iha {}iha  : tPack ℓ0 a0 b0 ⇒ tPack ℓ0 a1 b1 by eauto with par.
+      hauto lq:on use:iok_subst_cons, iok_subst_id inv:IOk.
 Qed.
 
 Lemma iok_preservation_star Ξ ℓ a (h : IOk Ξ ℓ a) : forall b, a ⇒* b -> IOk Ξ ℓ b.
@@ -81,12 +76,7 @@ Proof.
       elim /IEq_inv => // _ ℓ1 a0 a5 ?[? ?][? ?]. subst.
       exists (a1[b4..]). split.
       by auto using Par_refl with par.
-      eapply ieq_morphing_mutual; eauto.
-      rewrite /ieq_good_morphing.
-      case => [|i]//=.
-      scongruence unfold:elookup.
-      move => ℓ1 ?.
-      apply gieq_refl. sfirstorder.
+      sfirstorder use:ieq_morphing_mutual, ieq_subst_cons, ieq_subst_id.
   - hauto lq:on ctrs:IEq inv:Par use:Par_refl.
   - move => Ξ ℓ ℓ0 a0 a1 b0 b1 A0 A1 ? ha iha hb ihb ?.
     elim /Par_inv=>// _ ? ? ? ? a2 b2 A2 + + + [*]. subst.
