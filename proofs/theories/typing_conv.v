@@ -72,9 +72,7 @@ Proof.
 Qed.
 
 Lemma typing_conv Γ ℓ a A (h : Wt Γ ℓ a A) : conv (c2e Γ) a a.
-Proof.
-  by move /typing_iok /iok_ieq /(_ ℓ ltac:(by rewrite meet_idempotent)) /ieq_conv : h.
-Qed.
+Proof. by move /typing_iok /conv_refl : h. Qed.
 
 Lemma lookup_good_renaming_iok_subst_ok ξ Γ Δ :
   lookup_good_renaming ξ Γ Δ ->

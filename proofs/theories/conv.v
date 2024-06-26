@@ -138,6 +138,11 @@ Proof.
     suff : exists b0,Par b b0 /\ IEq Ξ ℓ a0 b0; hauto lq:on use:simulation ctrs:rtc.
 Qed.
 
+Lemma conv_refl Ξ ℓ a : IOk Ξ ℓ a -> conv Ξ a a.
+Proof.
+  move /iok_ieq /(_ ℓ ltac:(by rewrite meet_idempotent)) /ieq_iconv => h /ltac:(exists ℓ) //.
+Qed.
+
 Lemma iconv_sym Ξ ℓ a b : iconv Ξ ℓ a b -> iconv Ξ ℓ b a.
 Proof. hauto lq:on use:ieq_sym_mutual unfold:conv, iconv. Qed.
 
