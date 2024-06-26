@@ -209,6 +209,10 @@
 
 \section{Introduction}
 
+\begin{itemize}
+  \item 
+\end{itemize}
+
 \section{Examples}
 
 \jc{TODO: Remember to introduce $[[l A -> B]]$ as sugar for $[[Pi x : l A . B]]$
@@ -227,8 +231,8 @@ which is parameterized over a meet-semilattice of dependency levels
 
 \begin{figure}[h]
 \begin{alignat*}{2}
-  [[G]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Typing contexts with levels and types} \\
-  [[E]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Grading contexts with levels} \\
+  [[G]], [[D]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Typing contexts with levels and types} \\
+  [[E]], [[F]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Grading contexts with levels} \\
   [[A]], [[B]], [[C]], &&& \\
   [[a]], [[b]], [[c]], [[p]] & \Coloneqq & \quad & \text{Terms} \\
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
@@ -468,9 +472,9 @@ but with all typing information stripped out, leaving only the levels,
 and are listed in \cref{fig:grading}.
 
 \begin{figure}[h]
-\drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Down,Sig,Pack,Let}
-\caption{Term grading rules}
-\label{fig:grading}
+  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Down,Sig,Pack,Let}
+  \caption{Term grading rules}
+  \label{fig:grading}
 \end{figure}
 
 Just as terms have notions of well-gradedness and indistinguishability,
@@ -480,20 +484,20 @@ and two substitution maps are indistinguishable by some observer
 if the terms they substitute in are indistinguishable by that observer.
 
 \begin{definition}[Substitution well-gradedness]
-  A substitution map $[[rho]]$ for a grading context $[[E]]$
-  under a grading context $[[F]]$ is well-graded,
-  written $[[F |- rho : E]]$,
-  if for every $[[x : l in E]]$,
-  $[[F |- rho(x) : l]]$ holds.
-  We also say that $[[rho]]$ is a substitution from $[[E]]$ to $[[F]]$.
+  A substitution map $[[rho]]$ for a grading context $[[F]]$
+  under a grading context $[[E]]$ is well-graded,
+  written $[[E |- rho : F]]$,
+  if for every $[[x : l in F]]$,
+  $[[E |- rho(x) : l]]$ holds.
+  We also say that $[[rho]]$ is a substitution from $[[F]]$ to $[[E]]$.
 \end{definition}
 
 \begin{definition}[Substitution indistinguishability]
   Two substitution maps $[[rho0]], [[rho1]]$
-  for a grading context $[[E]]$ under a grading context $[[F]]$
-  are indistinguishable at level $[[l]]$, written $[[F |- rho0 == rho1 : E @ l]]$,
-  if for every $[[x : l0 in E]]$,
-  $[[F |- rho0(x) == rho1(x) @ l l0]]$ holds.
+  for a grading context $[[F]]$ under a grading context $[[E]]$
+  are indistinguishable at level $[[l]]$, written $[[E |- rho0 == rho1 : F @ l]]$,
+  if for every $[[x : l0 in F]]$,
+  $[[E |- rho0(x) == rho1(x) @ l l0]]$ holds.
 \end{definition}
 
 \begin{figure}[h]
@@ -528,6 +532,7 @@ and the context under which substitutions act can be weakened
   \drule{Wg-subst}
   \drule{Wg-sub}
   % \drule{Wg-Wt}
+  \vspace{0.5\baselineskip}
   \caption{Admissible rules for well-gradedness of terms}
   \label{fig:grading-lemmas}
 \end{figure}
@@ -545,6 +550,25 @@ Well-gradedness is additionally subsumptive
 the level of a well-graded term may be raised.
 
 \subsubsection{Indistinguishability}
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \drule{I-morph}
+  % \footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
+  \drule{I-subst}
+  % \footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
+  \drule{I-downgrade}
+  % \footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
+  \drule{I-refl}
+  % \footnote{\suppl{theories}{geq.v}{iok\_ieq}}
+  \drule{I-sym}
+  % \footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
+  \drule{I-trans}
+  % \footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
+  \vspace{0.5\baselineskip}
+  \caption{Admissible rules for indistinguishability of terms}
+  \label{fig:indist-lemmas}
+\end{figure}
 
 \subsubsection{Definitional equality and simulation}
 
@@ -689,11 +713,6 @@ Maybe just use the footnote just as the rule is being described in the text.}
 \begin{mathpar}
   \mprset{fraction={===}}
   \drule{Ps-subst}     % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
-  \drule{I-downgrade}  % \footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
-  \drule{I-refl}       % \footnote{\suppl{theories}{geq.v}{iok\_ieq}}
-  \drule{I-sym}        % \footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
-  \drule{I-trans}      % \footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
-  \drule{I-subst}      % \footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
   \drule{E-par}        % \footnote{\suppl{theories}{conv.v}{iconv\_par2}}
   \drule{E-refl}       % \footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
   \drule{E-sym}        % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
