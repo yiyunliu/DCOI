@@ -350,9 +350,67 @@ Module geq_facts
       move : h0.
       case : T_eqdec => //=.
       hauto lq:on ctrs:IEq.
-  Admitted.
+    - move => a iha ℓ b ihb []//= a0 ℓ0 b0 Ξ ℓ1.
+      move /andP => [+ h]. move /andP => [h0 h1].
+      move : h0.
+      case : T_eqdec => // ? _. subst.
+      apply I_App.
+      hauto l:on.
+      move : h.
+      case E : T_eqb.
+      move /T_leqb_iff in E. hauto l:on.
+      hauto l:on ctrs:GIEq use:T_leqb_iff b:on.
+    - move => ℓ a iha b ihb []//= ℓ0 a0 b0 Ξ ℓ'.
+      move /andP => [+ h]. move /andP => [h0 h1].
+      move : h0.
+      case : T_eqdec => //= ? _ . subst.
+      eauto using I_Pi.
+    - move => n [] //= n0 Ξ ℓ.
+      case : nat_eqdec => //.
+      move => ?. subst => _.
+      constructor.
+    - hauto lq:on.
+    - hauto lq:on rew:off.
+    - move => ℓ a iha b ihb c ihc [] //= ℓ0 t0 t1 t2 Ξ ℓ1.
+      move /andP => [+ h].
+      move /andP => [+ h0].
+      move /andP => [+ h1].
+      move => h2.
+      move : h1 h2.
+      do 2 (case : T_eqdec => //=).
+      move => ? ? _ _. subst.
+      eauto using I_Eq.
+    - move => ℓ a iha b ihb [] //= ℓ0 a0 b0 Ξ ℓ1.
+      move /andP => [+ h].
+      move /andP => [+ h0].
+      move /andP => [+ h1].
+      move => h2.
+      move : h1 h2.
+      case : T_eqdec => //= ? _.
+      case : T_eqdec => //= ? _. subst.
+      eauto using I_J.
+    - hauto lq:on rew:off.
+    - move => ℓ a iha b ihb []//= ℓ0 a0 b0 Ξ ℓ'.
+      move /andP => [+ h]. move /andP => [h0 h1].
+      move : h0.
+      case : T_eqdec => //= ? _ . subst.
+      eauto using I_Sig.
+    - move => ℓ a iha b ihb []//= ℓ0 a0 b0 Ξ ℓ1.
+      do 2 case : T_eqdec => //=;
+      hauto lq:on ctrs:IEq, GIEq  b:on.
+    - move => ℓ0 ℓ1 a iha b ihb []//= ℓ0' ℓ1' a' b' Ξ ℓ.
+      do 3 case : T_eqdec => //=.
+      qauto l:on ctrs:IEq b:on.
+    - hauto lq:on.
+    - move => ℓ a iha [] //= ℓ0 a0 Ξ ℓ1.
+      case : T_eqdec => //=.
+      hauto lq:on ctrs:IEq.
+  Qed.
 
-  (* Lemma IEq_dec Ξ ℓ a b : Bool.reflect (IEq Ξ ℓ a b) (IEqb Ξ ℓ ) *)
+  Lemma IEq_dec Ξ ℓ a b : Bool.reflect (IEq Ξ ℓ a b) (IEqb Ξ ℓ a b).
+  Proof.
+    hauto l:on use:IEq_IEqb, IEqb_IEq, Bool.iff_reflect.
+  Qed.
 
   Lemma iok_subsumption Ξ ℓ a (h : IOk Ξ ℓ a) :
     forall ℓ0, ℓ ⊆ ℓ0 -> IOk Ξ ℓ0 a.
