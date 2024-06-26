@@ -1,4 +1,4 @@
-Require Import conv par geq imports normalform semtyping typing soundness preservation consistency.
+Require Import conv par geq imports normalform semtyping typing soundness preservation consistency factorization iconv_dec.
 
 Module MkAll
   (Import lattice : Lattice).
@@ -31,11 +31,17 @@ Module MkAll
     Include lr_sig lattice syntax par nf ieq conv.
   End lr.
 
+  Module factorization <: factorization_sig lattice syntax par nf.
+    Include factorization_sig lattice syntax par nf.
+  End factorization.
+
   Module soundness := soundness lattice syntax par nf ieq conv typing lr.
 
   Module preservation := preservation lattice syntax par ieq conv typing.
 
   Module consistency := consistency lattice syntax par nf ieq conv typing lr.
+
+  Module iconv_dec := iconv_dec lattice syntax par ieq nf factorization conv.
 End MkAll.
 
 Module nat_lattice <: Lattice.
@@ -90,3 +96,5 @@ Check dcoi_with_nat_lattice.preservation.subject_reduction.
 Print Assumptions dcoi_with_nat_lattice.preservation.subject_reduction.
 Check dcoi_with_nat_lattice.soundness.normalization.
 Print Assumptions dcoi_with_nat_lattice.soundness.normalization.
+Check dcoi_with_nat_lattice.iconv_dec.iconv_dec.
+Print Assumptions dcoi_with_nat_lattice.iconv_dec.iconv_dec.
