@@ -210,14 +210,28 @@
 \section{Introduction}
 
 \begin{itemize}
-  \item 
+  \item low elimination of high absurd proofs
+  \item propositional equality downgrade
+  \item J eliminator
+  \item weak pair projections
+  \item consistency
+  \item normalization
+  \item decidable type conversion (mechanized up to indistinguishability)
 \end{itemize}
 
 \section{Examples}
 
+% (unbox H x) H 1 == (unbox H x) H 2 @ H
+% a ~>* na, b ~>* nb, na == nb @ (min la lb) where la = lvl(na), lb = lvl(nb)
+% level of term can go down after reduction
+
 \jc{TODO: Remember to introduce $[[l A -> B]]$ as sugar for $[[Pi x : l A . B]]$
 where $[[B]]$ is not dependent on $[[x]]$
 and $[[Unit]]$ as sugar for $[[l Void -> Void]]$}
+
+\begin{itemize}
+  \item absurd (safe head)
+\end{itemize}
 
 \section{\name}
 
@@ -417,7 +431,7 @@ which would permit a closed term of $[[Void]]$ via repeated applications of \rre
   \label{fig:conv:eq}
 \end{figure}
 
-\section{Metatheory}
+\section{Syntactic metatheory}
 
 In this section, we develop the metatheory of \name.
 Our ultimate goals are weak normalization,
@@ -574,16 +588,48 @@ the level of a well-graded term may be raised.
 
 \subsubsection{Typing and type preservation}
 
+\section{Semantic metatheory}
+
 \subsection{Semantic typing}
 
 \subsection{Soundness}
 
+\subsection{Normalization}
+
 \section{Implementation}
+
+\begin{itemize}
+  \item level polymorphism of datatypes
+\end{itemize}
 
 \section{Discussion}
 
-% future work/related work
-\cite{liu:dcoi}
+% design and technical issues
+% perhaps merge with related work
+
+\section{Related work}
+
+\begin{itemize}
+  \item DCOI \cite{liu:dcoi}
+  \item ICC \cite{miquel:icc}
+  \item EPTS \cite{mishra-linger:erasure}
+  \item \cite{abel:irrelevance}
+  \item \cite{gilbert:sprop}
+  \item \cite{atkey:qtt}
+  \item \cite{kovacs:2LTT}
+  \item DDC
+  \item degrees of relatedness (internalizing parametricity) % \cite{nuyts:paramdtt}
+  \item type theory in colour --- colours are dependency levels (internalizing parametricity)
+\end{itemize}
+
+\section{Future work}
+
+\begin{itemize}
+  \item application rule with argument level leq pi type parameter level; same with first component of pair
+  \item parametricity
+  \item typed equality
+  \item implementation w/ level inference, decidable/bidirectional type checking
+\end{itemize}
 
 \section{Conclusion}
 
