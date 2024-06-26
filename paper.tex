@@ -51,7 +51,7 @@
 \usepackage{natbib}
 \usepackage{mathpartir,mathtools,stmaryrd}
 \usepackage{listings,xspace,color,doi}
-\usepackage[flushmargin,multiple]{footmisc} % option para seems to be broken?
+\usepackage[flushmargin,multiple,para]{footmisc}
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
 
@@ -474,9 +474,7 @@ in this section we frame substitution in terms of substitution maps and simultan
 The singleton substitution $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
 the single extension of the identity substitution.
 
-\subsection{Syntactic properties}
-
-\subsubsection{Well-gradedness and substitution}
+\subsection{Well-gradedness and substitution}
 
 As indistinguishability and definitional equality involve a grading context,
 we require a well-gradedness judgement on terms to be able to prove some substitution lemmas.
@@ -542,53 +540,85 @@ indistinguishable substitutions can be extended with single substitutions by ind
 and the context under which substitutions act can be weakened
 (\rref*{Sg-weak,SI-weak}\footnote{\suppl{theories}{geq.v}{iok\_subst\_ok\_suc}, \suppl{theories}{geq.v}{ieq\_morphing\_helper}}).
 
+\subsection{Properties of grading and indistinguishability}
+
+Well-gradedness and indistinguishability satisfy some standard properties,
+listed as admissible rules in \cref{fig:grading-lemmas} and \cref{fig:indist-lemmas},
+respectively.
+\Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
+\rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}
+permit weakening the context.
+\rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
+\rref*{I-morph}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
+are morphing lemmas which demonstrate how substitutions from $[[F]]$ to $[[E]]$
+transform the context of the judgements from $[[F]]$ to $[[E]]$
+when the substitutions are applied to the terms.
+The standard single substitution lemmas \rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}}
+and \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
+follow from morphing.
+
 \begin{figure}[h]
   \mprset{fraction={===}}
+  % \drule{Wg-Wt}
+  \drule{Wg-weak}
   \drule{Wg-morph}
   \drule{Wg-subst}
   \drule{Wg-sub}
-  % \drule{Wg-Wt}
+  \drule{Wg-pres}
   \vspace{0.5\baselineskip}
   \caption{Admissible rules for well-gradedness of terms}
   \label{fig:grading-lemmas}
 \end{figure}
 
-The morphing lemma
-\rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}}
-in \cref{fig:grading-lemmas}
-shows how a well-graded substitution $[[rho]]$ from $[[E]]$ to $[[F]]$
-turns a well-graded term $[[a]]$ under $[[E]]$
-to a well-graded term $[[a { rho }]]$ under $[[F]]$,
-from which the substitution lemma
-\rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} follows.
-Well-gradedness is additionally subsumptive
+Well-gradedness is subsumptive
 (\rref*{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
 the level of a well-graded term may be raised.
-
-\subsubsection{Indistinguishability}
+Additionally, parallel reduction preserves well-gradedness
+(\rref*{Wg-pres}\footnote{\suppl{theories}{conv.v}{iok\_preservation}}).
 
 \begin{figure}[h]
   \mprset{fraction={===}}
+  \drule{I-weak}
   \drule{I-morph}
-  % \footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
   \drule{I-subst}
-  % \footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
-  \drule{I-downgrade}
-  % \footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}
   \drule{I-refl}
-  % \footnote{\suppl{theories}{geq.v}{iok\_ieq}}
   \drule{I-sym}
-  % \footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}
   \drule{I-trans}
-  % \footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
+  % \drule{I-down}
   \vspace{0.5\baselineskip}
   \caption{Admissible rules for indistinguishability of terms}
   \label{fig:indist-lemmas}
 \end{figure}
 
-\subsubsection{Definitional equality and simulation}
+Indistinguishability is reflexive for well-graded terms
+(\rref*{I-refl}\footnote{\suppl{theories}{geq.v}{iok\_ieq}}),
+symmetric (\rref*{I-sym}\footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}),
+and transitive (\rref*{I-trans}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}).
+Transitivity is slightly more general in its observer level:
+given a chain of three indistinguishable terms at two different observer levels,
+the end terms are indistinguishable at the meet of the levels.
+% Proving transitivity relies on a downgrade property
+% (\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
+% where knowing that a term is indistinguishable from another at two different levels
+% permits concluding that it is also indistinguishable at the meet of the levels.
+This generalization is crucial for definitional equality,
+as we will see shortly.
 
-\subsubsection{Typing and type preservation}
+\subsection{Simulation and definitional equality}
+
+
+
+\begin{figure}[h]
+  % \drule{E-par}
+  \drule{E-morph}      % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
+  \drule{E-refl}       % \footnote{\suppl{theories}{conv.v}{conv\_refl}}
+  \drule{E-sym}        % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
+  \drule{E-trans}      % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  \caption{Admissible rules for definitional equality}
+  \label{fig:defeq-lemmas}
+\end{figure}
+
+\subsection{Typing and type preservation}
 
 \section{Semantic metatheory}
 In this section, we use a logical predicate to show weak
@@ -761,15 +791,10 @@ Maybe just use the footnote just as the rule is being described in the text.}
 \begin{mathpar}
   \mprset{fraction={===}}
   \drule{Ps-subst}     % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
-  \drule{E-par}        % \footnote{\suppl{theories}{conv.v}{iconv\_par2}}
-  \drule{E-refl}       % \footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
-  \drule{E-sym}        % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
-  \drule{E-trans}      % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
-  \drule{E-subst}      % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
   % not needed for the fundamental theorem but useful for examples
   \drule{Wt-sub}       % \footnote{\suppl{theories}{preservation.v}{subsumption}}
   \drule{Wt-subst}     % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
-  \drule{Wt-downgrade} % \footnote{\suppl{theories}{preservation.v}{Wt\_IOk\_Downgrade}}
+  \drule{Wt-down} % \footnote{\suppl{theories}{preservation.v}{Wt\_IOk\_Downgrade}}
 \end{mathpar}
 
 \section{Notes}
