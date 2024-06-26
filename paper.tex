@@ -229,6 +229,8 @@
 where $[[B]]$ is not dependent on $[[x]]$
 and $[[Unit]]$ as sugar for $[[l Void -> Void]]$}
 
+\jc{TODO: Mention implementation here}
+
 \begin{itemize}
   \item absurd (safe head)
 \end{itemize}
@@ -251,8 +253,8 @@ which is parameterized over a meet-semilattice of dependency levels
   [[a]], [[b]], [[c]], [[p]] & \Coloneqq & \quad & \text{Terms} \\
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
   & \mid [[Pi x : l A . B]] \mid [[\ l x . b]] \mid [[b l a]] & \quad & \textit{function types, abstractions, applications} \\
-  & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l x, y) = a in b]] & \quad & \textit{pair types, pairs, matching} \\
-  & \mid [[a ~ l b : A]] \mid [[refl]] \mid [[J c p]] \mid [[down l p]] & \quad & \textit{equality types, reflexivity, J eliminator, downgrade}
+  & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l0 x, y) = l a in b]] & \quad & \textit{pair types, pairs, matching} \\
+  & \mid [[a ~ l b : A]] \mid [[refl]] \mid [[J c l p]] \mid [[down l p]] & \quad & \textit{equality types, reflexivity, J eliminator, downgrade}
 \end{alignat*}
 \caption{Grammar of contexts and terms}
 \label{fig:grammar}
@@ -390,7 +392,7 @@ which would permit a closed term of $[[Void]]$ via repeated applications of \rre
 
 \begin{figure}[h]
   \drule{Wt-Sig}
-  \drule{Wt-Pack}
+  \drule{Wt-Pair}
   \drule{Wt-Let}
   \vspace{0.5\baselineskip}
   \caption{Typing and indistinguishability rules (pairs)}
@@ -398,9 +400,9 @@ which would permit a closed term of $[[Void]]$ via repeated applications of \rre
 \end{figure}
 
 \begin{figure}[h]
-  \drule{P-LetPack}
+  \drule{P-LetPair}
   \drule{I-Sig}
-  \drule{I-Pack}
+  \drule{I-Pair}
   \drule{I-Let}
   \vspace{0.5\baselineskip}
   \caption{Parallel reduction and indistinguishability rules (pairs)}
@@ -486,7 +488,7 @@ but with all typing information stripped out, leaving only the levels,
 and are listed in \cref{fig:grading}.
 
 \begin{figure}[h]
-  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Down,Sig,Pack,Let}
+  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Down,Sig,Pair,Let}
   \caption{Term grading rules}
   \label{fig:grading}
 \end{figure}
@@ -598,8 +600,6 @@ normalization and consistency for \name.
 
 \subsection{Normalization}
 
-\section{Implementation}
-
 \begin{itemize}
   \item level polymorphism of datatypes
 \end{itemize}
@@ -654,7 +654,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
       & Z => A ++
       & S n => B]] \\
   [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n : ! Nat) -> A @ H]] \\
-  [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
+  [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
   [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L ! Vec H A H n -> A @ L]] \\
   [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
   & [[:concrete: (case v return \ H m . H (m ~ H ! S H n : ! Nat) -> A of
@@ -775,10 +775,10 @@ Maybe just use the footnote just as the rule is being described in the text.}
 \section{Notes}
 
 The level of the scrutinee must be bounded by the level of the overall eliminator.
-In particular, in \rref{Wt-J}, the level of an equality proof $[[p]]$
-must be bounded by that of its elimination $[[J c p]]$,
-and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
-must be bounded by that of its elimination $[[let (l0 x, y) = a in b]]$.
+In particular, in \rref{Wt-J}, the level $[[l]]$ of an equality proof $[[p]]$
+must be bounded by that of its elimination $[[J c l p]]$,
+and in \rref{Wt-Let}, the level $[[l]]$ of a pair $[[a]]$
+must be bounded by that of its elimination $[[let (l0 x, y) = l a in b]]$.
 The bound is required to prove the simulation property (\cref{lem:simulation}).
 Suppose that scrutinees could instead be typed at any level.
 First, the indistinguishability rules need to be updated
@@ -804,9 +804,9 @@ The modified premises are highlighted in \hlcolor{} below.
 \end{mathpar}
 
 As concrete examples, by these alternate rules,
-supposing $[[J c p]]$ were well typed in context $[[G]]$
+supposing $[[J c H p]]$ were well typed in context $[[G]]$
 at level $[[L]]$ with $[[G |- p : H a ~ L a]]$,
-we can conclude that $[[| G | |- J c refl == J c p @ L]]$.
+we can conclude that $[[| G | |- J c H refl == J c H p @ L]]$.
 The problem is that the left-hand side reduces to $[[c]]$,
 while the right-hand side does not necessarily reduce to something indistinguishable from $[[c]]$,
 thereby violating the simulation property.
@@ -825,10 +825,10 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
 \section{Rules}
 
-\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pack,Let}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pair,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
-\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pack}
+\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
 \drules[W]{$[[wne a]]$}{Weak neutral forms}{ne}
 \drules[W]{$[[wnf a]]$}{Weak normal forms}{nf}
 
