@@ -45,6 +45,7 @@
 % \received[accepted]{}
 
 \let\Bbbk\relax
+\usepackage{todonotes}
 \usepackage{draft} % local
 \usepackage[supertabular]{ottalt} % local
 \usepackage{amsmath,amssymb}
@@ -649,18 +650,236 @@ which enforces that indistinguishable terms must reduce in lockstep.
 \jc{TODO: morphing, regularity, replacement}
 
 \section{Semantic metatheory}
-In this section, we use a logical predicate to show weak
-normalization and consistency for \name.
+\label{sec:semmeta}
 
-\subsection{Semantic typing}
+\begin{figure}[h]
+  \centering
+\fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical Predicate)}
+\begin{mathpar}
+  \infer[SWt-Ne]{
+    [[ne A]]
+  }{
+    \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+  }
+  \and
+  \infer[SWt-Pi]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
+    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+  }{
+    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}}
+  }
+  \and
+  \infer[SWt-Sigma]{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
+    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+  }{
+    \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace([[c]], [[l]], [[l0]], S_A, R) \vee [[wne c]])}}
+  }
+  \and
+  \infer[SWt-Univ]{
+    j < i
+  }{
+    \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \univspace{j}([[E]], [[A]])}}
+  }
+  \and
+  \infer[SWt-Empty]{~}{
+    \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+  }
+  \and
+  \infer[SWt-Eq]{~}{
+    \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
+  }
+  \and
+  \infer[SWt-Step]{
+    [[A => B]] \\
+    \interp{[[E]]}{[[i]]}{[[B]]}{S}
+  }{
+    \interp{[[E]]}{[[i]]}{[[A]]}{S}
+  }
+\end{mathpar}  
+  \caption{Logical predicate}
+  \label{fig:logpred}
+\end{figure}
+
+In this section, we use a logical predicate (Figure~\ref{fig:logpred}) to show weak
+normalization and consistency for \name. % Our proof technique is
+% is similar to proofs by logical relation for predicative dependent
+% type theory found in \citet{abel:irrelevance} and
+% \citet{adjedj:martin-lof-a-la-coq}.
+Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
+we define our logical predicate, which takes the form
+$\interp{[[E]]}{[[i]]}{[[A]]}{S}$, as an inductive relation
+recursively defined over the the universe level $[[i]]$. The
+metavariable $S$ represents a family of terms indexed by levels. 
+We use the notation $\member{a}{[[l]]}{S}$ to indicate that $[[a]]$ is
+a term that belongs to the set in $[[S]]$ that is indexed by $[[l]]$.
+The judgment $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ reads that under the
+grading context $[[E]]$ and universe level $[[i]]$, the type $[[A]]$
+can be interpreted as the family of sets $[[S]]$.
+
+Unlike logical relations for simply typed languages, the logical
+predicate for \name cannot be defined as a total function since not
+all terms can be assigned a meaning. Instead, the logical predicate
+$\interp{[[E]]}{[[i]]}{[[A]]}{S}$ simultaneously specifies the
+semantically well-formed types $[[A]]$ and its meaning $[[S]]$. %  A key
+% result we will present later in this section is the functionality of
+% the logical predicate; that is, each term can only correspond to one
+% interpretation $[[S]]$ if there exists one.
+
+We use the following definition in our discussion to reduce the noise
+introduced by the partiality of the logical predicate.
+\begin{definition}[Semantic inhabitance]
+  Given a context $[[E]]$ and a level $[[l]]$, 
+  we say that $[[a]]$ \emph{semantically inhabits} the type $[[A]]$
+  if there exists some $[[S]]$ such that
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{a}{[[l]]}{S}$.
+\end{definition}
+
+In rules \texttt{SWt-Pi} and \texttt{SWt-Sigma}, the
+metavariable $R$ represents a relation between lambda terms and the
+indexed family of terms $S$. Ignoring the conclusion of the rules, 
+\texttt{SWt-Pi} and \texttt{SWt-Sigma} share the same preconditions,
+which ensure their well-formedness in the following sense:
+for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
+level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed. This
+The
+interpreted sets appearing in the conclusion follows our usual
+intuition. In the function case, for example, the definition of $\prodspace$
+specifies the semantic inhabitants of a function type as the set of
+terms that, when applied to another term that semantically inhabits
+the input type, gives us a term that semantically inhabits the output
+type.
+
+The logical predicate takes in the grading context $[[E]]$ as a
+parameter to ensure that the $[[S]]$ only includes terms that are
+well-graded with respect to the indexed level.
+This property is
+formally stated as follows and can be proven by straightforward
+induction over the logical predicate.
+\begin{lemma}[Escape]
+  \label{lemma:escape}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{[[a]]}{[[l]]}{S}$,
+  then $[[E |- a : l]]$.
+\end{lemma}
+We refer to Lemma~\ref{lemma:escape} as the escape lemma as it is
+reminiscent of the escape lemmas found in \citet{abel:irrelevance,
+adjedj:martin-lof-a-la-coq}, though instead of escaping from the
+logical predicate to the syntactic typing judgment, we only require
+the much weaker well-gradedness judgment. The well-gradedness
+restriction will be necessary for us to show that indistinguishable
+types have the same meaning.
+% The relaxation is possible thanks to
+% the untyped conversion rule, which allows us % to derive properties
+% like $\Pi$-injectivity through the syntactic
+% approaches described in Section~\ref{sec:synmeta} independently of our
+% semantic metatheory. However, the well-gradedness restriction is still
+% required to justify the use of indistinguishability in the type
+% conversion rule.
+
+Next, we show some properties which will be useful in
+Section~\ref{sec:soundness} for the proof of the fundamental
+theorem. We omit some uses of the syntactic lemmas from
+Section~\ref{sec:synmeta} about reduction and indistinguishability
+when presenting the proof sketches.
+% The logical predicate is specified as an inductive relation, but we
+% can further show that it is in fact a partial function; that is, given
+% a grading context $[[E]]$, every type $[[A]]$ can only correspond to
+% one unique interpretation $[[S]]$ if there exists one. We establish
+% this fact through the following sequence of lemmas, all of which can
+% be derived by straightforward interpretation and syntactic results
+% about reduction derived in Section~\ref{sec:synmeta}.
+
+The logical predicate satisfies the following inversion principles. 
+These inversion principles are not immediately obtainble by inverting
+the derivation because we close our interpretation with full
+reduction in \texttt{SWt-Step}. For brevity, we only show the cases
+for equality, function, and empty types.
+\begin{lemma}[Inversion of the logical predicate (selected)]
+  \label{lemma:interpinv}\leavevmode
+  \begin{enumerate}
+  \item If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{S}$, then $S =
+    \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]],
+      [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}$
+  \item If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
+    exists $S_A$ and $R$ such that following holds:
+    \begin{itemize}
+    \item $S = \buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}$
+    \item $\interp{[[E]]}{[[i]]}{[[A]]}{S_A}$
+    \item $\forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a,
+      S_B)$
+    \item $\forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to
+      \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}$
+    \end{itemize}
+  \item If $\interp{[[E]]}{[[i]]}{[[Void]]}{S}$, then $S =
+    \buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}$
+  \item \ldots
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  Immediate by induction over the derivation of the logical
+  predicate.
+\end{proof}
+
+The logical predicate satisfies cumulativity; if a type has an
+interpretation at a lower level, then it must also have the same
+interpretation at a higher level.
+\begin{lemma}[Cumulativity]
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[i]] \leq [[j]]$, then
+  $\interp{[[E]]}{[[j]]}{[[A]]}{S}$.
+\end{lemma}
+\begin{proof}
+  By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and the transitivity of $\leq$.
+\end{proof}
+
+Rule \texttt{SWt-Step} closes the interpretation of types under
+expansion. We can also show that the meaning of types is
+preserved under forward reduction through the following lemma.
+\begin{lemma}[Reduction preserves meaning]
+\label{lemma:lrpreservation}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[A => B]]$, then
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+\end{lemma}
+\begin{proof}
+  By induction over the derivation of
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  Rule \texttt{SWt-Step} is the only interesting case, where we
+  leverage the diamond property \todo{add the diamond property} of
+  parallel reduction to reconcile two potentially distinct reductions
+  from the type $[[A]]$.
+\end{proof}
+
+
+Next, we prove that the logical predicate is functional. That is,
+given a context $[[E]]$ and a universe level $[[i]]$, a type $[[A]]$
+can correspond to at most one interpretation $[[S]]$.
+\begin{lemma}[Functionality]
+If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$ and
+$\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
+\end{lemma}
+\begin{proof}
+  By induction over the derivation of
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
+  The \texttt{SWt-Step} case is immediate by Lemma~\ref{lemma:lrpreservation}.
+  For all other cases, the conclusion
+  follows by applying the inversion
+  properties (Lemma~\ref{lemma:interpinv}) on
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$. 
+\end{proof}
+
 
 \subsection{Soundness}
+\label{sec:soundness}
 
 \subsection{Normalization}
 
 \begin{itemize}
   \item level polymorphism of datatypes
 \end{itemize}
+
+\subsection{Decidability of type conversion}
+
 
 \section{Discussion}
 
