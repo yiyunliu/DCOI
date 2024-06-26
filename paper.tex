@@ -540,7 +540,7 @@ indistinguishable substitutions can be extended with single substitutions by ind
 and the context under which substitutions act can be weakened
 (\rref*{Sg-weak,SI-weak}\footnote{\suppl{theories}{geq.v}{iok\_subst\_ok\_suc}, \suppl{theories}{geq.v}{ieq\_morphing\_helper}}).
 
-\subsection{Properties of grading and indistinguishability}
+\subsection{Properties of grading, indistinguishability, and definitional equality}
 
 Well-gradedness and indistinguishability satisfy some standard properties,
 listed as admissible rules in \cref{fig:grading-lemmas} and \cref{fig:indist-lemmas},
@@ -604,21 +604,49 @@ the end terms are indistinguishable at the meet of the levels.
 This generalization is crucial for definitional equality,
 as we will see shortly.
 
-\subsection{Simulation and definitional equality}
+A final key lemma of indistinguishability is the simulation property,
+which enforces that indistinguishable terms must reduce in lockstep.
 
-
+\begin{lemma}[Simulation]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation}}
+  \label{lem:simulation}
+  If $[[E |- a0 == b0 @ l]]$ and $[[a0 => a1]]$,
+  then there exists some $[[b1]]$ such that $[[b0 => b1]]$
+  and $[[E |- a1 == b1 @ l]]$.
+\end{lemma}
 
 \begin{figure}[h]
-  % \drule{E-par}
-  \drule{E-morph}      % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
-  \drule{E-refl}       % \footnote{\suppl{theories}{conv.v}{conv\_refl}}
-  \drule{E-sym}        % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
-  \drule{E-trans}      % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  \mprset{fraction={===}}
+  \drule{E-weak}  % \footnote{\suppl{theories}{conv.}{conv\_renaming}}
+  \drule{E-morph} % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
+  \drule{E-pres}  % \footnote{\suppl{theories}{conv.v}{iconv_par2}}
+  \\
+  \drule{E-refl}  % \footnote{\suppl{theories}{conv.v}{conv\_refl}}
+  \drule{E-sym}   % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
+  \drule{E-trans} % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  \vspace{0.5\baselineskip}
   \caption{Admissible rules for definitional equality}
   \label{fig:defeq-lemmas}
 \end{figure}
 
-\subsection{Typing and type preservation}
+\jc{TODO:
+\begin{itemize}
+  \item edit subsection beginning blurb to mention defeq incl. weakening + morphing
+  \item present preservation lemma along with confluence of parallel reduction
+  \item state that defeq is an equivalence relation,
+    and transitivity needs level heterogeneity and simulation
+\end{itemize}
+}
+
+\subsection{Type preservation}
+
+\jc{TODO: substitution well-typedness}
+
+\drule{Wt-sub}   % \footnote{\suppl{theories}{preservation.v}{subsumption}}
+\drule{Wt-weak}  % \footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}
+\drule{Wt-subst} % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
+
+\jc{TODO: morphing, regularity, replacement}
 
 \section{Semantic metatheory}
 In this section, we use a logical predicate to show weak
@@ -713,14 +741,6 @@ or whether they're important enough to be stated}
   $[[:concrete: c =>* d]]$.
 \end{lemma}
 
-\begin{lemma}[Simulation]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation}}
-  \label{lem:simulation}
-  If $[[E |- a0 == b0 @ l]]$ and $[[a0 => a1]]$,
-  then there exists some $[[b1]]$ such that $[[b0 => b1]]$
-  and $[[E |- a1 == b1 @ l]]$.
-\end{lemma}
-
 \jc{idk if it's worthwhile to state all of the inversion, injectivity, and head forms lemmmas here}
 
 \begin{theorem}[Type preservation]
@@ -791,10 +811,6 @@ Maybe just use the footnote just as the rule is being described in the text.}
 \begin{mathpar}
   \mprset{fraction={===}}
   \drule{Ps-subst}     % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
-  % not needed for the fundamental theorem but useful for examples
-  \drule{Wt-sub}       % \footnote{\suppl{theories}{preservation.v}{subsumption}}
-  \drule{Wt-subst}     % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
-  \drule{Wt-down} % \footnote{\suppl{theories}{preservation.v}{Wt\_IOk\_Downgrade}}
 \end{mathpar}
 
 \section{Notes}
