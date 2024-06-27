@@ -101,6 +101,8 @@
 \newcommand{\dcoi}{DCOI\@\xspace}
 \newcommand{\name}{DCOI$\omega$\@\xspace}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
+\newcommand{\ie}{\textit{ie}\@\xspace}
+\newcommand{\eg}{\textit{eg}\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
 \newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
@@ -543,14 +545,17 @@ and the context under which substitutions act can be weakened
 
 \subsection{Properties of grading, indistinguishability, and definitional equality}
 
-Well-gradedness and indistinguishability satisfy some standard properties,
-listed as admissible rules in \cref{fig:grading-lemmas} and \cref{fig:indist-lemmas},
-respectively.
-\Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
-\rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}
+The well-gradedness, indistinguishability, and definitional equality judgements
+satisfy some standard properties,
+listed as admissible rules in \cref{fig:grading-lemmas},
+\cref{fig:defeq-lemmas}, and \cref{fig:indist-lemmas}, respectively.
+\Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}},
+\rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}, and
+\rref*{E-weak}\footnote{\suppl{theories}{conv.}{conv\_renaming}}
 permit weakening the context.
-\rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
-\rref*{I-morph}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
+\rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}},
+\rref*{I-morph}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}, and
+\rref*{E-morph}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
 are morphing lemmas which demonstrate how substitutions from $[[F]]$ to $[[E]]$
 transform the context of the judgements from $[[F]]$ to $[[E]]$
 when the substitutions are applied to the terms.
@@ -609,35 +614,33 @@ A final key lemma of indistinguishability is the simulation property,
 which enforces that indistinguishable terms must reduce in lockstep.
 
 \begin{lemma}[Simulation]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation}}
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation\_star}}
   \label{lem:simulation}
-  If $[[E |- a0 == b0 @ l]]$ and $[[a0 => a1]]$,
-  then there exists some $[[b1]]$ such that $[[b0 => b1]]$
+  If $[[E |- a0 == b0 @ l]]$ and $[[a0 =>* a1]]$,
+  then there exists some $[[b1]]$ such that $[[b0 =>* b1]]$
   and $[[E |- a1 == b1 @ l]]$.
 \end{lemma}
 
 \begin{figure}[h]
   \mprset{fraction={===}}
-  \drule{E-weak}  % \footnote{\suppl{theories}{conv.}{conv\_renaming}}
-  \drule{E-morph} % \footnote{\suppl{theories}{conv.v}{conv\_subst}}
-  \drule{E-pres}  % \footnote{\suppl{theories}{conv.v}{iconv_par2}}
+  \drule{E-weak}
+  \drule{E-morph}
+  \drule{E-pres}
   \\
-  \drule{E-refl}  % \footnote{\suppl{theories}{conv.v}{conv\_refl}}
-  \drule{E-sym}   % \footnote{\suppl{theories}{conv.v}{conv\_sym}}
-  \drule{E-trans} % \footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  \drule{E-refl}
+  \drule{E-sym}
+  \drule{E-trans}
   \vspace{0.5\baselineskip}
   \caption{Admissible rules for definitional equality}
   \label{fig:defeq-lemmas}
 \end{figure}
 
-\jc{TODO:
-\begin{itemize}
-  \item edit subsection beginning blurb to mention defeq incl. weakening + morphing
-  \item present preservation lemma along with confluence of parallel reduction
-  \item state that defeq is an equivalence relation,
-    and transitivity needs level heterogeneity and simulation
-\end{itemize}
-}
+An important consequence of simulation
+is that reduction of definitionally equal terms preserves definitional equality
+(\rref*{E-pres}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}).
+Because definitional equality is defined in \rref{E-Conv}
+as the indistinguishability of the two terms after parallel reduction,
+we require confluence of parallel reduction.
 
 \begin{lemma}[Confluence]
   \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
@@ -648,15 +651,67 @@ which enforces that indistinguishable terms must reduce in lockstep.
   $[[:concrete: c =>* d]]$.
 \end{lemma}
 
+As with indistinguishability,
+definitional equality is reflexive for well-graded terms
+(\rref*{E-refl}\footnote{\suppl{theories}{conv.v}{conv\_refl}}),
+symmetric (\rref*{E-sym}\footnote{\suppl{theories}{conv.v}{conv\_sym}}),
+and transitive (\rref*{E-trans}\footnote{\suppl{theories}{conv.v}{conv\_trans}}).
+Inverting the premises of transitivity,
+each of them independently have some level at which two terms are indistinguishable,
+so combining them requires the more general transitivity of \rref*{I-trans}.
+The proof also relies on simulation.
+
+Finally, we will need some inversion lemmas for definitional equality on our types
+(\ie injectivity of type constructors).
+
+\begin{lemma}[Injectivity of function types]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_pi\_inj}}
+  If $[[E |- Pi x : l0 A0 . B0 == Pi x : l1 A1 . B1]]$
+  then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
+  and $[[E ++ x : l0 |- B0 == B1]]$.
+\end{lemma}
+
+\begin{lemma}[Injectivity of pair types]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_sig\_inj}}
+  If $[[E |- Sig x : l0 A0 . B0 == Sig x : l1 A1 . B1]]$
+  then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
+  and $[[E ++ x : l0 |- B0 == B1]]$.
+\end{lemma}
+
+\begin{lemma}[Injectivity of equality types]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_eq\_inj}}
+  If $[[E |- a0 ~ l0 b0 : A0 == a1 ~ l1 b1 : A1]]$
+  then $[[l0]] = [[l1]]$,
+  and there exists an $[[l >= l0]]$
+  such that $[[E |- a0 == a1 @ l]]$ and $[[E |- b0 == b1 @ l]]$.
+\end{lemma}
+
+\begin{lemma}[Injectivity of universes]
+  If $[[E |- Univ i == Univ j]]$ then $[[i]] = [[j]]$.
+\end{lemma}
+
 \subsection{Type preservation}
 
 \jc{TODO: substitution well-typedness}
 
-\drule{Wt-sub}   % \footnote{\suppl{theories}{preservation.v}{subsumption}}
-\drule{Wt-weak}  % \footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}
-\drule{Wt-subst} % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \drule{Wt-weak}    % \footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}
+  \drule{Wt-subst}   % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
+  \drule{Wt-sub}     % \footnote{\suppl{theories}{preservation.v}{subsumption}}
+  \drule{Wt-replace} % \footnote{\suppl{theories}{preservation.v}{preservation\_helper}}
+  \vspace{0.5\baselineskip}
+  \caption{Admissible rules for well-typedness}
+  \label{fig:typing-lemmas}
+\end{figure}
 
-\jc{TODO: morphing, regularity, replacement}
+\jc{TODO: morphing}
+
+\begin{lemma}[Regularity]
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_regularity}}
+  If $[[G |- a : l A]]$ then there exist some $[[l0]], [[i]]$
+  such that $[[G |- A : l0 Univ i]]$.
+\end{lemma}
 
 \begin{theorem}[Type preservation]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction}}

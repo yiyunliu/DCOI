@@ -102,6 +102,9 @@ formula :: 'formula_' ::=
   | l1 < l2 :: :: lt
     {{ coq [[l1]] < [[l2]] }}
     {{ tex [[l1]] < [[l2]] }}
+  | l1 >= l2 :: :: ge
+    {{ coq [[l2]] <= [[l1]] }}
+    {{ tex [[l1]] \ge [[l2]] }}
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Admissible rules %%
@@ -261,6 +264,12 @@ G |- a : l0 A
 ------------------- :: down
 G |- a : l0 /\ l1 A
 
+G ++ x : l0 A0 |- b : l B
+G |- A1 : l1 Univ i
+| G | |- A0 == A1
+------------------------- :: replace
+G ++ x : l0 A1 |- b : l B
+
 defns
   IOk :: '' ::=
 
@@ -339,3 +348,21 @@ F |- (rho0 ++ { a0 / x }) == (rho1 ++ { a1 / x }) : (E ++ x : l0) @ l
 F |- rho0 == rho1 : E @ l
 ----------------------------------- :: weak
 F ++ x : l0 |- rho0 == rho1 : E @ l
+
+defns
+  Wt_Subst :: '' ::=
+
+defn
+  D |- rho : G :: :: ST :: 'ST_'
+  {{ com substitution well-typedness }}
+by
+
+D |- rho : G
+D |- A {rho} : l Univ i
+---------------------------------------- :: cons
+D ++ x : l A {rho} |- rho : G ++ x : l A
+
+D |- rho : G
+D |- A {rho} : l0 Univ i
+----------------------------- :: weak
+D ++ x : l A {rho} |- rho : G
