@@ -704,10 +704,18 @@ which enforces that indistinguishable terms must reduce in lockstep.
 \end{figure}
 
 In this section, we use a logical predicate (Figure~\ref{fig:logpred}) to show weak
-normalization and consistency for \name. % Our proof technique is
-% is similar to proofs by logical relation for predicative dependent
-% type theory found in \citet{abel:irrelevance} and
-% \citet{adjedj:mltt-coq}.
+normalization and consistency for \name.
+We structure the section as follows. In Section~\ref{sec:logpred}, we
+present the definition of the logical predicate and its properties. In
+Section~\ref{sec:soundness}, we define valid substitutions and
+semantic typing judgments based on the logical predicate and then
+prove the fundamental theorem, which states that all syntactically
+well-typed terms must be semantically well-typed, from which we derive
+weak normalization and consistency. In Section~\ref{sec:decconv}, we combine
+weak normalization and the factorization theorem to recover a decidable
+type conversion algorithm.
+\subsection{A logical predicate for \name}
+\label{sec:logpred}
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
 $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, as an inductive relation
@@ -855,6 +863,7 @@ Next, we prove that the logical predicate is functional. That is,
 given a context $[[E]]$ and a universe level $[[i]]$, a type $[[A]]$
 can correspond to at most one interpretation $[[S]]$.
 \begin{lemma}[Functionality]
+\label{lemma:lrfunc}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$ and
 $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
 \end{lemma}
@@ -865,9 +874,53 @@ $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
   For all other cases, the conclusion
   follows by applying the inversion
   properties (Lemma~\ref{lemma:interpinv}) on
-  $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$. 
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$.
 \end{proof}
 
+The logical relation is functional not only for types that are
+syntactically equal, but also for types that are
+indistinguishable. This property is needed to fully justify the
+soundness of the type conversion rule since the type conversion
+involves both reduction and indistinguishability.
+\begin{lemma}[Functionality for indistinguishable types]
+\label{lemma:lrfunc}
+If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
+$\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
+$[[E |- A == B @ l ]]$ for some $[[l]]$,
+then $S_0 = S_1$.
+\end{lemma}
+\begin{proof}
+  The argument is similar to the one for Lemma~\ref{lemma:lrfunc}.
+  We start by induction over the derivation of
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
+  For case \texttt{SWt-Step}, we need both Lemma~\ref{lemma:lrpreservation}
+  and the simulation property for indistinguishability
+  (Lemma~\ref{lem:simulation}).
+  For other cases, we apply the inversion properties on
+  $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$.
+
+  The function and sigma cases both require one extra step to complete the
+  proof. Consider the case where $[[A]] = [[Pi x : l0 A0 . B0]]$ and
+  $[[B]] = [[Pi x : l0 A1 . B1]]$. The
+  induction hypothesis says that for every term $[[a]]$ that
+  semantically inhabits $[[A0]]$, if a type $[[C]]$ is
+  indistinguishable from $[[B0 {a / x}]]$, then $[[C]]$ and $[[B0 {a /
+  x}]]$ have the same meaning. To complete the proof, we need to
+  leverage the induction hypothesis by instantiating the variable
+  $[[C]]$ with the type $[[B1 { a / x}]]$ and prove that $[[B0 {a /
+    x}]]$ is indistinguishable from $[[B1 {a / x}]]$.  From the
+  premise that $[[Pi x : l0 A0 . B0]]$ and $[[Pi x : l0 A1 . B1]]$ are
+  indistinguishable, we already know that $[[B0]]$ and $[[B1]]$ are
+  indistinguishable.
+
+  To prove that $[[B0 {a / x}]]$ and $[[B1 {a / x}]]$ are
+  indistinguishable, we want to apply
+  the substitution rule for indistinguishability
+  (\rref{I-subst}), which requires $[[a]]$ to be well-graded at $[[l0]]$.
+  By Lemma~\ref{lemma:escape}, the escape property, we finish the
+  proof by deducing the well-gradedness of $[[a]]$ from the fact that
+  $[[a]]$ semantically inhabits the input type $[[A0]]$.
+\end{proof}
 
 \subsection{Soundness}
 \label{sec:soundness}
@@ -879,6 +932,7 @@ $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
 \end{itemize}
 
 \subsection{Decidability of type conversion}
+\label{sec:decconv}
 
 
 \section{Discussion}
