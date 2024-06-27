@@ -656,13 +656,13 @@ which enforces that indistinguishable terms must reduce in lockstep.
   \centering
 \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical Predicate)}
 \begin{mathpar}
-  \infer[SWt-Ne]{
+  \infer[\ottdrulename{SWt\_Ne}]{
     [[ne A]]
   }{
     \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
   }
   \and
-  \infer[SWt-Pi]{
+  \infer[\ottdrulename{SWt\_Pi}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
     \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
     \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
@@ -670,7 +670,7 @@ which enforces that indistinguishable terms must reduce in lockstep.
     \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}}
   }
   \and
-  \infer[SWt-Sigma]{
+  \infer[\ottdrulename{SWt\_Sigma}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
     \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
     \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
@@ -678,21 +678,21 @@ which enforces that indistinguishable terms must reduce in lockstep.
     \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace([[c]], [[l]], [[l0]], S_A, R) \vee [[wne c]])}}
   }
   \and
-  \infer[SWt-Univ]{
+  \infer[\ottdrulename{SWt\_Univ}]{
     j < i
   }{
     \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \univspace{j}([[E]], [[A]])}}
   }
   \and
-  \infer[SWt-Empty]{~}{
+  \infer[\ottdrulename{SWt\_Empty}]{~}{
     \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
   }
   \and
-  \infer[SWt-Eq]{~}{
+  \infer[\ottdrulename{SWt\_Eq}]{~}{
     \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
   }
   \and
-  \infer[SWt-Step]{
+  \infer[\ottdrulename{SWt\_Step}]{
     [[A => B]] \\
     \interp{[[E]]}{[[i]]}{[[B]]}{S}
   }{
@@ -719,7 +719,7 @@ type conversion algorithm.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
 $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, as an inductive relation
-recursively defined over the the universe level $[[i]]$. The
+recursively defined over the universe level $[[i]]$. The
 metavariable $S$ represents a family of terms indexed by levels. 
 We use the notation $\member{a}{[[l]]}{S}$ to indicate that $[[a]]$ is
 a term that belongs to the set in $[[S]]$ that is indexed by $[[l]]$.
@@ -745,10 +745,10 @@ introduced by the partiality of the logical predicate.
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{a}{[[l]]}{S}$.
 \end{definition}
 
-In rules \texttt{SWt-Pi} and \texttt{SWt-Sigma}, the
+In \rref{SWt-Pi,SWt-Sigma}, the
 metavariable $R$ represents a relation between lambda terms and the
 indexed family of terms $S$. Ignoring the conclusion of the rules, 
-\texttt{SWt-Pi} and \texttt{SWt-Sigma} share the same preconditions,
+\rref*{SWt-Pi} and \rref*{SWt-Sigma} share the same preconditions,
 which ensure their well-formedness in the following sense:
 for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
 level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed. This
@@ -771,7 +771,7 @@ induction over the logical predicate.
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{[[a]]}{[[l]]}{S}$,
   then $[[E |- a : l]]$.
 \end{lemma}
-We refer to Lemma~\ref{lemma:escape} as the escape lemma as it is
+We refer to \cref{lemma:escape} as the escape lemma as it is
 reminiscent of the escape lemmas found in \citet{abel:irrelevance,
 adjedj:mltt-coq}, though instead of escaping from the
 logical predicate to the syntactic typing judgment, we only require
@@ -787,9 +787,9 @@ types have the same meaning.
 % conversion rule.
 
 Next, we show some properties which will be useful in
-Section~\ref{sec:soundness} for the proof of the fundamental
+\cref{sec:soundness} for the proof of the fundamental
 theorem. We omit some uses of the syntactic lemmas from
-Section~\ref{sec:synmeta} about reduction and indistinguishability
+\cref{sec:synmeta} about reduction and indistinguishability
 when presenting the proof sketches.
 % The logical predicate is specified as an inductive relation, but we
 % can further show that it is in fact a partial function; that is, given
@@ -797,12 +797,12 @@ when presenting the proof sketches.
 % one unique interpretation $[[S]]$ if there exists one. We establish
 % this fact through the following sequence of lemmas, all of which can
 % be derived by straightforward interpretation and syntactic results
-% about reduction derived in Section~\ref{sec:synmeta}.
+% about reduction derived in \cref{sec:synmeta}.
 
 The logical predicate satisfies the following inversion principles. 
-These inversion principles are not immediately obtainble by inverting
+These inversion principles are not immediately obtainable by inverting
 the derivation because we close our interpretation with full
-reduction in \texttt{SWt-Step}. For brevity, we only show the cases
+reduction in \rref{SWt-Step}. For brevity, we only show the cases
 for equality, function, and empty types.
 \begin{lemma}[Inversion of the logical predicate (selected)]
   \label{lemma:interpinv}\leavevmode
@@ -841,7 +841,7 @@ interpretation at a higher level.
   By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and the transitivity of $\leq$.
 \end{proof}
 
-Rule \texttt{SWt-Step} closes the interpretation of types under
+\Rref{SWt-Step} closes the interpretation of types under
 expansion. We can also show that the meaning of types is
 preserved under forward reduction through the following lemma.
 \begin{lemma}[Reduction preserves meaning]
@@ -852,7 +852,7 @@ preserved under forward reduction through the following lemma.
 \begin{proof}
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
-  Rule \texttt{SWt-Step} is the only interesting case, where we
+  \Rref{SWt-Step} is the only interesting case, where we
   leverage the diamond property \todo{add the diamond property} of
   parallel reduction to reconcile two potentially distinct reductions
   from the type $[[A]]$.
@@ -870,10 +870,10 @@ $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
 \begin{proof}
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
-  The \texttt{SWt-Step} case is immediate by Lemma~\ref{lemma:lrpreservation}.
+  The \rref*{SWt-Step} case is immediate by \cref{lemma:lrpreservation}.
   For all other cases, the conclusion
   follows by applying the inversion
-  properties (Lemma~\ref{lemma:interpinv}) on
+  properties (\cref{lemma:interpinv}) on
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$.
 \end{proof}
 
@@ -1119,14 +1119,14 @@ The modified premises are highlighted in \hlcolor{} below.
 %
 \begin{mathpar}
   \setlength{\fboxsep}{1.5pt}
-  \infer[I-J-bad]{
+  \infer[\ottdrulename{I\_J\_bad}]{
     \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l0]]} \\
     [[E |- c0 == c1 @ l]]
   }{
     [[E |- J c0 l0 p0 == J c1 l0 p1 @ l]]
   }
   \and
-  \infer[I-Let-bad]{
+  \infer[\ottdrulename{I\_Let\_bad}]{
     \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l1]]} \\
     [[(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l]]
   }{
@@ -1226,7 +1226,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 \begin{mathpar}
   \mprset{fraction={===}}
   % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_nopf}}
-  \infer[SWt-Pi-alt]{
+  \infer[\ottdrulename{SWt\_Pi\_alt}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
     \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
   }{
@@ -1234,7 +1234,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
   \and
   % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Sig\_nopf}}
-  \infer[SWt-Sigma-alt]{
+  \infer[\ottdrulename{SWt\_Sigma\_alt}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
     \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
   }{
@@ -1242,7 +1242,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
   \and
   % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_cumulative}}
-  \infer[SWt-cumul]{
+  \infer[\ottdrulename{SWt\_cumul}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
     [[i <= j]]
   }{
@@ -1250,7 +1250,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
   \and
   % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation\_star}}
-  \infer[SWt-fwd]{
+  \infer[\ottdrulename{SWt\_fwd}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
     [[A =>* B]]
   }{
@@ -1258,7 +1258,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
   \and
   % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_preservation\_star}}
-  \infer[SWt-bwd]{
+  \infer[\ottdrulename{SWt\_bwd}]{
     \interp{[[E]]}{[[i]]}{[[B]]}{S} \\
     [[A =>* B]]
   }{
@@ -1266,7 +1266,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
   \and
   % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
-  \infer[SWt-I]{
+  \infer[\ottdrulename{SWt\_I}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
     [[E |- A == B @ l]]
   }{
@@ -1274,7 +1274,7 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   }
   \and
   % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Conv}}
-  \infer[SWt-E]{
+  \infer[\ottdrulename{SWt\_E}]{
     \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
     [[E |- A == B]]
   }{
@@ -1350,9 +1350,9 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 \end{definition}
 
 \begin{mathpar}
-  \infer[SWf-nil]{~}{\swf{[[nil]]}}
+  \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}}
   \and
-  \infer[SWf-cons]{
+  \infer[\ottdrulename{SWf\_cons}]{
     \swf{[[G]]} \\
     \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}
   }{
