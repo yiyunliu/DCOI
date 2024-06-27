@@ -431,7 +431,7 @@ Module geq_facts
     case => //= <- //.
   Qed.
 
-  Lemma iok_ren_ok_suc ρ Ξ Δ (h : iok_ren_ok ρ Ξ Δ) :
+  Lemma iok_ren_ok_up ρ Ξ Δ (h : iok_ren_ok ρ Ξ Δ) :
     forall ℓ0, iok_ren_ok (upRen_tm_tm ρ) (ℓ0 :: Ξ) (ℓ0 :: Δ).
   Proof.
     move => ℓ0.
@@ -445,29 +445,34 @@ Module geq_facts
            IOk Δ ℓ a⟨ρ⟩.
   Proof.
     elim : Ξ ℓ a / h;
-      qauto l:on ctrs:IOk use:IO_Let use:iok_ren_ok_suc, iok_subsumption unfold:elookup, iok_ren_ok.
+      qauto l:on ctrs:IOk use:IO_Let use:iok_ren_ok_up, iok_subsumption unfold:elookup, iok_ren_ok.
   Qed.
 
   Lemma iok_subst_ok_suc ρ Ξ Δ (h : iok_subst_ok ρ Ξ Δ) :
+    forall ℓ0, iok_subst_ok (ρ >> ren_tm S) Ξ (ℓ0 :: Δ).
+  Proof.
+    move => ℓ0.
+    rewrite /iok_subst_ok => i ℓ /h.
+    asimpl => hiok.
+    apply : iok_renaming; eauto.
+    hauto lq:on rew:off unfold:iok_ren_ok solve+:solve_lattice.
+  Qed.
+
+  Lemma iok_subst_ok_up ρ Ξ Δ (h : iok_subst_ok ρ Ξ Δ) :
     forall ℓ0, iok_subst_ok (up_tm_tm ρ) (ℓ0 :: Ξ) (ℓ0 :: Δ).
   Proof.
     move => ℓ0.
-    rewrite /iok_subst_ok.
-    case=>//=.
-    - move => _ [<-].
-      apply : IO_Var.
-      rewrite /elookup //=.
-      by rewrite meet_idempotent.
-    - move => n ℓ ?.
-      asimpl. apply : iok_renaming; eauto.
-      hauto lq:on rew:off unfold:iok_ren_ok solve+:solve_lattice.
+    apply iok_subst_cons.
+    apply iok_subst_ok_suc; auto.
+    apply : IO_Var; auto using meet_idempotent.
+    rewrite /elookup //=.
   Qed.
 
   Lemma iok_morphing Ξ ℓ a (h : IOk Ξ ℓ a) :
     forall Δ ρ, iok_subst_ok ρ Ξ Δ  ->
            IOk Δ ℓ a[ρ].
   Proof.
-    elim : Ξ ℓ a / h; qauto l:on ctrs:IOk use:iok_subst_ok_suc, iok_subsumption unfold:iok_subst_ok, elookup.
+    elim : Ξ ℓ a / h; qauto l:on ctrs:IOk use:iok_subst_ok_up, iok_subsumption unfold:iok_subst_ok, elookup.
   Qed.
 
   Lemma iok_subst Ξ ℓ ℓ0 a b (h : IOk Ξ ℓ0 a)
