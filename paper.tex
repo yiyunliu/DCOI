@@ -639,6 +639,15 @@ which enforces that indistinguishable terms must reduce in lockstep.
 \end{itemize}
 }
 
+\begin{lemma}[Confluence]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
+  \label{lem:confluence}
+  If $[[a =>* b]]$ and $[[a =>* c]]$,
+  then there exists a term $d$ such that
+  $[[:concrete: b =>* d]]$ and
+  $[[:concrete: c =>* d]]$.
+\end{lemma}
+
 \subsection{Type preservation}
 
 \jc{TODO: substitution well-typedness}
@@ -648,6 +657,12 @@ which enforces that indistinguishable terms must reduce in lockstep.
 \drule{Wt-subst} % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
 
 \jc{TODO: morphing, regularity, replacement}
+
+\begin{theorem}[Type preservation]
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction}}
+  If $[[a => b]]$ and $[[G |- a : l A]]$
+  then $[[G |- b : l A]]$.
+\end{theorem}
 
 \section{Semantic metatheory}
 \label{sec:semmeta}
@@ -1010,99 +1025,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
       & vcons n x xs => \ H p . x) H refl]]
 \end{align*}
 
-\section{Lemmas}
-
-\begin{lemma}[Irreducibility of neutral and normal forms]
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
-  \label{lem:irred-ne-nf}
-  Suppose $[[a => b]]$.
-  If $[[ne a]]$ or $[[nf a]]$, then $[[b]] = [[a]]$.
-\end{lemma}
-
-\jc{not sure how to state all of the antirenaming lemmas here
-or whether they're important enough to be stated}
-
-\begin{lemma}[Confluence]
-  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
-  \label{lem:confluence}
-  If $[[a =>* b]]$ and $[[a =>* c]]$,
-  then there exists a term $d$ such that
-  $[[:concrete: b =>* d]]$ and
-  $[[:concrete: c =>* d]]$.
-\end{lemma}
-
-\jc{idk if it's worthwhile to state all of the inversion, injectivity, and head forms lemmmas here}
-
-\begin{theorem}[Type preservation]
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction}}
-  If $[[a => b]]$ and $[[G |- a : l A]]$
-  then $[[G |- b : l A]]$.
-\end{theorem}
-
-\iffalse
-\begin{lemma}[Transitivity of indistinguishability]
-  \stack{.~}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}
-  If $[[E |- a == b @ l0]]$ and $[[E |- b == c @ l1]]$,
-  then $[[E |- a == c @ l0 /\ l1]]$
-\end{lemma}
-
-\begin{lemma}[Congruence of indistinguishability]
-  \stack{.~}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}
-  Suppose $[[E |- b0 == b1 @ l l0]]$.
-  If $[[E ++ x : l0 |- a0 == a1 @ l]]$,
-  then $[[E |- a0 { b0 / x } == a1 { b1 / x } @ l]]$;
-  and if $[[E ++ x : l0 |- a0 == a1 @ l l1]]$,
-  then $[[E |- a0 { b0 / x } == a1 { b1 / x } @ l l1]]$.
-\end{lemma}
-
-\begin{lemma}[Preservation of definitional equality]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}
-  If $[[E |- a0 == b0]]$, $[[a0 => a1]]$, and $[[b0 => b1]]$,
-  then $[[E |- a1 == b1]]$.
-\end{lemma}
-
-\begin{lemma}[Transitivity of definitional equality]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
-  If $[[E |- a == b]]$ and $[[E |- b == c]]$,
-  then $[[E |- a == c]]$.
-\end{lemma}
-
-\begin{lemma}[Substitutivity of definitional equality]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
-  If $[[E ++ x : l |- a0 == a1]]$ and $[[E |- b : l]]$,
-  then $[[E |- a0 { b / x } == a1 { b / x }]]$.
-\end{lemma}
-
-\begin{lemma}[Subsumption]
-  \stack{.~}{\footnote{\jc{I couldn't find the lemma for this one?}}}
-  If $[[G |- a : l0 A]]$ and $[[l0 <= l1]]$,
-  then $[[G |- a : l1 A]]$.
-\end{lemma}
-
-\begin{lemma}[Well-gradedness of well-typed terms]
-  \stack{.~}\footnote{\suppl{theories}{typing\_conv.v}{typing\_iok}}
-  If $[[G |- a : l A]]$, then $[[| G | |- a : l]]$.
-\end{lemma}
-
-\begin{lemma}[Reflexive equality of well-typed terms]
-  \stack{.~}\footnote{\suppl{theories}{typing\_conv.v}{typing\_conv}}
-  If $[[G |- a : l A]]$, then $[[| G | |- a == a]]$.
-\end{lemma}
-\fi
-
-\section{Admissible rules}
-
-\jc{It may be more compact to explain some lemmas as admissible rules.
-I've commented out the lemmas above that can be formulated as such rules,
-but we can go back to the lemma presentation if it's clearer.
-One problem is that I haven't figured out how to include footnotes along with the rules.
-Maybe just use the footnote just as the rule is being described in the text.}
-
-\begin{mathpar}
-  \mprset{fraction={===}}
-  \drule{Ps-subst}     % \footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}}
-\end{mathpar}
-
 \section{Notes}
 
 The level of the scrutinee must be bounded by the level of the overall eliminator.
@@ -1162,6 +1084,13 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
 \drules[W]{$[[wne a]]$}{Weak neutral forms}{ne}
 \drules[W]{$[[wnf a]]$}{Weak normal forms}{nf}
+
+\begin{lemma}[Irreducibility of neutral and normal forms]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
+  \label{lem:irred-ne-nf}
+  Suppose $[[a => b]]$.
+  If $[[ne a]]$ or $[[nf a]]$, then $[[b]] = [[a]]$.
+\end{lemma}
 
 \section{Semantics}
 
