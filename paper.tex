@@ -731,6 +731,39 @@ weak normalization and the factorization theorem to recover a decidable
 type conversion algorithm.
 \subsection{A logical predicate for \name}
 \label{sec:logpred}
+Before we can define the logical predicate, we need to first define
+the notion of neutral and normal terms so we can characterize
+semantically well-behaved terms.
+% Before we can state and prove the adequacy property for the
+% logical predicate, we need to first define normal and neutarl forms
+% and prove some useful lemmas about how they interact with parallel
+% reduction.
+
+\begin{figure}[h]
+  \centering
+  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
+  \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
+  \caption{Neutral and normal forms}
+  \label{fig:normalform}
+\end{figure}
+Figure~\ref{fig:normalform} defines neutral and normal forms in the
+form of two judgments $[[ne a]]$ and $[[nf a]]$. These predicates
+characterize a set of terms that are free of redexes. This property
+can be formulated using parallel reduction as follows.
+\begin{lemma}
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
+  If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
+  b]]$, we have $[[a]] = [[b]]$.
+\end{lemma}
+
+\begin{definition}[Terms that are weakly normalizing]
+  Given a term $[[a]]$, if there exists some term $[[b]]$ such that
+  $[[a =>* b]]$, then we say that $[[a]]$ weakly normalizes to a
+  normal (resp. neutral) form, which we denote in judgment form as
+  $[[wnf a]]$ (resp. $[[wne a]]$).
+\end{definition}
+
+We are now ready to give the definition of our logical relation.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
 $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, as an inductive relation
@@ -782,11 +815,11 @@ This property is
 formally stated as follows and can be proven by straightforward
 induction over the logical predicate.
 \begin{lemma}[Escape]
-  \label{lemma:escape}
+  \label{lem:escape}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{[[a]]}{[[l]]}{S}$,
   then $[[E |- a : l]]$.
 \end{lemma}
-We refer to \cref{lemma:escape} as the escape lemma as it is
+We refer to \cref{lem:escape} as the escape lemma as it is
 reminiscent of the escape lemmas found in \citet{abel:irrelevance,
 adjedj:mltt-coq}, though instead of escaping from the
 logical predicate to the syntactic typing judgment, we only require
@@ -820,7 +853,7 @@ the derivation because we close our interpretation with full
 reduction in \rref{SWt-Step}. For brevity, we only show the cases
 for equality, function, and empty types.
 \begin{lemma}[Inversion of the logical predicate (selected)]
-  \label{lemma:interpinv}\leavevmode
+  \label{lem:interpinv}\leavevmode
   \begin{enumerate}
   \item If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{S}$, then $S =
     \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]],
@@ -845,6 +878,21 @@ for equality, function, and empty types.
   predicate.
 \end{proof}
 
+The set of terms that semantically inhabit a type are closed by
+expansion (i.e. backward reduction).
+\begin{lemma}[Backward closure]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos}}
+  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[E |- a : l]]$.
+  If $[[a => b]]$ and $\member{[[b]]}{[[l]]}{S}$,
+  then $\member{[[a]]}{[[l]]}{S}$.
+\end{lemma}
+\begin{proof}
+  By induction over the derivation of the logical predicate. The
+  \texttt{SWt-Univ} case requires \texttt{SWt-Step}, the backward
+  closure property baked into the definition of the logical
+  predicate. All other cases are trivial.
+\end{proof}
+
 The logical predicate satisfies cumulativity; if a type has an
 interpretation at a lower level, then it must also have the same
 interpretation at a higher level.
@@ -860,7 +908,7 @@ interpretation at a higher level.
 expansion. We can also show that the meaning of types is
 preserved under forward reduction through the following lemma.
 \begin{lemma}[Reduction preserves meaning]
-\label{lemma:lrpreservation}
+\label{lem:lrpreservation}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[A => B]]$, then
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
 \end{lemma}
@@ -878,17 +926,17 @@ Next, we prove that the logical predicate is functional. That is,
 given a context $[[E]]$ and a universe level $[[i]]$, a type $[[A]]$
 can correspond to at most one interpretation $[[S]]$.
 \begin{lemma}[Functionality]
-\label{lemma:lrfunc}
+\label{lem:lrfunc}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$ and
 $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
 \end{lemma}
 \begin{proof}
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
-  The \rref*{SWt-Step} case is immediate by \cref{lemma:lrpreservation}.
+  The \rref*{SWt-Step} case is immediate by \cref{lem:lrpreservation}.
   For all other cases, the conclusion
   follows by applying the inversion
-  properties (\cref{lemma:interpinv}) on
+  properties (\cref{lem:interpinv}) on
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$.
 \end{proof}
 
@@ -898,17 +946,17 @@ indistinguishable. This property is needed to fully justify the
 soundness of the type conversion rule since the type conversion
 involves both reduction and indistinguishability.
 \begin{lemma}[Functionality for indistinguishable types]
-\label{lemma:lrfunc}
+\label{lem:lrfunc}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
 $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
 $[[E |- A == B @ l ]]$ for some $[[l]]$,
 then $S_0 = S_1$.
 \end{lemma}
 \begin{proof}
-  The argument is similar to the one for Lemma~\ref{lemma:lrfunc}.
+  The argument is similar to the one for Lemma~\ref{lem:lrfunc}.
   We start by induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
-  For case \texttt{SWt-Step}, we need both Lemma~\ref{lemma:lrpreservation}
+  For case \texttt{SWt-Step}, we need both Lemma~\ref{lem:lrpreservation}
   and the simulation property for indistinguishability
   (Lemma~\ref{lem:simulation}).
   For other cases, we apply the inversion properties on
@@ -932,17 +980,47 @@ then $S_0 = S_1$.
   indistinguishable, we want to apply
   the substitution rule for indistinguishability
   (\rref{I-subst}), which requires $[[a]]$ to be well-graded at $[[l0]]$.
-  By Lemma~\ref{lemma:escape}, the escape property, we finish the
+  By Lemma~\ref{lem:escape}, the escape property, we finish the
   proof by deducing the well-gradedness of $[[a]]$ from the fact that
   $[[a]]$ semantically inhabits the input type $[[A0]]$.
 \end{proof}
 
-Before we state and prove the adequacy property for the
-logical predicate, we first prove some useful lemmas 
-about normal forms and reduction.
+The last main property we discuss in this section is the adequacy
+property, which establishes the connection between the inhabitants of
+the logical predicate and terms that weakly normalizes to normal or
+neutral forms.
+
+\begin{figure}[h]
+  \centering
+  % \begin{tabular}{c}
+    \drule{P-D} \qquad \drule{Wg-D} \qquad \drule{I-D} \qquad \drule{Ne-D}
+  % \end{tabular}
+  
+  \caption{Extended rules for the dummy constant $[[d]]$}
+  \label{fig:dummy}
+\end{figure}
+
+Before we state and prove adequacy, we first show some
+useful facts about normal forms. Following \citet{geuvers:cc-sn}, we
+introduce a dummy constant $[[dummy]]$ to the set of untyped lambda
+terms for presentation purposes. The dummy term satisfies the rules
+specified in Figure~\ref{fig:dummy}.
+
+Reductions and normal forms are preserved when we undo the substitutions
+involving $[[dummy]]$.
+\begin{lemma}[Antirenaming for Par]
+  If $[[a {dummy / x} => b]]$, then there exists some term $[[b0]]$
+  such that $[[b]] = [[b0 {dummy / x}]]$ and $[[a => b0]]$.
+\end{lemma}
+\begin{lemma}[Antirenaming for normal and neutral forms]
+  If $[[nf a {dummy / x}]]$ (resp. $[[ne a {dummy / x}]]$), then $[[nf
+  a]]$ (resp. $[[ne a]]$).
+\end{lemma}
+
+
 
 \begin{lemma}[Adequacy]
-  \label{lemma:adequacy}
+  \label{lem:adequacy}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then the following holds:
   \begin{itemize}
   \item If $\member{a}{[[l]]}{S}$, then $[[wnf a]]$
@@ -1080,10 +1158,6 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pair,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
-\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
-\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
-\drules[W]{$[[wne a]]$}{Weak neutral forms}{ne}
-\drules[W]{$[[wnf a]]$}{Weak normal forms}{nf}
 
 \begin{lemma}[Irreducibility of neutral and normal forms]
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}

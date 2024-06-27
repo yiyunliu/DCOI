@@ -132,6 +132,8 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
     {{ com double substitution }}
     {{ coq (open_tm_wrt_tm [[y]] (open_tm_wrt_tm [[x]] [[a]] [[b]]) [[c]]) }}
     {{ tex [[a]] \lbrack [[b]] / [[x]], [[c]] / [[y]] \rbrack }}
+  | dummy :: ::  Dummy
+    {{ tex \ottkw{d} }}
 
 context, G {{ tex \Gamma }}, D {{ tex \Delta }} :: 'ctx_' ::=
   {{ com contexts }}
@@ -330,6 +332,9 @@ b0 => b1
 -------------------------------------------------------- :: Let
 let (l0 x, y) = l a0 in b0 => let (l0 x, y) = l a1 in b1
 
+---------------------- :: D
+dummy => dummy
+
 defns
   Parallels :: '' ::=
 
@@ -421,6 +426,10 @@ E |- a0 == a1 @ l
 l1 <= l
 ------------------------------------------------------------------- :: Let
 E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l
+
+
+---------------------- :: D
+E |- dummy == dummy @ l
 
 defn
   E |- a == b @ l l0 :: :: GIEq :: 'GI_'
@@ -648,6 +657,9 @@ l1 <= l
 ------------------------------------ :: Let
 E |- let (l0 x, y) = l1 a in b : l
 
+------------------ :: D
+E |- dummy : l
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Neutral and normal forms %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -685,6 +697,10 @@ ne a
 nf b
 ------------------------------ :: Let
 ne let ( l0 x , y ) = l a in b
+
+
+------------------------------ :: D
+ne dummy
 
 defn
   nf a :: :: Nf :: 'Nf_'
