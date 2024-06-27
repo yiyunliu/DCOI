@@ -922,6 +922,23 @@ then $S_0 = S_1$.
   $[[a]]$ semantically inhabits the input type $[[A0]]$.
 \end{proof}
 
+Before we state and prove the adequacy property for the
+logical predicate, we first prove some useful lemmas 
+about normal forms and reduction.
+
+\begin{lemma}[Adequacy]
+  \label{lemma:adequacy}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then the following holds:
+  \begin{itemize}
+  \item If $\member{a}{[[l]]}{S}$, then $[[wnf a]]$
+  \item If $[[E |- a : l]]$ and $[[wne a]]$, then $\member{a}{[[l]]}{S}$
+  \item $[[wnf A]]$
+  \end{itemize}
+\end{lemma}
+\begin{proof}
+  By induction over the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+\end{proof}
+
 \subsection{Soundness}
 \label{sec:soundness}
 
