@@ -234,9 +234,20 @@ and $[[Unit]]$ as sugar for $[[l Void -> Void]]$}
 
 \jc{TODO: Mention implementation here}
 
-\begin{itemize}
-  \item absurd (safe head)
-\end{itemize}
+\begin{align*}
+  [[:concrete: Ifz & : H ! Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
+  [[:concrete: Ifz & := \ H n . \ H A . \ H B . phantom]] \\
+  & [[:concrete: case n return Univ 0 of
+      & Z => A ++
+      & S n => B]] \\
+  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n : ! Nat) -> A @ H]] \\
+  [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
+  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L (! Vec H A H n) -> A @ L]] \\
+  [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
+  & [[:concrete: (case v return \ H m . H (m ~ H ! S H n : ! Nat) -> A of
+      & vnil => \ H p . absurd (! discr H Void H n H p) ++
+      & vcons n x xs => \ H p . x) H refl]]
+\end{align*}
 
 \section{\name}
 
@@ -1655,8 +1666,6 @@ of conversion in \rref{Wt-Conv}.
 
 \subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
 
-\jc{Is this the right place to put this information?}
-
 The level of the scrutinee must be bounded by the level of the overall eliminator.
 In particular, in \rref{Wt-J}, the level $[[l]]$ of an equality proof $[[p]]$
 must be bounded by that of its elimination $[[J c l p]]$,
@@ -1706,6 +1715,10 @@ whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
 Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
 ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
+\subsection{Equality type level constraints}
+
+\jc{TODO: Section 5.2 from previous paper goes here}
+
 \section{Related work}
 
 \begin{itemize}
@@ -1742,34 +1755,12 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \appendix
 
-\section{Examples}
+\section{Omitted judgement rules}
 
-\begin{align*}
-  [[:concrete: Ifz & : H ! Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
-  [[:concrete: Ifz & := \ H n . \ H A . \ H B . phantom]] \\
-  & [[:concrete: case n return Univ 0 of
-      & Z => A ++
-      & S n => B]] \\
-  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n : ! Nat) -> A @ H]] \\
-  [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
-  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L (! Vec H A H n) -> A @ L]] \\
-  [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
-  & [[:concrete: (case v return \ H m . H (m ~ H ! S H n : ! Nat) -> A of
-      & vnil => \ H p . absurd (! discr H Void H n H p) ++
-      & vcons n x xs => \ H p . x) H refl]]
-\end{align*}
-
-\section{Rules}
+\subsection{Parallel reduction}
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pair,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
-
-\begin{lemma}[Irreducibility of neutral and normal forms]
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
-  \label{lem:irred-ne-nf}
-  Suppose $[[a => b]]$.
-  If $[[ne a]]$ or $[[nf a]]$, then $[[b]] = [[a]]$.
-\end{lemma}
 
 \section{Semantics}
 
