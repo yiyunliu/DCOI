@@ -45,6 +45,8 @@ grade, l {{ tex \ell }} :: 'l_' ::=
     {{ tex [[n]] }}
   | l0 /\ l1 :: :: Meet
     {{ tex [[l0]] \wedge [[l1]] }}
+  | l0 \/ l1 :: :: Join
+    {{ tex [[l0]] \vee [[l1]] }}
   | ( l ) :: S :: Parens
     {{ coq ([[l]]) }}
     {{ tex ([[l]]) }}
