@@ -462,29 +462,31 @@ Their corresponding mechanizations are annotated where mentioned in the prose.
 
 While we continue to used named variables rather than de Bruijn indices,
 to bring the presentation closer to the mechanization,
-in this section we frame substitution in terms of substitution maps and simultaneous substitutions.
+in this section we frame substitution in terms of \emph{substitution maps}
+(or simply \emph{substitutions} for short)
+and simultaneous substitutions.
 
 \begin{definition}[Substitution maps]
   A substitution map $\rho$ is a mapping from variables to terms.
   We use $\dom(\rho)$ to denote the variables in the domain of $\rho$,
   $\rho(x)$ the term to which $\rho$ maps $[[x]]$,
-  $[[nil]]$ the identity substitution,
+  $[[nil]]$ the identity substitution map,
   $[[(rho ++ { a / x })]]$ the extension of $[[rho]]$
   by a mapping from $[[x]]$ to $[[a]]$, and
   and $[[a { rho }]]$ the simultaneous substitution
   of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
 \end{definition}
 
-The singleton substitution $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
-the single extension of the identity substitution.
+The singleton substitution map $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
+the single extension of the identity substitution map.
 
 \subsection{Properties of parallel reduction}
 
-The notion of parallel reduction can be extended to substitutions
-pointwise on each term in the substitutions.
+The notion of parallel reduction can be extended to substitution maps
+pointwise on each term in the maps.
 
 \begin{definition}[Parallel reduction of substitutions]
-  A substitution $[[rho0]]$ parallel reduces to $[[rho1]]$,
+  A substitution map $[[rho0]]$ parallel reduces to $[[rho1]]$,
   written $[[rho0 => rho1]]$, if $[[rho0(x) => rho1(x)]]$ for every $[[x]]$.
   Similarly, $[[rho0 =>* rho1]]$ if $[[rho0(x) =>* rho1(x)]]$ for every $[[x]]$.
 \end{definition}
@@ -493,7 +495,7 @@ We then prove the morphing lemmas
 \rref*{P-morph}\footnote{\suppl{theories}{par.v}{Par\_morphing}} and
 \rref*{Ps-morph}\footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}},
 listed in \cref{fig:pars-lemmas},
-which combine a reducing term with a reducing substitution.
+which combine a reducing term with a reducing substitution map.
 The substitution lemma
 \rref*{P-morph}\footnote{\suppl{theories}{par.v}{Par\_cong}},
 which combines two reducing terms by substitution,
@@ -569,7 +571,7 @@ if the terms they substitute in are indistinguishable by that observer.
   written $[[E |- rho : F]]$,
   if for every $[[x : l in F]]$,
   $[[E |- rho(x) : l]]$ holds.
-  We also say that $[[rho]]$ is a substitution from $[[F]]$ to $[[E]]$.
+  We also say that $[[rho]]$ is a substitution map from $[[F]]$ to $[[E]]$.
 \end{definition}
 
 \begin{definition}[Substitution indistinguishability]
@@ -747,31 +749,73 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
 
 \subsection{Type preservation}
 
-\jc{TODO: substitution well-typedness}
+Analogously to well-gradedness of substitution maps,
+we also need a notion of their well-typedness,
+which describes a substitution map as a transformation from one typing context to another.
+
+\begin{definition}[Substitution well-typedness]
+  A substitution map $[[rho]]$ for a typing context $[[D]]$
+  under a typing context $[[G]]$ is well-typed,
+  written $[[G |- rho : D]]$,
+  if for every $[[x : l A in D]]$,
+  $[[G |- rho(x) : l A {rho}]]$ holds.
+  We also say that $[[rho]]$ is a substitution from $[[D]]$ to $[[G]]$.
+\end{definition}
 
 \begin{figure}[h]
   \mprset{fraction={===}}
-  \drule{Wt-weak}    % \footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}
-  \drule{Wt-subst}   % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
-  \drule{Wt-sub}     % \footnote{\suppl{theories}{preservation.v}{subsumption}}
-  \drule{Wt-replace} % \footnote{\suppl{theories}{preservation.v}{preservation\_helper}}
+  \drule{St-nil}
+  \drule{St-cons}
+  \drule{St-weak}
+  \vspace{0.5\baselineskip}
+  \caption{Admissible rules for well-typedness of substitutions}
+  \label{fig:subst-typing-lemmas}
+\end{figure}
+
+The judgement satisfies the same standard properties for identity substitutions
+(\rref*{St-nil}\footnote{\suppl{theories}{preservation.v}{good\_morphing\_nil}}),
+substitution extensions
+(\rref*{St-nil}\footnote{\suppl{theories}{preservation.v}{good\_morphing\_cons}}),
+and weakening
+(\rref*{St-nil}\footnote{\suppl{theories}{preservation.v}{good\_morphing\_suc}}),
+listed as admissible rules in \cref{fig:subst-typing-lemmas}.
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \drule[width=0.2\textwidth]{Wt-weak} % \footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}
+  \drule{Wt-morph} % \footnote{\suppl{theories}{preservation.v}{morphing\_Syn}}
+  \drule{Wt-subst} % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
+  \drule[width=0.2\textwidth]{Wt-sub} % \footnote{\suppl{theories}{preservation.v}{subsumption}}
+  % \drule{Wt-replace}
   \vspace{0.5\baselineskip}
   \caption{Admissible rules for well-typedness}
   \label{fig:typing-lemmas}
 \end{figure}
 
-\jc{TODO: morphing}
+\jc{TODO: blah blah}
+
+\begin{lemma}[Replacement]
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}
+  Suppose $[[G ++ x : l0 A0 |- b : l B]]$.
+  Given some $[[A1]]$ such that $[[G |- A1 : l1 Univ i]]$,
+  if $[[| G | |- A0 == A1]]$,
+  then $[[G ++ x : l0 A1 |- b : l B]]$.
+\end{lemma}
 
 \begin{lemma}[Regularity]
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_regularity}}
-  If $[[G |- a : l A]]$ then there exist some $[[l0]], [[i]]$
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Wff}, \suppl{theories}{preservation.v}{Wt\_regularity}}
+  If $[[G |- a : l A]]$, then $[[|- G]]$ holds,
+  and there exist some $[[l0]], [[i]]$
   such that $[[G |- A : l0 Univ i]]$.
 \end{lemma}
 
+\jc{TODO: inversion lemmas?}
+
 \begin{theorem}[Type preservation]
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction}}
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction},\suppl{theories}{preservation.v}{subject\_reduction\_star}}
   If $[[a => b]]$ and $[[G |- a : l A]]$
-  then $[[G |- b : l A]]$.
+  then $[[G |- b : l A]]$,
+  and similarly for $[[a =>* b]]$.
 \end{theorem}
 
 \section{Semantic metatheory}

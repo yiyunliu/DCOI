@@ -272,6 +272,12 @@ G |- A : Univ i
 ------------------------ :: weak
 G ++ x : l0 A |- a : l A
 
+D |- a : l A
+G |- rho : D
+|- G
+------------------------ :: morph
+G |- a {rho} : l A {rho}
+
 G |- a : l0 A
 G ++ x : l0 A |- b : l B
 -------------------------------- :: subst
@@ -389,14 +395,19 @@ defns
   Wt_Subst :: '' ::=
 
 defn
-  D |- rho : G :: :: ST :: 'ST_'
+  D |- rho : G :: :: St :: 'St_'
   {{ com substitution well-typedness }}
+  {{ tex [[D]] \vdash [[rho]] : [[G]] }}
 by
 
+|- G
+------------------- :: nil
+G |- nil : G
+
 D |- rho : G
-D |- A {rho} : l Univ i
----------------------------------------- :: cons
-D ++ x : l A {rho} |- rho : G ++ x : l A
+D |- a : l A {rho}
+-------------------------------------- :: cons
+D |- (rho ++ { a / x }) : G ++ x : l A
 
 D |- rho : G
 D |- A {rho} : l0 Univ i
