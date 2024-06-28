@@ -981,6 +981,19 @@ logical predicate to the syntactic typing judgment, we only require
 the much weaker well-gradedness judgment. The well-gradedness
 restriction will be necessary for us to show that indistinguishable
 types have the same meaning.
+
+Similar to its syntactic counterpart, the logical predicate satisfies
+the subsumption property.
+\begin{lemma}[Subsumption for the logical predicate]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
+  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
+  then $\member{[[a]]}{[[l1]]}{S}$.
+\end{lemma}
+\begin{proof}
+  Immediate by induction over the derivation and \rref{Wg-sub}.
+\end{proof}
+
 % The relaxation is possible thanks to
 % the untyped conversion rule, which allows us % to derive properties
 % like $\Pi$-injectivity through the syntactic
@@ -1071,7 +1084,7 @@ preserved under forward reduction through the following lemma.
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   \Rref{SWt-Step} is the only interesting case, where we
-  leverage the diamond property \todo{add the diamond property} of
+  leverage the diamond property (Lemma~\ref{lem:diamond}) of
   parallel reduction to reconcile two potentially distinct reductions
   from the type $[[A]]$.
 \end{proof}
@@ -1264,6 +1277,21 @@ of valid substitutions, sometimes also referred to as valuations.
   % Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
   % and the terms $\rho$ replaces them by have free variables in $[[D]]$.
 \end{definition}
+The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
+redundant but is in fact required; we are unable to recover it with
+Lemma~\ref{lem:escape} since the definition of valid substitution does
+not imply the existence of interpretations for types in the context.
+
+Valid substitutions satisfy the following structural rules.
+\todo{identity, nil, cons}
+
+It is tempting to replace the universal quantifier in the definition
+of $\sws{[[D]]}{\rho}{[[G]]}$ with an existential quantifier. Since we
+know that the logical predicate is functional, the existential variant
+implies our existing definition with the universal
+quantifier. However, \todo{mention how identity rule becomes
+  impossible to derive unless we go Kripke-style}.
+
 
 Next, we define semantic typing based on the definitions of valid
 substitutions and the logical predicate.
@@ -1279,12 +1307,31 @@ substitutions and the logical predicate.
   under the grading context $[[|D|]]$.
 \end{definition}
 
+\todo{Present these lemmas in derivation form?}Valid substitutions and semantic well-typedness both satisfy weakening
+properties.
+\begin{lemma}[Weakening of valid substitutions]
+  \label{lem:rhoweak}
+  If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then $\sws{[[D]]}{\rho}{[[G]]}$
+\end{lemma}
+\begin{proof}
+  Immediate by unfolding the definition of valid substitutions.
+\end{proof}
+\begin{corollary}[Weakening of semantic well-typedness]
+  \label{lem:semweak}
+  If $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$, then $\swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]}$.
+\end{corollary}
+\begin{proof}
+  Immediate by Lemma~\ref{lem:rhoweak}.
+\end{proof}
+
+
 Given a valid substitution map $[[rho]]$ from
 $[[G]]$ to $[[D]]$, the validity of $[[rho]]$ does not necessarily
-imply the well-formedness of the types in $[[G]]$. The universal
-quantifier in the definition of $\sws{[[D]]}{\rho}{[[G]]}$ does not
-imply that there always exists an interpretation
-for types in $[[G]]$. Instead, the existence of interpretations
+imply the well-formedness of the types in $[[G]]$. % The universal
+% quantifier in the definition of $\sws{[[D]]}{\rho}{[[G]]}$ does not
+% imply that there always exists an interpretation
+% for types in $[[G]]$. 
+Instead, the existence of interpretations
 for types in $[[G]]$ is separately provided by the semantic
 context well-formedness judgment, written $\swf{[[G]]}$, which we
 inductively define as follows.
@@ -1295,6 +1342,7 @@ inductively define as follows.
     \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
   }
 \end{mathpar}
+
 
 \subsection{Normalization}
 
@@ -1545,13 +1593,6 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
     \interp{[[E]]}{[[i]]}{[[B]]}{S}
   }
 \end{mathpar}
-
-\begin{lemma}[Subsumption]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
-  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
-  If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
-  then $\member{[[a]]}{[[l1]]}{S}$.
-\end{lemma}
 
 \begin{lemma}[Determinism]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_deterministic'}}
