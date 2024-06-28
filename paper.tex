@@ -1082,6 +1082,7 @@ The set of terms that semantically inhabit a type are closed by
 expansion (i.e. backward reduction).
 \begin{lemma}[Backward closure]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos}}
+  \label{lem:backclos}
   Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[E |- a : l]]$.
   If $[[a => b]]$ and $\member{[[b]]}{[[l]]}{S}$,
   then $\member{[[a]]}{[[l]]}{S}$.
@@ -1097,6 +1098,7 @@ The logical predicate satisfies cumulativity; if a type has an
 interpretation at a lower level, then it must also have the same
 interpretation at a higher level.
 \begin{lemma}[Cumulativity]
+  \label{lem:cumulativity}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[i]] \leq [[j]]$, then
   $\interp{[[E]]}{[[j]]}{[[A]]}{S}$.
 \end{lemma}
@@ -1146,7 +1148,7 @@ indistinguishable. This property is needed to fully justify the
 soundness of the type conversion rule since the type conversion
 involves both reduction and indistinguishability.
 \begin{lemma}[Functionality for indistinguishable types]
-\label{lem:lrfunc}
+\label{lem:lrfunci}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
 $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
 $[[E |- A == B @ l ]]$ for some $[[l]]$,
@@ -1309,21 +1311,57 @@ of valid substitutions, sometimes also referred to as valuations.
   % Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
   % and the terms $\rho$ replaces them by have free variables in $[[D]]$.
 \end{definition}
-The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
-redundant but is in fact required; we are unable to recover it with
-Lemma~\ref{lem:escape} since the definition of valid substitution does
-not imply the existence of interpretations for types in the context.
 
-Valid substitutions satisfy the following structural rules.
-\todo{identity, nil, cons}
+By definition, every valid substitution is also a well-graded substitution with
+respect to the erased contexts.
+\begin{lemma}[Valid substitutions are well-graded]
+  If $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |- rho : |G|]]$.
+\end{lemma}
+% The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
+% redundant but is in fact required; we are unable to recover it with
+% Lemma~\ref{lem:escape} since the definition of valid substitution does
+% not imply the existence of interpretations for types in the context.
+Valid substitutions also satisfy the following admissible structural rules.
+\begin{lemma}[Structural rules for valid substitutions]
+  \begin{mathpar}
+    \mprset{fraction={===}}
+    \infer[\ottdrulename{V\_id}]{~}{\sws{[[G]]}{[[nil]]}{[[G]]}} \and
+    \infer[\ottdrulename{V\_cons}]{
+      \interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S} \\
+      \member{[[a]]}{[[l0]]}{S} \\
+      \sws{[[D]]}{[[rho]]}{[[G]]}
+      }{ \sws{[[D]]}{[[rho ++ {a / x} ]]}{[[G ++ x : l0 A ]]}    }
+  \end{mathpar}
+\end{lemma}
+\begin{proof}
+  \Rref{V-id} is easily justified by the part of the adequacy lemma
+  that states well-graded neutral terms (variables in $[[G]]$ in
+  this case) semantically inhabit any well-formed types.
 
-It is tempting to replace the universal quantifier in the definition
-of $\sws{[[D]]}{\rho}{[[G]]}$ with an existential quantifier. Since we
-know that the logical predicate is functional, the existential variant
-implies our existing definition with the universal
-quantifier. However, \todo{mention how identity rule becomes
-  impossible to derive unless we go Kripke-style}.
+  \Rref{V-cons} requires Lemmas~\ref{lem:lrfunc} and
+  \ref{lem:cumulativity} to convert the fact that
+  $\member{[[a]]}{[[l0]]}{S}$ for the specific $S$ from the
+  precondition to the universal statement that
+  $\member{[[a]]}{[[l0]]}{S_0}$ for arbitrary $j$ and $S_0$ such that
+  $\interp{[[|D|]]}{[[j]]}{[[A { rho }]]}{S_0}$, as needed by the
+  definition of valid substitutions.
+\end{proof}
 
+The dependency on the functionality property in the proof of \rref{V-cons} makes 
+it tempting to simply replace the universal quantifier in the definition
+of valid substitutions with an existential quantifier. This change
+would allow us to omit the well-gradedness side condition for each
+$[[rho(x)]]$ since we can now derive it from the escape lemma
+(Lemma~\ref{lem:escape}). However, we note that this seemingly
+innocuous change would overcomplicate our proof by forcing us to
+generalize our logical predicate to a Kripke-style logical predicate.
+We discuss the details of this issue in Section~\ref{sec:discuss}.
+
+% Since we
+% know that the logical predicate is functional, the existential variant
+% implies our existing definition with the universal
+% quantifier. However, \todo{mention how identity rule becomes
+%   impossible to derive unless we go Kripke-style}.
 
 Next, we define semantic typing based on the definitions of valid
 substitutions and the logical predicate.
@@ -1339,22 +1377,40 @@ substitutions and the logical predicate.
   under the grading context $[[|D|]]$.
 \end{definition}
 
-\todo{Present these lemmas in derivation form?}Valid substitutions and semantic well-typedness both satisfy weakening
+% \todo{Present these lemmas in derivation form?}
+Valid substitutions and semantic well-typedness both satisfy weakening
 properties.
-\begin{lemma}[Weakening of valid substitutions]
-  \label{lem:rhoweak}
-  If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then $\sws{[[D]]}{\rho}{[[G]]}$
+\begin{lemma}[Weakening for valid substitutions and
+  semantic well-typedness]
+  \begin{mathpar}
+    \mprset{fraction={===}}
+    \infer[\ottdrulename{V\_weak}]{\sws{[[D]]}{\rho}{[[G ++ x : l A]]}}{\sws{[[D]]}{\rho}{[[G]]}} \and
+    \infer[\ottdrulename{SWt\_weak}]{
+      \swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}
+      }{  \swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]} }
+  \end{mathpar}  
 \end{lemma}
 \begin{proof}
-  Immediate by unfolding the definition of valid substitutions.
+  Immediate by unfolding their definitions.
 \end{proof}
-\begin{corollary}[Weakening of semantic well-typedness]
-  \label{lem:semweak}
-  If $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$, then $\swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]}$.
-\end{corollary}
-\begin{proof}
-  Immediate by Lemma~\ref{lem:rhoweak}.
-\end{proof}
+The weakening property aligns with the intuitive understanding that a
+substitution map for a context $[[G]]$ also closes over any
+prefixes of $[[G]]$.
+
+% \begin{lemma}[Weakening of valid substitutions]
+%   \label{lem:rhoweak}
+%   If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then $\sws{[[D]]}{\rho}{[[G]]}$
+% \end{lemma}
+% \begin{proof}
+%   Immediate by unfolding the definition of valid substitutions.
+% \end{proof}
+% \begin{corollary}[Weakening of semantic well-typedness]
+%   \label{lem:semweak}
+%   If $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$, then $\swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]}$.
+% \end{corollary}
+% \begin{proof}
+%   Immediate by Lemma~\ref{lem:rhoweak}.
+% \end{proof}
 
 
 Given a valid substitution map $[[rho]]$ from
@@ -1374,7 +1430,56 @@ inductively define as follows.
     \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
   }
 \end{mathpar}
+The following lemma is useful when working with judgments of the form
+$\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
+\begin{lemma}[Semantic type inversion]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
+  The following are equivalent:
+  \begin{itemize}
+    \item $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$;
+    \item For every $\rho$, $[[D]]$ such that $\sws{[[D]]}{\rho}{[[G]]}$,
+      \begin{itemize}
+        \item $[[| D | |- A { rho } : l]]$ holds, and
+        \item there exists $S$ such that $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$.
+      \end{itemize}
+  \end{itemize}
+\end{lemma}
+\begin{proof}
+  Immediate by the inversion lemma for types of the form $[[Univ i]]$ (Lemma~\ref{lem:interpinv}).
+\end{proof}
 
+We now specify the fundamental theorem and provide brief proof
+sketches for the interesting cases.
+\begin{theorem}[Fundamental theorem]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{soundness}}
+  If $[[G |- a : l A]]$ then $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$;
+  if $[[|- G]]$ then $\swf{[[G]]}$.
+\end{theorem}
+\begin{proof}
+By mutual induction over syntactic typing and
+well-formedness. Despite the complex set-up of the logical predicate,
+semantic typing, and their properties, the proof of the fundamental
+theorem is straightforward and is similar to the proofs by logical
+relation for simply typed languages such as the one found in
+\citet{abel:poplmark}.
+
+For example, the \rref*{T-App} case more or less proves itself since
+the idea of valid input to valid output is baked into the
+\rref*{SWt-Pi} case of the logical predicate.
+
+For other cases involving eliminators such as \rref*{T-J, T-Let}, the
+scrutinee either reduces to a desired normal form (e.g. $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
+term. In the former case, the conclusion follows by the backward
+closure property (Lemma~\ref{lem:backclos}) and the induction
+hypothesis. In the latter case, we know that the elimination form
+evaluates to a neutral form and thus semantically inhabits the type by
+adequacy (Lemma~\ref{lem:adequacy}).
+
+The \rref*{T-Conv} case is justified by a combination of
+\rref{SWt-Par}, lemma~\ref{lem:lrpreservation} (preservation of
+meaning under evaluation and expansion), and
+lemma~\ref{lem:lrfunci} (indistinguishable types have the same meaning).
+\end{proof}
 
 \subsection{Normalization}
 
@@ -1692,25 +1797,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
   and $\member{[[a]]}{[[l]]}{S}$,
   then $\sws{[[D]]}{[[rho ++ {a / x}]]}{[[G ++ x : l A]]}$.
 \end{lemma}
-
-\begin{lemma}[Semantic type inversion]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
-  The following are equivalent:
-  \begin{itemize}
-    \item $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$;
-    \item For every $\rho$, $[[D]]$ such that $\sws{[[D]]}{\rho}{[[G]]}$,
-      \begin{itemize}
-        \item $[[| D | |- A { rho } : l]]$ holds, and
-        \item there exists $S$ such that $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$.
-      \end{itemize}
-  \end{itemize}
-\end{lemma}
-
-\begin{theorem}[Fundamental theorem]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{soundness}}
-  If $[[G |- a : l A]]$ then $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$;
-  if $[[|- G]]$ then $\swf{[[G]]}$.
-\end{theorem}
 
 \begin{corollary}[Weak normalization]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{normalization}}
