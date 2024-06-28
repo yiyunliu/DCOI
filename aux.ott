@@ -13,6 +13,8 @@ luniv :: 'u_' ::=
   {{ com concrete universe levels }}
   | 0 :: :: Zero
     {{ tex 0 }}
+  | 1 :: :: One
+    {{ tex 1 }}
 
 grade :: 'l_' ::=
   {{ com concrete grades }}
@@ -80,7 +82,7 @@ tm :: 'a_' ::=
     {{ tex \top }}
   | l A -> B :: S :: Arrow
     {{ com nondependent function type }}
-    {{ tex [[A]] \overset{[[l]]}{\rightarrow} [[B]] }}
+    {{ tex {[[A]]}^{[[l]]} \to [[B]] }}
   | a ~ l b :: S :: EqS
     {{ com indistinguishability (no type annotation) }}
     {{ coq a_Eq [[a]] [[l]] [[b]] _ }}

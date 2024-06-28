@@ -290,7 +290,7 @@ inside the term $[[a]]$.
 
 The main judgement is the typing judgement,
 which has the form $[[G |- a : l A]]$ for a term $[[a]]$
-that is well type under context $[[G]]$ at level $[[l]]$
+that is well type under context $[[G]]$ at observer level $[[l]]$
 with type $[[A]]$.
 To reduce clutter,
 we use the judgement $[[G |- a : A]]$ to mean that there exists some level $[[l]]$
@@ -318,6 +318,57 @@ and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
 
 \subsection{Dependency tracking} \label{sec:dep}
+
+The observer level $[[l]]$ of a typing judgement $[[G |- a : l A]]$
+tracks what level variables $[[a]]$ may use, as well as the level at which $[[a]]$ may be used.
+The former is enforced by the level constraint premise in \rref{Wt-Var},
+which permits a variable to be used only if the observer level is at least as high
+as that of the variable.
+
+In \rref{Wt-Abs}, there is no restriction on the level of the function parameter,
+so a function may be applied to an argument of a higher level,
+so long as the annotated level of the function parameter
+matches the annotated level of the application in \rref{Wt-App}.
+Although the function cannot directly use a higher-level variable in its lower-level body,
+allowing a higher-level parameter is still useful because it may be used in the function's \emph{type},
+which is typed at an arbitrary level independent of the function itself
+in the second premise of \rref{Wt-Abs}.
+By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codomain types either
+(as long as they match).
+
+As an example, consider the following typing judgement,
+using $[[l A -> B]]$ as shorthand for nondependent functions $[[Pi x : l A . B]]$
+where $[[x]]$ does not appear in $[[B]]$.
+
+\begin{displaymath}
+  [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ 0 . H X -> L (H X -> X) -> X)]]
+\end{displaymath}
+
+The entire function itself is typed at level $[[L]]$,
+while the parameters $[[X]]$ and $[[x]]$ are annotated at level $[[H]]$,
+so the inner function body cannot be $[[x]]$,
+for instance, even if it has the correct type.
+On the other hand, the parameter $[[f]]$ is a function that takes a high-level $[[X]]$
+and returns a low-level $[[X]]$, so $[[f H x]]$ is a valid function body.
+Meanwhile, the type of the entire function itself need only be well-typed at \emph{some} level,
+and in particular is well-typed at $[[H]]$,
+which would allow using the high-level $[[X]]$
+in the codomain of the type.
+
+In general, we can prove a regularity lemma stating that the type of a well-typed term
+is itself well typed at a level not necessarily related to that of the term,
+and may even be higher, as is the case for the example above.
+Intuitively, this is permitted because there is no way to retrieve the type of a term at run time,
+so the type of a lower-level term can safely use higher-level information
+without it leaking into the term.
+
+\begin{lemma}[Regularity]
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Wff}, \suppl{theories}{preservation.v}{Wt\_regularity}}
+  \label{lem:regularity}
+  If $[[G |- a : l A]]$, then $[[|- G]]$ holds,
+  and there exist some $[[l0]], [[i]]$
+  such that $[[G |- A : l0 Univ i]]$.
+\end{lemma}
 
 \subsection{Definitional equality and indistinguishability} \label{sec:indist}
 
@@ -438,22 +489,11 @@ which would permit a closed term of $[[Void]]$ via repeated applications of \rre
 
 \section{Syntactic metatheory}
 
-% TODO: Rewrite this paragraph
-In this section, we develop the metatheory of \name.
-Our ultimate goals are weak normalization,
-that all well-typed terms reduce to a normal form;
-and logical consistency,
-that there is no closed term of the empty type.
-We begin with proving various syntactic properties of our judgements,
-culminating in subject reduction,
-that a well-typed term remains well typed after reduction.
-We then establish a logical relation between types and sets of terms,
-and define semantic typing in terms of the logical relation.
-Normalization and consistency follow as corollaries of the fundamental theorem,
-which states that syntactic typing implies semantic typing.
-
-All of the metatheory has been mechanized in Coq.
-The development can be found in \repo{} under the \texttt{proofs} directory.
+In this section, we develop the syntactic metatheory of \name,
+ultimately culminating in subjection reduction,
+\ie type preservation of typing with respect to parallel reduction.
+The metatheory has been mechanized in Coq,
+and the development can be found in \repo{} under the \texttt{proofs} directory.
 Definitions, lemmas, and theorems given here are annotated with a footnote
 to the corresponding file and top-level name in the development.
 Some lemmas are presented as admissible derivation rules of the corresponding judgement,
@@ -815,14 +855,6 @@ and well-typedness of the type in a typing judgement.
   Given some $[[A1]]$ such that $[[G |- A1 : l1 Univ i]]$,
   if $[[| G | |- A0 == A1]]$,
   then $[[G ++ x : l0 A1 |- b : l B]]$.
-\end{lemma}
-
-\begin{lemma}[Regularity]
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Wff}, \suppl{theories}{preservation.v}{Wt\_regularity}}
-  \label{lem:regularity}
-  If $[[G |- a : l A]]$, then $[[|- G]]$ holds,
-  and there exist some $[[l0]], [[i]]$
-  such that $[[G |- A : l0 Univ i]]$.
 \end{lemma}
 
 Due to \rref{Wt-Conv},
@@ -1706,7 +1738,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
       & S n => B]] \\
   [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n : ! Nat) -> A @ H]] \\
   [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
-  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L ! Vec H A H n -> A @ L]] \\
+  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L (! Vec H A H n) -> A @ L]] \\
   [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
   & [[:concrete: (case v return \ H m . H (m ~ H ! S H n : ! Nat) -> A of
       & vnil => \ H p . absurd (! discr H Void H n H p) ++
