@@ -468,12 +468,12 @@ and simultaneous substitutions.
 
 \begin{definition}[Substitution maps]
   A substitution map $\rho$ is a mapping from variables to terms.
-  We use $\dom(\rho)$ to denote the variables in the domain of $\rho$,
-  $\rho(x)$ the term to which $\rho$ maps $[[x]]$,
-  $[[nil]]$ the identity substitution map,
-  $[[(rho ++ { a / x })]]$ the extension of $[[rho]]$
-  by a mapping from $[[x]]$ to $[[a]]$, and
-  and $[[a { rho }]]$ the simultaneous substitution
+  We use $\dom(\rho)$~to denote the variables in the domain of $\rho$,
+  $\rho(x)$~the term to which $\rho$ maps $[[x]]$,
+  $[[nil]]$~the identity substitution map,
+  $[[(rho ++ { a / x })]]$~the extension of $[[rho]]$
+  by a mapping from $[[x]]$ to $[[a]]$,
+  and $[[a { rho }]]$~the simultaneous substitution
   of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
 \end{definition}
 
