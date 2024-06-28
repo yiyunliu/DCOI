@@ -452,6 +452,24 @@ $[[nil |- (\ H z . z) H Unit == (\ H z . z) H Void]]$,
 and $[[nil |- (\ H z . z) H Void == Void]]$,
 which would permit a closed term of $[[Void]]$ via repeated applications of \rref{Wt-Conv}.
 
+An important property of indistinguishability is the simulation property,
+which enforces that indistinguishable terms must reduce in lockstep.
+This is crucial for proving further syntactic lemmas in \cref{sec:synmeta},
+such as the preservation of definitional equality between two terms as they reduce.
+
+\begin{lemma}[Simulation]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation\_star}}
+  \label{lem:simulation}
+  If $[[E |- a0 == b0 @ l]]$ and $[[a0 =>* a1]]$,
+  then there exists some $[[b1]]$ such that $[[b0 =>* b1]]$
+  and $[[E |- a1 == b1 @ l]]$.
+\end{lemma}
+
+To ensure that simulation holds,
+additional level constraints must be enforced when typing
+the eliminators for pairs and equality proofs, as we will see in the next two subsections.
+We explain in further detail how omitting these constraints violate simulation in \cref{sec:scrutinee-level}.
+
 \subsection{Dependent pairs} \label{sec:pairs}
 
 \begin{figure}[h]
@@ -497,7 +515,7 @@ which would permit a closed term of $[[Void]]$ via repeated applications of \rre
   \label{fig:conv:eq}
 \end{figure}
 
-\section{Syntactic metatheory}
+\section{Syntactic metatheory} \label{sec:synmeta}
 
 In this section, we develop the syntactic metatheory of \name,
 ultimately culminating in subjection reduction,
@@ -725,17 +743,6 @@ the end terms are indistinguishable at the meet of the levels.
 This generalization is crucial for definitional equality,
 as we will see shortly.
 
-A final key lemma of indistinguishability is the simulation property,
-which enforces that indistinguishable terms must reduce in lockstep.
-
-\begin{lemma}[Simulation]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation\_star}}
-  \label{lem:simulation}
-  If $[[E |- a0 == b0 @ l]]$ and $[[a0 =>* a1]]$,
-  then there exists some $[[b1]]$ such that $[[b0 =>* b1]]$
-  and $[[E |- a1 == b1 @ l]]$.
-\end{lemma}
-
 \begin{figure}[h]
   \mprset{fraction={===}}
   \drule{E-weak}
@@ -750,12 +757,12 @@ which enforces that indistinguishable terms must reduce in lockstep.
   \label{fig:defeq-lemmas}
 \end{figure}
 
-An important consequence of simulation
+An important consequence of the \nameref{lem:simulation} property of indistinguishability
 is that reduction of definitionally equal terms preserves definitional equality
 (\rref*{E-pres}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}).
 Because definitional equality is defined in \rref{E-Conv}
 as the indistinguishability of the two terms after parallel reduction,
-the proof uses \nameref{lem:confluence}.
+the proof requires \nameref{lem:confluence} of parallel reduction.
 
 As with indistinguishability,
 definitional equality is reflexive for well-graded terms
