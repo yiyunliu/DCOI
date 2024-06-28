@@ -1391,6 +1391,59 @@ inductively define as follows.
 % design and technical issues
 % perhaps merge with related work
 
+\subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
+
+\jc{Is this the right place to put this information?}
+
+The level of the scrutinee must be bounded by the level of the overall eliminator.
+In particular, in \rref{Wt-J}, the level $[[l]]$ of an equality proof $[[p]]$
+must be bounded by that of its elimination $[[J c l p]]$,
+and in \rref{Wt-Let}, the level $[[l]]$ of a pair $[[a]]$
+must be bounded by that of its elimination $[[let (l0 x, y) = l a in b]]$.
+The bound is required to prove \nameref{lem:simulation}.
+Suppose that scrutinees could instead be typed at any level.
+First, the indistinguishability rules need to be updated
+so that scrutinees are indistinguishable if their level is higher
+than that of the overall eliminator, just like in \rref{I-App}.
+The modified premises are highlighted in \hlcolor{} below.
+%
+\begin{mathpar}
+  \setlength{\fboxsep}{1.5pt}
+  \infer[\ottdrulename{I\_J\_bad}]{
+    \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l0]]} \\
+    [[E |- c0 == c1 @ l]]
+  }{
+    [[E |- J c0 l0 p0 == J c1 l0 p1 @ l]]
+  }
+  \and
+  \infer[\ottdrulename{I\_Let\_bad}]{
+    \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l1]]} \\
+    [[(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l]]
+  }{
+    [[E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l]]
+  }
+\end{mathpar}
+
+As concrete examples, by these alternate rules,
+supposing $[[J c H p]]$ were well typed in context $[[G]]$
+at level $[[L]]$ with $[[G |- p : H a ~ L a]]$,
+we can conclude that $[[| G | |- J c H refl == J c H p @ L]]$.
+The problem is that the left-hand side reduces to $[[c]]$,
+while the right-hand side does not necessarily reduce to something indistinguishable from $[[c]]$,
+thereby violating the simulation property.
+The same issue arises with pairs, where we may be able to conclude that
+$[[| G | |- let (H x, y) = H (H a, b) in c == let (H x, y) = H d in c @ L]]$,
+and the left-hand side reduces to $[[c {a / x, b / y}]]$,
+while the right-hand side again does not necessarily reduce to something indistinguishable from it.
+Even if the context were empty, the simulation property still cannot be proven
+without knowing \apriori that a closed proof of equality $[[p]]$ normalizes to $[[refl]]$,
+or that a closed term of a pair type normalizes to a pair.
+
+The one exception is the eliminator for the empty type,
+whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
+Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
+ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
+
 \section{Related work}
 
 \begin{itemize}
@@ -1443,57 +1496,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
       & vnil => \ H p . absurd (! discr H Void H n H p) ++
       & vcons n x xs => \ H p . x) H refl]]
 \end{align*}
-
-\section{Notes}
-
-The level of the scrutinee must be bounded by the level of the overall eliminator.
-In particular, in \rref{Wt-J}, the level $[[l]]$ of an equality proof $[[p]]$
-must be bounded by that of its elimination $[[J c l p]]$,
-and in \rref{Wt-Let}, the level $[[l]]$ of a pair $[[a]]$
-must be bounded by that of its elimination $[[let (l0 x, y) = l a in b]]$.
-The bound is required to prove the simulation property (\cref{lem:simulation}).
-Suppose that scrutinees could instead be typed at any level.
-First, the indistinguishability rules need to be updated
-so that scrutinees are indistinguishable if their level is higher
-than that of the overall eliminator, just like in \rref{I-App}.
-The modified premises are highlighted in \hlcolor{} below.
-%
-\begin{mathpar}
-  \setlength{\fboxsep}{1.5pt}
-  \infer[\ottdrulename{I\_J\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l0]]} \\
-    [[E |- c0 == c1 @ l]]
-  }{
-    [[E |- J c0 l0 p0 == J c1 l0 p1 @ l]]
-  }
-  \and
-  \infer[\ottdrulename{I\_Let\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l1]]} \\
-    [[(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l]]
-  }{
-    [[E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l]]
-  }
-\end{mathpar}
-
-As concrete examples, by these alternate rules,
-supposing $[[J c H p]]$ were well typed in context $[[G]]$
-at level $[[L]]$ with $[[G |- p : H a ~ L a]]$,
-we can conclude that $[[| G | |- J c H refl == J c H p @ L]]$.
-The problem is that the left-hand side reduces to $[[c]]$,
-while the right-hand side does not necessarily reduce to something indistinguishable from $[[c]]$,
-thereby violating the simulation property.
-The same issue arises with pairs, where we may be able to conclude that
-$[[| G | |- let (H x, y) = H (H a, b) in c == let (H x, y) = H d in c @ L]]$,
-and the left-hand side reduces to $[[c {a / x, b / y}]]$,
-while the right-hand side again does not necessarily reduce to something indistinguishable from it.
-Even if the context were empty, the simulation property still cannot be proven
-without knowing \apriori that a closed proof of equality $[[p]]$ normalizes to $[[refl]]$,
-or that a closed term of a pair type normalizes to a pair.
-
-The one exception is the eliminator for the empty type,
-whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
-Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
-ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
 
 \section{Rules}
 
