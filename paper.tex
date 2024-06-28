@@ -334,7 +334,7 @@ The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
 wich allows converting the type of a well-typed term to a definitionally equal type.
 Our definitional equality is untyped, but eventually relies on the levels of variables,
 so its judgement form $[[E |- a == b]]$ requires a grading context $[[E]]$.
-In \rref{Wt-Conv}, this is provided by $[[| G |]]$,
+In \rref{Wt-Conv}, this is provided by the erasure operation $[[| G |]]$,
 which denotes dropping all type annotations to convert a typing context into a grading context.
 
 Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv},
