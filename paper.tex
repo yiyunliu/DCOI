@@ -371,13 +371,13 @@ without it leaking into the term.
 \end{lemma}
 
 While generally a lower-level term may not meaningfully use higher-level information,
-a proof of the empty type at \emph{any} level
+a proof of the empty type $[[Void]]$ at \emph{any} level
 may be eliminated to \emph{any other} level via \rref{Wt-Absurd}.
 By logical consistency, which we prove in \cref{sec:semmeta},
-there is no closed term of the empty type,
+there is no closed term of type $[[Void]]$,
 and so it cannot contain any meaningful information,
 and furthermore represents a dead execution path.
-From the perspective of \name as a type theory,
+From a type-theoretic perspective,
 the unconstrained elimination level allows us to handle impossible cases of a lower-level term
 using a higher-level proof of its impossibility.
 
@@ -438,8 +438,7 @@ holds even though $[[x]]$ and $[[y]]$ could be anything,
 because the observer level is $[[L]]$,
 while the arguments' levels are $[[H]]$ and therefore unobservable.
 Indistinguishability of unobservable arguments articulates the intuition that
-since functions cannot meaningfully use unobservable arguments,
-they may safely be ignored.
+functions may safely ignore these arguments that they cannot meaningfully use.
 
 A level comparison also occurs in \rref{I-Var},
 where a variable may only be indistinguishable from itself
