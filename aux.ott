@@ -361,14 +361,14 @@ by
 ------------ :: nil
 E |- nil : E
 
-F |- rho : E
-F |- a : l
+E |- rho : F
+E |- a : l
 -------------------------------------- :: cons
-F |- (rho ++ { a / x }) : (E ++ x : l)
+E |- (rho ++ { a / x }) : (F ++ x : l)
 
-F |- rho : E
+E |- rho : F
 --------------------- :: weak
-F ++ x : l |- rho : E
+E ++ x : l |- rho : F
 
 defns
   IEq_Subst :: '' ::=
@@ -382,14 +382,14 @@ by
 ----------------------- :: nil
 E |- nil == nil : E @ l
 
-F |- rho0 == rho1 : E @ l
-F |- a0 == a1 @ l l0
+E |- rho0 == rho1 : F @ l
+E |- a0 == a1 @ l l0
 --------------------------------------------------------------------- :: cons
-F |- (rho0 ++ { a0 / x }) == (rho1 ++ { a1 / x }) : (E ++ x : l0) @ l
+E |- (rho0 ++ { a0 / x }) == (rho1 ++ { a1 / x }) : (F ++ x : l0) @ l
 
-F |- rho0 == rho1 : E @ l
+E |- rho0 == rho1 : F @ l
 ----------------------------------- :: weak
-F ++ x : l0 |- rho0 == rho1 : E @ l
+E ++ x : l0 |- rho0 == rho1 : F @ l
 
 defns
   Wt_Subst :: '' ::=
@@ -404,12 +404,12 @@ by
 ------------------- :: nil
 G |- nil : G
 
-D |- rho : G
-D |- a : l A {rho}
+G |- rho : D
+G |- a : l A {rho}
 -------------------------------------- :: cons
-D |- (rho ++ { a / x }) : G ++ x : l A
+G |- (rho ++ { a / x }) : D ++ x : l A
 
-D |- rho : G
-D |- A {rho} : l0 Univ i
+G |- rho : D
+G |- A {rho} : l0 Univ i
 ----------------------------- :: weak
-D ++ x : l A {rho} |- rho : G
+G ++ x : l A {rho} |- rho : D
