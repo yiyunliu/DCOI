@@ -782,20 +782,35 @@ listed as admissible rules in \cref{fig:subst-typing-lemmas}.
 
 \begin{figure}[h]
   \mprset{fraction={===}}
-  \drule[width=0.2\textwidth]{Wt-weak} % \footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}
-  \drule{Wt-morph} % \footnote{\suppl{theories}{preservation.v}{morphing\_Syn}}
-  \drule{Wt-subst} % \footnote{\suppl{theories}{preservation.v}{subst\_Syn}}
-  \drule[width=0.2\textwidth]{Wt-sub} % \footnote{\suppl{theories}{preservation.v}{subsumption}}
+  \drule[width=0.2\textwidth]{Wt-weak}
+  \drule{Wt-morph}
+  \drule{Wt-subst}
+  \drule[width=0.2\textwidth]{Wt-sub}
   % \drule{Wt-replace}
   \vspace{0.5\baselineskip}
   \caption{Admissible rules for well-typedness}
   \label{fig:typing-lemmas}
 \end{figure}
 
-\jc{TODO: blah blah}
+As usual, typing admits weakening
+(\rref*{Wt-weak}\footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}),
+morphing
+(\rref*{Wt-morph}\footnote{\suppl{theories}{preservation.v}{morphing\_Syn}}),
+and consequently substitution
+(\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}}),
+as stated in \cref{fig:typing-lemmas}.
+Like grading, it also admits subsumption
+(\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
+allowing the level to be raised while retaining the same type.
+Furthermore, it satisfies \nameref{lem:replacement},
+allowing a type in the context to be replaced by a definitionally equal one,
+and \nameref{lem:regularity},
+which asserts the well-formedness of the context
+and well-typedness of the type in a typing judgement.
 
 \begin{lemma}[Replacement]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}
+  \label{lem:replacement}
   Suppose $[[G ++ x : l0 A0 |- b : l B]]$.
   Given some $[[A1]]$ such that $[[G |- A1 : l1 Univ i]]$,
   if $[[| G | |- A0 == A1]]$,
@@ -804,12 +819,29 @@ listed as admissible rules in \cref{fig:subst-typing-lemmas}.
 
 \begin{lemma}[Regularity]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Wff}, \suppl{theories}{preservation.v}{Wt\_regularity}}
+  \label{lem:regularity}
   If $[[G |- a : l A]]$, then $[[|- G]]$ holds,
   and there exist some $[[l0]], [[i]]$
   such that $[[G |- A : l0 Univ i]]$.
 \end{lemma}
 
-\jc{TODO: inversion lemmas?}
+Due to \rref{Wt-Conv},
+deducing the well-typedness of subterms of a well-typed term
+doesn't follow immediately from inversion and requires separate inversion lemmas,
+which are standard and omitted here.
+One notable consequence is that if $[[refl]]$ is a propositional equality
+between $[[a]]$ and $[[b]]$ at some observer level $[[l0]]$,
+then they are indistinguishable at that level.
+Finally, we are able to prove type preservation,
+which proceeds by induction on the typing derivation.
+
+\begin{lemma}
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Refl\_Coherent}}
+  If $[[G |- refl : l a ~ l0 b : A]]$,
+  then there exist $[[a']], [[b']]$ such that
+  $[[a =>* a']]$, $[[b =>* b']]$,
+  and $[[| G | |- a' == b' @ l0]]$.
+\end{lemma}
 
 \begin{theorem}[Type preservation]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction},\suppl{theories}{preservation.v}{subject\_reduction\_star}}
