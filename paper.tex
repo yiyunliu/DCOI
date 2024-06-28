@@ -1180,9 +1180,15 @@ substitutions and the logical predicate.
   under the grading context $[[|D|]]$.
 \end{definition}
 
-Semantic well-formedness, written $\swf{[[G]]}$, can then be defined
-inductively based on semantic typing, similar to its syntactic
-counterpart.
+Given a valid substitution map $[[rho]]$ from
+$[[G]]$ to $[[D]]$, the validity of $[[rho]]$ does not necessarily
+imply the well-formedness of the types in $[[G]]$. The universal
+quantifier in the definition of $\sws{[[D]]}{\rho}{[[G]]}$ does not
+imply that there always exists an interpretation
+for types in $[[G]]$. Instead, the existence of interpretations
+for types in $[[G]]$ is separately provided by the semantic
+context well-formedness judgment, written $\swf{[[G]]}$, which we
+inductively define as follows.
 \begin{mathpar}
   \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
   \infer[\ottdrulename{SWf\_cons}]{
@@ -1190,7 +1196,6 @@ counterpart.
     \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
   }
 \end{mathpar}
-
 
 \subsection{Normalization}
 
