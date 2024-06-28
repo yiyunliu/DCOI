@@ -350,22 +350,30 @@ Proof.
   asimpl. eauto.
 Qed.
 
-Lemma good_morphing_up ρ k ℓ ℓ0 Γ Δ A
-  (h : lookup_good_morphing ρ Γ Δ) :
-  Δ ⊢ A[ρ] ; ℓ ∈ tUniv k ->
-  lookup_good_morphing (up_tm_tm ρ) ((ℓ0, A) :: Γ) ((ℓ0, A [ρ]) :: Δ).
+Lemma good_morphing_nil Γ (h : ⊢ Γ) : lookup_good_morphing ids Γ Γ.
+Proof.
+  inversion 1; subst; asimpl;
+  apply : T_Var; eauto using meet_idempotent.
+Qed.
+
+Lemma good_morphing_cons ρ Γ Δ ℓ a A (h : lookup_good_morphing ρ Γ Δ)
+  (hh : Δ ⊢ a ; ℓ ∈ A [ρ]) :
+  lookup_good_morphing (a .: ρ) ((ℓ, A) :: Γ) Δ.
 Proof.
   rewrite /lookup_good_morphing => h1.
-  inversion 1=>*; subst.
-  - apply : T_Var => /=.
-    + eauto with wff.
-    + asimpl. apply : here'. by asimpl.
-    + by rewrite meet_idempotent.
-  - apply : weakening_Syn'; cycle 2.
-    rewrite /lookup_good_morphing in h.
-    + sfirstorder unfold:lookup_good_morphing.
-    + by asimpl.
-    + sfirstorder.
+  inversion 1 => *; subst; asimpl => //.
+  apply h => //.
+Qed.
+
+Lemma good_morphing_up ρ k ℓ ℓ0 Γ Δ A
+  (h : lookup_good_morphing ρ Γ Δ)
+  (hA : Δ ⊢ A[ρ] ; ℓ ∈ tUniv k) :
+  lookup_good_morphing (up_tm_tm ρ) ((ℓ0, A) :: Γ) ((ℓ0, A [ρ]) :: Δ).
+Proof.
+  eapply good_morphing_cons.
+  eapply good_morphing_suc; eauto.
+  apply : T_Var; eauto using meet_idempotent with wff.
+  apply : here'. by asimpl.
 Qed.
 
 Lemma good_morphing_iok_subst_ok ρ Γ Δ :
@@ -466,11 +474,7 @@ Lemma subst_Syn Γ ℓ ℓ0 A a b B
   (h1 : Γ ⊢ a ; ℓ0 ∈ A) :
   Γ ⊢ (subst_tm (a..) b) ; ℓ ∈ (subst_tm (a..) B).
 Proof.
-  apply : morphing_Syn; eauto with wff.
-  inversion 1; subst.
-  - by asimpl.
-  - asimpl;
-      hauto lq:on rew:off use:T_Var db:wff solve+:(by solve_lattice).
+  hauto lq:on use:morphing_Syn, good_morphing_nil, good_morphing_cons, Wt_Wff solve+:(by asimpl).
 Qed.
 
 Lemma subst_Syn_Univ Γ ℓ ℓ0 A a b i :
