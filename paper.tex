@@ -322,8 +322,8 @@ which internalize indistinguishability.
 The observer level $[[l]]$ of a typing judgement $[[G |- a : l A]]$
 tracks what level variables $[[a]]$ may use, as well as the level at which $[[a]]$ may be used.
 The former is enforced by the level constraint premise in \rref{Wt-Var},
-which permits a variable to be used only if the observer level is at least as high
-as that of the variable.
+which permits a variable to be used only if the observer level is at least as high as that of the variable.
+Informally, higher-level information cannot leak into a lower-level term.
 
 In \rref{Wt-Abs}, there is no restriction on the level of the function parameter,
 so a function may be applied to an argument of a higher level,
@@ -339,7 +339,7 @@ By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codom
 As an example, consider the following typing judgement,
 using $[[l A -> B]]$ as shorthand for nondependent functions $[[Pi x : l A . B]]$
 where $[[x]]$ does not appear in $[[B]]$.
-
+%
 \begin{displaymath}
   [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ 0 . H X -> L (H X -> X) -> X)]]
 \end{displaymath}
@@ -369,6 +369,17 @@ without it leaking into the term.
   and there exist some $[[l0]], [[i]]$
   such that $[[G |- A : l0 Univ i]]$.
 \end{lemma}
+
+While generally a lower-level term may not meaningfully use higher-level information,
+a proof of the empty type at \emph{any} level
+may be eliminated to \emph{any other} level via \rref{Wt-Absurd}.
+By logical consistency, which we prove in \cref{sec:semmeta},
+there is no closed term of the empty type,
+and so it cannot contain any meaningful information,
+and furthermore represents a dead execution path.
+From the perspective of \name as a type theory,
+the unconstrained elimination level allows us to handle impossible cases of a lower-level term
+using a higher-level proof of its impossibility.
 
 \subsection{Definitional equality and indistinguishability} \label{sec:indist}
 
@@ -843,10 +854,7 @@ Like grading, it also admits subsumption
 (\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
 allowing the level to be raised while retaining the same type.
 Furthermore, it satisfies \nameref{lem:replacement},
-allowing a type in the context to be replaced by a definitionally equal one,
-and \nameref{lem:regularity},
-which asserts the well-formedness of the context
-and well-typedness of the type in a typing judgement.
+allowing a type in the context to be replaced by a definitionally equal one.
 
 \begin{lemma}[Replacement]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}
