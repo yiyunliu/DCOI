@@ -101,8 +101,8 @@
 \newcommand{\dcoi}{DCOI\@\xspace}
 \newcommand{\name}{DCOI$\omega$\@\xspace}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
-\newcommand{\ie}{\textit{ie}\@\xspace}
-\newcommand{\eg}{\textit{eg}\@\xspace}
+\newcommand{\ie}{\textit{i.e.}\@\xspace}
+\newcommand{\eg}{\textit{e.g.}\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
 \newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
@@ -438,6 +438,7 @@ which would permit a closed term of $[[Void]]$ via repeated applications of \rre
 
 \section{Syntactic metatheory}
 
+% TODO: Rewrite this paragraph
 In this section, we develop the metatheory of \name.
 Our ultimate goals are weak normalization,
 that all well-typed terms reduce to a normal form;
@@ -476,6 +477,68 @@ in this section we frame substitution in terms of substitution maps and simultan
 
 The singleton substitution $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
 the single extension of the identity substitution.
+
+\subsection{Properties of parallel reduction}
+
+The notion of parallel reduction can be extended to substitutions
+pointwise on each term in the substitutions.
+
+\begin{definition}[Parallel reduction of substitutions]
+  A substitution $[[rho0]]$ parallel reduces to $[[rho1]]$,
+  written $[[rho0 => rho1]]$, if $[[rho0(x) => rho1(x)]]$ for every $[[x]]$.
+  Similarly, $[[rho0 =>* rho1]]$ if $[[rho0(x) =>* rho1(x)]]$ for every $[[x]]$.
+\end{definition}
+
+We then prove the morphing lemmas
+\rref*{P-morph}\footnote{\suppl{theories}{par.v}{Par\_morphing}} and
+\rref*{Ps-morph}\footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}},
+listed in \cref{fig:pars-lemmas},
+which combine a reducing term with a reducing substitution.
+The substitution lemma
+\rref*{P-morph}\footnote{\suppl{theories}{par.v}{Par\_cong}},
+which combines two reducing terms by substitution,
+then follows from morphing.
+An additional useful lemma is that single parallel reduction itself is already reflexive
+(\rref*{P-refl}\footnote{\suppl{theories}{par.v}{Par\_refl}}).
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \drule{P-refl}
+  \drule{P-morph}
+  \drule{P-subst}
+  \drule{Ps-morph}
+  % \drule{Ps-subst}
+  \vspace{0.5\baselineskip}
+  \caption{Admissible rules for parallel reduction}
+  \label{fig:pars-lemmas}
+\end{figure}
+
+% TODO: Do we explicitly need the inversion lemmas stated?
+% \footnote{\suppl{theories}{par.v}{Pars\_pi\_inv}}
+% \footnote{\suppl{theories}{par.v}{Pars\_sig\_inv}}
+% \footnote{\suppl{theories}{par.v}{Pars\_eq\_inv}}
+% \footnote{\suppl{theories}{par.v}{Pars\_univ\_inv}}
+
+The key lemmas of parallel reduction are the diamond property and confluence,
+which state that if a term reduces to two different terms,
+those two terms themselves must converge back to the same term.
+The proof uses the notion of complete development%
+\footnote{\suppl{theories}{par.v}{tstar}}
+by \citet{takahashi:par}.
+
+\begin{lemma}[Diamond]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Par\_confluent}}
+  \label{lem:diamond}
+  If $[[a => b0]]$ and $[[a => b1]]$, then
+  there exists some $[[c]]$ such that $[[b0 => c]]$ and $[[b1 => c]]$.
+\end{lemma}
+
+\begin{lemma}[Confluence]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
+  \label{lem:confluence}
+  If $[[a =>* b0]]$ and $[[a =>* b1]]$, then
+  there exists some $[[c]]$ such that $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
+\end{lemma}
 
 \subsection{Well-gradedness and substitution}
 
@@ -640,16 +703,7 @@ is that reduction of definitionally equal terms preserves definitional equality
 (\rref*{E-pres}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}).
 Because definitional equality is defined in \rref{E-Conv}
 as the indistinguishability of the two terms after parallel reduction,
-we require confluence of parallel reduction.
-
-\begin{lemma}[Confluence]
-  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
-  \label{lem:confluence}
-  If $[[a =>* b]]$ and $[[a =>* c]]$,
-  then there exists a term $d$ such that
-  $[[:concrete: b =>* d]]$ and
-  $[[:concrete: c =>* d]]$.
-\end{lemma}
+the proof uses \nameref{lem:confluence}.
 
 As with indistinguishability,
 definitional equality is reflexive for well-graded terms
@@ -687,6 +741,7 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
 \end{lemma}
 
 \begin{lemma}[Injectivity of universes]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_univ\_inj}}
   If $[[E |- Univ i == Univ j]]$ then $[[i]] = [[j]]$.
 \end{lemma}
 

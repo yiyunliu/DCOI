@@ -119,6 +119,19 @@ defn
   {{ tex [[a]] \Rightarrow [[b]] }}
 by
 
+------ :: refl
+a => a
+
+b0 => b1
+rho0 => rho1
+-------------------------- :: morph
+b0 { rho0 } => b1 { rho1 }
+
+a0 => a1
+b0 => b1
+------------------------------ :: subst
+b0 { a0 / x } => b1 { a1 / x }
+
 defns
   Parallels :: '' ::=
 
@@ -128,10 +141,15 @@ defn
   {{ tex [[a]] \Rightarrow^{\ast} [[b]] }}
 by
 
+b0 =>* b1
+rho0 =>* rho1
+--------------------------- :: morph
+b0 { rho0 } =>* b1 { rho1 }
+
 a0 =>* a1
 b0 =>* b1
---------------------------- :: subst
-b0 {a0 / x} =>* b1 {a1 / x}
+------------------------------- :: subst
+b0 { a0 / x } =>* b1 { a1 / x }
 
 defns
   Indist :: '' ::=
@@ -306,6 +324,24 @@ E |- a : l
 a =>* b
 ---------- :: pres
 E |- b : l
+
+defns
+  Par_Subst :: '' ::=
+
+defn
+  rho0 => rho1 :: :: SP :: 'SP_'
+  {{ com substitution parallel reduction }}
+  {{ tex [[rho0]] \Rightarrow [[rho1]] }}
+by
+
+defns
+  Pars_Subst :: '' ::=
+
+defn
+  rho0 =>* rho1 :: :: SPs :: 'SPs_'
+  {{ com substitution multi-step parallel reduction }}
+  {{ tex [[rho0]] \Rightarrow^{\ast} [[rho1]] }}
+by
 
 defns
   IOk_Subst :: '' ::=
