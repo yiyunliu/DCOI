@@ -844,7 +844,7 @@ introduced by the partiality of the logical predicate.
 \begin{definition}[Semantic inhabitance]
   Given a context $[[E]]$ and a level $[[l]]$, 
   we say that $[[a]]$ \emph{semantically inhabits} the type $[[A]]$
-  if there exists some $[[S]]$ such that
+  at level $[[l]]$ if there exists some $[[i]]$ and $[[S]]$ such that
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{a}{[[l]]}{S}$.
 \end{definition}
 
@@ -1149,6 +1149,47 @@ The use of the dummy constant $[[dummy]]$ in the proof \todo{talk
 
 \subsection{Soundness}
 \label{sec:soundness}
+To define semantic well-typedness, we need to first define the notion
+of valid substitutions, sometimes also referred to as valuations.
+\begin{definition}[Valid Substitutions]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
+  \label{def:semwf}
+  A substitution map is valid substitution 
+  from $[[G]]$ to $[[D]]$,
+  written $\sws{[[D]]}{\rho}{[[G]]}$,
+  if for every $[[x : l A in G]]$,
+  $[[| D | |- rho(x) : l]]$ holds,
+  and for all $i$, $S$ such that
+  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
+  and $\member{\rho(x)}{[[l]]}{S}$.
+  % Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
+  % and the terms $\rho$ replaces them by have free variables in $[[D]]$.
+\end{definition}
+
+Next, we define semantic typing based on the definitions of valid
+substitutions and the logical predicate.
+\begin{definition}[Semantic well-typedness]
+  \label{def:semwt}
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
+  A term $[[a]]$ is semantically well typed with type $[[A]]$
+  at level $[[l]]$ under context $[[G]]$,
+  written $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$,
+  if for every $\rho$, $[[D]]$,
+  given $\sws{[[D]]}{\rho}{[[G]]}$,
+  the term $[[a {rho}]]$ semantically inhabits the type $[[A {rho}]]$
+  under the grading context $[[|D|]]$.
+\end{definition}
+
+Semantic well-formedness, written $\swf{[[G]]}$, can then be defined
+inductively based on semantic typing, similar to its syntactic
+counterpart.
+\begin{mathpar}
+  \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
+  \infer[\ottdrulename{SWf\_cons}]{
+    \swf{[[G]]} \\
+    \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
+  }
+\end{mathpar}
 
 
 \subsection{Normalization}
@@ -1428,20 +1469,6 @@ ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
   If $[[a =>* b]]$ and $\member{[[b]]}{[[l]]}{S}$,
   then $\member{[[a]]}{[[l]]}{S}$.
 \end{lemma}
-
-\begin{definition}[Semantic substitution]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
-  A substitution map is semantically well formed
-  with respect to a context $[[G]]$ under a context $[[D]]$,
-  written $\sws{[[D]]}{\rho}{[[G]]}$,
-  if for every $[[x : l A in G]]$,
-  $[[| D | |- rho(x) : l]]$ holds,
-  and there exist $i$, $S$ such that
-  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
-  and $\member{\rho(x)}{[[l]]}{S}$.
-  Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
-  and the terms $\rho$ replaces them by have free variables in $[[D]]$.
-\end{definition}
 
 \begin{definition}[Semantic well-typedness]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
