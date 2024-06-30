@@ -114,8 +114,8 @@
 }
 
 \newcommand{\interp}[4]{\bracks{#1 \vDash_{#2} #3} \searrow #4}
-\newcommand{\buildset}[3]{\braces{#1^{#2} \mid #3}}
-\newcommand{\member}[3]{#1 \in^{#2} #3}
+\newcommand{\buildset}[3]{#2 . \braces{#1 \mid #3}}
+\newcommand{\member}[3]{#1 \in #3(#2)}
 \newcommand{\dom}{\mathop{\mathsf{dom}}}
 \newcommand{\sws}[3]{#1 \vDash #2 : #3}
 \newcommand{\swt}[4]{#1 \vDash #2 :^{#3} #4}
@@ -971,7 +971,7 @@ which proceeds by induction on the typing derivation.
   \label{fig:logpred}
 \end{figure}
 
-In this section, we use a logical predicate (Figure~\ref{fig:logpred}) to show weak
+In this section, we use a logical predicate to show weak
 normalization and consistency for \name.
 We structure the section as follows. In Section~\ref{sec:logpred}, we
 present the definition of the logical predicate and its properties. In
@@ -980,13 +980,15 @@ semantic typing judgments based on the logical predicate and then
 prove the fundamental theorem, which states that all syntactically
 well-typed terms must be semantically well-typed, from which we derive
 weak normalization and consistency. In Section~\ref{sec:decconv}, we combine
-weak normalization and the factorization theorem to recover a decidable
+weak normalization and the standardization theorem to recover a decidable
 type conversion algorithm.
 \subsection{A logical predicate for \name}
 \label{sec:logpred}
-Before we can define the logical predicate, we need to first define
-the notion of neutral and normal terms so we can characterize
-semantically well-behaved terms.
+To characterize semantically well-behaved terms through the logical
+predicate, we need to first define the notion of neutral and normal terms.
+% Before we can define the logical predicate, we need to first define
+% the notion of neutral and normal terms so we can characterize
+% semantically well-behaved terms.
 % Before we can state and prove the adequacy property for the
 % logical predicate, we need to first define normal and neutarl forms
 % and prove some useful lemmas about how they interact with parallel
@@ -1016,7 +1018,8 @@ can be formulated using parallel reduction as follows.
   $[[wnf a]]$ (resp. $[[wne a]]$).
 \end{definition}
 
-We are now ready to give the definition of our logical relation.
+Figure~\ref{fig:logpred} gives the full definition of our logical
+predicate.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
 $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, as an inductive relation
@@ -1024,6 +1027,9 @@ recursively defined over the universe level $[[i]]$. The
 metavariable $S$ represents a family of terms indexed by levels. 
 We use the notation $\member{a}{[[l]]}{S}$ to indicate that $[[a]]$ is
 a term that belongs to the set in $[[S]]$ that is indexed by $[[l]]$.
+When constructing indexed sets, we use the notation
+$\buildset{[[a]]}{[[l]]}{\ldots}$ to indicate a family of sets
+parameterized by $[[l]]$.
 The judgment $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ reads that under the
 grading context $[[E]]$ and universe level $[[i]]$, the type $[[A]]$
 can be interpreted as the family of sets $[[S]]$.
@@ -1037,8 +1043,10 @@ semantically well-formed types $[[A]]$ and its meaning $[[S]]$. %  A key
 % the logical predicate; that is, each term can only correspond to one
 % interpretation $[[S]]$ if there exists one.
 
-We use the following definition in our discussion to reduce the noise
-introduced by the partiality of the logical predicate.
+For concision, we introduce the notion of semantic inhabitance to
+avoid mentioning the side condition that a type is well-formed when we
+want to talk about whether a term inhabits the set obtained from
+interpreting the type.
 \begin{definition}[Semantic inhabitance]
   Given a context $[[E]]$ and a level $[[l]]$, 
   we say that $[[a]]$ \emph{semantically inhabits} the type $[[A]]$
@@ -1169,7 +1177,8 @@ interpretation at a higher level.
   $\interp{[[E]]}{[[j]]}{[[A]]}{S}$.
 \end{lemma}
 \begin{proof}
-  By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and the transitivity of $\leq$.
+  By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$
+  and the transitivity of $\leq$ for universe levels.
 \end{proof}
 
 \Rref{SWt-Step} closes the interpretation of types under
@@ -1184,7 +1193,7 @@ preserved under forward reduction through the following lemma.
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   \Rref{SWt-Step} is the only interesting case, where we
-  leverage the diamond property (Lemma~\ref{lem:diamond}) of
+  leverage the diamond property (\ref{lem:diamond}) of
   parallel reduction to reconcile two potentially distinct reductions
   from the type $[[A]]$.
 \end{proof}
@@ -1204,11 +1213,11 @@ $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
   The \rref*{SWt-Step} case is immediate by \cref{lem:lrpreservation}.
   For all other cases, the conclusion
   follows by applying the inversion
-  properties (\cref{lem:interpinv}) on
+  properties (\ref{lem:interpinv}) on
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$.
 \end{proof}
 
-The logical relation is functional not only for types that are
+The logical predicate is functional not only for types that are
 syntactically equal, but also for types that are
 indistinguishable. This property is needed to fully justify the
 soundness of the type conversion rule since the type conversion
@@ -1224,9 +1233,8 @@ then $S_0 = S_1$.
   The argument is similar to the one for Lemma~\ref{lem:lrfunc}.
   We start by induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
-  For case \rref{SWt-Step}, we need both Lemma~\ref{lem:lrpreservation}
-  and the simulation property for indistinguishability
-  (Lemma~\ref{lem:simulation}).
+  For case \rref*{SWt-Step}, we need both Lemma~\ref{lem:lrpreservation}
+  and simulation (\ref{lem:simulation}).
   For other cases, we apply the inversion properties on
   $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$.
 
@@ -1248,7 +1256,7 @@ then $S_0 = S_1$.
   indistinguishable, we want to apply
   the substitution rule for indistinguishability
   (\rref{I-subst}), which requires $[[a]]$ to be well-graded at $[[l0]]$.
-  By Lemma~\ref{lem:escape}, the escape property, we finish the
+  By escape (\ref{lem:escape}), we finish the
   proof by deducing the well-gradedness of $[[a]]$ from the fact that
   $[[a]]$ semantically inhabits the input type $[[A0]]$.
 \end{proof}
@@ -1317,8 +1325,9 @@ because we want \rref{I-D, Wg-D} to hold. When the grading context is empty,
 there is no variable we are allowed to pick. However, since
 \rref{I-Absurd} does not impose any scope checking on the scrutinee of
 the empty eliminator, we can define $[[dummy]]$ as $[[tAbsurd x]]$ for
-an arbitrarily picked variable $[[x]]$. It is easy to verify that the
-rules about $[[dummy]]$ are indeed admissible.
+an arbitrarily picked variable $[[x]]$. It is easy to verify that this
+definition respect the rules in Figure~\ref{fig:dummy} and the
+antirenaming lemmas.
 
 Finally, we state and prove the adequacy lemma.
 \begin{lemma}[Adequacy]
@@ -1355,9 +1364,9 @@ Finally, we state and prove the adequacy lemma.
   also weakly normalizing.
 \end{proof}
 
-The use of the dummy constant $[[dummy]]$ in the proof \todo{talk
-  briefly about how the dummy term helps us avoid the complexity of a
-  Kripke-style model}...
+% The use of the dummy constant $[[dummy]]$ in the proof \todo{talk
+%   briefly about how the dummy term helps us avoid the complexity of a
+%   Kripke-style model}...
 
 \subsection{Soundness}
 \label{sec:soundness}
@@ -1366,14 +1375,14 @@ of valid substitutions, sometimes also referred to as valuations.
 \begin{definition}[Valid Substitutions]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
   \label{def:semwf}
-  A substitution map is valid substitution 
+  A substitution map is a valid substitution 
   from $[[G]]$ to $[[D]]$,
   written $\sws{[[D]]}{\rho}{[[G]]}$,
   if for every $[[x : l A in G]]$,
   $[[| D | |- rho(x) : l]]$ holds,
   and for all $i$, $S$ such that
-  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
-  and $\member{\rho(x)}{[[l]]}{S}$.
+  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$, 
+  we have $\member{\rho(x)}{[[l]]}{S}$.
   % Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
   % and the terms $\rho$ replaces them by have free variables in $[[D]]$.
 \end{definition}
@@ -1387,7 +1396,7 @@ respect to the erased contexts.
 % redundant but is in fact required; we are unable to recover it with
 % Lemma~\ref{lem:escape} since the definition of valid substitution does
 % not imply the existence of interpretations for types in the context.
-Valid substitutions also satisfy the following admissible structural rules.
+Valid substitutions satisfy the following admissible structural rules.
 \begin{lemma}[Structural rules for valid substitutions]
   \begin{mathpar}
     \mprset{fraction={===}}
@@ -1404,8 +1413,8 @@ Valid substitutions also satisfy the following admissible structural rules.
   that states well-graded neutral terms (variables in $[[G]]$ in
   this case) semantically inhabit any well-formed types.
 
-  \Rref{V-cons} requires Lemmas~\ref{lem:lrfunc} and
-  \ref{lem:cumulativity} to convert the fact that
+  \Rref{V-cons} requires functionality (\ref{lem:lrfunc}) and
+  cumulativity (\ref{lem:cumulativity}) to convert the fact that
   $\member{[[a]]}{[[l0]]}{S}$ for the specific $S$ from the
   precondition to the universal statement that
   $\member{[[a]]}{[[l0]]}{S_0}$ for arbitrary $j$ and $S_0$ such that
@@ -1418,10 +1427,10 @@ it tempting to simply replace the universal quantifier in the definition
 of valid substitutions with an existential quantifier. This change
 would allow us to omit the well-gradedness side condition for each
 $[[rho(x)]]$ since we can now derive it from the escape lemma
-(Lemma~\ref{lem:escape}). However, we note that this seemingly
+(\ref{lem:escape}). However, we note that this seemingly
 innocuous change would overcomplicate our proof by forcing us to
 generalize our logical predicate to a Kripke-style logical predicate.
-We discuss the details of this issue in Section~\ref{sec:discuss}.
+We discuss the details of this issue in Section~\ref{sec:nokripke}.
 
 % Since we
 % know that the logical predicate is functional, the existential variant
@@ -1457,7 +1466,8 @@ properties.
   \end{mathpar}  
 \end{lemma}
 \begin{proof}
-  Immediate by unfolding their definitions.
+  Immediate by unfolding the respective definitions of valid
+  substitutions and semantic well-typedness.
 \end{proof}
 The weakening property aligns with the intuitive understanding that a
 substitution map for a context $[[G]]$ also closes over any
@@ -1537,15 +1547,14 @@ the idea of valid input to valid output is baked into the
 For other cases involving eliminators such as \rref*{T-J, T-Let}, the
 scrutinee either reduces to a desired normal form (e.g. $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
 term. In the former case, the conclusion follows by the backward
-closure property (Lemma~\ref{lem:backclos}) and the induction
+closure property (\ref{lem:backclos}) and the induction
 hypothesis. In the latter case, we know that the elimination form
 evaluates to a neutral form and thus semantically inhabits the type by
-adequacy (Lemma~\ref{lem:adequacy}).
+adequacy (\ref{lem:adequacy}).
 
-The \rref*{Wt-Conv} case is justified by a combination of
-\rref{SWt-Par}, lemma~\ref{lem:lrpreservation} (preservation of
-meaning under evaluation and expansion), and
-lemma~\ref{lem:lrfunci} (indistinguishable types have the same meaning).
+The \rref*{Wt-Conv} case is justified by
+the preservation of meaning under expansion (\rref*{SWt-Par}),
+reduction (\ref{lem:lrpreservation}), and indistinguishability (\ref{lem:lrfunci}).
 \end{proof}
 
 \begin{corollary}[Weak normalization for well-typed terms]
@@ -1566,7 +1575,7 @@ lemma~\ref{lem:lrfunci} (indistinguishable types have the same meaning).
 \subsection{Decidability of type conversion}
 \label{sec:decconv}
 In this section, we use the normalization theorem
-(Corollary~\ref{cor:wtwn}) to recover a decision procedure for type
+(\ref{cor:wtwn}) to recover a decision procedure for type
 conversion.
 
 Let $\leadsto^{lo}$  be the
@@ -1602,15 +1611,15 @@ her original proof. Interested readers can refer to the
   \label{lem:indistdec}
   If the lattice admits a decidable comparison operator, then indistinguishability
   is decidable. That is, given a grading context $[[E]]$, terms
-  $[[a]]$ and $[[b]]$, and a level $[[l]]$, there is an algorithm that
+  $[[A]]$ and $[[B]]$, and a level $[[l]]$, there is an algorithm that
   terminates with \texttt{true} or \texttt{false} depending on whether
-  $[[E |- a == b @ l]]$.
+  $[[E |- A == B @ l]]$.
 \end{lemma}
 \begin{proof}
   The algorithm, whose definition we omit, simply recurses over the
-  structure of $[[a]]$.
+  structure of $[[A]]$.
   The correctness proof mirrors the definition of the algorithm and
-  proceeds by induction on $[[a]]$. The variable case requires that the
+  proceeds by induction on $[[A]]$. The variable case requires that the
   comparison $[[l0 <= l]]$ is decidable.
 \end{proof}
 
@@ -1618,24 +1627,29 @@ her original proof. Interested readers can refer to the
   Given a grading context $[[E]]$ and two well-formed types $[[A]]$
   and $[[B]]$, the algorithm decides their equality is as follows.
   \begin{enumerate}
-  \item Repeatedly apply leftmost-outermost reduction on $[[A]]$ and
+  \item Run the decision procedure from \cref{lem:nomdec} on $[[A]]$ and
     $[[B]]$ to obtain normal forms $[[A0]]$ and $[[B0]]$.
   \item Recursivley compute $[[l0]]$ and $[[l1]]$, the minimal levels
     at which $[[A0]]$ and $[[B0]]$ can be graded respectively.
-  \item Run the decision procedure for indistinguishability
-    (Lemma~\ref{lem:indistdec}) on the relation
-    $[[E |- A0 == A1 @ l0 \/ l1]]$ and return the result.
+  \item Return the result of the decision procedure from
+    \cref{lem:indistdec} on the relation
+    $[[E |- A0 == A1 @ l0 \/ l1]]$.
   \end{enumerate}
 \end{definition}
 
-The termination of the algorithm follows from normalization
-(\ref{cor:wtwn}),
-standardization (\ref{lem:nomdec}), and decidability of
-indistinguishability (\ref{lem:indistdec}).
-Its correctness
-follows from the syntactic properties about reduction,
-indistinguishability, and normal forms we have established in
-Sections~\ref{sec:synmeta} and \ref{sec:logpred}.
+In step (3),
+the simulation lemma (\ref{lem:simulation}) justifies the use of
+normal forms $[[A0]]$ and $[[B0]]$
+before we check indistinguishability, whereas the downgrade
+property (\todo{add downgrade property to section 3}) justifies the
+use of the lowest possible level $[[l0 \/ l1]]$.
+
+% The correctness of the algortihm
+% follows from the syntactic properties about reduction,
+% indistinguishability, and normal forms we have established in
+% Sections~\ref{sec:synmeta} and \ref{sec:logpred}. One of the most
+% notable properties is the admissible \rref*{I-Down} rule, which says
+% choosing the lowest level is good enough.
 
 The only missing piece is the decidability of the algorithm for
 computing levels in step 2.
@@ -1756,6 +1770,9 @@ a contradiction.
 \nameref{thm:preservation} is also violated,
 since by the contradiction $[[J (\ H x . x) L refl]]$ would be an inhabitant of $[[Void]]$,
 while it reduces to $[[(\ H x . x)]]$, which is not.
+
+\subsection{Scoped logical relation, non-Kripke style}
+\label{sec:nokripke}
 
 \section{Related work}
 
