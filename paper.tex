@@ -145,8 +145,8 @@
 \setlength\belowcaptionskip{1pt plus 1pt minus 1pt}
 
 % reduce spacing surrounding figures
-\setlength{\intextsep}{6pt plus 2.0pt minus 2.0pt}
-\setlength{\textfloatsep}{6pt plus 2.0pt minus 2.0pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
 
 \inputott{dcoi-rules}
 
@@ -513,6 +513,15 @@ We explain in further detail how omitting these constraints violate simulation i
   \caption{Typing and indistinguishability rules (equality)}
   \label{fig:typing:eq}
 \end{figure}
+
+The propositional equality type internalizes the indistinguishability judgement,
+enabling reasoning about indistinguishability within \name itself.
+The typing rules for constructs related to the equality type are given in \cref{fig:typing:eq}.
+An equality type $[[a ~ l0 b : A]]$ represents the proposition that $[[a]]$ and $[[b]]$
+are indistinguishable by observers at level $[[l0]]$.
+By \rref{Wt-Eq}, the endpoints must themselves be well typed at level $[[l0]]$,
+since it only makes sense to talk about the indistinguishability of observable terms,
+just as \rref{I-Var} only holds for observable variables.
 
 \begin{figure}[h]
   \drule{P-JRefl}
@@ -902,6 +911,7 @@ which proceeds by induction on the typing derivation.
 
 \begin{theorem}[Type preservation]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction},\suppl{theories}{preservation.v}{subject\_reduction\_star}}
+  \label{thm:preservation}
   If $[[a => b]]$ and $[[G |- a : l A]]$
   then $[[G |- b : l A]]$,
   and similarly for $[[a =>* b]]$.
@@ -1666,14 +1676,14 @@ of conversion in \rref{Wt-Conv}.
 
 \subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
 
-The level of the scrutinee must be bounded by the level of the overall eliminator.
-In particular, in \rref{Wt-J}, the level $[[l]]$ of an equality proof $[[p]]$
-must be bounded by that of its elimination $[[J c l p]]$,
-and in \rref{Wt-Let}, the level $[[l]]$ of a pair $[[a]]$
-must be bounded by that of its elimination $[[let (l0 x, y) = l a in b]]$.
-The bound is required to prove \nameref{lem:simulation}.
+The level of scrutinees must be bounded by the level of the overall eliminator.
+In particular, in \rref{Wt-J}, the level $[[l2]]$ of an equality proof $[[p]]$
+must be bounded by that of its elimination $[[J c l2 p]]$,
+and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
+must be bounded by that of its elimination $[[let (l0 x, y) = l1 a in b]]$.
+The bound is required to prove the \nameref{lem:simulation} property.
 Suppose that scrutinees could instead be typed at any level.
-First, the indistinguishability rules need to be updated
+First, the indistinguishability rules would need to be updated
 so that scrutinees are indistinguishable if their level is higher
 than that of the overall eliminator, just like in \rref{I-App}.
 The modified premises are highlighted in \hlcolor{} below.
@@ -1681,10 +1691,10 @@ The modified premises are highlighted in \hlcolor{} below.
 \begin{mathpar}
   \setlength{\fboxsep}{1.5pt}
   \infer[\ottdrulename{I\_J\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l0]]} \\
+    \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l2]]} \\
     [[E |- c0 == c1 @ l]]
   }{
-    [[E |- J c0 l0 p0 == J c1 l0 p1 @ l]]
+    [[E |- J c0 l2 p0 == J c1 l2 p1 @ l]]
   }
   \and
   \infer[\ottdrulename{I\_Let\_bad}]{
@@ -1695,29 +1705,57 @@ The modified premises are highlighted in \hlcolor{} below.
   }
 \end{mathpar}
 
-As concrete examples, by these alternate rules,
+As concrete examples, by \rref{I-J-bad},
 supposing $[[J c H p]]$ were well typed in context $[[G]]$
 at level $[[L]]$ with $[[G |- p : H a ~ L a]]$,
 we can conclude that $[[| G | |- J c H refl == J c H p @ L]]$.
 The problem is that the left-hand side reduces to $[[c]]$,
 while the right-hand side does not necessarily reduce to something indistinguishable from $[[c]]$,
-thereby violating the simulation property.
-The same issue arises with pairs, where we may be able to conclude that
+thereby violating simulation.
+The same issue arises with pairs, where we may be able to conclude by \rref{I-Let-bad} that
 $[[| G | |- let (H x, y) = H (H a, b) in c == let (H x, y) = H d in c @ L]]$,
 and the left-hand side reduces to $[[c {a / x, b / y}]]$,
 while the right-hand side again does not necessarily reduce to something indistinguishable from it.
-Even if the context were empty, the simulation property still cannot be proven
+Even if the context were empty, simulation still cannot be proven
 without knowing \apriori that a closed proof of equality $[[p]]$ normalizes to $[[refl]]$,
 or that a closed term of a pair type normalizes to a pair.
 
 The one exception is the eliminator for the empty type,
 whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
 Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
-ignoring $[[b]]$ in \rref{I-Absurd} will not violate the simulation property.
+ignoring $[[b]]$ in \rref{I-Absurd} will not violate simulation.
 
 \subsection{Equality type level constraints}
 
-\jc{TODO: Section 5.2 from previous paper goes here}
+In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b : A]]$
+must be bounded by the level $[[l]]$ of the overall equality type.
+Otherwise, \name would be inconsistent.
+Suppose that $[[l0]]$ did not have to be bounded by $[[l]]$.
+Once again, the indistinguishability rule would need to be modified
+so that the endpoints are compared using guarded indistinguishability
+to handle the situation where $[[l0]]$ is higher
+than the observer level $[[l]]$ of the indistinguishability judgement.
+The modified premises are highlighed in yellow below.
+%
+\begin{mathpar}
+  \setlength{\fboxsep}{1.5pt}
+  \infer[\ottdrulename{I\_Eq\_bad}]{
+    \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l0]]} \\
+    \mathcolorbox{\hlcolor}{[[E |- b0 == b1 @ l l0]]}
+  }{
+    [[E |- a0 ~ l0 b0 : A0 == a1 ~ l0 b1 : A1 @ l]]
+  }
+\end{mathpar}
+
+By \rref{I-Eq-Bad}, it would be possible to derive the judgement
+$[[nil |- Unit ~ H Unit : Univ i == Unit ~ H Void : Univ i @ L]]$
+via \rref{GI-Indist} for both premises since $[[not (H <= L)]]$.
+The left-hand size is inhabited by $[[refl]]$,
+which would then also be a proof of the right-hand side via \rref{Wt-Conv},
+a contradiction.
+\nameref{thm:preservation} is also violated,
+since by the contradiction $[[J (\ H x . x) L refl]]$ would be an inhabitant of $[[Void]]$,
+while it reduces to $[[(\ H x . x)]]$, which is not.
 
 \section{Related work}
 
