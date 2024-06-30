@@ -522,6 +522,31 @@ are indistinguishable by observers at level $[[l0]]$.
 By \rref{Wt-Eq}, the endpoints must themselves be well typed at level $[[l0]]$,
 since it only makes sense to talk about the indistinguishability of observable terms,
 just as \rref{I-Var} only holds for observable variables.
+The observer level $[[l0]]$ must also be bounded by the overall level $[[l]]$
+to maintain logical consistency,
+which we explain in detail in \cref{sec:eq-level}.
+
+There are two constructors for the empty type.
+The first is the usual reflexivity proof $[[refl]]$ for well-typed terms,
+given by \rref{Wt-Refl}.
+The second is a \emph{downgrade operator} $[[down l0 p]]$
+on an existing equality proof $[[p]]$, given by \rref{Wt-Down}.
+It internalizes the following \nameref{lem:downgrade} property.
+
+\begin{lemma}[Downgrade]
+  \stack{.~}\footnote{\suppl{theories}{geq.v}{iok\_ieq\_downgrade}}
+  \label{lem:downgrade}
+  Suppose $[[G |- a : l0 A]]$ and $[[G |- b : l0 A]]$.
+  If $[[| G | |- a == b @ l1]]$ and $[[l0 <= l1]]$,
+  then $[[| G | |- a == b @ l0]]$.
+\end{lemma}
+
+If two terms are indistinguishable at some level $[[l1]]$,
+then they are also indistinguishable at a lower level $[[l0]]$,
+since a lower-level observer is able to inspect fewer terms
+and therefore treats the same or more terms are indistinguishable.
+Correspondingly, the downgrade operator explicitly casts
+an equality proof from a higher observer level to a lower one.
 
 \begin{figure}[h]
   \drule{P-JRefl}
@@ -1738,7 +1763,7 @@ whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
 Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
 ignoring $[[b]]$ in \rref{I-Absurd} will not violate simulation.
 
-\subsection{Equality type level constraints}
+\subsection{Equality type level constraints} \label{sec:eq-level}
 
 In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b : A]]$
 must be bounded by the level $[[l]]$ of the overall equality type.
