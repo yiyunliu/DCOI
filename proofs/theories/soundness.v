@@ -158,9 +158,15 @@ Proof.
       hauto l:on solve+:solve_lattice.
 Qed.
 
+Lemma iok_ρ_ok_morphing :
+  forall Γ Δ a ℓ ρ, IOk (c2e Γ) ℓ a -> ρ_ok Γ Δ ρ -> IOk (c2e Δ) ℓ a[ρ].
+Proof.
+  eauto using cfacts.ifacts.iok_morphing, ρ_ok_iok.
+Qed.
+
 Lemma wt_ρ_ok_morphing_iok Γ Δ ρ ℓ a A (h : Γ ⊢ a ; ℓ ∈ A) (h0 : ρ_ok Γ Δ ρ) : IOk (c2e Δ) ℓ a[ρ].
 Proof.
-  eauto using cfacts.ifacts.iok_morphing, typing_iok, ρ_ok_iok.
+  eauto using iok_ρ_ok_morphing, typing_iok.
 Qed.
 
 (* Fundamental theorem: Syntactic typing implies semantic typing *)

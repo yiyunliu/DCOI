@@ -690,7 +690,7 @@ Proof.
     eapply ieq_downgrade_mutual; eauto.
 Qed.
 
-Lemma iok_ieq_downgrade Ξ a b ℓ0 ℓ1 :
+Lemma iok_ieq_downgrade_iok Ξ a b ℓ0 ℓ1 :
   IOk Ξ ℓ0 a ->
   IEq Ξ ℓ1 a b ->
   IOk Ξ (ℓ0 ∩ ℓ1) a.

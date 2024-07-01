@@ -622,14 +622,23 @@ Qed.
 
 (* ------------------------------------------------- *)
 (* Simpler forms of typing rules *)
+Lemma T_Eq_simpl' Γ ℓ ℓ0 a b A i :
+  ℓ0 ⊆ ℓ ->
+  Γ ⊢ a ; ℓ0 ∈ A ->
+  Γ ⊢ b ; ℓ0 ∈ A ->
+  Γ ⊢ (tEq ℓ0 a b A) ; ℓ ∈ (tUniv i).
+Proof.
+  move => ha /[dup] hb /Wt_regularity.
+  move => [ℓ1][i0]hA.
+  hauto q:on use:subsumption, T_Eq.
+Qed.
+
 Lemma T_Eq_simpl Γ ℓ0 a b A i :
   Γ ⊢ a ; ℓ0 ∈ A ->
   Γ ⊢ b ; ℓ0 ∈ A ->
   Γ ⊢ (tEq ℓ0 a b A) ; ℓ0 ∈ (tUniv i).
 Proof.
-  move => ha /[dup] hb /Wt_regularity.
-  move => [ℓ1][i0]hA.
-  hauto q:on use:subsumption, T_Eq solve+:(solve_lattice).
+  hauto lq:on use:T_Eq_simpl' solve+:solve_lattice.
 Qed.
 
 (* Weaker than what it could have been but enough for what we need *)
@@ -1136,6 +1145,43 @@ Lemma subject_reduction_star a b (h : a ⇒* b) : forall Γ ℓ A,
     Γ ⊢ a ; ℓ ∈ A -> Γ ⊢ b ; ℓ ∈ A.
 Proof.
   induction h; sfirstorder use:subject_reduction ctrs:rtc.
+Qed.
+
+Lemma T_Down_Alt Γ ℓ ℓ0 ℓ1 a b A p :
+  ℓ1 ⊆ ℓ0 ->
+  Γ ⊢ a ; ℓ1 ∈ A ->
+  Γ ⊢ b ; ℓ1 ∈ A ->
+  Γ ⊢ p ; ℓ ∈ tEq ℓ0 a b A ->
+  (* --------------------- *)
+  Γ ⊢ tJ ℓ tRefl p ; ℓ ∈ tEq ℓ1 a b A.
+Proof.
+  move => hℓ ha hb hp.
+  replace (tEq ℓ1 a b A) with (tEq ℓ1 (ren_tm S (ren_tm S a)) (var_tm 1) (ren_tm S (ren_tm S A)))[p .: b..]; last by asimpl.
+  apply T_J_simpl with (a := a) (A := A) (i := 0) (ℓp := ℓ) (ℓ0 := ℓ0) (ℓ1 := ℓ1); eauto.
+  solve_lattice.
+  - move => [:hwff].
+    apply T_Eq_simpl'; eauto.
+    asimpl.
+    + apply renaming_Syn with (Γ := Γ) => //.
+      * rewrite /lookup_good_renaming.
+        move => i ℓ2 A0.
+        move => h. exists ℓ2.
+        split; last by solve_lattice.
+        apply : there'; cycle 1.
+        apply : there'; eauto.
+        by asimpl.
+      * abstract : hwff.
+        move /Wt_regularity : (ha) => [ℓA][i]hA.
+        apply Wff_cons with (i := 0) (ℓ := ℓ0).
+        by eauto using Wff_cons with wff.
+        apply T_Eq_simpl'. solve_lattice.
+        apply : weakening_Syn; eauto.
+        sfirstorder use:subsumption.
+        apply : T_Var; eauto using here with wff.
+    + apply : T_Var; eauto.
+      apply : there'; eauto. by apply here.
+      solve_lattice.
+  - asimpl. apply T_Refl; eauto with wff.
 Qed.
 
 End preservation.

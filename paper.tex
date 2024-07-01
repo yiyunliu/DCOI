@@ -1527,11 +1527,17 @@ the single extension of the identity substitution map.
   % and the terms $\rho$ replaces them by have free variables in $[[D]]$.
 \end{definition}
 
-By definition, every valid substitution is also a well-graded substitution with
-respect to the erased contexts.
-\begin{lemma}[Valid substitutions are well-graded]
-  If $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |- rho : |G|]]$.
+By definition, every term $[[rho( x)]]$ in a valid substitution map
+$[[rho]]$ from $[[G]]$ to $[[D]]$ is well-graded with respect to the erased context
+$[[|D|]]$. This allows us to derive the following lemma about
+well-gradedness and valid substitutions.
+\begin{lemma}[Valid substitutions for well-graded terms]
+  If $[[|G| |- a : l]]$ and $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |-
+  a{rho} : l ]]$.
 \end{lemma}
+\begin{proof}
+  Immediate by iterating the substitution principle for well-gradedness (\rref*{Wg-subst}).
+\end{proof}
 % The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
 % redundant but is in fact required; we are unable to recover it with
 % Lemma~\ref{lem:escape} since the definition of valid substitution does
