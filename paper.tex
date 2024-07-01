@@ -1650,15 +1650,15 @@ Valid substitutions satisfy the following admissible structural rules.
   definition of valid substitutions.
 \end{proof}
 
-The dependency on the functionality property in the proof of \rref{V-cons} makes 
-it tempting to simply replace the universal quantifier in the definition
-of valid substitutions with an existential quantifier. This change
-would allow us to omit the well-gradedness side condition for each
-$[[rho(x)]]$ since we can now derive it from the escape lemma
-(\ref{lem:escape}). However, we note that this seemingly
-innocuous change would overcomplicate our proof by forcing us to
-generalize our logical predicate to a Kripke-style logical predicate.
-We discuss the details of this issue in Section~\ref{sec:nokripke}.
+% The dependency on the functionality property in the proof of \rref{V-cons} makes 
+% it tempting to simply replace the universal quantifier in the definition
+% of valid substitutions with an existential quantifier. This change
+% would allow us to omit the well-gradedness side condition for each
+% $[[rho(x)]]$ since we can now derive it from the escape lemma
+% (\ref{lem:escape}). However, we note that this seemingly
+% innocuous change would overcomplicate our proof by forcing us to
+% generalize our logical predicate to a Kripke-style logical predicate.
+% We discuss the details of this issue in Section~\ref{sec:nokripke}.
 
 % Since we
 % know that the logical predicate is functional, the existential variant
@@ -2015,8 +2015,81 @@ while it reduces to $[[(\ H x . x)]]$, which is not.
 
 \todo{discuss why the scrutinee can't be typed at the observer level}
 
-\subsection{Scoped logical relation without Kripke}
+\subsection{Scoped Logical Predicate,  non-Kripke Style}
 \label{sec:nokripke}
+% To justify the type conversion rule (\rref*{Wt-Conv}) semantically, we
+% need to prove that indistinguishable types have the same meaning
+% (\ref{lem:lrfunci}), which in turn requires us to show that only
+% well-graded terms can inhabit the logical predicate
+% (\ref{lem:escape}).
+% To derive Lemma~\ref{lem:escape}, the escape property, we need to
+% parameterize our logical predicate by the grading context $[[E]]$ and
+% decorate its definition with additional well-gradedness constraints.
+
+The well-gradedness constraints in Figure~\ref{fig:logpred} introduces scoping information to our
+logical predicate. As observed by \citet{abel:normalization}, to
+derive the adequacy property for a scoped logical relation, the
+interpretation for functions must be generalized to account for
+weakened contexts. Logical relations augmented with this
+generalization are referred to as Kripke-style logical relations and
+can be found in \citet{abel:poplmark, abel:irrelevance,
+  adjedj:mltt-coq, harper:equivalence}.
+
+However, the logical predicate for \name is different in that the
+scoping information is not the full-fledged typing judgment, unlike
+the forementioned works, but the weaker well-gradedness judgment. This
+allows us to introduce in Section~\ref{sec:logpred} an ill-typed but
+well-graded constant $[[dummy]]$, which has similar reduction behavior
+as free variables, but is not subject to scoping constraints.
+
+When deriving the normalization of functions, we can use the antirenaming
+property formulated in terms of $[[d]]$ to avoid weakening the grading
+context with a Kripke-style logical predicate. This proof technique
+simplifies our definition of the logical predicate significantly; in a
+dependently typed system, a Kripke-style predicate would require us to
+generalize not only functions, but also function and sigma types themselves
+since they both involve binders.
+
+% However, our non-Kripke style logical relation requires us to be
+% careful not to rely on the following weakening property on the grading
+% context, which does not hold with our existing definition of the
+% logical predicate.
+% \begin{proposition}[Context weakening for the logical predicate (does
+%   not hold!)]
+%   \label{prop:badweak}
+%   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then $\interp{[[E ++ x : l0]]}{[[i]]}{[[A]]}{S}$.
+% \end{proposition}
+% \cref{prop:badweak} should not be confused with the weakening property
+% for semantic well-typedness (\ref{lem:semweak}), the latter of which
+% is derivable without unfolding the definition of the logical predicate.
+% An attempt at proving \cref{prop:badweak} would fail at the function case
+% due to the contravariance of the function argument and therefore
+% requires the type of generalization to weakened contexts found in
+% Kripke-style logical relations.
+
+% Dependency on \cref{prop:badweak} can be accidentally introduced when
+% defining valid substitutions. Consider the following alternative
+% definition of valid substitutions, which replaces the universal
+% quantifier for $i$ and $S$ from \cref{def:semwf} with an existential
+% quantifier.
+% \begin{definition}[Valid Substitutions (Existential)]
+%   \label{def:semwfex}
+%   A substitution map is a valid substitution 
+%   from $[[G]]$ to $[[D]]$,
+%   written $\sws{[[D]]}{\rho}{[[G]]}$,
+%   if for every $[[x : l A in G]]$,
+%   $[[| D | |- rho(x) : l]]$ holds,
+%   and there exists $i$, $S$ such that
+%   $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$ and
+%    $\member{\rho(x)}{[[l]]}{S}$.
+% \end{definition}
+% The existential variant of valid substitutions implies our existing
+% universally quantified definition of valid substitutions since the
+% logical predicate is a partial function (\ref{lem:lrfunc}).
+
+% By defining soundness in terms of 
+
+
 
 \subsection{Towards typed judgmental equality}
 \label{sec:typeddefeq}
