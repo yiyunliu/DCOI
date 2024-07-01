@@ -2091,8 +2091,28 @@ since they both involve binders.
 
 
 
-\subsection{Towards typed judgmental equality}
+\subsection{Towards typed definitional equality and relational
+  semantic models}
 \label{sec:typeddefeq}
+Following \citet{liu:dcoi}, we formulate \name as an instantiation of
+Barendregt's Pure Type Systems~\citep{barendregt:PTS} with a predicative
+universe hierarchy.
+
+A variation of PTS, referred to as Pure Type System with Judgmental
+Equality by \citet{adams:pure}, replaces the untyped conversion rule from PTS
+with a type-directed equality judgment. While untyped conversion rules
+are still used in practice by theorem provers such as Coq~\citep{coq},
+judgmental equality enables more expressive $\eta$ laws that cannot be
+expressed without type annotation.
+
+\citet{siles:PTS} proves the equivalence between typed and untyped
+Pure Type Systems in the absence of $\eta$ laws.
+One may wonder if a
+similar equivalence holds between \name and a variant with typed
+equality.
+However, it turns out that even defining judgmental equality for \name
+poses enough of a challenge. Consider the following
+typed congruence rule for functions.
 
 
 \section{Related work}
