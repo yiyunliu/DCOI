@@ -212,17 +212,115 @@
 
 \section{Introduction}
 
+Dependency-tracking type systems govern how functions can depend on their
+inputs. Essentially, these systems prevent the flow of information from
+high-level sources to low-level results.
+
+The \emph{Dependent Calculus of Indistinguishability (DCOI)}~\cite{dcoi}
+adapts dependency tracking to the context of a dependently-typed programming
+language. The primary goal of dependency tracking in DCOI is to identify
+irrelevant arguments. These arguments can be erased during compilation to
+produce faster execution and can be ignored during equivalence checking. A key
+notion is \emph{indistinguishability}: a definition of program equivalence
+that takes into account the parts of the program that an observer may depend
+on. However, dependency-tracking type systems serve many purposes, such as
+staged compilation and information flow control~\cite{abadi:dcc}.
+
+Prior work lays the foundation for the design of a dependently-typed
+programming language based dependency tracking, called DCOI. DCOI's conversion
+may use indistinguishability at any observer level when comparing types for
+equality. Despite this coarse notion of equality, prior work showed that DCOI
+is type sound.
+
+However, prior work focused on syntactic methods for reasoning about
+DCOI. While sufficient for type soundness, they cannot be used to identify a
+logically consistent fragment of DCOI that enjoys properties such as weak
+normalization and decidable observer-indexed equivalence. For flexibility,
+\dcoi is designed around a \emph{Pure Type System} (PTS), where various
+instances of sorts, rules and axioms determine the versions of quantification
+that is allowed in the language. While some instances of PTSs are known to
+allow nontermination (such as when including the $[[Type]]:[[Type]]$ axiom),
+others (such as those that include a predicative universe hierarchy, or a
+single impredicative sort) can form the basis of a consistent logic.
+
+In this paper, we define the language \name, which is a dependent type theory
+featuring a predicative universe hierarchy. This calculus retains many of the
+features of \dcoi, including level-indexed dependent function types
+($[[Pi x : l A . B]]$), level-indexed dependent pairs ($[[Sig x : l A. B]]$),
+level-indexed propositional equality $[[a ~l b]]$, and an empty type
+$[[bot]]$.
+
 \begin{itemize}
-  \item low elimination of high absurd proofs
-  \item propositional equality downgrade
-  \item J eliminator
-  \item weak pair projections
-  \item consistency
-  \item normalization
-  \item decidable type conversion (mechanized up to indistinguishability)
+
+\item We show that \name is logically consistent (there is no inhabitant of
+  the empty type), weakly normalizing (every term can be reduced to a normal
+  form), and that level-indexed equality is decidable. Local consistency means
+  that programmers can use it to reason internally about their code. Like Coq
+  (Roq?), Agda, Idris and Lean, \name supports programming and program
+  verification in the same framework. Unlike these systems, programmers may
+  also internally reason about information flow.
+
+\item Because the empty type is uninhabited, we show that this type system
+  supports an expressive rule for false-elimination. A ``high''-level proof of
+  false can eliminated to produce low level results. This rule justifies the
+  irrelevance of all proof terms used to construct contradictions.
+
+\item We further develop the theory of the observer-indexed propositional
+  equality type in \name, including its elimination via the $J$
+  operator. (Prior work used a restricted form of $J$.) We also add a new
+  reasoning principle to the language, allowing programmers to
+  \emph{downgrade}\sw{I wonder now if downgrade is the right term to use for
+    this.} a high-level equality to a lower-level version, allowing
+  flexibility in reasoning. (The opposite direction is not sound, as
+  high-level observers can percieve differences missed by their low-level
+  counterparts.)
+
+\item (Weak) normalization means that all \name programs terminate. The
+  elimination forms for positive types, such as the $J$ operator for
+  propositional equality, is strict. Because of this strictness, uses of $J$
+  are considered relevant, even though there is only a single thread of
+  execution. However, termination justifies (external) erasure of all equality
+  proofs during computation.  \sw{Not sure what to say here and maybe this is
+    an anti-contribution. Does it make sense to have a dependency level that
+    is ``a run-time argument, but only used to construct equality proofs''
+    that can be used to track this erasure?}
+
+\item Decidable type conversion is the key step to showing decidable
+  typechecking for \name. What remains is merely the selection and propagation
+  of type annotations: should the source type system for \name be based on
+  unification, bidirectional type checking, or other forms of type inference?
+  Because this last step is more of a user-interface question than a semantic
+  question, we leave it for future work.
+
+\item Our semantic reasoning replicates the syntactic type soundness result of
+  prior work. The structure of our proofs show that the prior type system
+  design is not accidentally sound, and provides new perspective on its
+  design. In particular, in our experiments with \name, we have encountered
+  opportunities for
+
 \end{itemize}
 
+All of our results have been developed using the Coq/Roqc proof assistant and
+our proofs are available as supplementary material. Despite the expressiveness
+of our language, our proofs have been designed to be remarkably concise
+compared to similar results.
+
+Furthermore, we have developed a prototype type checker, suitable for
+experimentation.
+
+
+%\begin{itemize}
+%  \item low elimination of high absurd proofs
+%  \item propositional equality downgrade
+%  \item J eliminator
+%  \item weak pair projections
+%  \item consistency
+%  \item normalization
+%  \item decidable type conversion (mechanized up to indistinguishability)
+%\end{itemize}
+
 \section{Examples}
+
 
 % (unbox H x) H 1 == (unbox H x) H 2 @ H
 % a ~>* na, b ~>* nb, na == nb @ (min la lb) where la = lvl(na), lb = lvl(nb)
