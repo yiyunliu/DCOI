@@ -463,6 +463,21 @@ E |- c0 == c1 @ l
 ----------------- :: Conv
 E |- a == b
 
+defns
+  DefEqL :: '' ::=
+
+defn
+  E |- a <=> b @ l :: :: DefEqL :: 'EL_'
+  {{ com definitional equality at a level }}
+  {{ tex [[E]] \vdash [[a]] \Leftrightarrow^{[[l]]} [[b]] }}
+by
+
+a =>* c0
+b =>* c1
+E |- c0 == c1 @ l
+----------------- :: Conv
+E |- a <=> b @ l
+
 %% Typing and grading judgements
 
 defns

@@ -412,6 +412,12 @@ which denotes dropping all type annotations to convert a typing context into a g
 
 Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv},
 which separately incorporates parallel reduction and indistinguishability.
+For convenience, we define the shorthand $[[E |- a <=> b @ l]]$
+as a level-annotated form of definitional equality:
+it holds iff $[[a =>* c0]]$, $[[b =>* c1]]$, and $[[E |- c0 == c1 @ l]]$.
+Consequently, $[[E |- a == b]]$ holds iff there exists some level $[[l]]$
+such that $[[E |- a <=> b @ l]]$ holds.
+
 Parallel reduction consists of the $\beta$-reduction rules for our elimination forms,
 listed in \cref{fig:conv} and in following subsections,
 along with rules for the reflexive, congruent closure, omitted here.
@@ -573,69 +579,7 @@ Some lemmas are presented as admissible derivation rules of the corresponding ju
 which are written with a double horizontal bar instead of a single bar.
 Their corresponding mechanizations are annotated where mentioned in the prose.
 
-\subsection{Properties of parallel reduction}
-
-The notion of parallel reduction can be extended to substitution maps
-pointwise on each term in the maps.
-
-\begin{definition}[Parallel reduction of substitutions]
-  A substitution map $[[rho0]]$ parallel reduces to $[[rho1]]$,
-  written $[[rho0 => rho1]]$, if $[[rho0(x) => rho1(x)]]$ for every $[[x]]$.
-  Similarly, $[[rho0 =>* rho1]]$ if $[[rho0(x) =>* rho1(x)]]$ for every $[[x]]$.
-\end{definition}
-
-We then prove the morphing lemmas
-\rref*{P-morph}\footnote{\suppl{theories}{par.v}{Par\_morphing}} and
-\rref*{Ps-morph}\footnote{\suppl{theories}{par.v}{Pars\_morphing\_star}},
-listed in \cref{fig:pars-lemmas},
-which combine a reducing term with a reducing substitution map.
-The substitution lemma
-\rref*{P-morph}\footnote{\suppl{theories}{par.v}{Par\_cong}},
-which combines two reducing terms by substitution,
-then follows from morphing.
-An additional useful lemma is that single parallel reduction itself is already reflexive
-(\rref*{P-refl}\footnote{\suppl{theories}{par.v}{Par\_refl}}).
-
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \drule{P-refl}
-  \drule{P-morph}
-  \drule{P-subst}
-  \drule{Ps-morph}
-  % \drule{Ps-subst}
-  \vspace{0.5\baselineskip}
-  \caption{Admissible rules for parallel reduction}
-  \label{fig:pars-lemmas}
-\end{figure}
-
-% TODO: Do we explicitly need the inversion lemmas stated?
-% \footnote{\suppl{theories}{par.v}{Pars\_pi\_inv}}
-% \footnote{\suppl{theories}{par.v}{Pars\_sig\_inv}}
-% \footnote{\suppl{theories}{par.v}{Pars\_eq\_inv}}
-% \footnote{\suppl{theories}{par.v}{Pars\_univ\_inv}}
-
-The key lemmas of parallel reduction are the diamond property and confluence,
-which state that if a term reduces to two different terms,
-those two terms themselves must converge back to the same term.
-The proof uses the notion of complete development%
-\footnote{\suppl{theories}{par.v}{tstar}}
-by \citet{takahashi:par}.
-
-\begin{lemma}[Diamond]
-  \stack{.~}\footnote{\suppl{theories}{par.v}{Par\_confluent}}
-  \label{lem:diamond}
-  If $[[a => b0]]$ and $[[a => b1]]$, then
-  there exists some $[[c]]$ such that $[[b0 => c]]$ and $[[b1 => c]]$.
-\end{lemma}
-
-\begin{lemma}[Confluence]
-  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
-  \label{lem:confluence}
-  If $[[a =>* b0]]$ and $[[a =>* b1]]$, then
-  there exists some $[[c]]$ such that $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
-\end{lemma}
-
-\subsection{Well-gradedness and substitution}
+\subsection{Well-gradedness}
 
 As indistinguishability and definitional equality involve a grading context,
 we require a well-gradedness judgement on terms to be able to prove some substitution lemmas.
@@ -652,6 +596,7 @@ and are listed in \cref{fig:grading}.
   \label{fig:grading}
 \end{figure}
 
+\iffalse
 Just as terms have notions of well-gradedness and indistinguishability,
 so too do substitution maps.
 The intuition is that a substitution map is a transformation from one grading context to another,
@@ -700,32 +645,33 @@ indistinguishable substitutions can be extended with single substitutions by ind
 (\rref*{SI-cons}\footnote{\suppl{theories}{geq.v}{ieq\_subst\_cons}});
 and the context under which substitutions act can be weakened
 (\rref*{Sg-weak,SI-weak}\footnote{\suppl{theories}{geq.v}{iok\_subst\_ok\_suc}, \suppl{theories}{geq.v}{ieq\_morphing\_helper}}).
+\fi
 
-\subsection{Properties of grading, indistinguishability, and definitional equality}
+\subsection{Properties of grading and indistinguishability}
 
-The well-gradedness, indistinguishability, and definitional equality judgements
+The well-gradedness and indistinguishability judgements
 satisfy some standard properties,
 listed as admissible rules in \cref{fig:grading-lemmas},
 \cref{fig:defeq-lemmas}, and \cref{fig:indist-lemmas}, respectively.
-\Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}},
-\rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}, and
-\rref*{E-weak}\footnote{\suppl{theories}{conv.}{conv\_renaming}}
+\Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
+\rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}
 permit weakening the context.
-\rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}},
-\rref*{I-morph}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}, and
-\rref*{E-morph}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
-are morphing lemmas which demonstrate how substitutions from $[[F]]$ to $[[E]]$
-transform the context of the judgements from $[[F]]$ to $[[E]]$
-when the substitutions are applied to the terms.
-The standard single substitution lemmas \rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}}
-and \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
-follow from morphing.
+% \rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}},
+% \rref*{I-morph}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}, and
+% \rref*{E-morph}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
+% are morphing lemmas which demonstrate how substitutions from $[[F]]$ to $[[E]]$
+% transform the context of the judgements from $[[F]]$ to $[[E]]$
+% when the substitutions are applied to the terms.
+\Rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
+\rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
+permit substituting in a well-graded term of the appropriate level
+in place of a variable of that level in the context.
 
 \begin{figure}[h]
   \mprset{fraction={===}}
   % \drule{Wg-Wt}
   \drule{Wg-weak}
-  \drule{Wg-morph}
+  % \drule{Wg-morph}
   \drule{Wg-subst}
   \drule{Wg-sub}
   \drule{Wg-pres}
@@ -743,7 +689,7 @@ Additionally, parallel reduction preserves well-gradedness
 \begin{figure}[h]
   \mprset{fraction={===}}
   \drule{I-weak}
-  \drule{I-morph}
+  % \drule{I-morph}
   \drule{I-subst}
   \drule{I-refl}
   \drule{I-sym}
@@ -768,12 +714,84 @@ the end terms are indistinguishable at the meet of the levels.
 This generalization is crucial for definitional equality,
 as we will see shortly.
 
+\subsection{Properties of parallel reduction and definitional equality}
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \drule{P-subst}
+  \drule{Ps-subst}
+  \drule{P-refl}
+  \vspace{0.5\baselineskip}
+  \caption{Admissible rules for parallel reduction}
+  \label{fig:pars-lemmas}
+\end{figure}
+
+Parallel reduction and its transitive closure admit the substitution lemmas
+\rref*{P-subst}\footnote{\suppl{theories}{par.v}{Par\_cong}} and
+\rref*{Ps-subst}\punctstack{,}\footnote{\suppl{theories}{par.v}{Pars\_cong\_star}} respectively.
+An additional useful lemma is that single parallel reduction itself is already reflexive
+(\rref*{P-refl}\footnote{\suppl{theories}{par.v}{Par\_refl}}).
+These are given in \cref{fig:pars-lemmas}.
+
+% TODO: Do we explicitly need the inversion lemmas stated?
+% \footnote{\suppl{theories}{par.v}{Pars\_pi\_inv}}
+% \footnote{\suppl{theories}{par.v}{Pars\_sig\_inv}}
+% \footnote{\suppl{theories}{par.v}{Pars\_eq\_inv}}
+% \footnote{\suppl{theories}{par.v}{Pars\_univ\_inv}}
+
+The key lemmas of parallel reduction are the diamond property and confluence,
+which state that if a term reduces to two different terms,
+those two terms themselves must converge back to the same term.
+The proof uses the notion of complete development%
+\footnote{\suppl{theories}{par.v}{tstar}}
+by \citet{takahashi:par}.
+
+\begin{lemma}[Diamond]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Par\_confluent}}
+  \label{lem:diamond}
+  If $[[a => b0]]$ and $[[a => b1]]$, then
+  there exists some $[[c]]$ such that $[[b0 => c]]$ and $[[b1 => c]]$.
+\end{lemma}
+
+\begin{lemma}[Confluence]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
+  \label{lem:confluence}
+  If $[[a =>* b0]]$ and $[[a =>* b1]]$, then
+  there exists some $[[c]]$ such that $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
+\end{lemma}
+
+Confluence is required to show that
+reduction of definitionally equal terms preserves definitional equality,
+since definitional equality is defined in \rref{E-Conv}
+as the indistinguishability of the two terms after parallel reduction.
+The proof relies on the \nameref{lem:simulation} property of indistinguishability
+to reconnect the two sides after reduction.
+
+\begin{lemma}[Preservation of definitional equality]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{iconv\_par2}}
+  Suppose $[[E |- a0 == b0]]$.
+  If $[[a0 => a1]]$ and $[[b0 => b1]]$,
+  then $[[E |- a1 == b1]]$.
+\end{lemma}
+
+As with indistinguishability,
+definitional equality admits weakening
+(\rref*{E-weak}\footnote{\suppl{theories}{conv.v}{conv\_renaming}}),
+and is reflexive for well-graded terms
+(\rref*{E-refl}\footnote{\suppl{theories}{conv.v}{conv\_refl}}),
+symmetric (\rref*{E-sym}\footnote{\suppl{theories}{conv.v}{conv\_sym}}),
+and transitive (\rref*{E-trans}\footnote{\suppl{theories}{conv.v}{conv\_trans}}),
+stated in \cref{fig:defeq-lemmas}.
+Inverting the premises of transitivity,
+each of them independently have some level at which two terms are indistinguishable,
+so combining them requires the more general transitivity of \rref*{I-trans}.
+The proof also relies on simulation.
+
 \begin{figure}[h]
   \mprset{fraction={===}}
   \drule{E-weak}
-  \drule{E-morph}
-  \drule{E-pres}
-  \\
+  % \drule{E-morph}
+  % \drule{E-pres}
   \drule{E-refl}
   \drule{E-sym}
   \drule{E-trans}
@@ -781,23 +799,6 @@ as we will see shortly.
   \caption{Admissible rules for definitional equality}
   \label{fig:defeq-lemmas}
 \end{figure}
-
-An important consequence of the \nameref{lem:simulation} property of indistinguishability
-is that reduction of definitionally equal terms preserves definitional equality
-(\rref*{E-pres}\footnote{\suppl{theories}{conv.v}{iconv\_par2}}).
-Because definitional equality is defined in \rref{E-Conv}
-as the indistinguishability of the two terms after parallel reduction,
-the proof requires \nameref{lem:confluence} of parallel reduction.
-
-As with indistinguishability,
-definitional equality is reflexive for well-graded terms
-(\rref*{E-refl}\footnote{\suppl{theories}{conv.v}{conv\_refl}}),
-symmetric (\rref*{E-sym}\footnote{\suppl{theories}{conv.v}{conv\_sym}}),
-and transitive (\rref*{E-trans}\footnote{\suppl{theories}{conv.v}{conv\_trans}}).
-Inverting the premises of transitivity,
-each of them independently have some level at which two terms are indistinguishable,
-so combining them requires the more general transitivity of \rref*{I-trans}.
-The proof also relies on simulation.
 
 Finally, we will need some inversion lemmas for definitional equality on our types
 (\ie injectivity of type constructors).
@@ -821,7 +822,7 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
   If $[[E |- a0 ~ l0 b0 : A0 == a1 ~ l1 b1 : A1]]$
   then $[[l0]] = [[l1]]$,
   and there exists an $[[l >= l0]]$
-  such that $[[E |- a0 == a1 @ l]]$ and $[[E |- b0 == b1 @ l]]$.
+  such that $[[E |- a0 <=> a1 @ l]]$ and $[[E |- b0 <=> b1 @ l]]$.
 \end{lemma}
 
 \begin{lemma}[Injectivity of universes]
@@ -831,6 +832,7 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
 
 \subsection{Type preservation}
 
+\iffalse
 Analogously to well-gradedness of substitution maps,
 we also need a notion of their well-typedness,
 which describes a substitution map as a transformation from one typing context to another.
@@ -861,32 +863,33 @@ substitution extensions
 and weakening
 (\rref*{St-nil}\footnote{\suppl{theories}{preservation.v}{good\_morphing\_suc}}),
 listed as admissible rules in \cref{fig:subst-typing-lemmas}.
+\fi
 
 \begin{figure}[h]
   \mprset{fraction={===}}
   \drule[width=0.2\textwidth]{Wt-weak}
-  \drule{Wt-morph}
+  % \drule{Wt-morph}
   \drule{Wt-subst}
   \drule[width=0.2\textwidth]{Wt-sub}
-  % \drule{Wt-replace}
+  \drule[width=0.2\textwidth]{Wt-replace}
   \vspace{0.5\baselineskip}
   \caption{Admissible rules for well-typedness}
   \label{fig:typing-lemmas}
 \end{figure}
 
 As usual, typing admits weakening
-(\rref*{Wt-weak}\footnote{\suppl{theories}{preservation.v}{weakening\_Syn}}),
-morphing
-(\rref*{Wt-morph}\footnote{\suppl{theories}{preservation.v}{morphing\_Syn}}),
-and consequently substitution
+(\rref*{Wt-weak}\footnote{\suppl{theories}{preservation.v}{weakening\_Syn}})
+and substitution
 (\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}}),
 as stated in \cref{fig:typing-lemmas}.
 Like grading, it also admits subsumption
 (\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
 allowing the level to be raised while retaining the same type.
-Furthermore, it satisfies \nameref{lem:replacement},
+Furthermore, it satisfies replacement
+(\rref*{Wt-replace}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}),
 allowing a type in the context to be replaced by a definitionally equal one.
 
+\iffalse
 \begin{lemma}[Replacement]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}
   \label{lem:replacement}
@@ -895,6 +898,7 @@ allowing a type in the context to be replaced by a definitionally equal one.
   if $[[| G | |- A0 == A1]]$,
   then $[[G ++ x : l0 A1 |- b : l B]]$.
 \end{lemma}
+\fi
 
 Due to \rref{Wt-Conv},
 deducing the well-typedness of subterms of a well-typed term
