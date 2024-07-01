@@ -216,7 +216,7 @@ Dependency-tracking type systems govern how functions can depend on their
 inputs. Essentially, these systems prevent the flow of information from
 high-level sources to low-level results.
 
-The \emph{Dependent Calculus of Indistinguishability (DCOI)}~\cite{dcoi}
+The \emph{Dependent Calculus of Indistinguishability (DCOI)}~\cite{liu:dcoi}
 adapts dependency tracking to the context of a dependently-typed programming
 language. The primary goal of dependency tracking in DCOI is to identify
 irrelevant arguments. These arguments can be erased during compilation to
@@ -368,7 +368,7 @@ the Pure Type System (PTS)~\citep{barendregt:PTS} axioms and rules
 of a predicative universe hierarchy.
 The grammar is given in \cref{fig:grammar},
 which is parameterized over a meet-semilattice of dependency levels
-(following \citet{abadi:dependency}).
+(following \citet{abadi:dcc}).
 
 \begin{figure}[h]
 \begin{alignat*}{2}
@@ -659,7 +659,7 @@ in \cref{fig:typing-eq-lemmas}.
 \begin{figure}[h]
 \begin{mathpar}
   \mprset{fraction={===}}
-  \inferrule*[lab=\ottdrulename{Wt\_J\_alt},width=\textwidth]{
+  \inferrule*[lab=\ottdrulename{Wt\_J\_alt},width=0.5\textwidth]{
     [[G |- p : l2 a ~ l0 b : A]] \\
     [[(# G ++ x : l0 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ j]] \\
     [[G |- c : l C { a / x , refl / y }]] \\
@@ -676,14 +676,14 @@ in \cref{fig:typing-eq-lemmas}.
   }{
     [[G |- J refl l p : l a ~ l0 b : A]]
   }
-  \and
-  \inferrule*[lab=\ottdrulename{I\_Refl-alt},width=0.5\textwidth]{
-    [[G |- a : l0 A]] \\
-    [[G |- b : l0 A]] \\
-    [[| G | |- a == b @ l0]]
-  }{
-    [[G |- refl : l a ~ l0 b : A]]
-  }
+  % \and
+  % \inferrule*[lab=\ottdrulename{I\_Refl-alt},width=0.5\textwidth]{
+  %   [[G |- a : l0 A]] \\
+  %   [[G |- b : l0 A]] \\
+  %   [[| G | |- a == b @ l0]]
+  % }{
+  %   [[G |- refl : l a ~ l0 b : A]]
+  % }
 \end{mathpar}
 \caption{Admissible typing rules for propositional equality}
 \label{fig:typing-eq-lemmas}
@@ -721,12 +721,12 @@ for the propositional equality constructs in \cref{fig:conv:eq} are unsurprising
 \rref{P-JRefl} eliminates a reflexive proof,
 while \rref{I-Eq,I-Refl,I-J} assert indistinguishability of the terms
 by that of each pair of subterms.
-In particular, we have admissible \rref{I-Refl-alt}
-via \rref{I-Eq,Wt-Conv}.
-It states that if two terms are indistinguishable by some observer,
-then $[[refl]]$ is a proof of their propositional equality at that observer level,
-which is why we say that propositional equality internalizes indistinguishability.
-
+% In particular, we have admissible \rref{I-Refl-alt}
+% via \rref{I-Eq,Wt-Conv}.
+% It states that if two terms are indistinguishable by some observer,
+% then $[[refl]]$ is a proof of their propositional equality at that observer level,
+% which is why we say that propositional equality internalizes indistinguishability.
+%
 What is trickier are the level constraints that appear in these rules.
 The constraint $[[l2 <= l]]$ in \rref{I-J} is required for the same reason
 as the second level constraint in \rref{Wt-J}.
