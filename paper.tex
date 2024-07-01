@@ -694,7 +694,7 @@ Additionally, parallel reduction preserves well-gradedness
   \drule{I-refl}
   \drule{I-sym}
   \drule{I-trans}
-  % \drule{I-down}
+  \drule{I-down}
   \vspace{0.5\baselineskip}
   \caption{Admissible rules for indistinguishability of terms}
   \label{fig:indist-lemmas}
@@ -707,12 +707,12 @@ and transitive (\rref*{I-trans}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_het
 Transitivity is slightly more general in its observer level:
 given a chain of three indistinguishable terms at two different observer levels,
 the end terms are indistinguishable at the meet of the levels.
-% Proving transitivity relies on a downgrade property
-% (\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
-% where knowing that a term is indistinguishable from another at two different levels
-% permits concluding that it is also indistinguishable at the meet of the levels.
 This generalization is crucial for definitional equality,
 as we will see shortly.
+Proving transitivity relies on a downgrade property
+(\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
+where knowing that a term is indistinguishable from another at two different levels
+permits concluding that it is also indistinguishable at the meet of the levels.
 
 \subsection{Properties of parallel reduction and definitional equality}
 
