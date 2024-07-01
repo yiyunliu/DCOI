@@ -677,6 +677,17 @@ Proof.
   hauto q:on inv:lookup ctrs:lookup use:T_Var_inv, lookup_deter.
 Qed.
 
+Lemma T_J_simpler Γ t a b p A i C ℓ ℓp ℓ0 :
+  ℓp ⊆ ℓ ->
+  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) ->
+  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ0, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
+  Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) ->
+  Γ ⊢ (tJ ℓp t p) ; ℓ ∈ (C [p .: b..]).
+Proof.
+  move => ? /[dup] /Wt_regularity => [[ℓ2] [j] /Wt_Eq_inv] [?] [ha] [hb] hp hC ht.
+  eapply T_J_simpl; eauto.
+Qed.
+
 Lemma T_Abs_simple Γ ℓ ℓ0 A a B :
   (ℓ0, A) :: Γ ⊢ a ; ℓ ∈ B ->
   (* -------------------- *)

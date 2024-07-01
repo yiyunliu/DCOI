@@ -642,6 +642,70 @@ which we explain in detail in \cref{sec:eq-level}.
 Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
 given by \rref{Wt-Refl}.
 
+\jc{TODO: explain J}
+
+In addition to requiring the well-typedness of the equality proof $[[p]]$,
+\rref{Wt-J} also takes as premises the well-typedness
+of the endpoints $[[a]], [[b]]$ of the equality and of their type $[[A]]$.
+These premises are required to strengthen the induction hypotheses
+when we later prove the \nameref{thm:fundamental} for our semantic metatheory.
+However, these premises can be omitted by applying \nameref{lem:regularity}
+and inversion to the well-typedness of $[[p]]$.
+We present this simplification as an admissible
+\rref{Wt-J-alt}\punctstack{,}\footnote{\suppl{theories}{preservation.v}{T\_J\_simpler}}
+using a double horizontal bar to indicate admissibility,
+in \cref{fig:typing-eq-lemmas}.
+
+\begin{figure}[h]
+\begin{mathpar}
+  \mprset{fraction={===}}
+  \inferrule*[lab=\ottdrulename{Wt\_J\_alt},width=\textwidth]{
+    [[G |- p : l2 a ~ l0 b : A]] \\
+    [[(# G ++ x : l0 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ j]] \\
+    [[G |- c : l C { a / x , refl / y }]] \\
+    [[l2 <= l]]
+  }{
+    [[G |- J c l2 p : l C { b / x , p / y }]]
+  }
+  \and
+  \inferrule*[lab=\ottdrulename{Wt\_downgrade},width=0.5\textwidth]{
+    [[G |- a : l0 A]] \\
+    [[G |- b : l0 A]] \\
+    [[G |- p : l a ~ l1 b : A]] \\
+    [[l0 <= l1]]
+  }{
+    [[G |- J refl l p : l a ~ l0 b : A]]
+  }
+  \and
+  \inferrule*[lab=\ottdrulename{I\_Refl-alt},width=0.5\textwidth]{
+    [[G |- a : l0 A]] \\
+    [[G |- b : l0 A]] \\
+    [[| G | |- a == b @ l0]]
+  }{
+    [[G |- refl : l a ~ l0 b : A]]
+  }
+\end{mathpar}
+\caption{Admissible typing rules for propositional equality}
+\label{fig:typing-eq-lemmas}
+\end{figure}
+
+However, \rref*{Wt-J-alt} is not as expressive as \rref{Wt-J},
+because the former fixes the level of the right endpoint
+to the observer level $[[l0]]$ in the motive $[[C]]$,
+while the latter allows it to be some lower level $[[l1]]$,
+so long as the endpoints are also well-typed at level $[[l1]]$.
+This flexibility in the level allows us to derive
+\rref{Wt-downgrade}\punctstack{,}\footnote{\suppl{theories}{preservation.v}{T\_Down\_Alt}}
+which permits lowering the observer level of an equality proof.
+Intuitively, this internalizes the idea that if two terms are indistinguishable at some higher level,
+then they are also indistinguishable at a lower level,
+since a lower-level indistinguishability is coarser than a higher-level one,
+and treats more things as indistinguishable.
+
+The purpose of the other level constraint in \rref{Wt-J}, $[[l2 <= l]]$,
+which bounds the level of the equality proof by the level of the overall eliminator,
+is a subtle technical issue, and we defer its explanation to \cref{sec:scrutinee-level}.
+
 \begin{figure}[h]
   \drule{P-JRefl}
   \drule[width=0.5\textwidth]{I-Eq} \\
@@ -651,6 +715,23 @@ given by \rref{Wt-Refl}.
   \caption{Parallel reduction and indistinguishability rules (equality)}
   \label{fig:conv:eq}
 \end{figure}
+
+The shape of the parallel reduction and indistinguishability rules
+for the propositional equality constructs in \cref{fig:conv:eq} are unsurprising:
+\rref{P-JRefl} eliminates a reflexive proof,
+while \rref{I-Eq,I-Refl,I-J} assert indistinguishability of the terms
+by that of each pair of subterms.
+In particular, we have admissible \rref{I-Refl-alt}
+via \rref{I-Eq,Wt-Conv}.
+It states that if two terms are indistinguishable by some observer,
+then $[[refl]]$ is a proof of their propositional equality at that observer level,
+which is why we say that propositional equality internalizes indistinguishability.
+
+What is trickier are the level constraints that appear in these rules.
+The constraint $[[l2 <= l]]$ in \rref{I-J} is required for the same reason
+as the second level constraint in \rref{Wt-J}.
+The constraint $[[l0 <= l]]$ in \rref{I-Eq} is yet another subtle technical issue,
+and we defer its explanation to \cref{sec:eq-level}.
 
 \section{Syntactic metatheory} \label{sec:synmeta}
 
