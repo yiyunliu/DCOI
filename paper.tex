@@ -311,7 +311,6 @@ experimentation.
 
 %\begin{itemize}
 %  \item low elimination of high absurd proofs
-%  \item propositional equality downgrade
 %  \item J eliminator
 %  \item weak pair projections
 %  \item consistency
@@ -380,7 +379,7 @@ which is parameterized over a meet-semilattice of dependency levels
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
   & \mid [[Pi x : l A . B]] \mid [[\ l x . b]] \mid [[b l a]] & \quad & \textit{function types, abstractions, applications} \\
   & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l0 x, y) = l a in b]] & \quad & \textit{pair types, pairs, matching} \\
-  & \mid [[a ~ l b : A]] \mid [[refl]] \mid [[J c l p]] \mid [[down l p]] & \quad & \textit{equality types, reflexivity, J eliminator, downgrade}
+  & \mid [[a ~ l b : A]] \mid [[refl]] \mid [[J c l p]] & \quad & \textit{equality types, reflexivity, J eliminator}
 \end{alignat*}
 \caption{Grammar of contexts and terms}
 \label{fig:grammar}
@@ -407,8 +406,6 @@ inside the term $[[a]]$.
 % which enables using some higher-level terms at lower levels.
 % We also replace pair projections with a pair-matching expression,
 % and substitution over equality proofs with a full J eliminator.
-% Finally, we add a downgrade operator on equality proofs,
-% which permits lowering the observer level of the equality.
 % We examine all of the constructs in the subsections to follow.
 
 The main judgement is the typing judgement,
@@ -625,8 +622,7 @@ We explain in further detail how omitting these constraints violate simulation i
 \begin{figure}[h]
   \drule{Wt-Eq}
   \drule{Wt-Refl}
-  \drule{Wt-J}
-  \drule{Wt-Down}
+  \drule[width=\textwidth]{Wt-J}
   \vspace{0.5\baselineskip}
   \caption{Typing and indistinguishability rules (equality)}
   \label{fig:typing:eq}
@@ -643,36 +639,14 @@ just as \rref{I-Var} only holds for observable variables.
 The observer level $[[l0]]$ must also be bounded by the overall level $[[l]]$
 to maintain logical consistency,
 which we explain in detail in \cref{sec:eq-level}.
-
-There are two constructors for the empty type.
-The first is the usual reflexivity proof $[[refl]]$ for well-typed terms,
+Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
 given by \rref{Wt-Refl}.
-The second is a \emph{downgrade operator} $[[down l0 p]]$
-on an existing equality proof $[[p]]$, given by \rref{Wt-Down}.
-It internalizes the following \nameref{lem:downgrade} property.
-
-\begin{lemma}[Downgrade]
-  \stack{.~}\footnote{\suppl{theories}{geq.v}{iok\_ieq\_downgrade}}
-  \label{lem:downgrade}
-  Suppose $[[G |- a : l0 A]]$ and $[[G |- b : l0 A]]$.
-  If $[[| G | |- a == b @ l1]]$ and $[[l0 <= l1]]$,
-  then $[[| G | |- a == b @ l0]]$.
-\end{lemma}
-
-If two terms are indistinguishable at some level $[[l1]]$,
-then they are also indistinguishable at a lower level $[[l0]]$,
-since a lower-level observer is able to inspect fewer terms
-and therefore treats the same or more terms are indistinguishable.
-Correspondingly, the downgrade operator explicitly casts
-an equality proof from a higher observer level to a lower one.
 
 \begin{figure}[h]
   \drule{P-JRefl}
-  \drule{P-DownRefl}
-  \drule{I-Eq}
+  \drule[width=0.5\textwidth]{I-Eq} \\
   \drule{I-Refl}
-  \drule{I-J}
-  \drule{I-Down}
+  \drule[width=0.5\textwidth]{I-J}
   \vspace{0.5\baselineskip}
   \caption{Parallel reduction and indistinguishability rules (equality)}
   \label{fig:conv:eq}
@@ -703,7 +677,7 @@ but with all typing information stripped out, leaving only the levels,
 and are listed in \cref{fig:grading}.
 
 \begin{figure}[h]
-  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Down,Sig,Pair,Let}
+  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
   \caption{Term grading rules}
   \label{fig:grading}
 \end{figure}
