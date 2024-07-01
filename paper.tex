@@ -1098,6 +1098,19 @@ which proceeds by induction on the typing derivation.
 
 \begin{figure}[h]
   \centering
+\hfill \textit{(Auxiliary Notations)}
+\begin{align*}
+  % \member{[[a]]}{[[l0]]}{\buildset{[[x]]}{[[l]]}{P}} &\mathrel{\mathit{iff}} [[:concrete: P { a / x, l0 / l }]] ~ \mathit{holds} \\
+  \prodspace([[b]], [[l]], [[l0]], S_A, R) &\coloneqq
+    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
+  \sigspace([[c]], [[l]], [[l0]], S_A, R) &\coloneqq
+    \exists a, b, [[c =>* (l0 a, b)]] \wedge
+    \member{x}{[[l0]]}{S_A} \wedge
+    (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
+  \univspace{j}([[A]], [[E]]) &\coloneqq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S} \\
+  \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) &\coloneqq
+    [[p =>* refl]] \wedge \exists a', b', [[a =>* a']] \wedge [[b =>* b']] \wedge [[E |- a == b @ l0]]
+\end{align*}
 \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical Predicate)}
 \begin{mathpar}
   \infer[\ottdrulename{SWt\_Ne}]{
@@ -1188,6 +1201,7 @@ can be formulated using parallel reduction as follows.
 \end{lemma}
 
 \begin{definition}[Terms that are weakly normalizing]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
   Given a term $[[a]]$, if there exists some term $[[b]]$ such that
   $[[a =>* b]]$, then we say that $[[a]]$ weakly normalizes to a
   normal (resp. neutral) form, which we denote in judgment form as
@@ -1306,10 +1320,12 @@ for equality, function, and empty types.
 \begin{lemma}[Inversion of the logical predicate (selected)]
   \label{lem:interpinv}\leavevmode
   \begin{enumerate}
-  \item If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{S}$, then $S =
+  \item \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
+    If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{S}$, then $S =
     \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]],
       [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}$
-  \item If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
+  \item \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
+    If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
     exists $S_A$ and $R$ such that following holds:
     \begin{itemize}
     \item $S = \buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}$
@@ -1319,7 +1335,8 @@ for equality, function, and empty types.
     \item $\forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to
       \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}$
     \end{itemize}
-  \item If $\interp{[[E]]}{[[i]]}{[[Void]]}{S}$, then $S =
+  \item \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Void\_inv}}
+    If $\interp{[[E]]}{[[i]]}{[[Void]]}{S}$, then $S =
     \buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}$
   \end{enumerate}
 \end{lemma}
@@ -1348,6 +1365,7 @@ The logical predicate satisfies cumulativity; if a type has an
 interpretation at a lower level, then it must also have the same
 interpretation at a higher level.
 \begin{lemma}[Cumulativity]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_cumulative}}
   \label{lem:cumulativity}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[i]] \leq [[j]]$, then
   $\interp{[[E]]}{[[j]]}{[[A]]}{S}$.
@@ -1361,6 +1379,7 @@ interpretation at a higher level.
 expansion. We can also show that the meaning of types is
 preserved under forward reduction through the following lemma.
 \begin{lemma}[Reduction preserves meaning]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation}}
 \label{lem:lrpreservation}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[A => B]]$, then
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
@@ -1379,6 +1398,7 @@ Next, we prove that the logical predicate is functional. That is,
 given a context $[[E]]$ and a universe level $[[i]]$, a type $[[A]]$
 can correspond to at most one interpretation $[[S]]$.
 \begin{lemma}[Functionality]
+\stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_deterministic}}
 \label{lem:lrfunc}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$ and
 $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
@@ -1400,6 +1420,7 @@ soundness of the type conversion rule since the type conversion
 involves both reduction and indistinguishability.
 \begin{lemma}[Functionality for indistinguishable types]
 \label{lem:lrfunci}
+\stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
 $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
 $[[E |- A == B @ l ]]$ for some $[[l]]$,
@@ -1461,11 +1482,13 @@ specified in Figure~\ref{fig:dummy}.
 Reductions and normal forms are preserved when we undo the substitutions
 involving $[[dummy]]$.
 \begin{lemma}[Antirenaming for Par]
+\stack{.~}\footnote{\suppl{theories}{normalform.v}{Par\_antirenaming}}
   \label{lem:paranti}
   If $[[a {dummy / x} => b]]$, then there exists some term $[[b0]]$
   such that $[[b]] = [[b0 {dummy / x}]]$ and $[[a => b0]]$.
 \end{lemma}
 \begin{lemma}[Antirenaming for normal and neutral forms]
+\stack{.~}\footnote{\suppl{theories}{normalform.v}{ne\_nf\_renaming\_with\_d}}
   \label{lem:nfneanti}
   If $[[nf a {dummy / x}]]$ (resp. $[[ne a {dummy / x}]]$), then $[[nf
   a]]$ (resp. $[[ne a]]$).
@@ -1473,9 +1496,9 @@ involving $[[dummy]]$.
 From Lemmas~\ref{lem:paranti} and \ref{lem:nfneanti}, we derive the
 following corollary about weak normalization.
 \begin{lemma}[Antirenaming for weak normalization]
+\stack{.~}\footnote{\suppl{theories}{normalform.v}{wn\_antirenaming}}
   \label{lem:wnanti}
-  If $[[wnf a {dummy / x}]]$ (resp. $[[wne a {dummy / x}]]$), then $[[wnf
-  a]]$ (resp. $[[wne a]]$).
+  If $[[wnf a {dummy / x}]]$, then $[[wnf a]]$.
 \end{lemma}
 
 % Lemmas~\ref{lem:paranti}, \ref{lem:nfneanti}, and \ref{lem:paranti}
@@ -1507,6 +1530,7 @@ antirenaming lemmas.
 
 Finally, we state and prove the adequacy lemma.
 \begin{lemma}[Adequacy]
+\stack{.~}\footnote{\suppl{theories}{semtyping.v}{adequacy}}
   \label{lem:adequacy}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then the following holds:
   \begin{itemize}
@@ -1587,6 +1611,7 @@ $[[rho]]$ from $[[G]]$ to $[[D]]$ is well-graded with respect to the erased cont
 $[[|D|]]$. This allows us to derive the following lemma about
 well-gradedness and valid substitutions.
 \begin{lemma}[Valid substitutions for well-graded terms]
+\stack{.~}\footnote{\suppl{theories}{soundness.v}{iok\_$\rho$\_ok\_morphing}}
   If $[[|G| |- a : l]]$ and $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |-
   a{rho} : l ]]$.
 \end{lemma}
@@ -1599,6 +1624,7 @@ well-gradedness and valid substitutions.
 % not imply the existence of interpretations for types in the context.
 Valid substitutions satisfy the following admissible structural rules.
 \begin{lemma}[Structural rules for valid substitutions]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_id}, \suppl{theories}{soundness.v}{$\rho$\_ok\_cons}}
   \begin{mathpar}
     \mprset{fraction={===}}
     \infer[\ottdrulename{V\_id}]{~}{\sws{[[G]]}{[[nil]]}{[[G]]}} \and
@@ -1658,6 +1684,7 @@ Valid substitutions and semantic well-typedness both satisfy weakening
 properties.
 \begin{lemma}[Weakening for valid substitutions and
   semantic well-typedness]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}, \suppl{theories}{soundness.v}{weakening\_Sem}}
   \begin{mathpar}
     \mprset{fraction={===}}
     \infer[\ottdrulename{V\_weak}]{\sws{[[D]]}{\rho}{[[G ++ x : l A]]}}{\sws{[[D]]}{\rho}{[[G]]}} \and
@@ -1759,6 +1786,7 @@ reduction (\ref{lem:lrpreservation}), and indistinguishability (\ref{lem:lrfunci
 \end{proof}
 
 \begin{corollary}[Weak normalization for well-typed terms]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{normalization}}
   \label{cor:wtwn}
   If $[[G |- a : A]]$, then $[[wnf a]]$.
 \end{corollary}
@@ -1787,16 +1815,26 @@ leftmost-outermost reduction relation for
 %   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{h}[[b]]$.
 % \end{lemma}
 \begin{lemma}[Standardization]
+  \stack{.~}\footnote{\suppl{theories}{factorization.v}{standardization}}
   \label{lem:standardization}
   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{lo}[[b]]$.
 \end{lemma}
 Its proof, which we omit in the text,
 is adapted from \citet{takahashi:par}'s standardization proof for the
-untyped lambda calculus. Our proof makes a notable simplification to
-her original proof. Interested readers can refer to the
-\todo{remove?} appendix for details.
+untyped lambda calculus. We first prove Hindley's local postponement property~\citep{accattoli:factorization}
+for the weak head reduction relation, and then obtain the
+standardization theorem for leftmost-outermost reduction by iterating
+weak head reduction. Similar to the mechanized standardization proof
+found in \citet{mckinna:some-lambda-formalized}, we prove local
+postponement for weak head reduction instead of head reduction since
+the former admits a simpler specification.
+
+%  Our proof makes a notable simplification to
+% her original proof. Interested readers can refer to the
+% \todo{remove?} appendix for details.
 
 \begin{corollary}[Normalization is decidable]
+  \stack{.~}\footnote{\suppl{theories}{factorization.v}{LoRed\_normalize}}
   \label{lem:nomdec}
   If $[[wnf a]]$, then there exists an algorithm that computes its
   normal form.
@@ -1809,6 +1847,7 @@ her original proof. Interested readers can refer to the
 
 
 \begin{lemma}[Indistinguishability is decidable]
+  \stack{.~}\footnote{\suppl{theories}{geq.v}{IEq\_dec}}
   \label{lem:indistdec}
   If the lattice admits a decidable comparison operator, then indistinguishability
   is decidable. That is, given a grading context $[[E]]$, terms
@@ -1842,7 +1881,7 @@ In step (3),
 the simulation lemma (\ref{lem:simulation}) justifies the use of
 normal forms $[[A0]]$ and $[[B0]]$
 before we check indistinguishability, whereas the downgrade
-property (\todo{add downgrade property to section 3}) justifies the
+property (\rref*{I-down}) justifies the
 use of the lowest possible level $[[l0 \/ l1]]$.
 
 % The correctness of the algortihm
@@ -1868,6 +1907,7 @@ As a result, we prove the decidability of a weaker version of the
 algorithm where the level used to compare $[[A0]]$ and $[[B0]]$ is
 given as an input. We formally state this property as follows.
 \begin{lemma}[Decidability of indexed type conversion]
+  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{iconv\_dec}}
   \label{lem:deciconv}
   Given a context $[[E]]$, syntactically well-formed types $[[A]]$ and
   $[[B]]$, and a level $[[l]]$, the following statement is decidable.

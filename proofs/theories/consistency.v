@@ -50,7 +50,7 @@ Qed.
 
 Lemma consistency a ℓ : ~nil ⊢ a ; ℓ ∈ tVoid.
 Proof.
-  move => /[dup] h /(proj1 soundness) /(_ nil var_tm ltac:(hauto lq:on use:ρ_ok_nil)).
+  move => /[dup] h /(proj1 soundness) /(_ nil var_tm ltac:(hauto lq:on use:ρ_ok_id)).
   move => [m][PA][].
   asimpl. move /InterpUnivN_Void_inv => -> {PA}[_ [v [hr hv]]].
   move : subject_reduction_star h hr; repeat move/[apply].

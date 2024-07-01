@@ -58,8 +58,27 @@ Proof.
   hauto l:on use:InterpUniv_Ok, elookup_lookup.
 Qed.
 
-Lemma ρ_ok_nil ρ : ρ_ok nil nil ρ.
-Proof.  rewrite /ρ_ok. inversion 1; subst. Qed.
+Lemma ρ_ok_id Γ : ρ_ok Γ Γ var_tm.
+Proof.
+  rewrite /ρ_ok.
+  move => i ℓ A.
+  elim/lookup_inv => _.
+  - move => ℓ2 A1 Γ0 *. subst.
+      split.
+      hauto lq:on use:IO_Var solve+:solve_lattice.
+      move => m PA. simpl. asimpl => h.
+      eapply adequacy in h.
+      apply h.
+      hauto lq:on use:rtc_refl.
+      hauto lq:on use:IO_Var solve+:solve_lattice.
+  - move => n A0 Γ0 ℓ0 B h *. subst.
+    split => //.
+    hauto lq:on use:IO_Var, lookup_elookup solve+:solve_lattice.
+    move => m PA /=.
+    asimpl.
+    move/lookup_elookup in h.
+    hauto lq:on rew:off use:adequacy, IO_Var solve+:solve_lattice.
+Qed.
 
 Lemma ρ_ok_cons i Γ Δ ℓ0 ρ a PA A :
  (⟦ c2e Δ ⊨ A [ρ] ⟧ i ↘ PA) -> PA ℓ0 a ->
@@ -484,28 +503,6 @@ Proof.
   - apply SemWff_nil.
   (* Cons *)
   - eauto using SemWff_cons.
-Qed.
-
-Lemma ρ_ok_id Γ : ρ_ok Γ Γ var_tm.
-Proof.
-  rewrite /ρ_ok.
-  move => i ℓ A.
-  elim/lookup_inv => _.
-  - move => ℓ2 A1 Γ0 *. subst.
-      split.
-      hauto lq:on use:IO_Var solve+:solve_lattice.
-      move => m PA. simpl. asimpl => h.
-      eapply adequacy in h.
-      apply h.
-      hauto lq:on use:rtc_refl.
-      hauto lq:on use:IO_Var solve+:solve_lattice.
-  - move => n A0 Γ0 ℓ0 B h *. subst.
-    split => //.
-    hauto lq:on use:IO_Var, lookup_elookup solve+:solve_lattice.
-    move => m PA /=.
-    asimpl.
-    move/lookup_elookup in h.
-    hauto lq:on rew:off use:adequacy, IO_Var solve+:solve_lattice.
 Qed.
 
 Lemma normalization Γ a ℓ A : Γ ⊢ a ; ℓ ∈ A -> wn a /\ wn A.
