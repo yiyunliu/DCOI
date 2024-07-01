@@ -321,6 +321,20 @@ experimentation.
 
 \section{Examples}
 
+We start with examples that demonstrate how the \dcoi type system can support runtime and compiletime irrevelance.
+
+These examples have been type checked by our implementation, which is based on a bidirectional type system and uses constraint solving to infer level annotations. 
+
+\subsection{Examples from prior work}
+
+To see the benefit of dependency tracking, we summarize examples that already
+type check in the previous version of \dcoi. 
+
+\subsection{Examples new to this paper}
+
+\paragraph{More expressive eliminator for propositional equality}
+
+\paragraph{Absurd elimination}
 
 % (unbox H x) H 1 == (unbox H x) H 2 @ H
 % a ~>* na, b ~>* nb, na == nb @ (min la lb) where la = lvl(na), lb = lvl(nb)
