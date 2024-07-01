@@ -105,6 +105,7 @@
 \newcommand{\eg}{\textit{e.g.}\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
 \newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
+\newcommand{\judgement}[1]{{\setlength{\fboxsep}{1.5pt}\fbox{#1}}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
 \newcommand{\repo}{%
@@ -409,11 +410,11 @@ inside the term $[[a]]$.
 % We examine all of the constructs in the subsections to follow.
 
 The main judgement is the typing judgement,
-which has the form $[[G |- a : l A]]$ for a term $[[a]]$
+which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
 that is well type under context $[[G]]$ at observer level $[[l]]$
 with type $[[A]]$.
 To reduce clutter,
-we use the judgement $[[G |- a : A]]$ to mean that there exists some level $[[l]]$
+we use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
 The typing rules are defined mutually with the context well-formedness rules,
 both given in \cref{fig:typing:dep}.
@@ -515,22 +516,22 @@ using a higher-level proof of its impossibility.
 The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
 wich allows converting the type of a well-typed term to a definitionally equal type.
 Our definitional equality is untyped, but eventually relies on the levels of variables,
-so its judgement form $[[E |- a == b]]$ requires a grading context $[[E]]$.
-In \rref{Wt-Conv}, this is provided by the erasure operation $[[| G |]]$,
+so its judgement form \judgement{$[[E |- a == b]]$} requires a grading context $[[E]]$.
+In \rref{Wt-Conv}, this is provided by the erasure operation \judgement{$[[| G |]]$},
 which denotes dropping all type annotations to convert a typing context into a grading context.
 
 Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv},
 which separately incorporates parallel reduction and indistinguishability.
-For convenience, we define the shorthand $[[E |- a <=> b @ l]]$
+For convenience, we define the shorthand \judgement{$[[E |- a <=> b @ l]]$}
 as a level-annotated form of definitional equality:
 it holds iff $[[a =>* c0]]$, $[[b =>* c1]]$, and $[[E |- c0 == c1 @ l]]$.
 Consequently, $[[E |- a == b]]$ holds iff there exists some level $[[l]]$
 such that $[[E |- a <=> b @ l]]$ holds.
 
-Parallel reduction consists of the $\beta$-reduction rules for our elimination forms,
+Parallel reduction \judgement{$[[a => b]]$} consists of the $\beta$-reduction rules for our elimination forms,
 listed in \cref{fig:conv} and in following subsections,
 along with rules for the reflexive, congruent closure, omitted here.
-Multi-step parallel reduction $[[a =>* b]]$ is then the transitive closure of parallel reduction.
+Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive closure of parallel reduction.
 This formulation of equality is in contrast to the system by \citet{liu:dcoi},
 where parallel reduction is merely a metatheoretic tool for proving type safety.
 
@@ -1191,9 +1192,9 @@ predicate, we need to first define the notion of neutral and normal terms.
   \label{fig:normalform}
 \end{figure}
 Figure~\ref{fig:normalform} defines neutral and normal forms in the
-form of two judgments $[[ne a]]$ and $[[nf a]]$. These predicates
-characterize a set of terms that are free of redexes. This property
-can be formulated using parallel reduction as follows.
+form of two judgments \judgement{$[[ne a]]$} and \judgement{$[[nf a]]$}.
+These predicates characterize a set of terms that are free of redexes.
+This property can be formulated using parallel reduction as follows.
 \begin{lemma}
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
   If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
@@ -1205,20 +1206,20 @@ can be formulated using parallel reduction as follows.
   Given a term $[[a]]$, if there exists some term $[[b]]$ such that
   $[[a =>* b]]$, then we say that $[[a]]$ weakly normalizes to a
   normal (resp. neutral) form, which we denote in judgment form as
-  $[[wnf a]]$ (resp. $[[wne a]]$).
+  \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
 \end{definition}
 
 Figure~\ref{fig:logpred} gives the full definition of our logical
 predicate.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
-$\interp{[[E]]}{[[i]]}{[[A]]}{S}$, as an inductive relation
+\judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}, as an inductive relation
 recursively defined over the universe level $[[i]]$. The
 metavariable $S$ represents a family of terms indexed by levels. 
-We use the notation $\member{a}{[[l]]}{S}$ to indicate that $[[a]]$ is
+We use the notation \judgement{$\member{a}{[[l]]}{S}$} to indicate that $[[a]]$ is
 a term that belongs to the set in $[[S]]$ that is indexed by $[[l]]$.
 When constructing indexed sets, we use the notation
-$\buildset{[[a]]}{[[l]]}{\ldots}$ to indicate a family of sets
+\judgement{$\buildset{[[a]]}{[[l]]}{\ldots}$} to indicate a family of sets
 parameterized by $[[l]]$.
 The judgment $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ reads that under the
 grading context $[[E]]$ and universe level $[[i]]$, the type $[[A]]$
@@ -1596,7 +1597,7 @@ the single extension of the identity substitution map.
   \label{def:semwf}
   A substitution map is a valid substitution 
   from $[[G]]$ to $[[D]]$,
-  written $\sws{[[D]]}{\rho}{[[G]]}$,
+  written \judgement{$\sws{[[D]]}{\rho}{[[G]]}$},
   if for every $[[x : l A in G]]$,
   $[[| D | |- rho(x) : l]]$ holds,
   and for all $i$, $S$ such that
@@ -1672,7 +1673,7 @@ substitutions and the logical predicate.
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
   A term $[[a]]$ is semantically well typed with type $[[A]]$
   at level $[[l]]$ under context $[[G]]$,
-  written $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$,
+  written \judgement{$\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$},
   if for every $\rho$, $[[D]]$,
   given $\sws{[[D]]}{\rho}{[[G]]}$,
   the term $[[a {rho}]]$ semantically inhabits the type $[[A {rho}]]$
@@ -1725,7 +1726,7 @@ imply the well-formedness of the types in $[[G]]$. % The universal
 % for types in $[[G]]$. 
 Instead, the existence of interpretations
 for types in $[[G]]$ is separately provided by the semantic
-context well-formedness judgment, written $\swf{[[G]]}$, which we
+context well-formedness judgment, written \judgement{$\swf{[[G]]}$}, which we
 inductively define as follows.
 \begin{mathpar}
   \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
@@ -1807,7 +1808,7 @@ In this section, we use the normalization theorem
 (\ref{cor:wtwn}) to recover a decision procedure for type
 conversion.
 
-Let $\leadsto^{lo}$  be the
+Let \judgement{$a \leadsto^{lo} b$} be the
 leftmost-outermost reduction relation for
 \name. 
 % \begin{lemma}[Weak head factorization]
