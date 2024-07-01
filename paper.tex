@@ -548,26 +548,6 @@ Some lemmas are presented as admissible derivation rules of the corresponding ju
 which are written with a double horizontal bar instead of a single bar.
 Their corresponding mechanizations are annotated where mentioned in the prose.
 
-While we continue to used named variables rather than de Bruijn indices,
-to bring the presentation closer to the mechanization,
-in this section we frame substitution in terms of \emph{substitution maps}
-(or simply \emph{substitutions} for short)
-and simultaneous substitutions.
-
-\begin{definition}[Substitution maps]
-  A substitution map $\rho$ is a mapping from variables to terms.
-  We use $\dom(\rho)$~to denote the variables in the domain of $\rho$,
-  $\rho(x)$~the term to which $\rho$ maps $[[x]]$,
-  $[[nil]]$~the identity substitution map,
-  $[[(rho ++ { a / x })]]$~the extension of $[[rho]]$
-  by a mapping from $[[x]]$ to $[[a]]$,
-  and $[[a { rho }]]$~the simultaneous substitution
-  of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
-\end{definition}
-
-The singleton substitution map $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
-the single extension of the identity substitution map.
-
 \subsection{Properties of parallel reduction}
 
 The notion of parallel reduction can be extended to substitution maps
@@ -1372,6 +1352,25 @@ Finally, we state and prove the adequacy lemma.
 \label{sec:soundness}
 To define semantic well-typedness, we need to first define the notion
 of valid substitutions, sometimes also referred to as valuations.
+While we continue to use named variables rather than de Bruijn indices,
+% to bring the presentation closer to the mechanization,
+in this section we frame substitution in terms of \emph{substitution maps}
+(or simply \emph{substitutions} for short)
+and simultaneous substitutions.
+
+\begin{definition}[Substitution maps]
+  A substitution map $\rho$ is a mapping from variables to terms.
+  We use $\dom(\rho)$~to denote the variables in the domain of $\rho$,
+  $\rho(x)$~the term to which $\rho$ maps $[[x]]$,
+  $[[nil]]$~the identity substitution map,
+  $[[(rho ++ { a / x })]]$~the extension of $[[rho]]$
+  by a mapping from $[[x]]$ to $[[a]]$,
+  and $[[a { rho }]]$~the simultaneous substitution
+  of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
+\end{definition}
+The singleton substitution map $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
+the single extension of the identity substitution map.
+
 \begin{definition}[Valid Substitutions]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
   \label{def:semwf}
