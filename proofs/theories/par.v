@@ -365,6 +365,14 @@ Proof.
   case : n => // >. asimpl. apply Par_refl.
 Qed.
 
+Lemma Pars_cong_star a0 a1 b0 b1 (ha : a0 ⇒* a1) (hb : b0 ⇒* b1) :
+  (a0 [b0..] ⇒* a1 [b1..]).
+Proof.
+  apply Pars_morphing_star => //.
+  apply good_Pars_morphing_ext => //.
+  apply rtc_refl.
+Qed.
+
 Local Lemma Coherent_cong_helper : forall a0 c, (a0 ⇒* c) -> (a0.. ⇒ς* c..).
 Proof.
   move => a0 c h2.
