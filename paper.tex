@@ -217,9 +217,9 @@ Dependency-tracking type systems govern how functions can depend on their
 inputs. Essentially, these systems prevent the flow of information from
 high-level sources to low-level results.
 
-The \emph{Dependent Calculus of Indistinguishability (DCOI)}~\cite{liu:dcoi}
+The \emph{\longname} (\dcoi)~\cite{liu:dcoi}
 adapts dependency tracking to the context of a dependently-typed programming
-language. The primary goal of dependency tracking in DCOI is to identify
+language. The primary goal of dependency tracking in \dcoi is to identify
 irrelevant arguments. These arguments can be erased during compilation to
 produce faster execution and can be ignored during equivalence checking. A key
 notion is \emph{indistinguishability}: a definition of program equivalence
@@ -228,14 +228,14 @@ on. However, dependency-tracking type systems serve many purposes, such as
 staged compilation and information flow control~\cite{abadi:dcc}.
 
 Prior work lays the foundation for the design of a dependently-typed
-programming language based dependency tracking, called DCOI. DCOI's conversion
+programming language based dependency tracking, called \dcoi. \dcoi's conversion
 may use indistinguishability at any observer level when comparing types for
-equality. Despite this coarse notion of equality, prior work showed that DCOI
+equality. Despite this coarse notion of equality, prior work showed that \dcoi
 is type sound.
 
 However, prior work focused on syntactic methods for reasoning about
-DCOI. While sufficient for type soundness, they cannot be used to identify a
-logically consistent fragment of DCOI that enjoys properties such as weak
+\dcoi. While sufficient for type soundness, they cannot be used to identify a
+logically consistent fragment of \dcoi that enjoys properties such as weak
 normalization and decidable observer-indexed equivalence. For flexibility,
 \dcoi is designed around a \emph{Pure Type System} (PTS), where various
 instances of sorts, rules and axioms determine the versions of quantification
@@ -249,7 +249,7 @@ featuring a predicative universe hierarchy. This calculus retains many of the
 features of \dcoi, including level-indexed dependent function types
 ($[[Pi x : l A . B]]$), level-indexed dependent pairs ($[[Sig x : l A. B]]$),
 level-indexed propositional equality $[[a ~l b]]$, and an empty type
-$[[bot]]$.
+$[[Void]]$.
 
 \begin{itemize}
 
@@ -257,7 +257,7 @@ $[[bot]]$.
   the empty type), weakly normalizing (every term can be reduced to a normal
   form), and that level-indexed equality is decidable. Local consistency means
   that programmers can use it to reason internally about their code. Like Coq
-  (Roq?), Agda, Idris and Lean, \name supports programming and program
+  (Rocq?), Agda, Idris and Lean, \name supports programming and program
   verification in the same framework. Unlike these systems, programmers may
   also internally reason about information flow.
 
@@ -267,21 +267,21 @@ $[[bot]]$.
   irrelevance of all proof terms used to construct contradictions.
 
 \item We further develop the theory of the observer-indexed propositional
-  equality type in \name, including its elimination via the $J$
-  operator. (Prior work used a restricted form of $J$.) We also add a new
+  equality type in \name, including its elimination via the $\ottkw{J}$
+  operator. (Prior work used a restricted form of $\ottkw{J}$.) We also add a new
   reasoning principle to the language, allowing programmers to
-  \emph{downgrade}\sw{I wonder now if downgrade is the right term to use for
+  \emph{downgrade} \sw{I wonder now if downgrade is the right term to use for
     this.} a high-level equality to a lower-level version, allowing
   flexibility in reasoning. (The opposite direction is not sound, as
-  high-level observers can percieve differences missed by their low-level
+  high-level observers can perceive differences missed by their low-level
   counterparts.)
 
 \item (Weak) normalization means that all \name programs terminate. The
-  elimination forms for positive types, such as the $J$ operator for
-  propositional equality, is strict. Because of this strictness, uses of $J$
+  elimination forms for positive types, such as the $\ottkw{J}$ operator for
+  propositional equality, is strict. Because of this strictness, uses of $\ottkw{J}$
   are considered relevant, even though there is only a single thread of
   execution. However, termination justifies (external) erasure of all equality
-  proofs during computation.  \sw{Not sure what to say here and maybe this is
+  proofs during computation. \sw{Not sure what to say here and maybe this is
     an anti-contribution. Does it make sense to have a dependency level that
     is ``a run-time argument, but only used to construct equality proofs''
     that can be used to track this erasure?}
@@ -301,14 +301,13 @@ $[[bot]]$.
 
 \end{itemize}
 
-All of our results have been developed using the Coq/Roqc proof assistant and
+All of our results have been developed using the Coq/Rocq proof assistant and
 our proofs are available as supplementary material. Despite the expressiveness
 of our language, our proofs have been designed to be remarkably concise
 compared to similar results.
 
 Furthermore, we have developed a prototype type checker, suitable for
 experimentation.
-
 
 %\begin{itemize}
 %  \item low elimination of high absurd proofs
