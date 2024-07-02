@@ -2144,6 +2144,102 @@ a relational model to justify more complex properties.
 
 \section{Related work}
 
+\subsection{Dependent Types and Dependency Tracking}
+One specific use case of dependency tracking in dependently typed
+languages is relevance tracking.
+
+\citet{pfenning:modal} introduces a modal type theory where function types
+and typing contexts are annotated relevance levels. In his system,
+there are separate judgment forms $\Gamma \vdash a : A $ and
+$\Gamma \vdash a \div A$, which represent typing for \textit{terms}
+and \textit{proofs} respectively. Pfenning's type system is
+not parameterized by levels and only relevant variables can be used.
+The judgment for proofs
+(i.e. irrelevant terms)
+$\Gamma \vdash a \div
+A$ is defined as a synonym for $\Gamma^\oplus \vdash a : A $, where
+$\Gamma^\oplus$ is obtained by changing all relevance
+annotations in $\Gamma$ to be relevant. The operation that resets the
+relevance levels in the context is referred to as \emph{resurrection} and
+allows terms in irrelevant positions to use variables that are
+formerly marked as irrelevant.
+
+\citet{abel:irrelevance} extend Pfenning's system with a predicative
+universe hierarchy. They prove the consistency and decidability of a
+typed-directed conversion algorithm for their extended system through a
+Kripke-style logical relation. Similar to \citet{pfenning:modal}, the
+system by Abel and Scherer satisfies the property which they refer to
+as soundness of \emph{internal erasure}, meaning that erasure of
+irrelevant terms can be carried out for open terms without sacrificing
+consistency or decidability. 
+\name also enjoys the internal erasure
+property. In fact, the consistency of \name relies on the soundness of
+internal erasure since type conversion is defined using the
+indistinguishability judgment.
+
+In the Predicative Calculus of Cumulative Inductive
+Construction (PCUIC)~\citep{sozeau:coq-coq-correct}, a simplified core
+language for Coq~\citep{coq}, the proof-irrelevant \texttt{Prop} sort can be used
+for erasure at runtime. Given a type $A$ with sort \texttt{Prop}, the
+inhabitants of $A$ can be safely erased from the terms during program
+extraction. The soundness of erasure for closed terms (referred to as
+\emph{external} or \emph{post-mortem erasure} by
+\citet{abel:irrelevance}) is ensured by a form of dependency tracking,
+where only singleton types (e.g. equality proofs) or empty
+types of the \texttt{Prop} sort can be destructed to produce runtime
+relevant terms whose types are of the relevant sort \texttt{Type}.
+
+The \texttt{Prop} sort in PCUIC does not affect type conversion and
+thus does not admit internal erasure. Erasing terms with sort
+\texttt{Prop} during type conversion would cause type
+conversion to diverge; with a variable of type $A = A \rightarrow A$
+in the context, it is possible to construct a term that erases to the
+diverging lambda term $(\lambda x . x\ x)\ (\lambda x . x\ x)$.% ~\citep{casinghino:combining-proofs-programs}
+
+\citet{gilbert:sprop} introduce the language sMLTT, an extension to
+MLTT with a proof irrelevant sort named \texttt{SProp}. Unlike the
+\texttt{Prop} sort, inhabitants of some type $A:$ \texttt{SProp} are
+treated as definitionally equal during type conversion. They show the
+consistency of their design for both predicative and impredicative
+variants of \texttt{SProp} through a syntactic translation to the
+Extensional Type Theory. Similar to \name, their base system only
+allows the empty type to be eliminated from \texttt{SProp} to the
+relevant universes. An optional extension to their system also allows
+an equality type that inhabits \texttt{SProp} to be eliminated
+to produce a relevant expression. However, their decidability proof,
+based on \citet{abel:irrelevance}, does not cover the equality
+extension.
+
+
+% \citet{luo1990:extended} introduces the Extended Calculus of
+% Constructions (ECC), 
+% an extension of Coquand-Huet's Calculus of
+% Constructions~\citep{coquand:coc} with a predicative universe
+% hierarchy on top of its impredicative sort \texttt{Prop}. The
+% \texttt{Prop} sort, 
+
+
+
+
+% Unlike \name, Pfenning's system does not parameterize the typing
+% judgment over an observer level. Instead, typing for irrelevant
+% function arguments is defined as a synonym for
+% typing with a ``resurrected'' context, where all
+% relevance levels in the context are squashed to become relevant,
+% making them available to use when type checking the irrelevant
+% argument.
+
+
+
+% \citet{abel:irrelevance}
+
+
+
+
+\subsection{Dependent Types and Counting}
+
+
+
 \begin{itemize}
   \item DCOI \cite{liu:dcoi}
   \item ICC \cite{miquel:icc}

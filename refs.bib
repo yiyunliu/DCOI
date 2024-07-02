@@ -778,16 +778,6 @@
   pages        = {61--101}
 }
 
-@article{adams:pure,
-  title        = {{Pure type systems with judgemental equality}},
-  author       = {Adams, Robin},
-  journal      = {Journal of Functional Programming},
-  volume       = {16},
-  number       = {2},
-  pages        = {219--246},
-  year         = {2006},
-  publisher    = {Cambridge University Press}
-}
 
 @inproceedings{lean,
   author       = {de Moura, Leonardo and Kong, Soonho and Avigad, Jeremy and van Doorn, Floris and von Raumer, Jakob},
@@ -800,4 +790,59 @@
   series       = {Lecture Notes in Computer Science},
   isbn         = {978-3-319-21400-9, 978-3-319-21401-6},
   pages        = {378--388}
+}
+
+@article{adams:pure,
+  title={Pure type systems with judgemental equality},
+  author={Adams, Robin},
+  journal={Journal of Functional Programming},
+  volume={16},
+  number={2},
+  pages={219--246},
+  year={2006},
+  publisher={Cambridge University Press}
+}
+@phdthesis{luo1990:extended,
+  title={An extended calculus of constructions},
+  author={Luo, Zhaohui},
+  year={1990},
+  school={University of Edinburgh}
+}
+
+@article{sozeau:coq-coq-correct,
+author = {Sozeau, Matthieu and Boulier, Simon and Forster, Yannick and Tabareau, Nicolas and Winterhalter, Th\'{e}o},
+title = {Coq Coq correct! verification of type checking and erasure for Coq, in Coq},
+year = {2019},
+issue_date = {January 2020},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {4},
+number = {POPL},
+url = {https://doi.org/10.1145/3371076},
+doi = {10.1145/3371076},
+abstract = {Coq is built around a well-delimited kernel that perfoms typechecking for definitions in a variant of the Calculus of Inductive Constructions (CIC). Although the metatheory of CIC is very stable and reliable, the correctness of its implementation in Coq is less clear. Indeed, implementing an efficient type checker for CIC is a rather complex task, and many parts of the code rely on implicit invariants which can easily be broken by further evolution of the code. Therefore, on average, one critical bug has been found every year in Coq.  This paper presents the first implementation of a type checker for the kernel of Coq (without the module system and template polymorphism), which is proven correct in Coq with respect to its formal specification and axiomatisation of part of its metatheory. Note that because of G\"{o}del's incompleteness theorem, there is no hope to prove completely the correctness of the specification of Coq inside Coq (in particular strong normalisation or canonicity), but it is possible to prove the correctness of the implementation assuming the correctness of the specification, thus moving from a trusted code base (TCB) to a trusted theory base (TTB) paradigm.  Our work is based on the MetaCoq project which provides metaprogramming facilities to work with terms and declarations at the level of this kernel. Our type checker is based on the specification of the typing relation of the Polymorphic, Cumulative Calculus of Inductive Constructions (PCUIC) at the basis of Coq and the verification of a relatively efficient and sound type-checker for it. In addition to the kernel implementation, an essential feature of Coq is the so-called extraction: the production of executable code in functional languages from Coq definitions. We present a verified version of this subtle type-and-proof erasure step, therefore enabling the verified extraction of a safe type-checker for Coq.},
+journal = {Proc. ACM Program. Lang.},
+month = {dec},
+articleno = {8},
+numpages = {28},
+keywords = {type checker, proof assistants, certification}
+}
+
+@inproceedings{casinghino:combining-proofs-programs,
+author = {Casinghino, Chris and Sj\"{o}berg, Vilhelm and Weirich, Stephanie},
+title = {Combining Proofs and Programs in a Dependently Typed Language},
+year = {2014},
+isbn = {9781450325448},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2535838.2535883},
+doi = {10.1145/2535838.2535883},
+abstract = {Most dependently-typed programming languages either require that all expressions terminate (e.g. Coq, Agda, and Epigram), or allow infinite loops but are inconsistent when viewed as logics (e.g. Haskell, ATS, Ωmega. Here, we combine these two approaches into a single dependently-typed core language. The language is composed of two fragments that share a common syntax and overlapping semantics: a logic that guarantees total correctness, and a call-by-value programming language that guarantees type safety but not termination. The two fragments may interact: logical expressions may be used as programs; the logic may soundly reason about potentially nonterminating programs; programs can require logical proofs as arguments; and "mobile" program values, including proofs computed at runtime, may be used as evidence by the logic. This language allows programmers to work with total and partial functions uniformly, providing a smooth path from functional programming to dependently-typed programming.},
+booktitle = {Proceedings of the 41st ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+pages = {33–45},
+numpages = {13},
+keywords = {termination, dependent types, general recursion},
+location = {San Diego, California, USA},
+series = {POPL '14},
+plclub = {yes}
 }
