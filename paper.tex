@@ -1110,79 +1110,79 @@ which proceeds by induction on the typing derivation.
 
 \begin{figure}[h]
   \centering
-\hfill \textit{(Auxiliary Notations)}
-\begin{align*}
-  % \member{[[a]]}{[[l0]]}{\buildset{[[x]]}{[[l]]}{P}} &\mathrel{\mathit{iff}} [[:concrete: P { a / x, l0 / l }]] ~ \mathit{holds} \\
-  \prodspace([[b]], [[l]], [[l0]], S_A, R) &\coloneqq
-    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
-  \sigspace([[c]], [[l]], [[l0]], S_A, R) &\coloneqq
-    \exists a, b, [[c =>* (l0 a, b)]] \wedge
-    \member{x}{[[l0]]}{S_A} \wedge
-    (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
-  \univspace{j}([[A]], [[E]]) &\coloneqq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S} \\
-  \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) &\coloneqq
-    [[p =>* refl]] \wedge \exists a', b', [[a =>* a']] \wedge [[b =>* b']] \wedge [[E |- a == b @ l0]]
-\end{align*}
-\fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical Predicate)}
-\begin{mathpar}
-  \infer[\ottdrulename{SWt\_Ne}]{
-    [[ne A]]
-  }{
-    \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
-  }
-  \and
-  \infer[\ottdrulename{SWt\_Pi}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
-    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-  }{
-    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}}
-  }
-  \and
-  \infer[\ottdrulename{SWt\_Sigma}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
-    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-  }{
-    \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace([[c]], [[l]], [[l0]], S_A, R) \vee [[wne c]])}}
-  }
-  \and
-  \infer[\ottdrulename{SWt\_Univ}]{
-    j < i
-  }{
-    \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \univspace{j}([[E]], [[A]])}}
-  }
-  \and
-  \infer[\ottdrulename{SWt\_Empty}]{~}{
-    \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
-  }
-  \and
-  \infer[\ottdrulename{SWt\_Eq}]{~}{
-    \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
-  }
-  \and
-  \infer[\ottdrulename{SWt\_Step}]{
-    [[A => B]] \\
-    \interp{[[E]]}{[[i]]}{[[B]]}{S}
-  }{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S}
-  }
-\end{mathpar}  
+  \hfill \textit{(Auxiliary notation)}
+  \begin{align*}
+    \prodspace([[b]], [[l]], [[l0]], S_A, R) &\coloneqq
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
+    \sigspace([[c]], [[l]], [[l0]], S_A, R) &\coloneqq
+      \exists a, b, [[c =>* (l0 a, b)]] \wedge
+      \member{x}{[[l0]]}{S_A} \wedge
+      (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
+    \univspace{j}([[A]], [[E]]) &\coloneqq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S} \\
+    \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) &\coloneqq
+      [[p =>* refl]] \wedge \exists a', b', [[a =>* a']] \wedge [[b =>* b']] \wedge [[E |- a == b @ l0]]
+  \end{align*}
+  \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
+  \begin{mathpar}
+    \infer[\ottdrulename{SWt\_Ne}]{
+      [[ne A]]
+    }{
+      \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Pi}]{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+    }{
+      \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Sigma}]{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+    }{
+      \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace([[c]], [[l]], [[l0]], S_A, R) \vee [[wne c]])}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Univ}]{
+      j < i
+    }{
+      \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \univspace{j}([[E]], [[A]])}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Empty}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Eq}]{~}{
+      \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Step}]{
+      [[A => B]] \\
+      \interp{[[E]]}{[[i]]}{[[B]]}{S}
+    }{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S}
+    }
+  \end{mathpar}  
   \caption{Logical predicate}
   \label{fig:logpred}
 \end{figure}
 
 In this section, we use a logical predicate to show weak
 normalization and consistency for \name.
-We structure the section as follows. In Section~\ref{sec:logpred}, we
+We structure the section as follows. In \cref{sec:logpred}, we
 present the definition of the logical predicate and its properties. In
-Section~\ref{sec:soundness}, we define valid substitutions and
+\cref{sec:soundness}, we define valid substitutions and
 semantic typing judgments based on the logical predicate and then
 prove the fundamental theorem, which states that all syntactically
 well-typed terms must be semantically well-typed, from which we derive
-weak normalization and consistency. In Section~\ref{sec:decconv}, we combine
+weak normalization and consistency. In \cref{sec:decconv}, we combine
 weak normalization and the standardization theorem to recover a decidable
 type conversion algorithm.
+
 \subsection{A logical predicate for \name}
 \label{sec:logpred}
 To characterize semantically well-behaved terms through the logical
@@ -1202,17 +1202,19 @@ predicate, we need to first define the notion of neutral and normal terms.
   \caption{Neutral and normal forms}
   \label{fig:normalform}
 \end{figure}
-Figure~\ref{fig:normalform} defines neutral and normal forms in the
+
+\Cref{fig:normalform} defines neutral and normal forms in the
 form of two judgments \judgement{$[[ne a]]$} and \judgement{$[[nf a]]$}.
 These predicates characterize a set of terms that are free of redexes.
 This property can be formulated using parallel reduction as follows.
+
 \begin{lemma}
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
   If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
   b]]$, we have $[[a]] = [[b]]$.
 \end{lemma}
 
-\begin{definition}[Terms that are weakly normalizing]
+\begin{definition}[Weakly normalizing terms]
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
   Given a term $[[a]]$, if there exists some term $[[b]]$ such that
   $[[a =>* b]]$, then we say that $[[a]]$ weakly normalizes to a
@@ -1220,27 +1222,27 @@ This property can be formulated using parallel reduction as follows.
   \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
 \end{definition}
 
-Figure~\ref{fig:logpred} gives the full definition of our logical
+\Cref{fig:logpred} gives the full definition of our logical
 predicate.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
 \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}, as an inductive relation
 recursively defined over the universe level $[[i]]$. The
-metavariable $S$ represents a family of terms indexed by levels. 
-We use the notation \judgement{$\member{a}{[[l]]}{S}$} to indicate that $[[a]]$ is
+metavariable $S$ represents a family of terms indexed by dependency levels. 
+We use \judgement{$\member{a}{[[l]]}{S}$} to indicate that $[[a]]$ is
 a term that belongs to the set in $[[S]]$ that is indexed by $[[l]]$.
-When constructing indexed sets, we use the notation
+When constructing indexed sets, we use
 \judgement{$\buildset{[[a]]}{[[l]]}{\ldots}$} to indicate a family of sets
 parameterized by $[[l]]$.
-The judgment $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ reads that under the
+The judgment $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ states that under
 grading context $[[E]]$ and universe level $[[i]]$, the type $[[A]]$
-can be interpreted as the family of sets $[[S]]$.
+is interpreted as the family of sets $[[S]]$.
 
 Unlike logical relations for simply typed languages, the logical
 predicate for \name cannot be defined as a total function since not
-all terms can be assigned a meaning. Instead, the logical predicate
+all terms can be assigned an interpretation. Instead, the logical predicate
 $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ simultaneously specifies the
-semantically well-formed types $[[A]]$ and its meaning $[[S]]$. %  A key
+semantically well-formed types $[[A]]$ and their interpretation $[[S]]$. %  A key
 % result we will present later in this section is the functionality of
 % the logical predicate; that is, each term can only correspond to one
 % interpretation $[[S]]$ if there exists one.
@@ -1249,6 +1251,7 @@ For concision, we introduce the notion of semantic inhabitance to
 avoid mentioning the side condition that a type is well-formed when we
 want to talk about whether a term inhabits the set obtained from
 interpreting the type.
+
 \begin{definition}[Semantic inhabitance]
   Given a context $[[E]]$ and a level $[[l]]$, 
   we say that $[[a]]$ \emph{semantically inhabits} the type $[[A]]$
@@ -1257,7 +1260,7 @@ interpreting the type.
 \end{definition}
 
 In \rref{SWt-Pi,SWt-Sigma}, the
-metavariable $R$ represents a relation between lambda terms and the
+metavariable $R$ represents a relation between terms and the
 indexed family of terms $S$. Ignoring the conclusion of the rules, 
 \rref*{SWt-Pi} and \rref*{SWt-Sigma} share the same preconditions,
 which ensure their well-formedness in the following sense:
@@ -1267,37 +1270,41 @@ level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed. % This
 % intuition. 
 In the function case, the definition of $\prodspace$
 specifies the semantic inhabitants of a function type as the set of
-terms that maps well-behaved terms from the input type to well-behaved
+terms that maps well-behaved terms from the input type to a well-behaved
 output type.
 
-The logical predicate takes in the grading context $[[E]]$ as a
-parameter to ensure that the $[[S]]$ only includes terms that are
+The logical predicate takes in a grading context $[[E]]$ as a
+parameter to ensure that $[[S]]$ only includes terms that are
 well-graded with respect to the indexed level.
 This property is
 formally stated as follows and can be proven by straightforward
 induction over the logical predicate.
+
 \begin{lemma}[Escape]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUniv\_Ok}}
   \label{lem:escape}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{[[a]]}{[[l]]}{S}$,
   then $[[E |- a : l]]$.
 \end{lemma}
+
 We refer to \cref{lem:escape} as the escape lemma as it is
-reminiscent of the escape lemmas found in \citet{abel:irrelevance,
-adjedj:mltt-coq}, though instead of escaping from the
+reminiscent of the escape lemmas by \citet{abel:irrelevance} and
+\citet{adjedj:mltt-coq}, though instead of escaping from the
 logical predicate to the syntactic typing judgment, we only require
 the much weaker well-gradedness judgment. The well-gradedness
 restriction will be necessary for us to show that indistinguishable
-types have the same meaning.
+types have the same interpretation.
 
 Similar to its syntactic counterpart, the logical predicate satisfies
 the subsumption property.
+
 \begin{lemma}[Subsumption for the logical predicate]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
   Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
   then $\member{[[a]]}{[[l1]]}{S}$.
 \end{lemma}
+
 \begin{proof}
   Immediate by induction over the derivation and \rref{Wg-sub}.
 \end{proof}
@@ -1327,31 +1334,33 @@ The logical predicate satisfies the following inversion principles.
 These inversion principles are not immediately obtainable by inverting
 the derivation because we close our interpretation with parallel
 reduction, a full
-reduction relation, in \rref{SWt-Step}. For brevity, we only show the cases
+reduction relation, in \rref{SWt-Step}. For brevity, we show only the cases
 for equality, function, and empty types.
+
 \begin{lemma}[Inversion of the logical predicate (selected)]
   \label{lem:interpinv}\leavevmode
   \begin{enumerate}
-  \item \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
+  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
     If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{S}$, then $S =
     \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]],
-      [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}$
-  \item \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
+      [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}$.
+  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
     If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
-    exists $S_A$ and $R$ such that following holds:
+    exist $S_A$ and $R$ such that following hold:
     \begin{itemize}
-    \item $S = \buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}$
-    \item $\interp{[[E]]}{[[i]]}{[[A]]}{S_A}$
+    \item $S = \buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}$;
+    \item $\interp{[[E]]}{[[i]]}{[[A]]}{S_A}$;
     \item $\forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a,
-      S_B)$
+      S_B)$; and
     \item $\forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to
-      \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}$
+      \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}$.
     \end{itemize}
-  \item \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Void\_inv}}
+  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Void\_inv}}
     If $\interp{[[E]]}{[[i]]}{[[Void]]}{S}$, then $S =
-    \buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}$
+    \buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}$.
   \end{enumerate}
 \end{lemma}
+
 \begin{proof}
   Immediate by induction over the derivation of the logical
   predicate.
@@ -1359,6 +1368,7 @@ for equality, function, and empty types.
 
 The set of terms that semantically inhabit a type are closed by
 expansion (i.e. backward reduction).
+
 \begin{lemma}[Backward closure]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos}}
   \label{lem:backclos}
@@ -1366,6 +1376,7 @@ expansion (i.e. backward reduction).
   If $[[a => b]]$ and $\member{[[b]]}{[[l]]}{S}$,
   then $\member{[[a]]}{[[l]]}{S}$.
 \end{lemma}
+
 \begin{proof}
   By induction over the derivation of the logical predicate. The
   \rref*{SWt-Univ} case requires \rref*{SWt-Step}, the backward
@@ -1373,88 +1384,95 @@ expansion (i.e. backward reduction).
   predicate. All other cases are trivial.
 \end{proof}
 
-The logical predicate satisfies cumulativity; if a type has an
+The logical predicate satisfies cumulativity: if a type has an
 interpretation at a lower level, then it must also have the same
 interpretation at a higher level.
+
 \begin{lemma}[Cumulativity]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_cumulative}}
   \label{lem:cumulativity}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[i]] \leq [[j]]$, then
   $\interp{[[E]]}{[[j]]}{[[A]]}{S}$.
 \end{lemma}
+
 \begin{proof}
   By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$
   and the transitivity of $\leq$ for universe levels.
 \end{proof}
 
 \Rref{SWt-Step} closes the interpretation of types under
-expansion. We can also show that the meaning of types is
+expansion. We can also show that the interpretation of types is
 preserved under forward reduction through the following lemma.
-\begin{lemma}[Reduction preserves meaning]
+
+\begin{lemma}[Reduction preserves interpretation]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation}}
 \label{lem:lrpreservation}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[A => B]]$, then
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
 \end{lemma}
+
 \begin{proof}
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   \Rref{SWt-Step} is the only interesting case, where we
-  leverage the diamond property (\ref{lem:diamond}) of
+  leverage the \nameref{lem:diamond} property of
   parallel reduction to reconcile two potentially distinct reductions
   from the type $[[A]]$.
 \end{proof}
 
-
 Next, we prove that the logical predicate is functional. That is,
 given a context $[[E]]$ and a universe level $[[i]]$, a type $[[A]]$
 can correspond to at most one interpretation $[[S]]$.
+
 \begin{lemma}[Functionality]
 \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_deterministic}}
 \label{lem:lrfunc}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$ and
 $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
 \end{lemma}
+
 \begin{proof}
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
   The \rref*{SWt-Step} case is immediate by \cref{lem:lrpreservation}.
   For all other cases, the conclusion
   follows by applying the inversion
-  properties (\ref{lem:interpinv}) on
+  properties (\cref{lem:interpinv}) on
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$.
 \end{proof}
 
 The logical predicate is functional not only for types that are
 syntactically equal, but also for types that are
 indistinguishable. This property is needed to fully justify the
-soundness of the type conversion rule since the type conversion
+soundness of the type conversion rule, since the type conversion
 involves both reduction and indistinguishability.
+
 \begin{lemma}[Functionality for indistinguishable types]
-\label{lem:lrfunci}
-\stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
-If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
-$\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
-$[[E |- A == B @ l ]]$ for some $[[l]]$,
-then $S_0 = S_1$.
+  \label{lem:lrfunci}
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
+  $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
+  $[[E |- A == B @ l ]]$ for some $[[l]]$,
+  then $S_0 = S_1$.
 \end{lemma}
+
 \begin{proof}
-  The argument is similar to the one for Lemma~\ref{lem:lrfunc}.
+  The argument is similar to the one for \cref{lem:lrfunc}.
   We start by induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
-  For case \rref*{SWt-Step}, we need both Lemma~\ref{lem:lrpreservation}
-  and simulation (\ref{lem:simulation}).
+  For case \rref*{SWt-Step}, we need both \cref{lem:lrpreservation}
+  and \nameref{lem:simulation}.
   For other cases, we apply the inversion properties on
   $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$.
 
-  The function and sigma cases both require one extra step to complete the
+  The cases for function and pair types both require one extra step to complete the
   proof. Consider the case where $[[A]] = [[Pi x : l0 A0 . B0]]$ and
   $[[B]] = [[Pi x : l0 A1 . B1]]$. The
   induction hypothesis says that for every term $[[a]]$ that
   semantically inhabits $[[A0]]$, if a type $[[C]]$ is
   indistinguishable from $[[B0 {a / x}]]$, then $[[C]]$ and $[[B0 {a /
-  x}]]$ have the same meaning. To complete the proof, we need to
-  leverage the induction hypothesis by instantiating the variable
+  x}]]$ have the same meaning. To complete the proof, we use
+  the induction hypothesis and instantiate the variable
   $[[C]]$ with the type $[[B1 { a / x}]]$ and prove that $[[B0 {a /
     x}]]$ is indistinguishable from $[[B1 {a / x}]]$.  From the
   premise that $[[Pi x : l0 A0 . B0]]$ and $[[Pi x : l0 A1 . B1]]$ are
@@ -1462,17 +1480,16 @@ then $S_0 = S_1$.
   indistinguishable.
 
   To prove that $[[B0 {a / x}]]$ and $[[B1 {a / x}]]$ are
-  indistinguishable, we want to apply
-  the substitution rule for indistinguishability
-  (\rref{I-subst}), which requires $[[a]]$ to be well-graded at $[[l0]]$.
-  By escape (\ref{lem:escape}), we finish the
-  proof by deducing the well-gradedness of $[[a]]$ from the fact that
-  $[[a]]$ semantically inhabits the input type $[[A0]]$.
+  indistinguishable, we apply
+  the substitution property of indistinguishability
+  (\rref*{I-subst}).
+  This requires $[[a]]$ to be well-graded at $[[l0]]$,
+  which follows from $[[a]]$ semantically inhabiting $[[A0]]$ via \nameref{lem:escape}.
 \end{proof}
 
-The last main property we discuss in this section is the adequacy
-property, which establishes the connection between the inhabitants of
-the logical predicate and terms that weakly normalizes to normal or
+The last main property is adequacy,
+which establishes the connection between the inhabitants of
+the logical predicate and terms that weakly normalize to normal or
 neutral forms.
 
 \begin{figure}[h]
@@ -1481,34 +1498,38 @@ neutral forms.
     \drule{P-D} \qquad \drule{Wg-D} \qquad \drule{I-D} \qquad \drule{Ne-D}
   % \end{tabular}
   
-  \caption{Extended rules for the dummy constant $[[d]]$}
+  \caption{Extended rules for the dummy constant $[[dummy]]$}
   \label{fig:dummy}
 \end{figure}
 
 Before we state and prove adequacy, we first show some
 useful facts about normal forms. Following \citet{geuvers:cc-sn}, we
-introduce a dummy constant $[[dummy]]$ to the set of untyped lambda
+introduce a dummy constant $[[dummy]]$ to the set of
 terms for presentation purposes. The dummy term satisfies the rules
-specified in Figure~\ref{fig:dummy}.
+specified in \cref{fig:dummy}.
 
 Reductions and normal forms are preserved when we undo the substitutions
 involving $[[dummy]]$.
+
 \begin{lemma}[Antirenaming for Par]
-\stack{.~}\footnote{\suppl{theories}{normalform.v}{Par\_antirenaming}}
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{Par\_antirenaming}}
   \label{lem:paranti}
   If $[[a {dummy / x} => b]]$, then there exists some term $[[b0]]$
   such that $[[b]] = [[b0 {dummy / x}]]$ and $[[a => b0]]$.
 \end{lemma}
+
 \begin{lemma}[Antirenaming for normal and neutral forms]
-\stack{.~}\footnote{\suppl{theories}{normalform.v}{ne\_nf\_renaming\_with\_d}}
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{ne\_nf\_renaming\_with\_d}}
   \label{lem:nfneanti}
   If $[[nf a {dummy / x}]]$ (resp. $[[ne a {dummy / x}]]$), then $[[nf
   a]]$ (resp. $[[ne a]]$).
 \end{lemma}
-From Lemmas~\ref{lem:paranti} and \ref{lem:nfneanti}, we derive the
+
+From \cref{lem:paranti,lem:nfneanti}, we derive the
 following corollary about weak normalization.
+
 \begin{lemma}[Antirenaming for weak normalization]
-\stack{.~}\footnote{\suppl{theories}{normalform.v}{wn\_antirenaming}}
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn\_antirenaming}}
   \label{lem:wnanti}
   If $[[wnf a {dummy / x}]]$, then $[[wnf a]]$.
 \end{lemma}
@@ -1530,49 +1551,51 @@ following corollary about weak normalization.
 % causes issues when we want to prove that well-formed types are
 % normalizing since we only know that
 
-In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as a
-syntax sugar for a fresh variable. However, this is not possible in \name
-because we want \rref{I-D, Wg-D} to hold. When the grading context is empty,
+In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
+syntactic sugar for a fresh variable. However, this is not possible in \name
+because we want \rref{I-D,Wg-D} to hold. When the grading context is empty,
 there is no variable we are allowed to pick. However, since
 \rref{I-Absurd} does not impose any scope checking on the target of
 the empty eliminator, we can define $[[dummy]]$ as $[[absurd x]]$ for
 an arbitrarily picked variable $[[x]]$. It is easy to verify that this
-definition respect the rules in Figure~\ref{fig:dummy} and the
+definition respects the rules in \cref{fig:dummy} and the
 antirenaming lemmas.
 
 Finally, we state and prove the adequacy lemma.
+
 \begin{lemma}[Adequacy]
-\stack{.~}\footnote{\suppl{theories}{semtyping.v}{adequacy}}
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{adequacy}}
   \label{lem:adequacy}
-  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then the following holds:
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then the following hold:
   \begin{itemize}
-  \item If $\member{a}{[[l]]}{S}$, then $[[wnf a]]$
-  \item If $[[E |- a : l]]$ and $[[wne a]]$, then $\member{a}{[[l]]}{S}$
-  \item $[[wnf A]]$
+  \item If $\member{a}{[[l]]}{S}$, then $[[wnf a]]$;
+  \item If $[[E |- a : l]]$ and $[[wne a]]$, then $\member{a}{[[l]]}{S}$; and
+  \item $[[wnf A]]$.
   \end{itemize}
 \end{lemma}
+
 \begin{proof}
   By induction over the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   The only interesting part of the proof is showing normalization for
-  well-formed function and sigma
-  types. We focus on the function type and the proof for sigma type is
+  well-formed function and pair
+  types. We focus on function types, and the proof for pair types is
   almost identical.
 
   In the function case, we have $[[A]] = [[Pi x : l0 A0 . B0]]$. By
   the induction hypothesis, we already know $[[wnf A0]]$ and for all
-  terms $[[a]]$ that semantically inhabits $[[A0]]$, the term $[[B0 {a
+  terms $[[a]]$ that semantically inhabit $[[A0]]$, the term $[[B0 {a
     / x}]]$ is weakly normalizing. To show that $[[Pi x : l0 A0. B0]]$
   is weakly normalizing, it suffices to show that $[[B0]]$ is weakly
   normalizing. 
 
-  Since the induction hypothesis about $[[B0]]$ is universally
+  Since the induction hypothesis for $[[B0]]$ is universally
   quantified, we need to find a concrete term to instantiate $[[a]]$
-  with. By the induction hypothesis about $[[A0]]$, we also know that
+  with. By the induction hypothesis for $[[A0]]$, we also know that
   if $[[E |- a : l]]$ and $[[a]]$ is a neutral term, then $[[a]]$
   semantically inhabits $[[A0]]$. By \rref{I-D}, we pick $[[dummy]]$
   for $[[a]]$ and deduce that $[[B0 {dummy / x}]]$ is weakly
-  normalizing. By Lemma~\ref{lem:wnanti}, we conclude that $[[B0]]$ is
+  normalizing. By \cref{lem:wnanti}, we conclude that $[[B0]]$ is
   also weakly normalizing.
 \end{proof}
 

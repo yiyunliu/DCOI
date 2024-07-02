@@ -54,9 +54,6 @@ grade, l {{ tex \ell }} :: 'l_' ::=
     {{ coq ([[l]]) }}
     {{ tex [[l]] }}
 
-% TODO: add labels to scrutinees
-% TODO: Pack -> Pair
-
 tm, a, b, c, A, B, C, p :: 'a_' ::=
   {{ com terms and types }}
   {{ coq-universe Type }}
