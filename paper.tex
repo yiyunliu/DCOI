@@ -1606,9 +1606,8 @@ Finally, we state and prove the adequacy lemma.
 \subsection{Soundness}
 \label{sec:soundness}
 To define semantic well-typedness, we need to first define the notion
-of valid substitutions, sometimes also referred to as valuations.
+of valid substitutions, also referred to as valuations.
 While we continue to use named variables rather than de Bruijn indices,
-% to bring the presentation closer to the mechanization,
 in this section we frame substitution in terms of \emph{substitution maps}
 (or simply \emph{substitutions} for short)
 and simultaneous substitutions.
@@ -1626,7 +1625,7 @@ and simultaneous substitutions.
 The singleton substitution map $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
 the single extension of the identity substitution map.
 
-\begin{definition}[Valid Substitutions]
+\begin{definition}[Valid substitutions]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
   \label{def:semwf}
   A substitution map is a valid substitution 
@@ -1637,19 +1636,19 @@ the single extension of the identity substitution map.
   and for all $i$, $S$ such that
   $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$, 
   we have $\member{\rho(x)}{[[l]]}{S}$.
-  % Intuitively, $\rho$ replaces the variables listed by $[[G]]$,
-  % and the terms $\rho$ replaces them by have free variables in $[[D]]$.
 \end{definition}
 
 By definition, every term $[[rho( x)]]$ in a valid substitution map
 $[[rho]]$ from $[[G]]$ to $[[D]]$ is well-graded with respect to the erased context
 $[[|D|]]$. This allows us to derive the following lemma about
 well-gradedness and valid substitutions.
+
 \begin{lemma}[Valid substitutions for well-graded terms]
 \stack{.~}\footnote{\suppl{theories}{soundness.v}{iok\_$\rho$\_ok\_morphing}}
   If $[[|G| |- a : l]]$ and $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |-
   a{rho} : l ]]$.
 \end{lemma}
+
 \begin{proof}
   Immediate by iterating the substitution principle for well-gradedness (\rref*{Wg-subst}).
 \end{proof}
@@ -1658,27 +1657,29 @@ well-gradedness and valid substitutions.
 % Lemma~\ref{lem:escape} since the definition of valid substitution does
 % not imply the existence of interpretations for types in the context.
 Valid substitutions satisfy the following admissible structural rules.
+
 \begin{lemma}[Structural rules for valid substitutions]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_id}, \suppl{theories}{soundness.v}{$\rho$\_ok\_cons}}
-  \begin{mathpar}
-    \mprset{fraction={===}}
-    \infer[\ottdrulename{V\_id}]{~}{\sws{[[G]]}{[[nil]]}{[[G]]}} \and
-    \infer[\ottdrulename{V\_cons}]{
-      \interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S} \\
-      \member{[[a]]}{[[l0]]}{S} \\
-      \sws{[[D]]}{[[rho]]}{[[G]]}
-      }{ \sws{[[D]]}{[[rho ++ {a / x} ]]}{[[G ++ x : l0 A ]]}    }
-  \end{mathpar}
+  \label{lem:vsubst}
+  \leavevmode
+  \begin{enumerate}
+    \item \label{lem:vnil} For every $[[G]]$, $\sws{[[G]]}{[[nil]]}{[[G]]}$ holds; and
+    \item \label{lem:vcons} Given $\sws{[[D]]}{[[rho]]}{[[G]]}$,
+      if $[[a]]$ semantically inhabits $[[A { rho }]]$
+      at level $[[l0]]$ under grading context $[[| D |]]$,
+      then $\sws{[[D]]}{[[rho ++ {a / x} ]]}{[[G ++ x : l0 A ]]}$ holds.
+  \end{enumerate}
 \end{lemma}
+
 \begin{proof}
-  \Rref{V-id} is easily justified by the part of the adequacy lemma
+  (\ref{lem:vnil}) is easily justified by the part of the adequacy lemma
   that states well-graded neutral terms (variables in $[[G]]$ in
   this case) semantically inhabit any well-formed types.
 
-  \Rref{V-cons} requires functionality (\ref{lem:lrfunc}) and
-  cumulativity (\ref{lem:cumulativity}) to convert the fact that
+  (\ref{lem:vcons}) requires \nameref{lem:lrfunc} and
+  \nameref{lem:cumulativity} to convert the fact that
   $\member{[[a]]}{[[l0]]}{S}$ for the specific $S$ from the
-  precondition to the universal statement that
+  semantic inhabitance to the universal statement that
   $\member{[[a]]}{[[l0]]}{S_0}$ for arbitrary $j$ and $S_0$ such that
   $\interp{[[|D|]]}{[[j]]}{[[A { rho }]]}{S_0}$, as needed by the
   definition of valid substitutions.
@@ -1702,6 +1703,7 @@ Valid substitutions satisfy the following admissible structural rules.
 
 Next, we define semantic typing based on the definitions of valid
 substitutions and the logical predicate.
+
 \begin{definition}[Semantic well-typedness]
   \label{def:semwt}
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
@@ -1714,20 +1716,22 @@ substitutions and the logical predicate.
   under the grading context $[[|D|]]$.
 \end{definition}
 
-% \todo{Present these lemmas in derivation form?}
 Valid substitutions and semantic well-typedness both satisfy weakening
 properties.
+
 \begin{lemma}[Weakening for valid substitutions and
   semantic well-typedness]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}, \suppl{theories}{soundness.v}{weakening\_Sem}}
-  \begin{mathpar}
-    \mprset{fraction={===}}
-    \infer[\ottdrulename{V\_weak}]{\sws{[[D]]}{\rho}{[[G ++ x : l A]]}}{\sws{[[D]]}{\rho}{[[G]]}} \and
-    \infer[\ottdrulename{SWt\_weak}]{
-      \swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}
-      }{  \swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]} }
-  \end{mathpar}  
+  \leavevmode
+  \begin{itemize}
+    \item \stack{~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}}
+      If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then $\sws{[[D]]}{\rho}{[[G]]}$.
+    \item \stack{~}\footnote{\suppl{theories}{soundness.v}{weakening\_Sem}}
+      If $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$,
+      then $\swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]}$.
+  \end{itemize}
 \end{lemma}
+
 \begin{proof}
   Immediate by unfolding the respective definitions of valid
   substitutions and semantic well-typedness.
@@ -1760,26 +1764,34 @@ imply the well-formedness of the types in $[[G]]$. % The universal
 % for types in $[[G]]$. 
 Instead, the existence of interpretations
 for types in $[[G]]$ is separately provided by the semantic
-context well-formedness judgment, written \judgement{$\swf{[[G]]}$}, which we
-inductively define as follows.
-\begin{mathpar}
-  \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
-  \infer[\ottdrulename{SWf\_cons}]{
-    \swf{[[G]]} \\
-    \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
-  }
-\end{mathpar}
+context well-formedness judgment,
+defined inductively in \cref{fig:swf}.
+
+\begin{figure}[h]
+  \begin{mathpar}
+    \fbox{$\swf{[[G]]}$} \hfill \textit{(Semantic well-formedness)} \\
+    \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
+    \infer[\ottdrulename{SWf\_cons}]{
+      \swf{[[G]]} \\
+      \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
+    }
+  \end{mathpar}
+  \caption{Semantic well-formedness of typing contexts}
+  \label{fig:swf}
+\end{figure}
+
 The following lemma is useful when working with judgments of the form
 $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
+
 \begin{lemma}[Semantic type inversion]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
   The following are equivalent:
   \begin{itemize}
     \item $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$;
-    \item For every $\rho$, $[[D]]$ such that $\sws{[[D]]}{\rho}{[[G]]}$,
+    \item For every $\rho$, $[[D]]$ such that $\sws{[[D]]}{\rho}{[[G]]}$ holds,
       \begin{itemize}
-        \item $[[| D | |- A { rho } : l]]$ holds, and
-        \item there exists $S$ such that $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$.
+        \item $[[| D | |- A { rho } : l]]$ holds; and
+        \item There exists an interpretation $S$ such that $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$.
       \end{itemize}
   \end{itemize}
 \end{lemma}
@@ -1787,8 +1799,9 @@ $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
   Immediate by the inversion lemma for types of the form $[[Univ i]]$ (Lemma~\ref{lem:interpinv}).
 \end{proof}
 
-We now specify the fundamental theorem and provide brief proof
+We now specify the fundamental theorem and provide proof
 sketches for the interesting cases.
+
 \begin{theorem}[Fundamental theorem]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{soundness}}
   \label{thm:fundamental}
@@ -1797,27 +1810,27 @@ sketches for the interesting cases.
 \end{theorem}
 \begin{proof}
 By mutual induction over syntactic typing and
-well-formedness. Despite the complex set-up of the logical predicate,
+well-formedness. Despite the complex setup of the logical predicate,
 semantic typing, and their properties, the proof of the fundamental
 theorem is straightforward and is similar to the proofs by logical
-relation for simply typed languages such as the one found in
+relation for simply typed languages such as the one by
 \citet{abel:poplmark}.
 
 For example, the \rref*{Wt-App} case more or less proves itself since
-the idea of valid input to valid output is baked into the
+the idea of valid inputs to valid outputs is baked into the
 \rref*{SWt-Pi} case of the logical predicate.
 
 For other cases involving eliminators such as \rref*{Wt-J} and \rref*{Wt-Let}, the
-target either reduces to a desired normal form (e.g. $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
-term. In the former case, the conclusion follows by the backward
-closure property (\ref{lem:backclos}) and the induction
+target either reduces to a desired normal form (\eg $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
+term. In the former case, the conclusion follows by
+\nameref{lem:backclos} and the induction
 hypothesis. In the latter case, we know that the elimination form
 evaluates to a neutral form and thus semantically inhabits the type by
-adequacy (\ref{lem:adequacy}).
+\nameref{lem:adequacy}.
 
 The \rref*{Wt-Conv} case is justified by
 the preservation of meaning under expansion (\rref*{SWt-Par}),
-reduction (\ref{lem:lrpreservation}), and indistinguishability (\ref{lem:lrfunci}).
+reduction (\cref{lem:lrpreservation}), and indistinguishability (\cref{lem:lrfunci}).
 \end{proof}
 
 \begin{corollary}[Weak normalization for well-typed terms]
@@ -1826,8 +1839,7 @@ reduction (\ref{lem:lrpreservation}), and indistinguishability (\ref{lem:lrfunci
   If $[[G |- a : A]]$, then $[[wnf a]]$.
 \end{corollary}
 \begin{proof}
-  Immediate by the fundamental theorem (\ref{thm:fundamental}) and the
-  admissible \rref{V-id}.
+  Immediate by the \nameref{thm:fundamental} and \cref{lem:vsubst} (\ref{lem:vnil}).
 \end{proof}
 
 % \subsection{Normalization}
