@@ -1846,24 +1846,28 @@ reduction (\cref{lem:lrpreservation}), and indistinguishability (\cref{lem:lrfun
 \subsection{Decidability of type conversion}
 \label{sec:decconv}
 In this section, we use the normalization theorem
-(\ref{cor:wtwn}) to recover a decision procedure for type
+(\cref{cor:wtwn}) to recover a decision procedure for type
 conversion.
 
 Let \judgement{$a \leadsto^{lo} b$} be the
 leftmost-outermost reduction relation for
-\name. 
+\name.
+\jc{What does this mean?}
+
 % \begin{lemma}[Weak head factorization]
 %   \label{lem:factorization}
 %   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{h}[[b]]$.
 % \end{lemma}
+
 \begin{lemma}[Standardization]
   \stack{.~}\footnote{\suppl{theories}{factorization.v}{standardization}}
   \label{lem:standardization}
   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{lo}[[b]]$.
 \end{lemma}
+
 Its proof, which we omit in the text,
-is adapted from \citet{takahashi:par}'s standardization proof for the
-untyped lambda calculus. We first prove Hindley's local postponement property~\citep{accattoli:factorization}
+is adapted from the standardization proof for the untyped lambda calculus by \citet{takahashi:par}.
+We first prove Hindley's local postponement property~\citep{accattoli:factorization}
 for the weak head reduction relation, and then obtain the
 standardization theorem for leftmost-outermost reduction by iterating
 weak head reduction. Similar to the mechanized standardization proof
@@ -1882,11 +1886,10 @@ the former admits a simpler specification.
   normal form.
 \end{corollary}
 \begin{proof}
-  By standardization (\ref{lem:standardization}) and the fact that
+  By \nameref{lem:standardization} and the fact that
   leftmost-outermost reduction is deterministic, we can repeatedly
   apply leftmost-outermost reduction to find the normal form for $[[a]]$.
 \end{proof}
-
 
 \begin{lemma}[Indistinguishability is decidable]
   \stack{.~}\footnote{\suppl{theories}{geq.v}{IEq\_dec}}
@@ -1897,21 +1900,22 @@ the former admits a simpler specification.
   terminates with \texttt{true} or \texttt{false} depending on whether
   $[[E |- A == B @ l]]$.
 \end{lemma}
+
 \begin{proof}
-  The algorithm, whose definition we omit, simply recurses over the
+  The algorithm, whose definition we omit, simply recurs over the
   structure of $[[A]]$.
   The correctness proof mirrors the definition of the algorithm and
   proceeds by induction on $[[A]]$. The variable case requires that the
-  comparison $[[l0 <= l]]$ is decidable.
+  comparison $[[l0 <= l]]$ be decidable.
 \end{proof}
 
 \begin{definition}[Algorithm for type conversion]
   Given a grading context $[[E]]$ and two well-formed types $[[A]]$
-  and $[[B]]$, the algorithm decides their equality is as follows.
+  and $[[B]]$, the algorithm deciding their equality is as follows.
   \begin{enumerate}
-  \item Run the decision procedure from \cref{lem:nomdec} on $[[A]]$ and
+  \item Run the algorithm from \cref{lem:nomdec} on $[[A]]$ and
     $[[B]]$ to obtain normal forms $[[A0]]$ and $[[B0]]$.
-  \item Recursivley compute $[[l0]]$ and $[[l1]]$, the minimal levels
+  \item Compute the minimal levels $[[l0]]$ and $[[l1]]$
     at which $[[A0]]$ and $[[B0]]$ can be graded respectively.
   \item Return the result of the decision procedure from
     \cref{lem:indistdec} on the relation
@@ -1919,11 +1923,10 @@ the former admits a simpler specification.
   \end{enumerate}
 \end{definition}
 
-In step (3),
-the simulation lemma (\ref{lem:simulation}) justifies the use of
+In step (3), \nameref{lem:simulation} justifies the use of
 normal forms $[[A0]]$ and $[[B0]]$
-before we check indistinguishability, whereas the downgrade
-property (\rref*{I-down}) justifies the
+before we check indistinguishability, while downgrade
+(\rref*{I-down}) justifies the
 use of the lowest possible level $[[l0 \/ l1]]$.
 
 % The correctness of the algortihm
@@ -1935,35 +1938,35 @@ use of the lowest possible level $[[l0 \/ l1]]$.
 
 The only missing piece is the decidability of the algorithm for
 computing levels in step 2.
-While conceptually simple, the algorithm unfortunately depends
+While conceptually simple, the algorithm depends
 on the structure of the lattice. For bottomless
 lattices, there is no minimal level we can return for values such as
 $[[Void]]$ and $[[Univ i]]$. Instead, we need to conjure a level
 $[[l]]$ that can ignore as many boxed terms as possible when comparing
 $[[A]]$ and $[[B]]$. There are sufficient conditions for coming up
 with such a level, such as the existence of a bottom element,
-or the size being (possibly infinitely) countable. The
+or the size of the lattice being (possibly infinitely) countable. The
 precise condition is not easily specified.
 
 As a result, we prove the decidability of a weaker version of the
 algorithm where the level used to compare $[[A0]]$ and $[[B0]]$ is
 given as an input. We formally state this property as follows.
+
 \begin{lemma}[Decidability of indexed type conversion]
   \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{iconv\_dec}}
   \label{lem:deciconv}
   Given a context $[[E]]$, syntactically well-formed types $[[A]]$ and
-  $[[B]]$, and a level $[[l]]$, the following statement is decidable.
-  \[ \exists [[A0]][[B0]], [[A =>* A0]] \land [[B =>* B0]] \land [[E |- A0 == B0 @ l]] \]
+  $[[B]]$, and a level $[[l]]$, $[[E |- A0 <=> B0 @ l]]$ is decidable.
 \end{lemma}
-Note that the statement that we have shown decidable corresponds
-exactly to
-the preconditions in \rref{E-Conv}. The type conversion rule
+
+Note that $[[E |- A0 <=> B0 @ l]]$ corresponds
+exactly to the preconditions of \rref{E-Conv}. The type conversion rule
 \rref*{Wt-Conv} is decidable as long as the lattice has a suitable
-structure for computing some minimal level $[[l0]]$ for comparing the normalized
-types through the indistinguishability judgment.
+structure for computing some minimal level $[[l0]]$
+for deciding indistinguishability of the normalized types.
 
 For finite or countable lattices, the decision procedure from
-Lemma~\ref{lem:deciconv} can be iterated to recover the decidability
+\cref{lem:deciconv} can be iterated to recover the decidability
 of conversion in \rref{Wt-Conv}.
 
 \section{Discussion}
