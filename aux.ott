@@ -415,3 +415,25 @@ G |- rho : D
 G |- A {rho} : l0 Univ i
 ----------------------------- :: weak
 G ++ x : l A {rho} |- rho : D
+
+
+defns
+  JudgEq :: '' ::=
+
+defn
+  G |- a == b @ l : A :: :: E :: 'I_'
+  {{ com typed judgmental equality }}
+  {{ tex [[G]] \vdash [[a]] \equiv^{[[l]]} [[b]] \in [[A]] }}
+by
+
+G |- b0 == b1 @ l : Pi x : l0 A . B
+G |- a0 == a1 @ l l0 : A
+----------------------------- :: AppTy
+G |- b0 l0 a0 == b1 l0 a1 @ l : B {a0 / x }
+
+defn
+  G |- a == b @ l l0 : A :: :: GE :: 'GI_'
+  {{ com guarded typed judgmental equality }}
+  {{ tex [[G]] \vdash [[a]] \equiv^{[[l]]}_{[[l0]]} [[b]] \in [[A]] }}
+by
+

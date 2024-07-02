@@ -2123,8 +2123,80 @@ similar equivalence holds between \name and a variant with typed
 equality.
 However, it turns out that even defining judgmental equality for \name
 poses enough of a challenge. Consider the following
-typed congruence rule for functions.
+typed congruence rule for functions obtained by naively adding type
+annotations to \rref{I-App}.
+\begin{center}
+  \drule{I-AppTy}
+\end{center}
+Ignoring the levels, \rref{I-AppTy} is exactly how the application
+equivalence rule is defined for PTS with judgmental equality. However,
+\rref{I-AppTy} breaks the
+type correctness property, which states that $[[G |- a == b @ l : A]]$
+implies $[[G |- a : l A]]$ and $[[G |- b : l A]]$.
 
+When $[[not (l0 <= l)]]$, the function
+arguments are not observable and therefore we do not need to check the
+equality between $[[a0]]$ and $[[a1]]$ other than their respective
+well-typedness. However, \name does not prohibit the type $[[B]]$ from
+depending on the variable $[[x]]$ as the type $[[Pi x : l0 A . B]]$
+can be well-formed at a level unrelated to the observer level $[[l]]$
+(\ref{lem:regularity}).
+As a result, there is no guarantee that $[[B {a0 / x}]]$ and $[[B {a1
+  / x}]]$ are indistinguishable types.
+
+As a simple counterexample, we can pick $[[b0]]$ and $[[b1]]$ to be
+a level $[[L]]$ polymorphic identity function with a level $[[H]]$
+(thus irrelevant)
+type parameter. Instantiating $[[a0]]$ and $[[a1]]$ with distinct
+types, we end up with two distinct arrow types $[[B {a0 / x}]] = [[L
+a0 -> a0]]$ and $[[B {a1 / x}]] = [[L a1 -> a1]]$. Type correctness
+breaks as soon as we add input type annotations to functions.
+
+The problem of extending \name with judgmental equality also
+directly relates to the problem of defining a relational model for justifying properties
+such as extensionality, or a generalized semantic notion of noninterference
+that goes beyond our syntactic simulation property
+(\rref{lem:simulation}). Since logical relations are indexed by types,
+when defining the interpretation for functions, we run into the same
+issue where runtime irrelevant arguments that are vacuously related by guarded
+equality may result in distinguishable types after being substituted
+into the output type.
+
+Rather than patching \rref{I-AppTy} with side conditions until
+syntactic properties such as type correctness is satisfied, a more
+pressing problem is whether \rref{I-AppTy} is semantically sound.
+The counterexample about polymorphic identity function from earlier
+shows that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not necessarily
+\emph{syntactically} inhabit both $[[B {a0 / x}]]$ $[[B {a1 / x}]]$. However,
+semantically, two instantiated identity functions with different type
+annotations do not behave differently at runtime.
+
+In fact, we find it difficult, if not impossible, to construct a
+counterexample where $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not behave
+like terms from both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$.
+To be more adversarial, we want a counterexample where the output type
+$[[B]]$ pattern matches on the variable $[[x]]$ such that $[[B
+{a0 /x}]]$ and $[[B {a1 / x}]]$ are types with different
+elimination forms. If $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ evaluate to
+different head forms, then we can break semantic soundness. However,
+knowing that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ are indistinguishable
+at $[[l]]$ already rules out the case where they have different head
+forms.
+
+Therefore, despite the technical issues demonstrated in this section,
+we are optimistic that our logical predicate can be further extended to
+a relational model to justify more complex properties. 
+
+
+% To solve the problem on the syntactic side, it is tempting to add a side
+% condition to \rref{I-AppTy} to ensure the
+% the indistinguishability between $[[B {a0 / x}]]$ and $[[B{a1 / x}]]$,
+% a fact that is no longer admissible in \name, unlike PTS with
+% judgmental equality. However, this simple remedy still does not give a
+% satisfying answer to defining a relational semantic model.
+% \subsection{Towards efficient algorithmic type conversion}
+% The decision procedure for type conversion presented in
+% Section~\ref{sec:decconv} can be categorized as a normalize-and-compare
 
 \section{Related work}
 
