@@ -595,7 +595,7 @@ such as the preservation of definitional equality between two terms as they redu
 To ensure that simulation holds,
 additional level constraints must be enforced when typing
 the eliminators for pairs and equality proofs, as we will see in the next two subsections.
-We explain in further detail how omitting these constraints violate simulation in \cref{sec:scrutinee-level}.
+We explain in further detail how omitting these constraints violate simulation in \cref{sec:target-level}.
 
 \subsection{Dependent pairs} \label{sec:pairs}
 
@@ -661,7 +661,7 @@ Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the method,
 the level of the method must match the level $[[l]]$ of the overall eliminator.
 The level of the target is not exactly $[[l]]$ but is bounded by it;
 its justification is a subtle technical issue,
-which we defer to \cref{sec:scrutinee-level}.
+which we defer to \cref{sec:target-level}.
 
 In addition to requiring the well-typedness of the equality proof $[[p]]$,
 \rref{Wt-J} also takes as premises the well-typedness
@@ -1535,7 +1535,7 @@ In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as a
 syntax sugar for a fresh variable. However, this is not possible in \name
 because we want \rref{I-D, Wg-D} to hold. When the grading context is empty,
 there is no variable we are allowed to pick. However, since
-\rref{I-Absurd} does not impose any scope checking on the scrutinee of
+\rref{I-Absurd} does not impose any scope checking on the target of
 the empty eliminator, we can define $[[dummy]]$ as $[[absurd x]]$ for
 an arbitrarily picked variable $[[x]]$. It is easy to verify that this
 definition respect the rules in Figure~\ref{fig:dummy} and the
@@ -1786,7 +1786,7 @@ the idea of valid input to valid output is baked into the
 \rref*{SWt-Pi} case of the logical predicate.
 
 For other cases involving eliminators such as \rref*{Wt-J} and \rref*{Wt-Let}, the
-scrutinee either reduces to a desired normal form (e.g. $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
+target either reduces to a desired normal form (e.g. $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
 term. In the former case, the conclusion follows by the backward
 closure property (\ref{lem:backclos}) and the induction
 hypothesis. In the latter case, we know that the elimination form
@@ -1942,17 +1942,17 @@ of conversion in \rref{Wt-Conv}.
 % design and technical issues
 % perhaps merge with related work
 
-\subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
+\subsection{Target level constraints} \label{sec:target-level}
 
-The level of scrutinees must be bounded by the level of the overall eliminator.
+The level of eliminator targets must be bounded by the level of the overall eliminator.
 In particular, in \rref{Wt-J}, the level $[[l2]]$ of an equality proof $[[p]]$
 must be bounded by that of its elimination $[[J c l2 p]]$,
 and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
 must be bounded by that of its elimination $[[let (l0 x, y) = l1 a in b]]$.
 The bound is required to prove the \nameref{lem:simulation} property.
-Suppose that scrutinees could instead be typed at any level.
+Suppose that targets could instead be typed at any level.
 First, the indistinguishability rules would need to be updated
-so that scrutinees are indistinguishable if their level is higher
+so that targets are indistinguishable if their level is higher
 than that of the overall eliminator, just like in \rref{I-App}.
 The modified premises are highlighted in \hlcolor{} below.
 %
@@ -1989,7 +1989,7 @@ without knowing \apriori that a closed proof of equality $[[p]]$ normalizes to $
 or that a closed term of a pair type normalizes to a pair.
 
 The one exception is the eliminator for the empty type,
-whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
+whose target may be well typed at any arbitrary level in \rref{Wt-Absurd}.
 Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
 ignoring $[[b]]$ in \rref{I-Absurd} will not violate simulation.
 
@@ -2025,7 +2025,7 @@ a contradiction.
 since by the contradiction $[[J (\ H x . x) L refl]]$ would be an inhabitant of $[[Void]]$,
 while it reduces to $[[(\ H x . x)]]$, which is not.
 
-\todo{discuss why the scrutinee can't be typed at the observer level}
+\todo{discuss why the target can't be typed at the observer level}
 
 \subsection{Scoped Logical Predicate,  non-Kripke Style}
 \label{sec:nokripke}
