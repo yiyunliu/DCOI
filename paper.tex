@@ -227,19 +227,19 @@ that takes into account the parts of the program that an observer may depend
 on. However, dependency-tracking type systems serve many purposes, such as
 staged compilation and information flow control~\cite{abadi:dcc}.
 
-Prior work lays the foundation for the design of a dependently-typed
-programming language based dependency tracking, called \dcoi. \dcoi's conversion
+\dcoi lays the foundation for the design of a dependently-typed
+programming language based on dependency tracking. Its conversion
 may use indistinguishability at any observer level when comparing types for
 equality. Despite this coarse notion of equality, prior work showed that \dcoi
 is type sound.
 
-However, prior work focused on syntactic methods for reasoning about
-\dcoi. While sufficient for type soundness, they cannot be used to identify a
-logically consistent fragment of \dcoi that enjoys properties such as weak
-normalization and decidable observer-indexed equivalence. For flexibility,
+Prior work focused on syntactic methods for reasoning about
+\dcoi. While sufficient for type soundness, they cannot be used to identify
+an instantiation of \dcoi that enjoys properties such as logical consistency,
+weak normalization, and decidable observer-indexed equivalence. For flexibility,
 \dcoi is designed around a \emph{Pure Type System} (PTS), where various
 instances of sorts, rules and axioms determine the versions of quantification
-that is allowed in the language. While some instances of PTSs are known to
+that is allowed in the language. While some instances of PTSes are known to
 allow nontermination (such as when including the $[[Type]]:[[Type]]$ axiom),
 others (such as those that include a predicative universe hierarchy, or a
 single impredicative sort) can form the basis of a consistent logic.
@@ -249,32 +249,34 @@ featuring a predicative universe hierarchy. This calculus retains many of the
 features of \dcoi, including level-indexed dependent function types
 ($[[Pi x : l A . B]]$), level-indexed dependent pairs ($[[Sig x : l A. B]]$),
 level-indexed propositional equality $[[a ~l b]]$, and an empty type
-$[[Void]]$.
+$[[Void]]$. \jc{sentence here about what this list is about}
 
 \begin{itemize}
 
 \item We show that \name is logically consistent (there is no inhabitant of
   the empty type), weakly normalizing (every term can be reduced to a normal
-  form), and that level-indexed equality is decidable. Local consistency means
+  form), and that level-indexed equality is decidable. Logical consistency means
   that programmers can use it to reason internally about their code. Like Coq
-  (Rocq?), Agda, Idris and Lean, \name supports programming and program
+  (Rocq?)~\citep{coq}, Agda~\citep{agda}, and Lean~\citep{lean},
+  \name supports programming and program
   verification in the same framework. Unlike these systems, programmers may
   also internally reason about information flow.
 
 \item Because the empty type is uninhabited, we show that this type system
-  supports an expressive rule for false-elimination. A ``high''-level proof of
-  false can eliminated to produce low level results. This rule justifies the
+  supports an expressive rule for its elimination. A high-level proof of
+  the empty type can eliminated to produce low-level results. This rule justifies the
   irrelevance of all proof terms used to construct contradictions.
 
 \item We further develop the theory of the observer-indexed propositional
   equality type in \name, including its elimination via the $\ottkw{J}$
-  operator. (Prior work used a restricted form of $\ottkw{J}$.) We also add a new
-  reasoning principle to the language, allowing programmers to
-  \emph{downgrade} \sw{I wonder now if downgrade is the right term to use for
-    this.} a high-level equality to a lower-level version, allowing
-  flexibility in reasoning. (The opposite direction is not sound, as
-  high-level observers can perceive differences missed by their low-level
-  counterparts.)
+  operator. (Prior work used a restricted form of $\ottkw{J}$.)
+  % We also add a new
+  % reasoning principle to the language, allowing programmers to
+  % \emph{downgrade} \sw{I wonder now if downgrade is the right term to use for
+  %   this.} a high-level equality to a lower-level version, allowing
+  % flexibility in reasoning. (The opposite direction is not sound, as
+  % high-level observers can perceive differences missed by their low-level
+  % counterparts.)
 
 \item (Weak) normalization means that all \name programs terminate. The
   elimination forms for positive types, such as the $\ottkw{J}$ operator for
@@ -285,6 +287,7 @@ $[[Void]]$.
     an anti-contribution. Does it make sense to have a dependency level that
     is ``a run-time argument, but only used to construct equality proofs''
     that can be used to track this erasure?}
+  \jc{``positive''? ``thread''?}
 
 \item Decidable type conversion is the key step to showing decidable
   typechecking for \name. What remains is merely the selection and propagation
@@ -294,7 +297,8 @@ $[[Void]]$.
   question, we leave it for future work.
 
 \item Our semantic reasoning replicates the syntactic type soundness result of
-  prior work. The structure of our proofs show that the prior type system
+  prior work. \jc{What does it mean that it replicates?}
+  The structure of our proofs show that the prior type system
   design is not accidentally sound, and provides new perspective on its
   design. In particular, in our experiments with \name, we have encountered
   opportunities for
@@ -524,7 +528,7 @@ listed in \cref{fig:conv} and in following subsections,
 along with rules for the reflexive, congruent closure, omitted here.
 Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive closure of parallel reduction.
 This formulation of equality is in contrast to the system by \citet{liu:dcoi},
-where parallel reduction is merely a metatheoretic tool for proving type safety.
+where parallel reduction is merely a metatheoretic tool for proving type soundness.
 
 \begin{figure}[h]
   \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
