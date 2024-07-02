@@ -658,7 +658,7 @@ while the type of the fully-applied eliminator is the motive instantiated with $
 The levels of $[[x]]$ and $[[y]]$ must therefore match the levels of $[[b]]$ and $[[p]]$, respectively.
 Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the method,
 the level of the method must match the level $[[l]]$ of the overall eliminator.
-The level of the target is not exactly $[[l]]$ but is bounded by it;
+The level of the target $[[l2]]$ is not exactly $[[l]]$ but is bounded by it;
 its justification is a subtle technical issue,
 which we defer to \cref{sec:target-level}.
 
@@ -1992,6 +1992,21 @@ whose target may be well typed at any arbitrary level in \rref{Wt-Absurd}.
 Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
 ignoring $[[b]]$ in \rref{I-Absurd} will not violate simulation.
 
+It may seem desirable, then, to simplify things and enforce the target's level
+to be exactly the overall level $[[l]]$,
+but this prevents us from proving subsumption (\rref*{Wt-sub}),
+since the level of the target appears in the context.
+In both \rref{Wt-J,Wt-Let}, this occurs when type checking the motive $[[C]]$,
+which abstracts over the target.
+Supposing that both the level of the target and the overall level are $[[l]]$,
+subsumption states that given a derivation at level $[[l]]$,
+we need to construct a derivation at a higher level $[[l']]$.
+In the case of these eliminators, we are given a derivation concluding something of the shape
+$[[G ++ x : l poltergeist |- C : l0 Univ i]]$,
+but we require one of the shape
+$[[G ++ x : l' poltergeist |- C : l0 Univ i]]$,
+which we are unable to conclude.
+
 \subsection{Equality type level constraints} \label{sec:eq-level}
 
 In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b : A]]$
@@ -2024,7 +2039,9 @@ a contradiction.
 since by the contradiction $[[J (\ H x . x) L refl]]$ would be an inhabitant of $[[Void]]$,
 while it reduces to $[[(\ H x . x)]]$, which is not.
 
-\todo{discuss why the target can't be typed at the observer level}
+Because the observer level $[[l0]]$ is explicitly annotated in the equality type,
+we cannot enforce $[[l]]$ to be exactly $[[l0]]$,
+as it would violate subsumption by fixing the overall level to $[[l0]]$ in \rref{Wt-Eq}.
 
 \subsection{Scoped Logical Predicate,  non-Kripke Style}
 \label{sec:nokripke}
