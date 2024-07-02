@@ -399,15 +399,6 @@ We use the metavariables $[[x]], [[y]], [[z]]$ for variables
 and $[[a { b / x }]]$ for the substitution of a term $[[b]]$ in place of the variable $[[x]]$
 inside the term $[[a]]$.
 
-% In addition to universes,
-% there are a number of other differences from \dcoi in the syntax of \name,
-% highlighted in yellow.
-% We add an empty type and its eliminator,
-% which enables using some higher-level terms at lower levels.
-% We also replace pair projections with a pair-matching expression,
-% and substitution over equality proofs with a full J eliminator.
-% We examine all of the constructs in the subsections to follow.
-
 The main judgement is the typing judgement,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
 that is well type under context $[[G]]$ at observer level $[[l]]$
@@ -504,10 +495,11 @@ using a higher-level proof of its impossibility.
 \subsection{Definitional equality and indistinguishability} \label{sec:indist}
 
 \begin{figure}[h]
-  \drule{Wt-Conv} % maybe this should go back in the previous figure
-  \drule{E-Conv}
-  \drule{P-AppAbs}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule{Wt-Conv}
+    \drule{E-Conv}
+    \drule{P-AppAbs}
+  \end{gather*}
   \caption{Conversion, definitional equality, and parallel reduction ($\beta$ only) rules}
   \label{fig:conv}
 \end{figure}
@@ -594,20 +586,22 @@ such as the preservation of definitional equality between two terms as they redu
 \subsection{Dependent pairs} \label{sec:pairs}
 
 \begin{figure}[h]
-  \drule{Wt-Sig}
-  \drule{Wt-Pair}
-  \drule{Wt-Let}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule{Wt-Sig}
+    \drule{Wt-Pair}
+    \drule{Wt-Let}
+  \end{gather*}
   \caption{Typing and indistinguishability rules (pairs)}
   \label{fig:typing:pairs}
 \end{figure}
 
 \begin{figure}[h]
-  \drule{P-LetPair}
-  \drule{I-Sig}
-  \drule{I-Pair}
-  \drule{I-Let}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule[width=\textwidth]{P-LetPair}
+    \drule{I-Sig} \\\\
+    \drule{I-Pair}
+    \drule[width=\textwidth]{I-Let}
+  \end{gather*}
   \caption{Parallel reduction and indistinguishability rules (pairs)}
   \label{fig:conv:pairs}
 \end{figure}
@@ -615,11 +609,12 @@ such as the preservation of definitional equality between two terms as they redu
 \subsection{Propositional equality} \label{sec:eq}
 
 \begin{figure}[h]
-  \drule{Wt-Eq}
-  \drule{Wt-Refl}
-  \drule[width=0.7\textwidth]{Wt-J}
-  \drule{P-JRefl}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule{Wt-Eq}
+    \drule{Wt-Refl} \\
+    \drule[width=0.7\textwidth]{Wt-J}
+    \drule{P-JRefl}
+  \end{gather*}
   \caption{Typing and parallel reduction rules (equality)}
   \label{fig:typing:eq}
 \end{figure}
@@ -716,10 +711,11 @@ since a lower-level indistinguishability is coarser than a higher-level one,
 and treats more things as indistinguishable.
 
 \begin{figure}[h]
-  \drule[width=0.3\textwidth]{I-Eq}
-  \drule{I-Refl}
-  \drule[width=0.3\textwidth]{I-J}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule[width=0.3\textwidth]{I-Eq}
+    \drule{I-Refl}
+    \drule[width=0.3\textwidth]{I-J}
+  \end{gather*}
   \caption{Indistinguishability rules (equality)}
   \label{fig:conv:eq}
 \end{figure}
@@ -770,57 +766,6 @@ and are listed in \cref{fig:grading}.
   \label{fig:grading}
 \end{figure}
 
-\iffalse
-Just as terms have notions of well-gradedness and indistinguishability,
-so too do substitution maps.
-The intuition is that a substitution map is a transformation from one grading context to another,
-and two substitution maps are indistinguishable by some observer
-if the terms they substitute in are indistinguishable by that observer.
-
-\begin{definition}[Substitution well-gradedness]
-  A substitution map $[[rho]]$ for a grading context $[[F]]$
-  under a grading context $[[E]]$ is well-graded,
-  written $[[E |- rho : F]]$,
-  if for every $[[x : l in F]]$,
-  $[[E |- rho(x) : l]]$ holds.
-  We also say that $[[rho]]$ is a substitution map from $[[F]]$ to $[[E]]$.
-\end{definition}
-
-\begin{definition}[Substitution indistinguishability]
-  Two substitution maps $[[rho0]], [[rho1]]$
-  for a grading context $[[F]]$ under a grading context $[[E]]$
-  are indistinguishable at level $[[l]]$, written $[[E |- rho0 == rho1 : F @ l]]$,
-  if for every $[[x : l0 in F]]$,
-  $[[E |- rho0(x) == rho1(x) @ l l0]]$ holds.
-\end{definition}
-
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \drule{Sg-nil}
-  \drule{Sg-cons}
-  \drule{Sg-weak}
-  \drule{SI-nil}
-  \drule{SI-cons}
-  \drule{SI-weak}
-  \vspace{0.5\baselineskip}
-  \caption{Admissible rules for well-gradedness and indistinguishability of substitutions}
-  \label{fig:subst-lemmas}
-\end{figure}
-
-These judgements satisfy some standard properties,
-listed as admissible rules in \cref{fig:subst-lemmas}.
-They assert that identity substitutions indeed do not change the grading context
-(\rref*{Sg-nil}\footnote{\suppl{theories}{geq.v}{iok\_subst\_nil}})
-and are indistinguishable from one another
-(\rref*{SI-nil}\footnote{\suppl{theories}{geq.v}{ieq\_subst\_nil}});
-well-graded substitutions can be extended with a single substitution by a well-graded term
-(\rref*{Sg-cons}\footnote{\suppl{theories}{geq.v}{iok\_subst\_cons}});
-indistinguishable substitutions can be extended with single substitutions by indistinguishable terms
-(\rref*{SI-cons}\footnote{\suppl{theories}{geq.v}{ieq\_subst\_cons}});
-and the context under which substitutions act can be weakened
-(\rref*{Sg-weak,SI-weak}\footnote{\suppl{theories}{geq.v}{iok\_subst\_ok\_suc}, \suppl{theories}{geq.v}{ieq\_morphing\_helper}}).
-\fi
-
 \subsection{Properties of grading and indistinguishability}
 
 The well-gradedness and indistinguishability judgements
@@ -830,12 +775,6 @@ listed as admissible rules in \cref{fig:grading-lemmas},
 \Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
 \rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}
 permit weakening the context.
-% \rref*{Wg-morph}\footnote{\suppl{theories}{geq.v}{iok\_morphing}},
-% \rref*{I-morph}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}}, and
-% \rref*{E-morph}\footnote{\suppl{theories}{conv.v}{conv\_subst}}
-% are morphing lemmas which demonstrate how substitutions from $[[F]]$ to $[[E]]$
-% transform the context of the judgements from $[[F]]$ to $[[E]]$
-% when the substitutions are applied to the terms.
 \Rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
 \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
 permit substituting in a well-graded term of the appropriate level
@@ -843,13 +782,13 @@ in place of a variable of that level in the context.
 
 \begin{figure}[h]
   \mprset{fraction={===}}
-  % \drule{Wg-Wt}
-  \drule{Wg-weak}
-  % \drule{Wg-morph}
-  \drule[width=0.25\textwidth]{Wg-subst}
-  \drule[width=0.25\textwidth]{Wg-sub}
-  \drule[width=0.25\textwidth]{Wg-pres}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    % \drule{Wg-Wt}
+    \drule{Wg-weak}
+    \drule[width=0.25\textwidth]{Wg-subst}
+    \drule[width=0.25\textwidth]{Wg-sub}
+    \drule[width=0.25\textwidth]{Wg-pres}
+  \end{gather*}
   \caption{Admissible rules for well-gradedness of terms}
   \label{fig:grading-lemmas}
 \end{figure}
@@ -862,14 +801,14 @@ Additionally, parallel reduction preserves well-gradedness
 
 \begin{figure}[h]
   \mprset{fraction={===}}
-  \drule{I-weak}
-  % \drule{I-morph}
-  \drule{I-subst}
-  \drule{I-refl}
-  \drule{I-sym}
-  \drule{I-trans}
-  \drule{I-down}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule{I-weak}
+    \drule{I-subst}
+    \drule{I-down} \\\\
+    \drule{I-refl}
+    \drule{I-sym}
+    \drule{I-trans}
+  \end{gather*}
   \caption{Admissible rules for indistinguishability of terms}
   \label{fig:indist-lemmas}
 \end{figure}
@@ -892,10 +831,11 @@ permits concluding that it is also indistinguishable at the meet of the levels.
 
 \begin{figure}[h]
   \mprset{fraction={===}}
-  \drule{P-subst}
-  \drule{Ps-subst}
-  \drule{P-refl}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule{P-subst}
+    \drule{Ps-subst}
+    \drule{P-refl}
+  \end{gather*}
   \caption{Admissible rules for parallel reduction}
   \label{fig:pars-lemmas}
 \end{figure}
@@ -906,12 +846,6 @@ Parallel reduction and its transitive closure admit the substitution lemmas
 An additional useful lemma is that single parallel reduction itself is already reflexive
 (\rref*{P-refl}\footnote{\suppl{theories}{par.v}{Par\_refl}}).
 These are given in \cref{fig:pars-lemmas}.
-
-% TODO: Do we explicitly need the inversion lemmas stated?
-% \footnote{\suppl{theories}{par.v}{Pars\_pi\_inv}}
-% \footnote{\suppl{theories}{par.v}{Pars\_sig\_inv}}
-% \footnote{\suppl{theories}{par.v}{Pars\_eq\_inv}}
-% \footnote{\suppl{theories}{par.v}{Pars\_univ\_inv}}
 
 The key lemmas of parallel reduction are the diamond property and confluence,
 which state that if a term reduces to two different terms,
@@ -963,13 +897,12 @@ The proof also relies on simulation.
 
 \begin{figure}[h]
   \mprset{fraction={===}}
-  \drule{E-weak}
-  % \drule{E-morph}
-  % \drule{E-pres}
-  \drule{E-refl}
-  \drule{E-sym}
-  \drule{E-trans}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule{E-weak}
+    \drule{E-refl}
+    \drule{E-sym}
+    \drule{E-trans}
+  \end{gather*}
   \caption{Admissible rules for definitional equality}
   \label{fig:defeq-lemmas}
 \end{figure}
@@ -1006,47 +939,14 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
 
 \subsection{Type preservation}
 
-\iffalse
-Analogously to well-gradedness of substitution maps,
-we also need a notion of their well-typedness,
-which describes a substitution map as a transformation from one typing context to another.
-
-\begin{definition}[Substitution well-typedness]
-  A substitution map $[[rho]]$ for a typing context $[[D]]$
-  under a typing context $[[G]]$ is well-typed,
-  written $[[G |- rho : D]]$,
-  if for every $[[x : l A in D]]$,
-  $[[G |- rho(x) : l A {rho}]]$ holds.
-  We also say that $[[rho]]$ is a substitution from $[[D]]$ to $[[G]]$.
-\end{definition}
-
 \begin{figure}[h]
   \mprset{fraction={===}}
-  \drule{St-nil}
-  \drule{St-cons}
-  \drule{St-weak}
-  \vspace{0.5\baselineskip}
-  \caption{Admissible rules for well-typedness of substitutions}
-  \label{fig:subst-typing-lemmas}
-\end{figure}
-
-The judgement satisfies the same standard properties for identity substitutions
-(\rref*{St-nil}\footnote{\suppl{theories}{preservation.v}{good\_morphing\_nil}}),
-substitution extensions
-(\rref*{St-nil}\footnote{\suppl{theories}{preservation.v}{good\_morphing\_cons}}),
-and weakening
-(\rref*{St-nil}\footnote{\suppl{theories}{preservation.v}{good\_morphing\_suc}}),
-listed as admissible rules in \cref{fig:subst-typing-lemmas}.
-\fi
-
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \drule[width=0.2\textwidth]{Wt-weak}
-  % \drule{Wt-morph}
-  \drule{Wt-subst}
-  \drule[width=0.2\textwidth]{Wt-sub}
-  \drule[width=0.2\textwidth]{Wt-replace}
-  \vspace{0.5\baselineskip}
+  \begin{gather*}
+    \drule[width=0.2\textwidth]{Wt-weak}
+    \drule{Wt-subst}
+    \drule[width=0.2\textwidth]{Wt-sub}
+    \drule[width=0.2\textwidth]{Wt-replace}
+  \end{gather*}
   \caption{Admissible rules for well-typedness}
   \label{fig:typing-lemmas}
 \end{figure}
@@ -1062,17 +962,6 @@ allowing the level to be raised while retaining the same type.
 Furthermore, it satisfies replacement
 (\rref*{Wt-replace}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}),
 allowing a type in the context to be replaced by a definitionally equal one.
-
-\iffalse
-\begin{lemma}[Replacement]
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}
-  \label{lem:replacement}
-  Suppose $[[G ++ x : l0 A0 |- b : l B]]$.
-  Given some $[[A1]]$ such that $[[G |- A1 : l1 Univ i]]$,
-  if $[[| G | |- A0 == A1]]$,
-  then $[[G ++ x : l0 A1 |- b : l B]]$.
-\end{lemma}
-\fi
 
 Due to \rref{Wt-Conv},
 deducing the well-typedness of subterms of a well-typed term
@@ -1186,7 +1075,7 @@ predicate, we need to first define the notion of neutral and normal terms.
 % the notion of neutral and normal terms so we can characterize
 % semantically well-behaved terms.
 % Before we can state and prove the adequacy property for the
-% logical predicate, we need to first define normal and neutarl forms
+% logical predicate, we need to first define normal and neutral forms
 % and prove some useful lemmas about how they interact with parallel
 % reduction.
 
@@ -1237,8 +1126,8 @@ Unlike logical relations for simply typed languages, the logical
 predicate for \name cannot be defined as a total function since not
 all terms can be assigned an interpretation. Instead, the logical predicate
 $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ simultaneously specifies the
-semantically well-formed types $[[A]]$ and their interpretation $[[S]]$. %  A key
-% result we will present later in this section is the functionality of
+semantically well-formed types $[[A]]$ and their interpretation $[[S]]$.
+% A key result we will present later in this section is the functionality of
 % the logical predicate; that is, each term can only correspond to one
 % interpretation $[[S]]$ if there exists one.
 
@@ -1260,7 +1149,7 @@ indexed family of terms $S$. Ignoring the conclusion of the rules,
 \rref*{SWt-Pi} and \rref*{SWt-Sigma} share the same preconditions,
 which ensure their well-formedness in the following sense:
 for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
-level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed. % This
+level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed.
 % The interpreted sets appearing in the conclusion follows our usual
 % intuition. 
 In the function case, the definition of $\prodspace$
@@ -1488,11 +1377,12 @@ the logical predicate and terms that weakly normalize to normal or
 neutral forms.
 
 \begin{figure}[h]
-  \centering
-  % \begin{tabular}{c}
-    \drule{P-D} \qquad \drule{Wg-D} \qquad \drule{I-D} \qquad \drule{Ne-D}
-  % \end{tabular}
-  
+  \begin{gather*}
+    \drule{P-D}
+    \drule{Wg-D}
+    \drule{I-D}
+    \drule{Ne-D}
+  \end{gather*}
   \caption{Extended rules for the dummy constant $[[dummy]]$}
   \label{fig:dummy}
 \end{figure}
@@ -2290,200 +2180,5 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pair,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
-
-\section{Semantics}
-
-\begin{align*}
-  \member{[[a]]}{[[l0]]}{\buildset{[[x]]}{[[l]]}{P}} &\mathrel{\mathit{iff}} [[:concrete: P { a / x, l0 / l }]] ~ \mathit{holds} \\
-  \prodspace([[b]], [[l]], [[l0]], S_A, R) &\coloneqq
-    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
-  \sigspace([[c]], [[l]], [[l0]], S_A, R) &\coloneqq
-    \exists a, b, [[c =>* (l0 a, b)]] \wedge
-    \member{x}{[[l0]]}{S_A} \wedge
-    (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
-  \univspace{j}([[A]], [[E]]) &\coloneqq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S} \\
-  \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) &\coloneqq
-    [[p =>* refl]] \wedge \exists a', b', [[a =>* a']] \wedge [[b =>* b']] \wedge [[E |- a == b @ l0]]
-\end{align*}
-
-\begin{mathpar}
-  \infer[SWt-Ne]{
-    [[ne A]]
-  }{
-    \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
-  }
-  \and
-  \infer[SWt-Pi]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
-    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-  }{
-    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}}
-  }
-  \and
-  \infer[SWt-Sigma]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
-    \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-  }{
-    \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace([[c]], [[l]], [[l0]], S_A, R) \vee [[wne c]])}}
-  }
-  \and
-  \infer[SWt-Univ]{
-    j < i
-  }{
-    \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \univspace{j}([[E]], [[A]])}}
-  }
-  \and
-  \infer[SWt-Empty]{~}{
-    \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
-  }
-  \and
-  \infer[SWt-Eq]{~}{
-    \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
-  }
-  \and
-  \infer[SWt-Step]{
-    [[A => B]] \\
-    \interp{[[E]]}{[[i]]}{[[B]]}{S}
-  }{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S}
-  }
-\end{mathpar}
-
-\begin{mathpar}
-  \mprset{fraction={===}}
-  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_nopf}}
-  \infer[\ottdrulename{SWt\_Pi\_alt}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-  }{
-    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, \interp{[[E]]}{[[i]]}{[[B {poltergeist / x}]]}{[[poltergeist]]})}}
-  }
-  \and
-  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Sig\_nopf}}
-  \infer[\ottdrulename{SWt\_Sigma\_alt}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-    \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-  }{
-    \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \sigspace([[b]], [[l]], [[l0]], S_A, \interp{[[E]]}{[[i]]}{[[B {poltergeist / x}]]}{[[poltergeist]]})}}
-  }
-  \and
-  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_cumulative}}
-  \infer[\ottdrulename{SWt\_cumul}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
-    [[i <= j]]
-  }{
-    \interp{[[E]]}{[[j]]}{[[A]]}{S}
-  }
-  \and
-  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation\_star}}
-  \infer[\ottdrulename{SWt\_fwd}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
-    [[A =>* B]]
-  }{
-    \interp{[[E]]}{[[i]]}{[[B]]}{S}
-  }
-  \and
-  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_preservation\_star}}
-  \infer[\ottdrulename{SWt\_bwd}]{
-    \interp{[[E]]}{[[i]]}{[[B]]}{S} \\
-    [[A =>* B]]
-  }{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S}
-  }
-  \and
-  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
-  \infer[\ottdrulename{SWt\_I}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
-    [[E |- A == B @ l]]
-  }{
-    \interp{[[E]]}{[[i]]}{[[B]]}{S}
-  }
-  \and
-  % \footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Conv}}
-  \infer[\ottdrulename{SWt\_E}]{
-    \interp{[[E]]}{[[i]]}{[[A]]}{S} \\
-    [[E |- A == B]]
-  }{
-    \interp{[[E]]}{[[i]]}{[[B]]}{S}
-  }
-\end{mathpar}
-
-\begin{lemma}[Determinism]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_deterministic'}}
-  If $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$
-  and $\interp{[[E]]}{[[j]]}{[[A]]}{S_2}$,
-  then $S_1 = S_2$.
-\end{lemma}
-
-\begin{lemma}[Well-gradedness]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUniv\_Ok}}
-  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
-  If $\member{[[a]]}{[[l]]}{S}$,
-  then $[[E |- a : l]]$.
-\end{lemma}
-
-\begin{lemma}[Backward closure]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos\_star}}
-  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[E |- a : l]]$.
-  If $[[a =>* b]]$ and $\member{[[b]]}{[[l]]}{S}$,
-  then $\member{[[a]]}{[[l]]}{S}$.
-\end{lemma}
-
-\begin{definition}[Semantic well-typedness]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
-  A term $[[a]]$ is semantically well typed with type $[[A]]$
-  at level $[[l]]$ under context $[[G]]$,
-  written $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$,
-  if for every $\rho$, $[[D]]$,
-  given $\sws{[[D]]}{\rho}{[[G]]}$,
-  there exist $i$, $S$ such that
-  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
-  and $\member{[[a { rho }]]}{[[l]]}{S}$.
-\end{definition}
-
-\begin{mathpar}
-  \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}}
-  \and
-  \infer[\ottdrulename{SWf\_cons}]{
-    \swf{[[G]]} \\
-    \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}
-  }{
-    \swf{[[G ++ x : l A]]}
-  }
-\end{mathpar}
-
-\begin{definition}[Semantic well-formedness]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWff\_lookup}}
-  If $\swf[[G]]$ holds,
-  then for every $[[x : l A in G]]$,
-  there exist $j$, $[[l0]]$ such that
-  $\swt{[[G]]}{[[A]]}{[[l0]]}{[[Univ j]]}$.
-\end{definition}
-
-\begin{lemma}[Semantic substitution, nil]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_nil}}
-  $\sws{[[nil]]}{\rho}{[[nil]]}$ holds for any $\rho$.
-\end{lemma}
-
-\begin{lemma}[Semantic substitution, cons]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_cons}}
-  Suppose $\sws{[[D]]}{\rho}{[[G]]}$.
-  If $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$
-  and $\member{[[a]]}{[[l]]}{S}$,
-  then $\sws{[[D]]}{[[rho ++ {a / x}]]}{[[G ++ x : l A]]}$.
-\end{lemma}
-
-\begin{corollary}[Weak normalization]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{normalization}}
-  If $[[G |- a : l A]]$,
-  then $[[wnf a]]$ and $[[wnf A]]$.
-\end{corollary}
-
-\begin{corollary}[Logical consistency]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{consistency}}
-  There are no $[[a]]$, $[[l]]$ such that $[[nil |- a : l Void]]$.
-\end{corollary}
 
 \end{document}
