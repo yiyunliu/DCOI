@@ -623,9 +623,10 @@ We explain in further detail how omitting these constraints violate simulation i
 \begin{figure}[h]
   \drule{Wt-Eq}
   \drule{Wt-Refl}
-  \drule[width=\textwidth]{Wt-J}
+  \drule[width=0.7\textwidth]{Wt-J}
+  \drule{P-JRefl}
   \vspace{0.5\baselineskip}
-  \caption{Typing and indistinguishability rules (equality)}
+  \caption{Typing and parallel reduction rules (equality)}
   \label{fig:typing:eq}
 \end{figure}
 
@@ -643,7 +644,24 @@ which we explain in detail in \cref{sec:eq-level}.
 Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
 given by \rref{Wt-Refl}.
 
-\jc{TODO: explain J}
+In \rref{Wt-J}, the eliminator $\ottkw{J}$ takes as target
+an equality proof $[[p]]$ annotated at level $[[l2]]$,
+along with a method $[[c]]$.
+The target must be well typed as an equality between $[[a]]$ and $[[b]]$
+of type $[[A]]$, observed at level $[[l0]]$.
+The observer, so to speak, is the motive $[[C]]$,
+abstracted over the right-hand size of the equality $[[x]]$
+(the left-hand side being fixed at $[[a]]$)
+and the equality proof itself $[[y]]$.
+As the observer, the motive must be well typed at level $[[l0]]$.
+The type of the method is the motive instantiated with $[[a]]$ and $[[refl]]$,
+while the type of the fully-applied eliminator is the motive instantiated with $[[b]]$ and $[[p]]$.
+The levels of $[[x]]$ and $[[y]]$ must therefore match the levels of $[[b]]$ and $[[p]]$, respectively.
+Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the method,
+the level of the method must match the level $[[l]]$ of the overall eliminator.
+The level of the target is not exactly $[[l]]$ but is bounded by it;
+its justification is a subtle technical issue,
+which we defer to \cref{sec:scrutinee-level}.
 
 In addition to requiring the well-typedness of the equality proof $[[p]]$,
 \rref{Wt-J} also takes as premises the well-typedness
@@ -703,25 +721,19 @@ then they are also indistinguishable at a lower level,
 since a lower-level indistinguishability is coarser than a higher-level one,
 and treats more things as indistinguishable.
 
-The purpose of the other level constraint in \rref{Wt-J}, $[[l2 <= l]]$,
-which bounds the level of the equality proof by the level of the overall eliminator,
-is a subtle technical issue, and we defer its explanation to \cref{sec:scrutinee-level}.
-
 \begin{figure}[h]
-  \drule{P-JRefl}
-  \drule[width=0.5\textwidth]{I-Eq} \\
+  \drule[width=0.3\textwidth]{I-Eq}
   \drule{I-Refl}
-  \drule[width=0.5\textwidth]{I-J}
+  \drule[width=0.3\textwidth]{I-J}
   \vspace{0.5\baselineskip}
-  \caption{Parallel reduction and indistinguishability rules (equality)}
+  \caption{Indistinguishability rules (equality)}
   \label{fig:conv:eq}
 \end{figure}
 
-The shape of the parallel reduction and indistinguishability rules
+The shape of the indistinguishability rules
 for the propositional equality constructs in \cref{fig:conv:eq} are unsurprising:
-\rref{P-JRefl} eliminates a reflexive proof,
-while \rref{I-Eq,I-Refl,I-J} assert indistinguishability of the terms
-by that of each pair of subterms.
+\rref{I-Eq,I-Refl,I-J} assert indistinguishability of the terms
+given indistinguishability of each pair of subterms.
 % In particular, we have admissible \rref{I-Refl-alt}
 % via \rref{I-Eq,Wt-Conv}.
 % It states that if two terms are indistinguishable by some observer,
