@@ -1196,17 +1196,17 @@ Proof.
 Qed.
 
 Lemma T_Proj1 Γ ℓ ℓ0 a A B :
-  ℓ ⊆ ℓ0 ->
+  ℓ0 ⊆ ℓ ->
   Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
-  (* -------------------------------*)
-  Γ ⊢ tLet ℓ0 ℓ a (var_tm 1) ; ℓ0 ∈ A.
+  (* ------------------------------*)
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 1) ; ℓ ∈ A.
 Proof.
   move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
   replace A with (ren_tm S A)[a..]; last by asimpl.
-  eapply T_Let with (j := Nat.max i j); eauto.
+  eapply T_Let with (j := Nat.max i j); eauto using meet_idempotent.
   - admit.
   - admit.
-  - apply : T_Var; last by apply meet_idempotent.
+  - apply : T_Var; last by apply hℓ.
     + hauto lq:on ctrs:Wff use:Wt_Wff.
     + apply : there'; cycle 1.
       apply here. substify. by asimpl.
@@ -1214,13 +1214,15 @@ Proof.
 Admitted.
 
 Lemma T_Proj2 Γ ℓ ℓ0 a A B :
-  ℓ ⊆ ℓ0 ->
+  ℓ0 ⊆ ℓ ->
+  Γ ⊢ tLet ℓ0 ℓ0 a (var_tm 1) ; ℓ0 ∈ A ->
   Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
-  (* ------------------------------------------------------- *)
-  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ a (var_tm 1))..].
+  (* ---------------------------------------------------------- *)
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ0 a (var_tm 1))..].
 Proof.
-  move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
-  replace B[(tLet ℓ0 ℓ a (var_tm 1))..] with (B[(tLet ℓ0 ℓ (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
+  move => hℓ hLet /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  replace B[(tLet ℓ0 ℓ0 a (var_tm 1))..]
+    with (B[(tLet ℓ0 ℓ0 (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
     last by asimpl.
   eapply T_Let with (j := Nat.max i j); eauto using meet_idempotent.
   - admit.
@@ -1230,7 +1232,7 @@ Proof.
     apply : T_Var; last by apply meet_idempotent.
     + hauto lq:on ctrs:Wff use:Wt_Wff.
     + apply here'. reflexivity.
-    + replace (tUniv j) with (tUniv j)[tLet ℓ0 ℓ (tPack ℓ0 (var_tm 1) (var_tm 0)) (var_tm 1) .: S >> (S >> var_tm)];
+    + replace (tUniv j) with (tUniv j)[tLet ℓ0 ℓ0 (tPack ℓ0 (var_tm 1) (var_tm 0)) (var_tm 1) .: S >> (S >> var_tm)];
         last by asimpl.
       eapply morphing_Syn; eauto.
       apply good_morphing_cons.
@@ -1239,6 +1241,31 @@ Proof.
       * hauto lq:on ctrs:Wff use:Wt_Wff.
     + admit.
   - admit.
+Admitted.
+
+(* I think this version holds too but I'm not sure? *)
+Lemma T_Proj2_Alt Γ ℓ ℓ0 a A B :
+  Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
+  (* ---------------------------------------------------------------------------------- *)
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ tLet ℓ0 ℓ a B[(var_tm 1) .: shift >> shift >> var_tm].
+Proof.
+  move => /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  replace (tLet ℓ0 ℓ a B[(var_tm 1) .: shift >> shift >> var_tm])
+    with (tLet ℓ0 ℓ (var_tm 0) B[var_tm 1 .: shift >> shift >> shift >> var_tm])[a..];
+    last by asimpl.
+  eapply T_Let with (i := j) (j := Nat.max i j); eauto using meet_idempotent.
+  - admit.
+  - admit.
+  - asimpl. admit.
+  - replace (tUniv j) with (tUniv j)[(var_tm 0)..]; last by asimpl.
+    eapply T_Let; eauto using meet_idempotent.
+    + admit.
+    + admit.
+    + apply : T_Var; auto using meet_idempotent.
+      * hauto lq:on ctrs:Wff use:Wt_Wff.
+      * apply here'; by asimpl.
+    + asimpl. admit.
+    + apply T_Univ. admit.
 Admitted.
 
 End preservation.
