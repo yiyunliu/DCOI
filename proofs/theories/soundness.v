@@ -283,7 +283,7 @@ Proof.
     move /ihA : (hρ).
     move => [hA'][PA]hPA.
     exists i,PA. split => //.
-    hauto lq:on use:nfacts.wne_absurd, adequacy unfold:SemWt.
+    qauto l:on use:nfacts.wne_absurd, adequacy unfold:SemWt.
   (* Refl *)
   - move => Γ ℓ a ℓ0 A hΓ _ /typing_iok /cfacts.ifacts.iok_ieq.
     rewrite /SemWt.
@@ -304,14 +304,13 @@ Proof.
     move /cfacts.ieq_iconv.
     hauto lq:on use:cfacts.iconv_subst.
   (* Eq *)
-  - move => Γ ℓ ℓ0 ℓA a b A i j hℓ ha iha hb ihb hA /SemWt_Univ ihA.
+  - move => Γ ℓ ℓ0 a b A i hℓ ha iha hb ihb.
     rewrite SemWt_Univ.
     move => Ξ ρ hρ.
     move : iha (hρ) => /[apply] ?.
     move : ihb (hρ) => /[apply] ?.
-    move : ihA (hρ) => /[apply] ?.
     split.
-    + have /typing_iok : Γ ⊢ tEq ℓ0 a b A ; ℓ ∈ tUniv i by hauto l:on use:T_Eq.
+    + have /typing_iok : Γ ⊢ tEq ℓ0 a b ; ℓ ∈ tUniv i by hauto l:on use:T_Eq.
       hauto lq:on ctrs:IEq use:cfacts.ifacts.iok_morphing, cfacts.iconv_subst, ρ_ok_iok.
     + eexists => //=. apply InterpUnivN_Eq; hauto lq:on dep:on use:adequacy.
   (* J *)
@@ -321,7 +320,7 @@ Proof.
     move => Δ ρ hρ.
     move : hp (hρ); move/[apply] => /=. intros (m & PA & hPA & hp).
     move  /InterpUnivN_Eq_inv : (hPA) (hp) ->.  move => [?].
-    have hρ' : ρ_ok  ((ℓp, tEq ℓ0 a ⟨S⟩ (var_tm 0) A ⟨S⟩) :: (ℓ1, A) :: Γ) Δ (p[ρ] .: (b[ρ] .: ρ)).
+    have hρ' : ρ_ok  ((ℓp, tEq ℓ0 a ⟨S⟩ (var_tm 0)) :: (ℓ1, A) :: Γ) Δ (p[ρ] .: (b[ρ] .: ρ)).
     {
       apply : ρ_ok_cons => //=.
       asimpl.
@@ -461,15 +460,15 @@ Proof.
       subst a.
       split.
       * apply nfacts.wne_let=>//.
-        have hz : wne tD by hauto lq:on ctrs:rtc.
-        have hz' : PA0 ℓ0 tD by move : h0 hz; clear; hauto lq:on ctrs:IOk use:adequacy unfold:CR.
-        apply nfacts.wn_antirenaming with (ξ := tD .: (tD ..)).
+        have hz : wne tAbsurd by hauto lq:on ctrs:rtc.
+        have hz' : PA0 ℓ0 tAbsurd by move : h0 hz; clear; hauto lq:on ctrs:IOk use:adequacy unfold:CR.
+        apply nfacts.wn_antirenaming with (ξ := tAbsurd .: (tAbsurd ..)).
         by do 2 case => //=.
         asimpl.
-        have hρ' : ρ_ok ((ℓ0, A) :: Γ) Δ (tD .: ρ) by eauto using ρ_ok_cons.
+        have hρ' : ρ_ok ((ℓ0, A) :: Γ) Δ (tAbsurd .: ρ) by eauto using ρ_ok_cons.
         move /h1 : hz' => [PB /ltac:(asimpl) hPB].
-        have hz'' : PB ℓp tD by move : hPB hz; clear; hauto lq:on use:adequacy unfold:CR.
-        have : ρ_ok ((ℓp, B) :: (ℓ0, A) :: Γ) Δ (tD .: (tD .: ρ)) by eauto using ρ_ok_cons.
+        have hz'' : PB ℓp tAbsurd by move : hPB hz; clear; hauto lq:on use:adequacy unfold:CR.
+        have : ρ_ok ((ℓp, B) :: (ℓ0, A) :: Γ) Δ (tAbsurd .: (tAbsurd .: ρ)) by eauto using ρ_ok_cons.
         move /hb. clear.
         hauto l:on use:adequacy unfold:CR.
       * lazymatch goal with
@@ -478,27 +477,6 @@ Proof.
         end.
         apply : wt_ρ_ok_morphing_iok; eauto.
         sfirstorder use:T_Let.
-  (* Down *)
-  - move => Γ ℓ ℓ0 ℓ1 p a b A ? ha iha hb ihb hp ihp Δ ρ hρ.
-    move : iha (hρ)=> /[apply]; move => [m][PA][hPA]ha'.
-    move : ihb (hρ)=> /[apply]; move => [n][PA'][hPA']hb'.
-    move : ihp (hρ)=> /[apply]; move => [q][PE][hPE]hp'.
-    do 2 eexists.
-    split => /=.
-    + apply (InterpUnivN_Eq _ 0);
-        hauto l:on use:adequacy unfold:CR.
-    + simpl.
-      split. apply IO_Down. hauto l:on use:wt_ρ_ok_morphing_iok.
-      move : hPE => /= /InterpUnivN_Eq_inv ?. subst.
-      case : hp' => [hp'][].
-      * move => + /ltac:(left).
-        move => [h0 h1].
-        split.
-        by apply P_DownRefl_star.
-        have : IOk (c2e Δ) ℓ1 a[ρ] by hauto l:on use:wt_ρ_ok_morphing_iok.
-        move : cfacts.iconv_iok_downgrade h1; repeat move/[apply].
-        scongruence.
-      * hauto lq:on use:nfacts.wne_down.
   (* Nil *)
   - apply SemWff_nil.
   (* Cons *)

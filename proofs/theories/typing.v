@@ -96,21 +96,20 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
   Γ ⊢ a ; ℓ0 ∈ tVoid  ->
   Γ ⊢ A ; ℓ1 ∈ tUniv i ->
   (* -------------- *)
-  Γ ⊢ tAbsurd a ; ℓ ∈ A
+  Γ ⊢ tAbsurd ; ℓ ∈ A
 
 | T_Refl Γ ℓ a ℓ0 A:
   ⊢ Γ ->
   Γ ⊢ a ; ℓ0 ∈ A ->
   (* ------ *)
-  Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a a A)
+  Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a a)
 
-| T_Eq Γ ℓ ℓ0 ℓA a b A i j :
+| T_Eq Γ ℓ ℓ0 a b A i :
   ℓ0 ⊆ ℓ ->
   Γ ⊢ a ; ℓ0 ∈ A ->
   Γ ⊢ b ; ℓ0 ∈ A ->
-  Γ ⊢ A ; ℓA ∈ (tUniv j) ->
   (* ----------------------- *)
-  Γ ⊢ (tEq ℓ0 a b A) ; ℓ ∈ (tUniv i)
+  Γ ⊢ (tEq ℓ0 a b) ; ℓ ∈ (tUniv i)
 
 (* Refactor the equality to include the grade for the term *)
 | T_J Γ t a b p A i j C ℓ ℓp ℓT ℓ0 ℓ1:
@@ -120,10 +119,10 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
   Γ ⊢ b ; ℓ1 ∈ A ->
   Γ ⊢ A ; ℓT ∈ (tUniv j) ->
   (* Γ ⊢ a ; ℓ0 ∈ A -> *)
-  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) ->
+  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b) ->
   (* plug in a to show the admissibility lemma  *)
   (* note the usage of var 0 in the eq type *)
-  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
+  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
   Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) ->
   Γ ⊢ (tJ ℓp t p) ; ℓ ∈ (C [p .: b..])
 
@@ -150,13 +149,13 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
   (* ----------------------- *)
   Γ ⊢ tLet ℓ0 ℓp a b ; ℓ ∈ C[a ..]
 
-| T_Down Γ ℓ ℓ0 ℓ1 p a b A :
-  ℓ1 ⊆ ℓ0 ->
-  Γ ⊢ a ; ℓ1 ∈ A ->
-  Γ ⊢ b ; ℓ1 ∈ A ->
-  Γ ⊢ p ; ℓ ∈ tEq ℓ0 a b A ->
-  (* --------------------- *)
-  Γ ⊢ tDown ℓ1 p ; ℓ ∈ tEq ℓ1 a b A
+(* | T_Down Γ ℓ ℓ0 ℓ1 p a b A : *)
+(*   ℓ1 ⊆ ℓ0 -> *)
+(*   Γ ⊢ a ; ℓ1 ∈ A -> *)
+(*   Γ ⊢ b ; ℓ1 ∈ A -> *)
+(*   Γ ⊢ p ; ℓ ∈ tEq ℓ0 a b A -> *)
+(*   (* --------------------- *) *)
+(*   Γ ⊢ tDown ℓ1 p ; ℓ ∈ tEq ℓ1 a b A *)
            
 
 with Wff : context -> Prop :=

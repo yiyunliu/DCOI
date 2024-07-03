@@ -91,8 +91,8 @@ Lemma T_J'  Γ t a b p A i j C ℓ ℓp ℓT ℓ0 ℓ1 T :
   Γ ⊢ a ; ℓ1 ∈ A ->
   Γ ⊢ b ; ℓ1 ∈ A ->
   Γ ⊢ A ; ℓT ∈ (tUniv j) ->
-  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) ->
-  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
+  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b) ->
+  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
   Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) ->
   Γ ⊢ (tJ ℓp t p) ; ℓ ∈ T.
 Proof. move =>> ->. apply T_J. Qed.
@@ -261,11 +261,11 @@ Proof.
       * move /good_renaming_up in hξ.
         move /(_ ℓ1 A) in hξ.
         move /good_renaming_up in hξ.
-        move /(_ ℓp (tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A))) in hξ.
+        move /(_ ℓp (tEq ℓ0 (ren_tm shift a) (var_tm 0))) in hξ.
         by asimpl in hξ.
       * move => [:hwff] [:hleq].
         eapply Wff_cons with (ℓ := ℓ0 ∪ ℓ1 ∪ ℓA); first by (abstract : hwff; hauto q:on ctrs:Wff).
-        eapply T_Eq with (i := 0) (j:= j);eauto.  asimpl.
+        eapply T_Eq with (i := 0);eauto.  asimpl.
         abstract : hleq.
         solve_lattice.
 
@@ -273,12 +273,8 @@ Proof.
         asimpl. sfirstorder use:good_renaming_suc.
         solve_lattice.
 
-        apply : T_Var=>//. constructor.
+        apply : T_Var=>//. apply here'. by asimpl.
         solve_lattice.
-
-        apply subsumption with (ℓ := ℓA).
-        asimpl. sfirstorder use:good_renaming_suc; eauto.
-        by erewrite meet_idempotent.
     + move : iht hξ hΔ. repeat move/[apply]. by asimpl.
   (* Sig *)
   - hauto q:on ctrs:Wt,Wff use:good_renaming_up.
@@ -431,8 +427,8 @@ Proof.
       * move : ihA (hξ) (hΔ); repeat move/[apply].
         move : good_morphing_up (hξ). repeat move/[apply]. move/(_ ℓ1).
         move : good_morphing_up. repeat move/[apply].
-        move /(_ 0 (ℓT ∪ ℓ1 ∪ ℓ0) ℓp (tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A))).
-        asimpl. apply. abstract:hwteq. eapply T_Eq with (j := j).
+        move /(_ 0 (ℓT ∪ ℓ1 ∪ ℓ0) ℓp (tEq ℓ0 (ren_tm shift a) (var_tm 0))).
+        asimpl. apply. abstract:hwteq. eapply T_Eq.
         solve_lattice.
 
         apply (subsumption _ ℓ1).
@@ -444,10 +440,6 @@ Proof.
         apply : T_Var; eauto.
         apply here'. by asimpl.
         solve_lattice.
-
-        apply (subsumption _ ℓT).
-        hauto lq:on use:good_morphing_suc.
-        by erewrite meet_idempotent.
       * apply Wff_cons with (ℓ := ℓT ∪ ℓ1 ∪ ℓ0) (i := 0)=>//.
         by asimpl.
     + asimpl.
@@ -527,10 +519,10 @@ Proof.
       * asimpl. apply : T_Var; eauto with wff. solve_lattice.
   - hauto lq:on ctrs:Wt db:wff.
  - eauto using subst_Syn_Univ.
- - move => Γ ℓ ℓ0 ℓ1 p a b A ? ha _ hb hA _ _.
-   move : hA => [ℓA][i]hA.
-   exists (ℓ1 ∪ ℓA).
-   hauto use:T_Eq lq:on use:subsumption solve+:(by solve_lattice).
+ (* - move => Γ ℓ ℓ0 ℓ1 p a b A ? ha _ hb hA _ _. *)
+ (*   move : hA => [ℓA][i]hA. *)
+ (*   exists (ℓ1 ∪ ℓA). *)
+ (*   hauto use:T_Eq lq:on use:subsumption solve+:(by solve_lattice). *)
 Qed.
 
 Lemma Wt_App_inv Γ ℓ ℓ0 b a T (h : Γ ⊢ (tApp b ℓ0 a) ; ℓ ∈ T) :
@@ -576,7 +568,8 @@ Qed.
 (*     + eauto using subst_Syn_Univ. *)
 (* Qed. *)
 
-Lemma Wt_Eq_inv Γ ℓ0 ℓ a b A U (h : Γ ⊢ (tEq ℓ0 a b A) ; ℓ ∈ U) :
+Lemma Wt_Eq_inv Γ ℓ0 ℓ a b U (h : Γ ⊢ (tEq ℓ0 a b) ; ℓ ∈ U) :
+  exists A,
   ℓ0 ⊆ ℓ /\
   Γ ⊢ a ; ℓ0 ∈ A /\
   Γ ⊢ b ; ℓ0 ∈ A /\
@@ -584,11 +577,11 @@ Lemma Wt_Eq_inv Γ ℓ0 ℓ a b A U (h : Γ ⊢ (tEq ℓ0 a b A) ; ℓ ∈ U) :
   Γ ⊢ A ; ℓA ∈ (tUniv q)) /\
   (exists i, conv (c2e Γ) (tUniv i) U) /\ exists ℓ j, Γ ⊢ U ; ℓ ∈ (tUniv j).
 Proof.
-  move E : (tEq ℓ0 a b A) h => T h.
-  move : a b A ℓ0 E.
+  move E : (tEq ℓ0 a b) h => T h.
+  move : a b ℓ0 E.
   elim :  Γ ℓ T U / h => //.
   - hauto l:on use:cfacts.conv_trans.
-  - hauto q:on use:T_Univ, typing_conv db:wff.
+  - hauto lq:on rew:off use:T_Univ, typing_conv, Wt_regularity db:wff.
 Qed.
 
 Lemma Wt_Let_inv Γ ℓ ℓ0 ℓ1 a b T (h : Γ ⊢ tLet ℓ0 ℓ1 a b ; ℓ ∈ T) :
@@ -621,24 +614,13 @@ Proof.
 Qed.
 
 (* ------------------------------------------------- *)
-(* Simpler forms of typing rules *)
-Lemma T_Eq_simpl' Γ ℓ ℓ0 a b A i :
-  ℓ0 ⊆ ℓ ->
-  Γ ⊢ a ; ℓ0 ∈ A ->
-  Γ ⊢ b ; ℓ0 ∈ A ->
-  Γ ⊢ (tEq ℓ0 a b A) ; ℓ ∈ (tUniv i).
-Proof.
-  move => ha /[dup] hb /Wt_regularity.
-  move => [ℓ1][i0]hA.
-  hauto q:on use:subsumption, T_Eq.
-Qed.
 
 Lemma T_Eq_simpl Γ ℓ0 a b A i :
   Γ ⊢ a ; ℓ0 ∈ A ->
   Γ ⊢ b ; ℓ0 ∈ A ->
-  Γ ⊢ (tEq ℓ0 a b A) ; ℓ0 ∈ (tUniv i).
+  Γ ⊢ (tEq ℓ0 a b) ; ℓ0 ∈ (tUniv i).
 Proof.
-  hauto lq:on use:T_Eq_simpl' solve+:solve_lattice.
+  hauto lq:on use:T_Eq solve+:solve_lattice.
 Qed.
 
 (* Weaker than what it could have been but enough for what we need *)
@@ -661,8 +643,8 @@ Lemma T_J_simpl Γ t a b p A i C ℓ ℓp ℓ0 ℓ1:
   ℓp ⊆ ℓ ->
   Γ ⊢ a ; ℓ1 ∈ A ->
   Γ ⊢ b ; ℓ1 ∈ A ->
-  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) ->
-  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
+  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b) ->
+  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
   Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) ->
   Γ ⊢ (tJ ℓp t p) ; ℓ ∈ (C [p .: b..]).
 Proof.
@@ -670,23 +652,23 @@ Proof.
   move => [ℓ2][i0]hA hb hp hC ht.
   suff : ℓ1 ⊆ ℓ0 by sfirstorder use:T_J.
   move /Wt_Wff : hC; clear => hC.
-  have {}hC : exists ℓ i, (ℓ1, A)::Γ ⊢ tEq ℓ0 a ⟨S⟩ (var_tm 0) A ⟨S⟩ ; ℓ ∈ tUniv i by hauto lq:on inv:Wff.
+  have {}hC : exists ℓ i, (ℓ1, A)::Γ ⊢ tEq ℓ0 a ⟨S⟩ (var_tm 0)  ; ℓ ∈ tUniv i by hauto lq:on inv:Wff.
   move : hC => [ℓ][i].
-  move /Wt_Eq_inv => [?][?][h]*.
+  move /Wt_Eq_inv => [?][?][?][h]*.
   move : h; clear.
   hauto q:on inv:lookup ctrs:lookup use:T_Var_inv, lookup_deter.
 Qed.
 
-Lemma T_J_simpler Γ t a b p A i C ℓ ℓp ℓ0 :
-  ℓp ⊆ ℓ ->
-  Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) ->
-  ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ0, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) ->
-  Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) ->
-  Γ ⊢ (tJ ℓp t p) ; ℓ ∈ (C [p .: b..]).
-Proof.
-  move => ? /[dup] /Wt_regularity => [[ℓ2] [j] /Wt_Eq_inv] [?] [ha] [hb] hp hC ht.
-  eapply T_J_simpl; eauto.
-Qed.
+(* Lemma T_J_simpler Γ t a b p A i C ℓ ℓp ℓ0 : *)
+(*   ℓp ⊆ ℓ -> *)
+(*   Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b) -> *)
+(*   ((ℓp, tEq ℓ0 (ren_tm shift a) (var_tm 0)) :: (ℓ0, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) -> *)
+(*   Γ ⊢ t ; ℓ ∈ (C [tRefl .: a ..]) -> *)
+(*   Γ ⊢ (tJ ℓp t p) ; ℓ ∈ (C [p .: b..]). *)
+(* Proof. *)
+(*   move => ? /[dup] /Wt_regularity => [[ℓ2] [j] /Wt_Eq_inv] [A0] [?] [ha] [hb] hp hC ht. *)
+(*   eapply T_J_simpl; eauto. *)
+(* Qed. *)
 
 Lemma T_Abs_simple Γ ℓ ℓ0 A a B :
   (ℓ0, A) :: Γ ⊢ a ; ℓ ∈ B ->
@@ -706,11 +688,11 @@ Lemma Wt_J_inv Γ ℓ ℓp t p U (h : Γ ⊢ (tJ ℓp t p) ; ℓ ∈ U) :
   exists ℓT ℓ0 ℓ1 a b A i C,
     ℓ1 ⊆ ℓ0 /\
     ℓp ⊆ ℓ /\
-    Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b A) /\
+    Γ ⊢ p ; ℓp ∈ (tEq ℓ0 a b) /\
     Γ ⊢ a ; ℓ1 ∈ A /\
     Γ ⊢ b ; ℓ1 ∈A /\
     (exists j, Γ ⊢ A ; ℓT ∈ (tUniv j)) /\
-    ((ℓp , tEq ℓ0 (ren_tm shift a) (var_tm 0) (ren_tm shift A)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) /\
+    ((ℓp , tEq ℓ0 (ren_tm shift a) (var_tm 0)) :: (ℓ1, A) :: Γ) ⊢ C ; ℓ0 ∈ (tUniv i) /\
     Γ ⊢ t ; ℓ ∈ C[tRefl .: a..] /\
     conv (c2e Γ) C[p .: b..]  U /\
     exists ℓ j, Γ ⊢ U ; ℓ ∈ (tUniv j).
@@ -809,32 +791,31 @@ Lemma T_Refl' Γ ℓ ℓ0 a0 a1 A
   (h : a0 ⇒ a1) :
   Γ ⊢ a0 ; ℓ0 ∈ A ->
   Γ ⊢ a1 ; ℓ0 ∈ A ->
-  Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a0 a1 A).
+  Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a0 a1).
 Proof.
   move => ha0 ha1.
   move : T_Eq_simpl (ha0) (ha1) => /[apply]/[apply] /(_ 0). move => ?.
-  eapply T_Conv with (A := tEq ℓ0 a0 a0 A) (i := 0).
-  - by apply T_Refl.
-  - eauto.
+  eapply T_Conv with (A := tEq ℓ0 a0 a0) (i := 0); eauto.
+  - apply : T_Refl; eauto.
   - rewrite /conv.
     exists ℓ0. rewrite/iconv.
-    exists (tEq ℓ0 a0 a1 A),(tEq ℓ0 a0 a1 A).
+    exists (tEq ℓ0 a0 a1),(tEq ℓ0 a0 a1).
     repeat split; eauto using rtc_refl, rtc_once, cfacts.pfacts.Par_refl with par.
     apply iok_ieq with (ℓ := ℓ0); last by solve_lattice.
     eauto using typing_iok.
 Qed.
 
 Lemma Wt_Refl_inv Γ ℓ T (h : Γ ⊢ tRefl ; ℓ ∈ T) :
-  exists ℓ0 a A, Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a a A)  /\
+  exists ℓ0 a A, Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a a)  /\
          Γ ⊢ a ; ℓ0 ∈ A /\
-         conv (c2e Γ) (tEq ℓ0 a a A) T /\ exists ℓ i, Γ ⊢ T ; ℓ ∈ (tUniv i).
+         conv (c2e Γ) (tEq ℓ0 a a) T /\ exists ℓ i, Γ ⊢ T ; ℓ ∈ (tUniv i).
 Proof.
   move E : tRefl h => p h.
   move : E.
   elim : Γ ℓ p T / h=>//.
   - hauto lq:on rew:off use:cfacts.conv_trans.
   - move => Γ ℓ a ℓ0 A hΓ ha _ _.
-    have : exists ℓ, Γ ⊢ tEq ℓ0 a a A ; ℓ ∈ tUniv 0 by eauto using T_Eq_simpl.
+    have : exists ℓ, Γ ⊢ tEq ℓ0 a a ; ℓ ∈ tUniv 0 by eauto using T_Eq_simpl.
     move => [ℓ1 ?].
     exists ℓ0, a , A.
     sfirstorder use:T_Refl, typing_conv.
@@ -851,7 +832,7 @@ Qed.
 (*   - hauto lq:on ctrs:Wt use:T_Nat, Sub_reflexive. *)
 (* Qed. *)
 
-Lemma Wt_Refl_Coherent Γ ℓ ℓ0 a b A (h : Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a b A)) :
+Lemma Wt_Refl_Coherent Γ ℓ ℓ0 a b (h : Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a b)) :
   iconv (c2e Γ) ℓ0 a b.
 Proof.
   move /Wt_Refl_inv : h.
@@ -866,39 +847,16 @@ Proof.
   qauto l:on use:cfacts.iconv_sym, cfacts.iconv_trans.
 Qed.
 
-Lemma Wt_Absurd_inv Γ ℓ a A (h : Γ ⊢ tAbsurd a ; ℓ ∈ A) :
-  exists ℓ0 ℓ1 B i, Γ ⊢ a ; ℓ0 ∈ tVoid /\ Γ ⊢ B ; ℓ1 ∈ tUniv i /\
+Lemma Wt_Absurd_inv Γ ℓ A (h : Γ ⊢ tAbsurd ; ℓ ∈ A) :
+  exists ℓ0 ℓ1 a B i, Γ ⊢ a ; ℓ0 ∈ tVoid /\ Γ ⊢ B ; ℓ1 ∈ tUniv i /\
   conv (c2e Γ) B A /\ exists ℓ i, Γ ⊢ A ; ℓ ∈ tUniv i.
 Proof.
-  move E : (tAbsurd a) h => t h.
-  move : a E.
+  move E : (tAbsurd) h => t h.
+  move : E.
   elim : Γ ℓ t A / h=>//.
   - hauto lq:on use:cfacts.conv_trans.
   - hauto lq:on use:typing_conv.
 Qed.
-
-Lemma Wt_Down_inv Γ ℓ ℓ1 p T (h : Γ ⊢ tDown ℓ1 p ; ℓ ∈ T) :
-  exists ℓ0 a b A,
-    ℓ1 ⊆ ℓ0 /\
-    Γ ⊢ p ; ℓ ∈ tEq ℓ0 a b A /\
-    Γ ⊢ a ; ℓ1 ∈ A /\
-    Γ ⊢ b ; ℓ1 ∈ A /\
-    conv (c2e Γ) (tEq ℓ1 a b A) T /\ exists ℓ i, Γ ⊢ T ; ℓ ∈ tUniv i.
-Proof.
-  move E : (tDown ℓ1 p) h => t h.
-  move : ℓ1 p E.
-  elim : Γ ℓ t T / h=>//.
-  - hauto lq:on use:cfacts.conv_trans.
-  - move => Γ ℓ0 ℓ1 ℓ2 p a b A ? ha _ hb _ hp _ ? ?[*]. subst.
-    suff : exists ℓ i, Γ ⊢  tEq ℓ2 a b A ; ℓ ∈ tUniv i by hauto lq:on use:typing_conv.
-    move /Wt_regularity in hp.
-    have : exists ℓ i, Γ ⊢ A ; ℓ ∈ tUniv i by hauto l:on use:Wt_Eq_inv.
-    move {hp}.
-    move => [ℓ][i]hA.
-    move : T_Eq_simpl ha hb. repeat move/[apply]. move/(_ 0).
-    firstorder.
-Qed.
-
 
 Lemma T_Par Γ ℓ ℓ0 a A B i :
   Γ ⊢ a ; ℓ ∈ A ->
@@ -1007,9 +965,9 @@ Proof.
   (*     move => n0 A1 Γ0 B ? ? [*]. subst. *)
   (*     asimpl.  hauto lq:on ctrs:Wt db:wff. *)
   (*   + eauto using subst_Syn_Univ. *)
-  - hauto q:on use:T_Absurd, T_Conv, Wt_Absurd_inv.
-  - move => ℓ0 a0 b0 A0 a1 b1 A1 ha0 iha0 ha1 iha1 hA0 ihA0 Γ ℓ A /Wt_Eq_inv.
-    intros (? & ha0' & hb0' & (q & hA0') & (i & eq) & (ℓ1 & j & hA)).
+  (* - hauto q:on use:T_Absurd, T_Conv, Wt_Absurd_inv. *)
+  - move => ℓ0 a0 b0 a1 b1 ha0 iha0 ha1 iha1 Γ ℓ A /Wt_Eq_inv.
+    intros (A0 & ? & ha0' & hb0' & (q & hA0') & (i & eq) & (ℓ1 & j & hA)).
     eapply T_Conv with (A := (tUniv i)) (i := j); eauto.
     hauto q:on use:T_Par, T_Eq.
   - move => ℓp t0 p0 t1 p1 ht iht hp ihp Γ ℓ U /Wt_J_inv.
@@ -1115,41 +1073,6 @@ Proof.
       have ? : tPack ℓ0 a0 b0 ⇒ tPack ℓ0 a1 b1 by eauto with par.
       have : C[(tPack ℓ0 a0 b0)..] ⇒ C[(tPack ℓ0 a1 b1)..] by eauto using Par_refl, Par_cong.
       hauto lq:on use:cfacts.iconv_par unfold:conv.
-  (* Down *)
-  - move => ℓ0 p0 p1 hp ihp Γ ℓ A.
-    move/Wt_Down_inv.
-    move => [ℓ1][a][b][A0][?][hp0][ha][hb][hconv][ℓ2][i]hA.
-    apply : T_Conv; eauto.
-    apply : T_Down; eauto.
-  (* DownRefl *)
-  - move => ℓ0 Γ ℓ A /Wt_Down_inv.
-    move => [ℓ1][a][b][A0][?][+][ha][hb][hconv][ℓ2][i]hA.
-    move/Wt_Refl_inv.
-    move => [ℓ3][a0][A1][hr][ha0][hconv'][ℓ4][i0]hE.
-
-    eapply T_Conv with (A := tEq ℓ0 a a A0); eauto.
-    apply T_Refl=>//. eauto with wff.
-    apply : cfacts.conv_trans;eauto.
-    move /cfacts.conv_eq_inj : hconv'.
-    move => [?][ℓ5][?][h0]h1. subst.
-    have ? : ℓ0 ⊆ ℓ5 by sfirstorder use:leq_trans.
-    have hab : iconv (c2e Γ) ℓ5 a b by hauto lq:on rew:off use:cfacts.iconv_trans, cfacts.iconv_sym.
-    exists ℓ0.
-    move : hab.
-    rewrite /iconv.
-    move => [a'][b']?.
-    exists (tEq ℓ0 a a' A0), (tEq ℓ0 a b' A0).
-    repeat split.
-    hauto l:on use:S_Eq, rtc_refl.
-    hauto l:on use:S_Eq, rtc_refl.
-    apply I_Eq. solve_lattice.
-    move /typing_iok /iok_ieq : ha.
-    apply. solve_lattice.
-    move /typing_iok in ha.
-    have {ha} : IOk (c2e Γ) ℓ0 a' by sfirstorder use:cfacts.iok_preservation_star.
-    move /iok_ieq.
-    move /(_ ℓ0 ltac:(solve_lattice)).
-    sfirstorder use:ieq_downgrade_leq.
 Qed.
 
 Lemma subject_reduction_star a b (h : a ⇒* b) : forall Γ ℓ A,
@@ -1162,18 +1085,18 @@ Lemma T_Down_Alt Γ ℓ ℓ0 ℓ1 a b A p :
   ℓ1 ⊆ ℓ0 ->
   Γ ⊢ a ; ℓ1 ∈ A ->
   Γ ⊢ b ; ℓ1 ∈ A ->
-  Γ ⊢ p ; ℓ ∈ tEq ℓ0 a b A ->
+  Γ ⊢ p ; ℓ ∈ tEq ℓ0 a b ->
   (* --------------------- *)
-  Γ ⊢ tJ ℓ tRefl p ; ℓ ∈ tEq ℓ1 a b A.
+  Γ ⊢ tJ ℓ tRefl p ; ℓ ∈ tEq ℓ1 a b.
 Proof.
   move => hℓ ha hb hp.
-  replace (tEq ℓ1 a b A) with (tEq ℓ1 (ren_tm S (ren_tm S a)) (var_tm 1) (ren_tm S (ren_tm S A)))[p .: b..]; last by asimpl.
+  have -> : tEq ℓ1 a b = (tEq ℓ1 (ren_tm S (ren_tm S a)) (var_tm 1))[p .: b..] by asimpl.
   apply T_J_simpl with (a := a) (A := A) (i := 0) (ℓp := ℓ) (ℓ0 := ℓ0) (ℓ1 := ℓ1); eauto.
   solve_lattice.
   - move => [:hwff].
-    apply T_Eq_simpl'; eauto.
+    eapply T_Eq; eauto.
     asimpl.
-    + apply renaming_Syn with (Γ := Γ) => //.
+    + apply renaming_Syn with (Γ := Γ) => //; eauto.
       * rewrite /lookup_good_renaming.
         move => i ℓ2 A0.
         move => h. exists ℓ2.
@@ -1185,14 +1108,15 @@ Proof.
         move /Wt_regularity : (ha) => [ℓA][i]hA.
         apply Wff_cons with (i := 0) (ℓ := ℓ0).
         by eauto using Wff_cons with wff.
-        apply T_Eq_simpl'. solve_lattice.
+        eapply T_Eq_simpl;eauto.
         apply : weakening_Syn; eauto.
         sfirstorder use:subsumption.
         apply : T_Var; eauto using here with wff.
     + apply : T_Var; eauto.
-      apply : there'; eauto. by apply here.
+      apply : there'; eauto;cycle 1. by apply here.
+      by asimpl.
       solve_lattice.
-  - asimpl. apply T_Refl; eauto with wff.
+  - asimpl. eapply T_Refl; eauto with wff.
 Qed.
 
 End preservation.
