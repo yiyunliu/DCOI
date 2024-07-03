@@ -322,7 +322,7 @@ experimentation.
 %  \item decidable type conversion (mechanized up to indistinguishability)
 %\end{itemize}
 
-\section{Examples}
+\section{Examples} \label{sec:examples}
 
 We start with examples that demonstrate how the \dcoi type system can support runtime and compiletime irrevelance.
 
@@ -345,7 +345,8 @@ type check in the previous version of \dcoi.
 
 \jc{TODO: Remember to introduce $[[l A -> B]]$ as sugar for $[[Pi x : l A . B]]$
 where $[[B]]$ is not dependent on $[[x]]$
-and $[[Unit]]$ as sugar for $[[l Void -> Void]]$}
+and $[[Unit]]$ as sugar for $[[l Void -> Void]]$
+and also introduce the box type for examples}
 
 \jc{TODO: Mention implementation here}
 
@@ -440,12 +441,13 @@ The former is enforced by the level constraint premise in \rref{Wt-Var},
 which permits a variable to be used only if the observer level is at least as high as that of the variable.
 Informally, higher-level information cannot leak into a lower-level term.
 
-In \rref{Wt-Abs}, there is no restriction on the level of the function parameter,
-so a function may be applied to an argument of a higher level,
-so long as the annotated level of the function parameter
+In \rref{Wt-Abs}, the function parameter is annotated with a fixed level,
+thus restricting its uses to observers at least that high.
+Even so, there is no restriction on that level,
+and a function may be applied to an argument of a higher level,
+as long as the annotated level of the function parameter
 matches the annotated level of the application in \rref{Wt-App}.
-Although the function cannot directly use a higher-level variable in its lower-level body,
-allowing a higher-level parameter is still useful because it may be used in the function's \emph{type},
+Allowing a higher-level parameter is useful because it may be used in the function's \emph{type},
 which is typed at an arbitrary level independent of the function itself
 in the second premise of \rref{Wt-Abs}.
 By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codomain types either
@@ -527,7 +529,7 @@ Parallel reduction \judgement{$[[a => b]]$} consists of the $\beta$-reduction ru
 listed in \cref{fig:conv} and in following subsections,
 along with rules for the reflexive, congruent closure, omitted here.
 Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive closure of parallel reduction.
-This formulation of equality is in contrast to the system by \citet{liu:dcoi},
+This formulation of equality is in contrast to prior work by \citet{liu:dcoi},
 where parallel reduction is merely a metatheoretic tool for proving type soundness.
 
 \begin{figure}[h]
@@ -591,24 +593,74 @@ such as the preservation of definitional equality between two terms as they redu
 
 \begin{figure}[h]
   \begin{gather*}
-    \drule{Wt-Sig}
-    \drule{Wt-Pair}
-    \drule{Wt-Let}
+    \drule[width=0.5\textwidth]{Wt-Sig}
+    \drule[width=0.5\textwidth]{Wt-Pair} \\
+    \drule[width=0.5\textwidth]{Wt-Let}
+    \drule[width=0.5\textwidth]{P-LetPair}
   \end{gather*}
-  \caption{Typing and indistinguishability rules (pairs)}
+  \caption{Typing and parallel reduction rules (pairs)}
   \label{fig:typing:pairs}
 \end{figure}
 
+Dependent pairs are annotated with a fixed level in their first component,
+given by $[[l0]]$ in \rref{Wt-Sig,Wt-Pair} of \cref{fig:typing:pairs}.
+Like for function types, the levels of pair types are not necessarily related
+to that annotated level.
+While the first component of the pair constructor has a fixed level,
+the level of the second component is the level of the overall pair.
+
+In contrast to prior work by \citet{liu:dcoi},
+rather than having pair projections,
+pairs are eliminated using a pattern-matching expression.
+The eliminator is typed according to \rref{Wt-Let},
+and its reduction behaviour is given by \rref{P-LetPair}.
+It targets a pair $[[a]]$ annotated at level $[[l1]]$,
+binding its first and second components
+as variables $[[x]]$ at level $[[l0]]$
+and $[[y]]$ at level $[[l1]]$ respectively in the body $[[b]]$,
+which is typed at the same level $[[l]]$ as the overall eliminator.
+The overall type of the eliminator is specified by the motive $[[C]]$,
+which is abstracted over the target $[[z]]$.
+The level of the target $[[l2]]$ is not exactly $[[l]]$ but bounded above by it;
+its justification is a subtle technical issue,
+which we defer to \cref{sec:target-level}.
+
+The first and second pair projections can be recovered using the eliminator as follows,
+assuming the level of the pair $[[a]]$ to be $[[l1]]$.
+To type check the second projection,
+the motive $[[C]]$ must be $[[let (l0 x, y) = l1 z in B]]$,
+making its type $[[let (l0 x, y) = l1 a in B]]$
+rather than $[[B { let (l0 x, y) = l1 a in x / x }]]$.
+%
+\begin{align*}
+  [[proj1 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in x]] &
+  [[proj2 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in y]]
+\end{align*}
+
+Meanwhile, an $n$-ary dependent tuple with $n$ fixed levels can be encoded
+as $n$ right-nested pairs, with the rightmost type being $[[Unit]]$.
+In particular, the box type $[[T l0 A]]$ from \cref{sec:examples}
+can be encoded as a unary tuple as follows.
+%
+\begin{align*}
+  [[T l0 A]] &\coloneqq [[Sig x : l0 A . Unit]] &
+  [[box l0 a]] &\coloneqq [[(l0 a, unit)]] &
+  [[unbox l0 a]] &\coloneqq [[proj1 l0 a]]
+\end{align*}
+
+\jc{blah blah indistinguishability}
+
 \begin{figure}[h]
   \begin{gather*}
-    \drule[width=\textwidth]{P-LetPair}
-    \drule{I-Sig} \\\\
-    \drule{I-Pair}
+    \drule[width=0.5\textwidth]{I-Sig}
+    \drule[width=0.5\textwidth]{I-Pair} \\\\
     \drule[width=\textwidth]{I-Let}
   \end{gather*}
-  \caption{Parallel reduction and indistinguishability rules (pairs)}
+  \caption{Indistinguishability rules (pairs)}
   \label{fig:conv:pairs}
 \end{figure}
+
+\jc{blah blah guarded indistinguishability}
 
 \subsection{Propositional equality} \label{sec:eq}
 
@@ -652,7 +704,7 @@ while the type of the fully-applied eliminator is the motive instantiated with $
 The levels of $[[x]]$ and $[[y]]$ must therefore match the levels of $[[b]]$ and $[[p]]$, respectively.
 Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the method,
 the level of the method must match the level $[[l]]$ of the overall eliminator.
-The level of the target $[[l2]]$ is not exactly $[[l]]$ but is bounded by it;
+The level of the target $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
 its justification is a subtle technical issue,
 which we defer to \cref{sec:target-level}.
 

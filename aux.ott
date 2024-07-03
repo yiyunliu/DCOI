@@ -80,6 +80,15 @@ tm :: 'a_' ::=
   | Unit :: S :: Unit
     {{ com unit type }}
     {{ tex \top }}
+  | unit :: S :: MkUnit
+    {{ com unit inhabitant }}
+    {{ tex \ottkw{tt} }}
+  | proj1 l a :: S :: Proj1
+    {{ com first projection }}
+    {{ tex \pi_1^{[[l]]} \, [[a]] }}
+  | proj2 l a :: S :: Proj2
+    {{ com second projection }}
+    {{ tex \pi_2^{[[l]]} \, [[a]] }}
   | l A -> B :: S :: Arrow
     {{ com nondependent function type }}
     {{ tex {[[A]]}^{[[l]]} \to [[B]] }}
