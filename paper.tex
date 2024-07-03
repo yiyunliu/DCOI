@@ -2144,9 +2144,28 @@ a relational model to justify more complex properties.
 
 \section{Related work}
 
-\subsection{Dependent Types and Dependency Tracking}
+\subsection{Dependent Types and Irrelevance}
 One specific use case of dependency tracking in dependently typed
 languages is relevance tracking.
+
+The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc} and
+its decidable variant ICC*~\citep{barras:icc} extend the Extended
+Calculus
+of Constructions~\citep{luo1990:extended} with an implicit quantifier that
+is intended for irrelevant function arguments. A syntactic check is
+performed to ensure that an irrelevant binder is free in the function
+body after erasure. However, the type formation rules of both ICC and
+ICC* permit the function's codomain type to treat an irrelevant binder
+as relevant. This permissive design allows them to treat type
+variables appearing in parametric polymorphism as irrelevant while
+still ensure the well-formedness of types, which may dependent on
+those type variables. In \name, the same flexibility is achieved by
+decoupling the observer level used to type check terms and types; a
+type variable can be irrelevant relative to a term's observer level
+while still be relevant relative to its type's observer level.
+Both ICC and ICC* use untyped $\beta$-equivalence as definitional equality
+and therefore do not leverage erasure during type conversion.
+
 
 \citet{pfenning:modal} introduces a modal type theory where function types
 and typing contexts are annotated relevance levels. In his system,
@@ -2176,6 +2195,28 @@ consistency or decidability.
 property. In fact, the consistency of \name relies on the soundness of
 internal erasure since type conversion is defined using the
 indistinguishability judgment.
+
+While \citet{abel:irrelevance} uses Pfenning's resurrection mechanism
+for internal erasure, the Erasure Pure Type Systems (EPTS) by
+\citet{mishra:erasure} uses the mechanism only for runtime
+erasure. Like ICC, the EPTS uses untyped $\beta$
+equivalence as its definitional equality; relevance levels do not
+affect type conversion.
+
+Unlike in ICC, ICC*, EPTS, and \name, an irrelevant binder in \citet{pfenning:modal,
+  abel:irrelevance}'s systems must be treated as
+irrelevant in both a function's body and its output type. As a result,
+a runtime erasable type variable must be marked as relevant if the
+variable appears relevantly in the type signature. One such example is
+the type variable from the polymorphic identity
+function. \citet{abel:irrelevance} observe that allowing
+runtime irrelevant but compiletime relevant binders
+makes it difficult to define a
+type-directed checking algorithm, an issue that is side-stepped by our
+use of an untyped conversion rule. In Section~\ref{sec:typeddefeq}, we
+observe a technical issue related to extending \name with typed
+equality, though we formulate this issue in the simpler context of a
+declarative judgmental equality.
 
 In the Predicative Calculus of Cumulative Inductive
 Construction (PCUIC)~\citep{sozeau:coq-coq-correct}, a simplified core
@@ -2210,7 +2251,19 @@ to produce a relevant expression. However, their decidability proof,
 based on \citet{abel:irrelevance}, does not cover the equality
 extension.
 
+\citet{mishra:erasure} refers to the use of sorts to
+mark irrelevance as an intrinsic treatment of irrelevance as the
+relevance of a term is determined by its type. An extrinsic treatment
+of irrelevance, on the other hand, determines relevance purely based
+on the context in which the term is used. \name and other systems such
+as EPTS, ICC, and the system by \citet{abel:irrelevance} can all be
+viewed systems that treat relevance
+extrinsically. \citet{mishra:erasure} argue that the extrinsic
+approach addresses code duplication problems as it avoids the need to
+duplicate data type and function definitions for both relevant and
+irrelevant sorts.
 
+\subsection{Dependent Types and Indistinguishability}
 % \citet{luo1990:extended} introduces the Extended Calculus of
 % Constructions (ECC), 
 % an extension of Coquand-Huet's Calculus of
