@@ -637,6 +637,8 @@ rather than $[[B { let (l0 x, y) = l1 a in x / x }]]$.
   [[proj2 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in y]]
 \end{align*}
 
+\jc{TODO: Discuss typing rules for projections here.}
+
 Meanwhile, an $n$-ary dependent tuple with $n$ fixed levels can be encoded
 as $n$ right-nested pairs, with the rightmost type being $[[Unit]]$.
 In particular, the box type $[[T l0 A]]$ from \cref{sec:examples}
@@ -648,7 +650,14 @@ can be encoded as a unary tuple as follows.
   [[unbox l0 a]] &\coloneqq [[proj1 l0 a]]
 \end{align*}
 
-\jc{blah blah indistinguishability}
+\jc{TODO: Discuss typing rules for boxes here.}
+
+The primary use case of the box type is to be able to enclose higher-level terms
+and to treat them as indistinguishable from one another by a lower-level observer.
+That is, $[[E |- box H a == box H b @ L]]$ ought to hold regardless of $[[a]]$ and $[[b]]$.
+The idea generalizes to pairs by using guarded indistinguishability
+when comparing first components in \rref{I-Pair},
+similar to how function arguments are compared.
 
 \begin{figure}[h]
   \begin{gather*}
@@ -660,7 +669,9 @@ can be encoded as a unary tuple as follows.
   \label{fig:conv:pairs}
 \end{figure}
 
-\jc{blah blah guarded indistinguishability}
+The remaining indistinguishability rules for pair types and eliminators
+are given in \cref{fig:conv:pairs}.
+The constraint $[[l1 <= l]]$ in \rref{I-Let} is required due to its presence in \rref{Wt-Let}.
 
 \subsection{Propositional equality} \label{sec:eq}
 
@@ -787,8 +798,7 @@ given indistinguishability of each pair of subterms.
 % which is why we say that propositional equality internalizes indistinguishability.
 %
 What is trickier are the level constraints that appear in these rules.
-The constraint $[[l2 <= l]]$ in \rref{I-J} is required for the same reason
-as the second level constraint in \rref{Wt-J}.
+The constraint $[[l2 <= l]]$ in \rref{I-J} is required due to its presence in \rref{Wt-J}.
 The constraint $[[l0 <= l]]$ in \rref{I-Eq} is yet another subtle technical issue,
 and we defer its explanation to \cref{sec:eq-level}.
 
