@@ -1195,4 +1195,30 @@ Proof.
   - asimpl. apply T_Refl; eauto with wff.
 Qed.
 
+Lemma T_Proj1 Γ ℓ ℓ0 a A B :
+  ℓ ⊆ ℓ0 ->
+  Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
+  (* -------------------------------*)
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 1) ; ℓ0 ∈ A.
+Proof.
+  move => hℓ /[dup] /Wt_regularity => [[ℓ1]] [?] /[dup] /Wt_Sig_inv => [[i] [j] [hA] [hB] [?] ?] hSig h.
+  replace A with (ren_tm S A)[a..]; last by asimpl.
+  eapply T_Let with (j := Nat.max i j); eauto.
+  - admit.
+  - admit.
+  - apply : T_Var; last by apply meet_idempotent.
+    + hauto lq:on ctrs:Wff use:Wt_Wff.
+    + apply : there'; cycle 1.
+      apply here. substify. by asimpl.
+  - apply : weakening_Syn'; eauto. by asimpl.
+Admitted.
+
+Lemma T_Proj2 Γ ℓ ℓ0 a A B :
+  ℓ ⊆ ℓ0 ->
+  Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
+  (* ------------------------------------------------------- *)
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ tLet ℓ0 ℓ a B[(var_tm 1)..].
+Proof.
+Admitted.
+
 End preservation.
