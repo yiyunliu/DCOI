@@ -1256,7 +1256,36 @@ Proof.
   eapply T_Let with (i := j) (j := Nat.max i j); eauto using meet_idempotent.
   - admit.
   - admit.
-  - asimpl. admit.
+  - eapply T_Conv with (A := B ⟨S⟩) (i := j).
+    apply : T_Var; last by apply meet_idempotent.
+    + hauto lq:on ctrs:Wff use:Wt_Wff.
+    + apply here'. reflexivity.
+    + replace (tUniv j) with (tUniv j)[tPack ℓ0 (var_tm 1) (var_tm 0) .: (S >> S) >> var_tm];
+        last by asimpl.
+      eapply morphing_Syn; eauto; cycle 1.
+      apply good_morphing_cons with (A := tSig ℓ0 A B).
+      * asimpl. admit.
+      * asimpl.
+        apply : T_Pack.
+        ** apply : T_Var; eauto using meet_idempotent.
+           hauto lq:on ctrs:Wff use:Wt_Wff.
+           apply : there'; cycle 1.
+           apply : here'; eauto.
+           substify. by asimpl.
+        ** apply : T_Var; eauto using meet_idempotent.
+           hauto lq:on ctrs:Wff use:Wt_Wff.
+           apply : here'. asimpl. substify.
+           have -> // : var_tm 1 .: S >> (S >> var_tm) = S >> var_tm
+            by fext; case.
+        ** replace (tSig ℓ0 _ _) with ((tSig ℓ0 A B)[(S >> S) >> var_tm]); last by asimpl.
+           eapply weakening_Syn in hSig; last by exact hA.
+           eapply weakening_Syn in hSig; last by exact hB.
+           replace (tSig ℓ0 A B) [(S >> S) >> var_tm] with (tSig ℓ0 A B) ⟨S⟩ ⟨S⟩;
+            last by substify; asimpl.
+           exact hSig.
+      * hauto lq:on ctrs:Wff use:Wt_Wff.
+      * admit.
+    + admit.
   - replace (tUniv j) with (tUniv j)[(var_tm 0)..]; last by asimpl.
     eapply T_Let; eauto using meet_idempotent.
     + admit.
