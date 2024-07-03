@@ -1201,7 +1201,7 @@ Lemma T_Proj1 Γ ℓ ℓ0 a A B :
   (* -------------------------------*)
   Γ ⊢ tLet ℓ0 ℓ a (var_tm 1) ; ℓ0 ∈ A.
 Proof.
-  move => hℓ /[dup] /Wt_regularity => [[ℓ1]] [?] /[dup] /Wt_Sig_inv => [[i] [j] [hA] [hB] [?] ?] hSig h.
+  move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
   replace A with (ren_tm S A)[a..]; last by asimpl.
   eapply T_Let with (j := Nat.max i j); eauto.
   - admit.
@@ -1217,8 +1217,28 @@ Lemma T_Proj2 Γ ℓ ℓ0 a A B :
   ℓ ⊆ ℓ0 ->
   Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
   (* ------------------------------------------------------- *)
-  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ tLet ℓ0 ℓ a B[(var_tm 1)..].
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ a (var_tm 1))..].
 Proof.
+  move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  replace B[(tLet ℓ0 ℓ a (var_tm 1))..] with (B[(tLet ℓ0 ℓ (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
+    last by asimpl.
+  eapply T_Let with (j := Nat.max i j); eauto using meet_idempotent.
+  - admit.
+  - admit.
+  - asimpl.
+    eapply T_Conv with (A := B ⟨S⟩) (i := j).
+    apply : T_Var; last by apply meet_idempotent.
+    + hauto lq:on ctrs:Wff use:Wt_Wff.
+    + apply here'. reflexivity.
+    + replace (tUniv j) with (tUniv j)[tLet ℓ0 ℓ (tPack ℓ0 (var_tm 1) (var_tm 0)) (var_tm 1) .: S >> (S >> var_tm)];
+        last by asimpl.
+      eapply morphing_Syn; eauto.
+      apply good_morphing_cons.
+      * admit. (* good_morphing_suc *)
+      * admit.
+      * hauto lq:on ctrs:Wff use:Wt_Wff.
+    + admit.
+  - admit.
 Admitted.
 
 End preservation.
