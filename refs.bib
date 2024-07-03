@@ -861,3 +861,41 @@ abstract="We introduce Erasure Pure Type Systems, an extension to Pure Type Syst
 isbn="978-3-540-78499-9",
 doi={10.1007/978-3-540-78499-9_25}
 }
+
+@article{pujet:ttobs,
+author = {Pujet, Lo\"{\i}c and Tabareau, Nicolas},
+title = {Observational equality: now for good},
+year = {2022},
+issue_date = {January 2022},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {6},
+number = {POPL},
+url = {https://doi.org/10.1145/3498693},
+doi = {10.1145/3498693},
+abstract = {Building on the recent extension of dependent type theory with a universe of definitionally proof-irrelevant types, we introduce TTobs, a new type theory based on the setoidal interpretation of dependent type theory. TTobs equips every type with an identity relation that satisfies function extensionality, propositional extensionality, and definitional uniqueness of identity proofs (UIP). Compared to other existing proposals to enrich dependent type theory with these principles, our theory features a notion of reduction that is normalizing and provides an algorithmic canonicity result, which we formally prove in Agda using the logical relation framework of Abel et al. Our paper thoroughly develops the meta-theoretical properties of TTobs, such as the decidability of the conversion and of the type checking, as well as consistency. We also explain how to extend our theory with quotient types, and we introduce a setoidal version of Swan's Id types that turn it into a proper extension of MLTT with inductive equality.},
+journal = {Proc. ACM Program. Lang.},
+month = {jan},
+articleno = {32},
+numpages = {27},
+keywords = {confluence, dependent types, rewriting theory, termination, type theory}
+}
+
+@article{pujet:ccobs,
+author = {Pujet, Lo\"{\i}c and Tabareau, Nicolas},
+title = {Impredicative Observational Equality},
+year = {2023},
+issue_date = {January 2023},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {7},
+number = {POPL},
+url = {https://doi.org/10.1145/3571739},
+doi = {10.1145/3571739},
+abstract = {In dependent type theory, impredicativity is a powerful logical principle that allows the definition of propositions that quantify over arbitrarily large types, potentially resulting in self-referential propositions. Impredicativity can provide a system with increased logical strength and flexibility, but in counterpart it comes with multiple incompatibility results. In particular, Abel and Coquand showed that adding definitional uniqueness of identity proofs (UIP) to the main proof assistants that support impredicative propositions (Coq and Lean) breaks the normalization procedure, and thus the type-checking algorithm. However, it was not known whether this stems from a fundamental incompatibility between UIP and impredicativity or if a more suitable algorithm could decide type-checking for a type theory that supports both. In this paper, we design a theory that handles both UIP and impredicativity by extending the recently introduced observational type theory TTobs with an impredicative universe of definitionally proof-irrelevant types, as initially proposed in the seminal work on observational equality of Altenkirch et al. We prove decidability of conversion for the resulting system, that we call CCobs, by harnessing proof-irrelevance to avoid computing with impredicative proof terms. Additionally, we prove normalization for CCobs in plain Martin-L\"{o}f type theory, thereby showing that adding proof-irrelevant impredicativity does not increase the computational content of the theory.},
+journal = {Proc. ACM Program. Lang.},
+month = {jan},
+articleno = {74},
+numpages = {26},
+keywords = {confluence, dependent types, rewriting theory, termination, type theory}
+}

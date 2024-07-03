@@ -2152,7 +2152,7 @@ The problem of extending \name with judgmental equality also
 directly relates to the problem of defining a relational model for justifying properties
 such as extensionality, or a generalized semantic notion of noninterference
 that goes beyond our syntactic simulation property
-(\rref{lem:simulation}). Since logical relations are indexed by types,
+(\ref{lem:simulation}). Since logical relations are indexed by types,
 when defining the interpretation for functions, we run into the same
 issue where runtime irrelevant arguments that are vacuously related by guarded
 equality may result in distinguishable types after being substituted
@@ -2218,9 +2218,9 @@ body after erasure. However, the type formation rules of both ICC and
 ICC* permit the function's codomain type to treat an irrelevant binder
 as relevant. This permissive design allows them to treat type
 variables appearing in parametric polymorphism as irrelevant while
-still ensure the well-formedness of types, which may dependent on
+still ensure the well-formedness of types, which may depend on
 those type variables. In \name, the same flexibility is achieved by
-decoupling the observer level used to type check terms and types; a
+decoupling the observer level used to type check terms and types (\nameref{lem:regularity}); a
 type variable can be irrelevant relative to a term's observer level
 while still be relevant relative to its type's observer level.
 Both ICC and ICC* use untyped $\beta$-equivalence as definitional equality
@@ -2292,7 +2292,7 @@ relevant terms whose types are of the relevant sort \texttt{Type}.
 
 The \texttt{Prop} sort in PCUIC does not affect type conversion and
 thus does not admit internal erasure. Erasing terms with sort
-\texttt{Prop} during type conversion would cause type
+\texttt{Prop} during type conversion could cause type
 conversion to diverge; with a variable of type $A = A \rightarrow A$
 in the context, it is possible to construct a term that erases to the
 diverging lambda term $(\lambda x . x\ x)\ (\lambda x . x\ x)$.% ~\citep{casinghino:combining-proofs-programs}
@@ -2309,7 +2309,12 @@ relevant universes. An optional extension to their system also allows
 an equality type that inhabits \texttt{SProp} to be eliminated
 to produce a relevant expression. However, their decidability proof,
 based on \citet{abel:irrelevance}, does not cover the equality
-extension.
+extension. In the Agda and Coq implementations of \texttt{SProp},
+neither support elimination from non-empty strict propositions to the
+relevant sort. In the context of observational equality,
+\citet{pujet:ttobs, pujet:ccobs} allow the elimination of observational equalities
+from the proof-irrelevant universe to build relevant terms and manage
+to prove the decidability of type conversion.
 
 \citet{mishra:erasure} refers to the use of sorts to
 mark irrelevance as an intrinsic treatment of irrelevance as the
@@ -2323,7 +2328,11 @@ approach addresses code duplication problems as it avoids the need to
 duplicate data type and function definitions for both relevant and
 irrelevant sorts.
 
+\subsection{Dependent Types and Counting}
+
 \subsection{Dependent Types and Indistinguishability}
+
+\subsection{Dependent Types and Mechanized Logical Relations}
 % \citet{luo1990:extended} introduces the Extended Calculus of
 % Constructions (ECC), 
 % an extension of Coquand-Huet's Calculus of
@@ -2349,7 +2358,6 @@ irrelevant sorts.
 
 
 
-\subsection{Dependent Types and Counting}
 
 
 
