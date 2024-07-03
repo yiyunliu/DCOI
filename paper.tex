@@ -1986,6 +1986,8 @@ but we require one of the shape
 $[[G ++ x : l' poltergeist |- C : l0 Univ i]]$,
 which we are unable to conclude.
 
+\sw{Is there a version of propositional equality with an eliminator that is not strict?}
+
 \subsection{Equality type level constraints} \label{sec:eq-level}
 
 In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b : A]]$
@@ -2007,6 +2009,9 @@ The modified premises are highlighed in yellow below.
     [[E |- a0 ~ l0 b0 : A0 == a1 ~ l0 b1 : A1 @ l]]
   }
 \end{mathpar}
+
+\sw{Can we remove $[[A0]]$ and $[[A1]]$ from the syntax of the equality proposition 
+  because they don't participate in indistinguishability?}
 
 By \rref{I-Eq-Bad}, it would be possible to derive the judgement
 $[[nil |- Unit ~ H Unit : Univ i == Unit ~ H Void : Univ i @ L]]$
@@ -2182,7 +2187,6 @@ forms.
 Therefore, despite the technical issues demonstrated in this section,
 we are optimistic that our logical predicate can be further extended to
 a relational model to justify more complex properties. 
-
 
 % To solve the problem on the syntactic side, it is tempting to add a side
 % condition to \rref{I-AppTy} to ensure the
