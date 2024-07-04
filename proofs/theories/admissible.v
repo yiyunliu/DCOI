@@ -230,10 +230,10 @@ Proof.
   set q := ℓ1 ∪ ℓB.
   have hℓ' : ℓ1 ⊆ q by subst q; solve_lattice.
   have hℓ'' : ℓB ⊆ q by subst q; solve_lattice.
+  move => [:hwff][:Bweak][:Sigweak].
   eapply T_Let_simpl => //.
   - eauto.
-  - move => [:hwff].
-    eapply T_Conv with (A := B ⟨S⟩) (i := j).
+  - eapply T_Conv with (A := B ⟨S⟩) (i := j).
     + apply : T_Var.
       * abstract : hwff; hauto lq:on ctrs:Wff use:Wt_Wff.
       * apply here'. reflexivity.
@@ -268,6 +268,7 @@ Proof.
            solve_lattice.
         ** rewrite -/ren_tm.
            asimpl.
+           abstract : Bweak.
            have -> : B [var_tm 1 .: S >> (S >> (S >> var_tm))] =
                       B ⟨1 .: S >> (S >> S)⟩ by substify; asimpl.
            apply : renaming_Syn_Univ; eauto using subsumption.
@@ -312,8 +313,11 @@ Proof.
             apply : T_Var; auto using meet_idempotent.
             apply here'. by asimpl.
         ** rewrite -/ren_tm.
+           abstract : Sigweak.
            apply T_Univ => //.
-           admit.
+           apply : Wff_cons => //.
+           move /weakening_Syn_Univ : (hSig) (hSig) => /[apply].
+           apply.
     + asimpl.
       exists q.
       apply cfacts.iconv_sym.
@@ -326,14 +330,17 @@ Proof.
       apply iok_ieq with (ℓ := q).
       apply : typing_iok. eauto. apply : weakening_Syn_Univ; eauto using subsumption.
       solve_lattice.
-  - eapply T_Let_simpl' with (C := tUniv i); eauto using meet_idempotent.
+  - eapply T_Let_simpl' with (C := tUniv j); eauto using meet_idempotent.
     + apply : T_Var; eauto.
       apply here'; eauto.
       solve_lattice.
     + rewrite -/ren_tm.
-      Set Printing All.
-      admit.
-    + apply T_Univ. admit.
-Admitted.
+      asimpl.
+      auto.
+    + rewrite -/ren_tm.
+      apply Sigweak.
+      Unshelve.
+      eauto.
+Qed.
 
 End admissible.
