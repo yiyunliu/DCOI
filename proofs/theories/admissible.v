@@ -139,15 +139,16 @@ Proof.
   - eauto using weakening_Syn_Univ. 
 Qed.
 
-Lemma T_Proj2 Γ ℓ ℓ0 ℓ1 a A B :
+Lemma T_Proj2_leq Γ ℓ ℓ0 ℓ1 a A B :
   ℓ1 ⊆ ℓ ->
   ℓ1 ⊆ ℓ0 ->
-  Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 1) ; ℓ0 ∈ A ->
   Γ ⊢ a ; ℓ1 ∈ tSig ℓ0 A B ->
   (* ---------------------------------------------------------- *)
   Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ1 a (var_tm 1))..].
 Proof.
-  move => hℓ hℓ' hLet /[dup] /Wt_regularity => [[ℓ4]] [k] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  move => hℓ hℓ' /[dup] /Wt_regularity => [[ℓ4]] [k] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  have hLet : Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 1) ; ℓ0 ∈ A by
+    apply : T_Proj1; eauto using meet_idempotent.
   replace B[(tLet ℓ0 ℓ1 a (var_tm 1))..]
     with (B[(tLet ℓ0 ℓ1 (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
     last by asimpl.
@@ -215,7 +216,18 @@ Proof.
       apply : T_Var; eauto. eauto with wff. solve_lattice.
 Qed.
 
-(* I think this version holds too but I'm not sure? *)
+Lemma T_Proj2 Γ ℓ ℓ0 ℓ1 a A B :
+  ℓ1 ⊆ ℓ ->
+  Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 1) ; ℓ0 ∈ A ->
+  Γ ⊢ a ; ℓ1 ∈ tSig ℓ0 A B ->
+  (* ---------------------------------------------------------- *)
+  Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ1 a (var_tm 1))..].
+  move => h h0 h1.
+  suff : ℓ1 ⊆ ℓ0 by eauto using T_Proj2_leq.
+  move : h0. clear.
+  move /Wt_Let_inv. tauto.
+Qed.
+
 Lemma T_Proj2_Alt Γ ℓ ℓ0 ℓ1 a A B :
   ℓ1 ⊆ ℓ ->
   Γ ⊢ a ; ℓ1 ∈ tSig ℓ0 A B ->
