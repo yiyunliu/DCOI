@@ -14,3 +14,7 @@ tRefl : tm
 tSig : T -> tm -> (tm -> tm) -> tm
 tPack : T -> tm -> tm -> tm
 tLet : T -> T -> tm -> (tm -> tm -> tm) -> tm
+tZero : tm
+tSuc : tm -> tm
+tInd : T -> tm -> (tm -> tm -> tm) -> tm -> tm
+tNat : tm
