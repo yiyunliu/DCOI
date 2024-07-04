@@ -190,6 +190,10 @@ Lemma iconv_rpar Ξ ℓ a b a0  :
   iconv Ξ ℓ a b -> a0 ⇒ a -> iconv Ξ ℓ a0 b.
 Proof. hauto lq:on ctrs:rtc unfold:iconv. Qed.
 
+Lemma conv_rpar Ξ a b a0  :
+  conv Ξ a b -> a0 ⇒ a -> conv Ξ a0 b.
+Proof. hauto use:iconv_rpar unfold:conv. Qed.
+
 Lemma iconv_par Ξ ℓ a b a0  :
   iconv Ξ ℓ a b -> a ⇒ a0 -> iconv Ξ ℓ a0 b.
 Proof.
@@ -203,6 +207,12 @@ Proof.
   move => [c1' [h7 h8]].
   exists ca, c1'.
   hauto l:on use:rtc_transitive.
+Qed.
+
+Lemma conv_par Ξ a b a0  :
+  conv Ξ a b -> a ⇒ a0 -> conv Ξ a0 b.
+Proof.
+  hauto lq:on use:iconv_par unfold:conv.
 Qed.
 
 Lemma iconv_par2 Ξ ℓ a b a0 b0 :

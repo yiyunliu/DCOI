@@ -410,13 +410,13 @@ Proof.
   (* Ind *)
   - move => Γ ℓ ℓ0 a b c A ℓA i ? hA ihA ha iha hb ihb hc ihc Δ ρ hρ hΔ /=.
     have ? : Wff ((ℓ0, tNat) :: Δ) by apply Wff_cons with (i := 0) (ℓ := ℓ); eauto using T_Nat.
-    apply T_Ind' with (A := subst_tm (up_tm_tm ρ) A) (i := i); first by asimpl.
+    apply T_Ind' with (A := subst_tm (up_tm_tm ρ) A) (i := i) (ℓA := ℓA)=>//; first by asimpl.
     + hauto lq:on ctrs:Wt use:good_morphing_up.
     + move /iha : hρ {iha}.
       asimpl. tauto.
-    + have hw : lookup_good_morphing (up_tm_tm ρ) (tNat :: Γ) (tNat :: Δ)
+    + have hw : lookup_good_morphing (up_tm_tm ρ) ((ℓ0, tNat) :: Γ) ((ℓ0, tNat) :: Δ)
         by hauto lq:on ctrs:Wt use:good_morphing_up db:wff.
-      have /ihb : lookup_good_morphing (up_tm_tm (up_tm_tm ρ)) (A :: tNat :: Γ) (A[up_tm_tm ρ] :: tNat :: Δ) by hauto lq:on ctrs:Wt use:good_morphing_up db:wff.
+      have /ihb : lookup_good_morphing (up_tm_tm (up_tm_tm ρ)) ((ℓ0, A) :: (ℓ0, tNat) :: Γ) ((ℓ0, A[up_tm_tm ρ]) :: (ℓ0, tNat) :: Δ) by hauto lq:on ctrs:Wt use:good_morphing_up db:wff.
       asimpl. substify. apply.
       apply : Wff_cons=>//.
       apply ihA=>//.
@@ -519,14 +519,26 @@ Proof.
   - hauto lq:on ctrs:Wt db:wff.
   - hauto q:on use:subst_Syn, Wt_Pi_Univ_inv.
   - hauto lq:on ctrs:Wt db:wff.
+  - move => Γ ℓ ℓ0 a b c A ℓA i ? hA ihA ha iha hb ihb hc ihc.
+    exists ℓA, i.
+    apply : morphing_Syn_Univ; eauto with wff.
+    move => k ℓ' A0.
+    elim/lookup_inv.
+    + move => ? > ? [] *. subst. by asimpl.
+    + move => _ n A1 Γ0 ℓ2 [ℓ3 B] + ? [] *. subst. simpl.
+      move => ?.
+      apply : T_Var; eauto with wff.
+      asimpl. eassumption.
+      solve_lattice.
+  - hauto lq:on ctrs:Wt db:wff.
+  - hauto lq:on ctrs:Wt db:wff.
   - hauto lq:on ctrs:Wt db:wff.
   - move => Γ _ a ℓ0 A ha [ℓA [i hA]].
     exists (ℓ0 ∪ ℓA), 0.
     hauto use:T_Eq lq:on use:subsumption solve+:(by solve_lattice).
   - hauto lq:on ctrs:Wt db:wff.
   - move => Γ t a b p A i j C ℓ ℓp ℓT ℓ0 ℓ1 ? ha iha hb ihb hA ihA hp ihp hC ihC ht iht.
-    exists ℓ0, i. change (tUniv i) with (subst_tm (p .: b..) (tUniv i)).
-    apply : morphing_Syn; eauto with wff.
+    exists ℓ0, i. apply : morphing_Syn_Univ; eauto with wff.
     move => k ℓA A0.
     elim /lookup_inv.
     + move => ? > ? [] *. subst. by asimpl.
@@ -562,24 +574,26 @@ Proof.
   - hauto lq:on rew:off use:cfacts.conv_trans.
 Qed.
 
-(* Lemma Wt_Ind_inv Γ a b c T (h : Γ ⊢ (tInd a b c) ∈ T) : *)
-(*   exists A, Γ ⊢ a ∈ A[tZero..] /\ *)
-(*        A :: tNat :: Γ ⊢ b ∈ A [tSuc (var_tm 0) .: S >> var_tm]⟨S⟩  /\ *)
-(*          Γ ⊢ c ∈ tNat /\ *)
-(*          A[c..] <: T /\ *)
-(*          (exists j, tNat :: Γ ⊢ A ∈ tUniv j) /\ *)
-(*          exists i, Γ ⊢ T ∈ tUniv i. *)
-(* Proof. *)
-(*   move E : (tInd a b c) h => a0 h. *)
-(*   move : a b c E. *)
-(*   elim : Γ a0 T / h => //. *)
-(*   - hauto lq:on rew:off use:Sub_transitive. *)
-(*   - move => Γ a b c A i hA _ ha _ hb _ hc _ ? ? ?[*]. subst. *)
-(*     exists A. repeat split=>//. *)
-(*     + apply Sub_reflexive. *)
-(*     + eauto using subst_Syn_Univ. *)
-(*     + eauto using subst_Syn_Univ. *)
-(* Qed. *)
+Lemma Wt_Ind_inv Γ ℓ ℓ0 a b c T (h : Γ ⊢ (tInd ℓ0 a b c) ; ℓ ∈ T) :
+  exists A, ℓ0 ⊆ ℓ /\
+    Γ ⊢ a ; ℓ0 ∈ A[tZero..] /\
+       (ℓ0, A) :: (ℓ0, tNat) :: Γ ⊢ b ; ℓ0 ∈ A [tSuc (var_tm 0) .: S >> var_tm]⟨S⟩  /\
+         Γ ⊢ c ; ℓ0 ∈ tNat /\
+         conv (c2e Γ) A[c..] T /\
+         (exists ℓA j, (ℓ0, tNat) :: Γ ⊢ A ; ℓA ∈ tUniv j) /\
+         exists ℓ i, Γ ⊢ T ; ℓ ∈ tUniv i.
+Proof.
+  move E : (tInd ℓ0 a b c) h => a0 h.
+  move : a b c E.
+  elim : Γ ℓ a0 T / h => //.
+  - hauto lq:on rew:off use:cfacts.conv_trans.
+  - move => Γ ℓ ℓ1 a b c A ℓA i ? hA _ ha _ hb _ hc _ ? ? ?[*]. subst.
+    exists A. repeat split=>//.
+    + have /Wt_regularity : Γ ⊢ (tInd ℓ1 a b c) ; ℓ ∈ A[c..] by qauto l:on ctrs:Wt.
+      hauto l:on use:typing_conv.
+    + eauto using subst_Syn_Univ.
+    + eauto using subst_Syn_Univ.
+Qed.
 
 Lemma Wt_Eq_inv Γ ℓ0 ℓ a b U (h : Γ ⊢ (tEq ℓ0 a b) ; ℓ ∈ U) :
   exists A,
@@ -794,16 +808,16 @@ Proof.
     exists ℓ0, a , A.
     sfirstorder use:T_Refl, typing_conv.
 Qed.
-(* Lemma Wt_Suc_inv Γ a T (h : Γ ⊢ tSuc a ∈ T) : *)
-(*   Γ ⊢ a ∈ tNat /\ *)
-(*   tNat <: T /\ exists i, Γ ⊢ T ∈ tUniv i. *)
-(* Proof. *)
-(*   move E : (tSuc a) h => a0 h. *)
-(*   move : a E. *)
-(*   elim : Γ a0 T / h=>//. *)
-(*   - hauto lq:on rew:off use:Sub_transitive. *)
-(*   - hauto lq:on ctrs:Wt use:T_Nat, Sub_reflexive. *)
-(* Qed. *)
+Lemma Wt_Suc_inv Γ ℓ a T (h : Γ ⊢ tSuc a ; ℓ ∈ T) :
+  Γ ⊢ a ; ℓ ∈ tNat /\
+  conv (c2e Γ) tNat T /\ exists ℓ i, Γ ⊢ T ; ℓ ∈ tUniv i.
+Proof.
+  move E : (tSuc a) h => a0 h.
+  move : a E.
+  elim : Γ ℓ a0 T / h=>//.
+  - hauto lq:on rew:off use:cfacts.conv_trans.
+  - hauto lq:on ctrs:Wt use:T_Nat, typing_conv.
+Qed.
 
 Lemma Wt_Refl_Coherent Γ ℓ ℓ0 a b (h : Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a b)) :
   iconv (c2e Γ) ℓ0 a b.
@@ -957,42 +971,8 @@ Proof.
       have : iok_subst_ok b0.. (ℓ0 :: c2e Γ) (c2e Γ); last by
         hauto lq:on use:cfacts.iconv_par.
       hauto l:on use:iok_subst_cons, iok_subst_id.
-  (* Suc *)
-  (* - move => a b h ih Γ ℓ A /Wt_Suc_inv. *)
-  (*   move => [h0][h1][i]h2. *)
-  (*   apply : T_Conv; eauto. *)
-  (*   have : ⊢ Γ by eauto with wff. *)
-  (*   have : Γ ⊢ b ∈ tNat by auto. *)
-  (*   apply T_Suc. *)
-  (* - move => a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc Γ A /Wt_Ind_inv. *)
-  (*   move => [A0][ha0][hb0][hc0][hC][[i hA0]][j hAj]. *)
-  (*   apply : T_Conv. apply T_Ind with (i := i); eauto. eauto. *)
-  (*   apply : Sub_transitive; eauto. *)
-  (*   have : A0[c0..] ⇒ A0[c1..]; last by hauto l:on use:Par_Sub. *)
-  (*   sfirstorder use:Par_cong, Par_refl. *)
-  (* - qauto l:on use:Wt_Ind_inv ctrs:Wt. *)
-  (* - move => a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc Γ A /Wt_Ind_inv. *)
-  (*   move => [A0][ha0][hb0][hc0][hA0][[j hA0']][i hA']. *)
-  (*   apply : T_Conv; eauto. *)
-  (*   have : A0[(tSuc c1)..] <: A0[(tSuc c0)..]. *)
-  (*   apply Par_Sub. *)
-  (*   apply Par_morphing. case => //=; hauto l:on ctrs:Par. apply Par_refl. *)
-  (*   move/T_Conv. apply. *)
-  (*   have /morphing_Syn /(_ Γ (tInd a1 b1 c1 .: c1..))  := ihb _ _ hb0. *)
-  (*   asimpl. apply; eauto with wff. *)
-  (*   rewrite /lookup_good_morphing. *)
-  (*   have ? : Γ ⊢ c0 ∈ tNat by hauto l:on use:Wt_Suc_inv. *)
-  (*   move => i0 A1. elim/lookup_inv => _. *)
-  (*   + move => A2 Γ0 ? []*. subst. *)
-  (*     asimpl. *)
-  (*     apply : T_Ind; eauto. *)
-  (*   + move => n A2 Γ0 B + ? [*]. subst. *)
-  (*     elim/lookup_inv => _. *)
-  (*     move => A1 Γ0 ? [*]. subst. by asimpl; auto. *)
-  (*     move => n0 A1 Γ0 B ? ? [*]. subst. *)
-  (*     asimpl.  hauto lq:on ctrs:Wt db:wff. *)
-  (*   + eauto using subst_Syn_Univ. *)
   - hauto q:on use:T_Absurd, T_Conv, Wt_Absurd_inv.
+  (* Eq *)
   - move => ℓ0 a0 b0 a1 b1 ha0 iha0 ha1 iha1 Γ ℓ A /Wt_Eq_inv.
     intros (A0 & ? & ha0' & hb0' & (q & hA0') & (i & eq) & (ℓ1 & j & hA)).
     eapply T_Conv with (A := (tUniv i)) (i := j); eauto.
@@ -1100,6 +1080,47 @@ Proof.
       have ? : tPack ℓ0 a0 b0 ⇒ tPack ℓ0 a1 b1 by eauto with par.
       have : C[(tPack ℓ0 a0 b0)..] ⇒ C[(tPack ℓ0 a1 b1)..] by eauto using Par_refl, Par_cong.
       hauto lq:on use:cfacts.iconv_par unfold:conv.
+  (* Suc *)
+  - move => a b h ih Γ ℓ A /Wt_Suc_inv.
+    move => [?][h0][h1][i]h2.
+    apply : T_Conv; eauto.
+    have : ⊢ Γ by eauto with wff.
+    have : Γ ⊢ b ; ℓ ∈ tNat by auto.
+    apply T_Suc.
+  (* Ind *)
+  - move => ℓ0 a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc Γ ℓ A /Wt_Ind_inv.
+    move => [A0][?][ha0][hb0][hc0][hC][[ℓA0 [i hA0]]][ℓA [j hAj]].
+    apply : T_Conv. eapply T_Ind with (i := i); eauto.
+    by eauto.
+    apply : cfacts.conv_trans; eauto.
+    have h : A0[c0..] ⇒ A0[c1..] by  sfirstorder use:Par_cong, Par_refl.
+    apply : cfacts.conv_par; eauto.
+    qauto l:on use:cfacts.conv_sym, cfacts.conv_trans.
+  - hauto lq:on ctrs:Wt use:Wt_Ind_inv, subsumption.
+  - move => ℓ0 a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc Γ ℓ A /Wt_Ind_inv.
+    move => [A0][?][ha0][hb0][hc0][hA0][[ℓA0 [j hA0']]] [ℓA [i hA']].
+    have ? : A0[(tSuc c0)..] ⇒ A0[(tSuc c1)..].
+      apply Par_morphing; eauto using Par_refl.
+      case => //=; hauto l:on ctrs:Par.
+
+    have : conv (c2e Γ) A0[(tSuc c1)..] A by hauto l:on use:cfacts.conv_par.
+    move /T_Conv. apply; eauto.
+    have /morphing_Syn /(_ Γ (tInd ℓ0 a1 b1 c1 .: c1..))  := ihb _ _ _ hb0.
+    asimpl => h.
+    apply : subsumption; eauto.
+    apply h; eauto with wff.
+    rewrite /lookup_good_morphing.
+    have ? : Γ ⊢ c0 ; ℓ0 ∈ tNat by hauto l:on use:Wt_Suc_inv.
+    move => i0 ℓ1 A1. elim/lookup_inv => _.
+    + move => ℓ2 A2 Γ0 ? []*. subst.
+      asimpl.
+      apply : T_Ind; eauto.
+      solve_lattice.
+    + move => n A2 Γ0 ℓ2 B + ? [*]. subst.
+      elim/lookup_inv => _.
+      move => ℓ2 A1 Γ0 ? [*]. subst. by asimpl; auto.
+      move => n0 A1 Γ0 ℓ2 B ? ? [*]. subst.
+      asimpl.  hauto lq:on ctrs:Wt db:wff solve+:solve_lattice.
 Qed.
 
 Lemma subject_reduction_star a b (h : a ⇒* b) : forall Γ ℓ A,
