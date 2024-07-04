@@ -92,10 +92,6 @@ tm :: 'a_' ::=
   | l A -> B :: S :: Arrow
     {{ com nondependent function type }}
     {{ tex {[[A]]}^{[[l]]} \to [[B]] }}
-  | a ~ l b :: S :: EqS
-    {{ com indistinguishability (no type annotation) }}
-    {{ coq a_Eq [[a]] [[l]] [[b]] _ }}
-    {{ tex [[a]] \sim^{[[l]]} \! [[b]] }}
   | case a return c of bs :: S :: Case
     {{ com case expressions }}
     {{ tex \ottkw{case} \, [[a]] \, \ottkw{return} \, [[c]] \, \ottkw{of} \, [[bs]] }}
@@ -304,6 +300,15 @@ G |- A1 : l1 Univ i
 | G | |- A0 == A1
 ------------------------- :: replace
 G ++ x : l0 A1 |- b : l B
+
+%% Downgrade
+
+G |- a : l0 A
+G |- b : l0 A
+G |- p : l a ~ l1 b
+l0 <= l1
+---------------------------- :: downgrade
+G |- J refl l p : l a ~ l0 b
 
 %% Box types
 

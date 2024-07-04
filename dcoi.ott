@@ -77,25 +77,21 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
   | Type ::  :: Type
     {{ com no-level for examples }}
     {{ tex \mathcal{U} }}  % or perhaps \star ?
-
   | Void :: :: Empty
     {{ com empty type }}
     {{ tex \bot }}
   | absurd b :: :: Absurd
     {{ com ex falso quodlibet }}
     {{ tex \ottkw{absurd} \, [[b]] }}
-  | a ~ l b : A :: :: Eq
+  | a ~ l b :: :: Eq
     {{ com indistinguishability }}
-    {{ tex [[a]] \sim^{[[l]]} \! [[b]] \in [[A]] }}
+    {{ tex [[a]] \sim^{[[l]]} \! [[b]] }}
   | refl :: :: Refl
     {{ com reflexivity }}
     {{ tex \ottkw{refl} }}
   | J c l p :: :: J
     {{ com eliminator for equality }}
     {{ tex \ottkw{J} \, [[c]] \, [[p]]^{[[l]]} }}
-  | down l p :: :: Down
-    {{ com downgrading equality }}
-    {{ tex \mathop{\lightning}_{[[l]]} [[p]] }}
   | Sig x : l A . B :: :: Sig
     (+ bind x in B +)
     {{ com dependent pair type }}
@@ -264,9 +260,6 @@ c0 => c1
 ----------------- :: JRefl
 J c0 l refl => c1
 
--------------------- :: DownRefl
-down l0 refl => refl
-
 a0 => a1
 b0 => b1
 c0 => c1
@@ -304,9 +297,8 @@ absurd b0 => absurd b1
 
 a0 => a1
 b0 => b1
-A0 => A1
----------------------------------- :: Eq
-a0 ~ l0 b0 : A0 => a1 ~ l0 b1 : A1
+------------------------ :: Eq
+a0 ~ l0 b0 => a1 ~ l0 b1
 
 ------------ :: Refl
 refl => refl
@@ -315,10 +307,6 @@ p0 => p1
 c0 => c1
 ---------------------- :: J
 J c0 l p0 => J c1 l p1
-
-p0 => p1
------------------------- :: Down
-down l0 p0 => down l0 p1
 
 A0 => A1
 B0 => B1
@@ -398,8 +386,8 @@ E |- absurd b0 == absurd b1 @ l
 E |- a0 == a1 @ l
 E |- b0 == b1 @ l
 l0 <= l
-------------------------------------------- :: Eq
-E |- a0 ~ l0 b0 : A0 == a1 ~ l0 b1 : A1 @ l
+--------------------------------- :: Eq
+E |- a0 ~ l0 b0 == a1 ~ l0 b1 @ l
 
 --------------------- :: Refl
 E |- refl == refl @ l
@@ -409,10 +397,6 @@ E |- c0 == c1 @ l
 l2 <= l
 --------------------------------- :: J
 E |- J c0 l2 p0 == J c1 l2 p1 @ l
-
-E |- p0 == p1 @ l
---------------------------------- :: Down
-E |- down l0 p0 == down l0 p1 @ l
 
 E |- A0 == A1 @ l
 E ++ x : l0 |- B0 == B1 @ l
@@ -548,34 +532,26 @@ G |- A : Univ i
 ------------------- :: Absurd
 G |- absurd b : l A
 
-G |- A : Univ i
 G |- a : l0 A
 G |- b : l0 A
 l0 <= l
----------------------------- :: Eq
-G |- a ~ l0 b : A : l Univ j
+------------------------ :: Eq
+G |- a ~ l0 b : l Univ j
 
 G |- a : l0 A
--------------------------- :: Refl
-G |- refl : l a ~ l0 a : A
+---------------------- :: Refl
+G |- refl : l a ~ l0 a
 
 G |- a : l1 A
 G |- b : l1 A
 G |- A : Univ i
-G |- p : l2 a ~ l0 b : A
-(# G ++ x : l1 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ j
+G |- p : l2 a ~ l0 b
+(# G ++ x : l1 A #) ++ y : l2 a ~ l0 x |- C : l0 Univ j
 G |- c : l C { a / x , refl / y }
 l1 <= l0
 l2 <= l
------------------------------------------------------------ :: J
+------------------------------------------------------- :: J
 G |- J c l2 p : l C { b / x , p / y }
-
-G |- a : l0 A
-G |- b : l0 A
-G |- p : l a ~ l1 b : A
-l0 <= l1
-------------------------------- :: Down
-G |- down l0 p : l a ~ l0 b : A
 
 G |- A : l Univ i
 G ++ x : l0 A |- B : l Univ j
@@ -643,8 +619,8 @@ E |- absurd b : l
 E |- a : l0
 E |- b : l0
 l0 <= l
---------------------- :: Eq
-E |- a ~ l0 b : A : l
+----------------- :: Eq
+E |- a ~ l0 b : l
 
 ------------- :: Refl
 E |- refl : l
@@ -654,10 +630,6 @@ E |- c : l
 l0 <= l
 ----------------- :: J
 E |- J c l0 p : l
-
-E |- p : l
------------------- :: Down
-E |- down l0 p : l
 
 E |- A : l
 E ++ x : l0 |- B : l
@@ -707,10 +679,6 @@ ne p
 ---------- :: J
 ne J c l p
 
-ne p
------------ :: Down
-ne down l p
-
 ne a
 nf b
 ------------------------------ :: Let
@@ -747,8 +715,8 @@ nf Void
 nf a
 nf b
 nf A
--------------- :: Eq
-nf a ~ l b : A
+---------- :: Eq
+nf a ~ l b
 
 ------- :: Refl
 nf refl

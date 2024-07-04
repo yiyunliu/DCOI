@@ -357,11 +357,11 @@ and also introduce the box type for examples}
   & [[:concrete: case n return Univ 0 of
       & Z => A ++
       & S n => B]] \\
-  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n : ! Nat) -> A @ H]] \\
+  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n) -> A @ H]] \\
   [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
   [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L (! Vec H A H n) -> A @ L]] \\
   [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
-  & [[:concrete: (case v return \ H m . H (m ~ H ! S H n : ! Nat) -> A of
+  & [[:concrete: (case v return \ H m . H (m ~ H ! S H n) -> A of
       & vnil => \ H p . absurd (! discr H Void H n H p) ++
       & vcons n x xs => \ H p . x) H refl]]
 \end{align*}
@@ -385,7 +385,7 @@ which is parameterized over a meet-semilattice of dependency levels
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
   & \mid [[Pi x : l A . B]] \mid [[\ l x . b]] \mid [[b l a]] & \quad & \textit{function types, abstractions, applications} \\
   & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l0 x, y) = l a in b]] & \quad & \textit{pair types, pairs, matching} \\
-  & \mid [[a ~ l b : A]] \mid [[refl]] \mid [[J c l p]] & \quad & \textit{equality types, reflexivity, J eliminator}
+  & \mid [[a ~ l b]] \mid [[refl]] \mid [[J c l p]] & \quad & \textit{equality types, reflexivity, J eliminator}
 \end{alignat*}
 \caption{Grammar of contexts and terms}
 \label{fig:grammar}
@@ -743,7 +743,7 @@ The constraint $[[l1 <= l]]$ in \rref{I-Let} is required due to its presence in 
 The propositional equality type internalizes the indistinguishability judgement,
 enabling reasoning about indistinguishability within \name itself.
 The typing rules for constructs related to the equality type are given in \cref{fig:typing:eq}.
-An equality type $[[a ~ l0 b : A]]$ represents the proposition that $[[a]]$ and $[[b]]$
+An equality type $[[a ~ l0 b]]$ represents the proposition that $[[a]]$ and $[[b]]$
 are indistinguishable by observers at level $[[l0]]$.
 By \rref{Wt-Eq}, the endpoints must themselves be well typed at level $[[l0]]$,
 since it only makes sense to talk about the indistinguishability of observable terms,
@@ -780,36 +780,11 @@ increases the expressivity of the eliminator,
 since the motive $[[C]]$ is able to abstract over $[[x]]$ at the lower level $[[l1]]$.
 
 \begin{figure}[h]
-\begin{mathpar}
-  \mprset{fraction={===}}
-  % \inferrule*[lab=\ottdrulename{Wt\_J\_alt},width=0.5\textwidth]{
-  %   [[G |- p : l2 a ~ l0 b : A]] \\
-  %   [[(# G ++ x : l0 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ j]] \\
-  %   [[G |- c : l C { a / x , refl / y }]] \\
-  %   [[l2 <= l]]
-  % }{
-  %   [[G |- J c l2 p : l C { b / x , p / y }]]
-  % }
-  % \and
-  \inferrule*[lab=\ottdrulename{Wt\_downgrade},width=\textwidth]{
-    [[G |- a : l0 A]] \\
-    [[G |- b : l0 A]] \\
-    [[G |- p : l a ~ l1 b : A]] \\
-    [[l0 <= l1]]
-  }{
-    [[G |- J refl l p : l a ~ l0 b : A]]
-  }
-  % \and
-  % \inferrule*[lab=\ottdrulename{I\_Refl-alt},width=0.5\textwidth]{
-  %   [[G |- a : l0 A]] \\
-  %   [[G |- b : l0 A]] \\
-  %   [[| G | |- a == b @ l0]]
-  % }{
-  %   [[G |- refl : l a ~ l0 b : A]]
-  % }
-\end{mathpar}
-\caption{Admissible typing rules for propositional equality}
-\label{fig:typing:eq:lemmas}
+  \begin{gather*}
+    \drule[width=\textwidth]{Wt-downgrade}
+  \end{gather*}
+  \caption{Admissible typing rules for propositional equality}
+  \label{fig:typing:eq:lemmas}
 \end{figure}
 
 In particular, it allows us to show the admissible
@@ -1040,7 +1015,7 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
 
 \begin{lemma}[Injectivity of equality types]
   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_eq\_inj}}
-  If $[[E |- a0 ~ l0 b0 : A0 == a1 ~ l1 b1 : A1]]$
+  If $[[E |- a0 ~ l0 b0 == a1 ~ l1 b1]]$
   then $[[l0]] = [[l1]]$,
   and there exists an $[[l >= l0]]$
   such that $[[E |- a0 <=> a1 @ l]]$ and $[[E |- b0 <=> b1 @ l]]$.
@@ -1089,7 +1064,7 @@ which proceeds by induction on the typing derivation.
 
 \begin{lemma}
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Refl\_Coherent}}
-  If $[[G |- refl : l a ~ l0 b : A]]$,
+  If $[[G |- refl : l a ~ l0 b]]$,
   then there exist $[[a']], [[b']]$ such that
   $[[a =>* a']]$, $[[b =>* b']]$,
   and $[[| G | |- a' == b' @ l0]]$.
@@ -1155,7 +1130,7 @@ which proceeds by induction on the typing derivation.
     }
     \and
     \infer[\ottdrulename{SWt\_Eq}]{~}{
-      \interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
+      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
     }
     \and
     \infer[\ottdrulename{SWt\_Step}]{
@@ -1195,7 +1170,7 @@ predicate, we need to first define the notion of neutral and normal terms.
 
 \begin{figure}[h]
   \centering
-  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Down,Let}
+  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Let}
   \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
   \caption{Neutral and normal forms}
   \label{fig:normalform}
@@ -1339,7 +1314,7 @@ for equality, function, and empty types.
   \label{lem:interpinv}\leavevmode
   \begin{enumerate}
   \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
-    If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b : A]]}{S}$, then $S =
+    If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{S}$, then $S =
     \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]],
       [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}$.
   \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
@@ -2048,7 +2023,7 @@ which we are unable to conclude.
 
 \subsection{Equality type level constraints} \label{sec:eq-level}
 
-In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b : A]]$
+In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b]]$
 must be bounded by the level $[[l]]$ of the overall equality type.
 Otherwise, \name would be inconsistent.
 Suppose that $[[l0]]$ did not have to be bounded by $[[l]]$.
@@ -2064,15 +2039,12 @@ The modified premises are highlighed in yellow below.
     \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l0]]} \\
     \mathcolorbox{\hlcolor}{[[E |- b0 == b1 @ l l0]]}
   }{
-    [[E |- a0 ~ l0 b0 : A0 == a1 ~ l0 b1 : A1 @ l]]
+    [[E |- a0 ~ l0 b0 == a1 ~ l0 b1 @ l]]
   }
 \end{mathpar}
 
-\sw{Can we remove $[[A0]]$ and $[[A1]]$ from the syntax of the equality proposition 
-  because they don't participate in indistinguishability?}
-
 By \rref{I-Eq-Bad}, it would be possible to derive the judgement
-$[[nil |- Unit ~ H Unit : Univ i == Unit ~ H Void : Univ i @ L]]$
+$[[nil |- Unit ~ H Unit == Unit ~ H Void @ L]]$
 via \rref{GI-Indist} for both premises since $[[not (H <= L)]]$.
 The left-hand size is inhabited by $[[refl]]$,
 which would then also be a proof of the right-hand side via \rref{Wt-Conv},
@@ -2461,7 +2433,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \subsection{Parallel reduction}
 
-\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Down,Sig,Pair,Let}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 
 \end{document}
