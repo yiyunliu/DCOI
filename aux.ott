@@ -320,6 +320,22 @@ l0 <= l
 --------------------- :: Unbox
 G |- unbox l0 a : l A
 
+%% Pair projections
+
+G |- a : l Sig x : l0 A . B
+l0 <= l
+---------------------------- :: proj1
+G |- proj1 l0 a : l A
+
+G |- a : l Sig x : l0 A . B
+G |- proj1 l0 a : l0 A
+---------------------------------------- :: proj2
+G |- proj2 l0 a : l B { proj1 l0 a / x }
+
+G |- a : l1 Sig x : l0 A . B
+------------------------------------------------------------ :: proj2alt
+G |- proj2 l0 a : l let (l0 y, z) = l a in (# B { y / x } #)
+
 defns
   IOk :: '' ::=
 

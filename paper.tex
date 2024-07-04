@@ -612,7 +612,8 @@ the level of the second component is the level of the overall pair.
 
 In contrast to prior work by \citet{liu:dcoi},
 rather than having pair projections,
-pairs are eliminated using a pattern-matching expression.
+pairs are eliminated using a pattern-matching expression
+for greater expressivity.
 The eliminator is typed according to \rref{Wt-Let},
 and its reduction behaviour is given by \rref{P-LetPair}.
 It targets a pair $[[a]]$ annotated at level $[[l1]]$,
@@ -628,22 +629,56 @@ which we defer to \cref{sec:target-level}.
 
 The first and second pair projections can be recovered using the eliminator as follows,
 assuming the level of the pair $[[a]]$ to be $[[l1]]$.
-To type check the second projection,
-the motive $[[C]]$ must be $[[let (l0 x, y) = l1 z in B]]$,
-making its type $[[let (l0 x, y) = l1 a in B]]$
-rather than $[[B { let (l0 x, y) = l1 a in x / x }]]$.
 %
 \begin{align*}
   [[proj1 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in x]] &
   [[proj2 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in y]]
 \end{align*}
 
-\jc{TODO: Discuss typing rules for projections here.}
+The typing rules for the projections can be stated as admissible rules
+with the same premises as the rules from prior work,
+and are given in \cref{fig:typing:proj} as
+\rref*{Wt-proj1}\footnote{\suppl{theories}{admissible.v}{T\_Proj1}}
+and \rref*{Wt-proj2}\punctstack{.}\footnote{\suppl{theories}{admissible.v}{T\_Proj2}}
+The first projection is well typed only if the first component's level
+is bounded by the level of the whole pair:
+we can only project an observable component.
+The second projection is well typed only if the first projection
+is well typed at the first component's level $[[l0]]$.
+This is because the type of the second component
+is dependent on the first component at level $[[l0]]$.
+Equivalently, the first projection well-typedness premise
+can be replaced by the level constraint $[[l0 <= l]]$,
+using \rref*{Wt-proj1} to recover well-typedness.
 
-Meanwhile, an $n$-ary dependent tuple with $n$ fixed levels can be encoded
-as $n$ right-nested pairs, with the rightmost type being $[[Unit]]$.
-In particular, the box type $[[T l0 A]]$ from \cref{sec:examples}
-can be encoded as a unary tuple as follows.
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \begin{gather*}
+    \drule{Wt-projOne}
+    \drule{Wt-projTwo}
+    \drule{Wt-projTwoalt}
+  \end{gather*}
+  \caption{Admissible typing rules for pair projections}
+  \label{fig:typing:proj}
+\end{figure}
+
+However, this is not the only way we can ensure the well-typedness of the second projection.
+The alternate admissible \rref{Wt-proj2alt} only requires well-typedness of the pair
+and not of the first projection.
+Here, the type of the second projection matches on the pair
+and then subsitutes in the first component inside of $[[B]]$,
+rather than matching on the pair within the substitution in $[[B]]$.
+The second projection is therefore well typed regardless
+of the well-typedness of the first projection.
+In particular, we can take the second projection of a lower-level pair
+even if it contains a higher-level first component.
+This was not possible when pair projections were the primitive operators on a pair
+and not the eliminator we have, which is strictly more expressive.
+
+The box type $[[T l0 A]]$ from \cref{sec:examples}
+can be seen as a pair with meaningful information only in its first component,
+of which we only ever take the first projection,
+and can therefore be encoded as a unary tuple as follows.
 %
 \begin{align*}
   [[T l0 A]] &\coloneqq [[Sig x : l0 A . Unit]] &
