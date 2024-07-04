@@ -318,6 +318,16 @@ Proof.
     + hauto q:on ctrs:Wt use:Wff_cons, good_renaming_up.
 Qed.
 
+Lemma renaming_Syn_Univ
+  Γ ℓ a i (h : Γ ⊢ a ; ℓ ∈ tUniv i) : forall Δ ξ,
+    lookup_good_renaming ξ Γ Δ ->
+    ⊢ Δ ->  Δ ⊢ a⟨ξ⟩ ; ℓ ∈ tUniv i.
+Proof.
+  move => ? ξ.
+  change (tUniv i) with (tUniv i)⟨ξ⟩.
+  eauto using renaming_Syn.
+Qed.
+
 Lemma weakening_Syn Γ ℓ ℓ0 ℓ1 a A B i
   (h0 : Γ ⊢ B ; ℓ0 ∈ (tUniv i))
   (h1 : Γ ⊢ a ; ℓ ∈ A) :
@@ -1294,50 +1304,103 @@ Proof.
 Qed.
 
 (* I think this version holds too but I'm not sure? *)
-Lemma T_Proj2_Alt Γ ℓ ℓ0 a A B :
-  Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
-  (* ---------------------------------------------------------------------------------- *)
-  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ tLet ℓ0 ℓ a B[(var_tm 1) .: shift >> shift >> var_tm].
+Lemma T_Proj2_Alt Γ ℓ ℓ0 ℓ1 a A B :
+  ℓ1 ⊆ ℓ ->
+  Γ ⊢ a ; ℓ1 ∈ tSig ℓ0 A B ->
+  (* ------------------------------------------------------ *)
+  Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 0) ; ℓ ∈ tLet ℓ0 ℓ1 a B[(var_tm 1) .: shift >> shift >> var_tm].
 Proof.
-  move => /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
-  replace (tLet ℓ0 ℓ a B[(var_tm 1) .: shift >> shift >> var_tm])
-    with (tLet ℓ0 ℓ (var_tm 0) B[var_tm 1 .: shift >> shift >> shift >> var_tm])[a..];
-    last by asimpl.
-  eapply T_Let_simpl; eauto using meet_idempotent.
-  - eapply T_Conv with (A := B ⟨S⟩) (i := j).
-    apply : T_Var; last by apply meet_idempotent.
-    + hauto lq:on ctrs:Wff use:Wt_Wff.
-    + apply here'. reflexivity.
-    + replace (tUniv j) with (tUniv j)[tPack ℓ0 (var_tm 1) (var_tm 0) .: (S >> S) >> var_tm];
-        last by asimpl.
-      eapply morphing_Syn; eauto; cycle 1.
-      apply good_morphing_cons with (A := tSig ℓ0 A B).
-      * asimpl. admit.
+  move => ? /[dup] /Wt_regularity => [[ℓB]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  have -> : (tLet ℓ0 ℓ1 a B[(var_tm 1) .: shift >> shift >> var_tm])
+    = (tLet ℓ0 ℓ1 (var_tm 0) B[var_tm 1 .: shift >> shift >> shift >> var_tm])[a..]
+    by asimpl.
+  have ? : ⊢ (ℓ1, tSig ℓ0 A B) :: Γ by hauto lq:on db:wff.
+  set q := ℓ1 ∪ ℓB.
+  have hℓ' : ℓ1 ⊆ q by subst q; solve_lattice.
+  have hℓ'' : ℓB ⊆ q by subst q; solve_lattice.
+  eapply T_Let_simpl => //.
+  - eauto.
+  - move => [:hwff].
+    eapply T_Conv with (A := B ⟨S⟩) (i := j).
+    + apply : T_Var.
+      * abstract : hwff; hauto lq:on ctrs:Wff use:Wt_Wff.
+      * apply here'. reflexivity.
+      * assumption.
+    + eapply morphing_Syn_Univ; eauto; cycle 1.
+      apply good_morphing_cons with (A := tSig ℓ0 A B) (ℓ := ℓ1).
+      * asimpl.
+        have -> : (S >> (S >> var_tm)) = var_tm >> ren_tm S >> ren_tm S by asimpl.
+        hauto lq:on use:good_morphing_suc, good_morphing_nil db:wff.
       * asimpl.
         apply : T_Pack.
-        ** apply : T_Var; eauto using meet_idempotent.
-           hauto lq:on ctrs:Wff use:Wt_Wff.
+        ** apply : T_Var; eauto.
            apply : there'; cycle 1.
            apply : here'; eauto.
            substify. by asimpl.
-        ** apply : T_Var; eauto using meet_idempotent.
-           hauto lq:on ctrs:Wff use:Wt_Wff.
-           apply : here'. asimpl. substify.
+           solve_lattice.
+        ** apply : T_Var; eauto.
+           apply : here'. asimpl. substify. 
            have -> // : var_tm 1 .: S >> (S >> var_tm) = S >> var_tm
-            by fext; case.
+             by fext; case.
+           solve_lattice.
         ** replace (tSig ℓ0 _ _) with ((tSig ℓ0 A B)[(S >> S) >> var_tm]); last by asimpl.
            eapply weakening_Syn in hSig; last by exact hA.
            eapply weakening_Syn in hSig; last by exact hB.
            replace (tSig ℓ0 A B) [(S >> S) >> var_tm] with (tSig ℓ0 A B) ⟨S⟩ ⟨S⟩;
             last by substify; asimpl.
            exact hSig.
-      * hauto lq:on ctrs:Wff use:Wt_Wff.
-      * admit.
-    + admit.
-  - replace (tUniv j) with (tUniv j)[(var_tm 0)..]; last by asimpl.
-    eapply T_Let; eauto using meet_idempotent.
-    + admit.
-    + admit.
+      * eapply T_Let_simpl' with (C := tUniv j) => //=.
+        ** apply hℓ'.
+        ** apply : T_Var; eauto.
+           apply here'. eauto.
+           solve_lattice.
+        ** rewrite -/ren_tm.
+           asimpl.
+           have -> : B [var_tm 1 .: S >> (S >> (S >> var_tm))] =
+                      B ⟨1 .: S >> (S >> S)⟩ by substify; asimpl.
+           apply : renaming_Syn_Univ; eauto using subsumption.
+           rewrite /lookup_good_renaming.
+           move => i0 ℓ2 A0.
+           elim /lookup_inv => _ //=.
+        *** move => ℓ3 A1 Γ0 ? [*]. subst.
+           eexists. split. apply : there'; cycle 1.
+           apply here.
+           by asimpl.
+           solve_lattice.
+        *** move => n A1 Γ0 ℓ3 B0 ? ? [*]. subst.
+           eexists.
+           asimpl. split.
+           apply : there'; cycle 1.
+           apply : there'; cycle 1.
+           apply : there'; cycle 1.
+           eauto.
+           eauto.
+           eauto.
+           by asimpl.
+           solve_lattice.
+        *** admit.
+        ** rewrite -/ren_tm.
+           apply T_Univ => //.
+           admit.
+    + asimpl.
+      exists q.
+      apply cfacts.iconv_sym.
+      apply : cfacts.iconv_rpar; cycle 1.
+      apply P_LetPackCBN'; eauto.
+      asimpl.
+      apply cfacts.ieq_iconv.
+      have -> : var_tm 1 .: (S >> (S >> var_tm)) = S >> var_tm by fext; elim => //=.
+      renamify.
+      apply iok_ieq with (ℓ := q).
+      apply : typing_iok. eauto. apply : weakening_Syn_Univ; eauto using subsumption.
+      solve_lattice.
+  - eapply T_Let_simpl' with (C := tUniv i); eauto using meet_idempotent.
+    + apply : T_Var; eauto.
+      apply here'; eauto.
+      solve_lattice.
+    + rewrite -/ren_tm.
+      Set Printing All.
+      admit.
     + apply : T_Var; auto using meet_idempotent.
       * hauto lq:on ctrs:Wff use:Wt_Wff.
       * apply here'; by asimpl.
