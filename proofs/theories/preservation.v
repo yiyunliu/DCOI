@@ -1165,16 +1165,14 @@ Lemma T_Unbox Γ ℓ ℓ0 a A :
 Proof.
   move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig ha.
   replace A with (ren_tm S A)[a..]; last by asimpl.
-  eapply T_Let with (A := A); eauto using meet_idempotent.
-  - have -> : i = j by admit. (* TODO: fix Let rule so this isn't needed *)
-    assumption.
+  eapply T_Let_simpl with (A := A); eauto using meet_idempotent.
   - asimpl. apply : T_Var; eauto using hℓ.
     hauto lq:on ctrs:Wt,Wff use:Wt_Wff.
     apply : there'; cycle 1.
     apply here. substify. by asimpl.
   - eapply weakening_Syn in hA.
     asimpl in hA. all: eassumption.
-Admitted.
+Qed.
 
 Lemma T_Proj1 Γ ℓ ℓ0 a A B :
   ℓ0 ⊆ ℓ ->
