@@ -565,36 +565,44 @@ Function tstar (a : tm) :=
   | tNat => tNat
   end.
 
+Local Ltac solve_triangle := hauto lq:on inv:Par use:Par_refl,Par_cong,Par_cong2 ctrs:Par.
+
 Lemma Par_triangle a : forall b, (a ⇒ b) -> (b ⇒ tstar a).
 Proof.
   apply tstar_ind.
-  - hauto l:on inv:Par.
-  - hauto l:on inv:Par.
-  - hauto lq:on ctrs:Par inv:Par.
-  - hauto lq:on inv:Par ctrs:Par.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
   - move => > ? /T_eqdec.
-    hauto lq:on use:Par_refl, Par_cong, Par_cong2 ctrs:Par inv:Par.
+    solve_triangle.
   - move => b ℓ0 a0 ℓ1 b0 ? ? ? h0. subst.
     move => ih0 ih1 b h1.
     elim /Par_inv : h1=>//=.
-    + hauto lq:on ctrs:Par inv:Par.
+    + solve_triangle.
     + move => h2 a1 a2 b1 b2 ℓ2 h3 h4 [*]. subst.
       case : T_eqdec h0 =>//.
-  - hauto lq:on ctrs:Par inv:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
   - move => > ? /T_eqdec.
-    hauto lq:on inv:Par use:Par_refl,Par_cong,Par_cong2 ctrs:Par.
+    solve_triangle.
   - move => > ? ? ?. subst.
     case : T_eqdec=>//.
-    hauto lq:on inv:Par use:Par_refl,Par_cong,Par_cong2 ctrs:Par.
-  - hauto lq:on inv:Par use:Par_refl,Par_cong,Par_cong2 ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
+    solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
 Qed.
 
 Lemma Par_confluent : diamond Par.
@@ -711,6 +719,30 @@ Proof.
   move => + b0 b1 h.
   elim : b0 b1 /h; last by solve_s_rec.
   auto using rtc_refl.
+Qed.
+
+Lemma S_Suc a b (h : a ⇒* b) : tSuc a ⇒* tSuc b.
+Proof.
+  elim : a b / h; last by solve_s_rec.
+  move => ?; apply rtc_refl.
+Qed.
+
+Lemma S_Ind ℓ a0 a1 : forall b0 b1 c0 c1,
+    a0 ⇒* a1 ->
+    b0 ⇒* b1 ->
+    c0 ⇒* c1 ->
+    (tInd ℓ a0 b0 c0) ⇒* (tInd ℓ a1 b1 c1).
+Proof.
+  move => + + + + h.
+  elim : a0 a1 /h.
+  - move => + b0 b1 + + h.
+    elim : b0 b1 /h.
+    + move => + + c0 c1 h.
+      elim : c0 c1 /h.
+      * auto using rtc_refl.
+      * solve_s_rec.
+    + solve_s_rec.
+  - solve_s_rec.
 Qed.
 
 End par_facts.

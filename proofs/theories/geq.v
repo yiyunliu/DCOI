@@ -68,7 +68,27 @@ Module Type geq_sig
     IOk Ξ ℓ1 a ->
     IOk (ℓ1::ℓ0::Ξ) ℓ b ->
     (* -------------------- *)
-    IOk Ξ ℓ (tLet ℓ0 ℓ1 a b).
+    IOk Ξ ℓ (tLet ℓ0 ℓ1 a b)
+
+  | IO_Zero :
+    IOk Ξ ℓ tZero
+
+  | IO_Suc a :
+    IOk Ξ ℓ a ->
+    (* ------------ *)
+    IOk Ξ ℓ (tSuc a)
+
+  | IO_Ind ℓ0 a b c :
+    ℓ0 ⊆ ℓ ->
+    IOk Ξ ℓ0 a ->
+    IOk (ℓ0 :: ℓ0 :: Ξ) ℓ0 b ->
+    IOk Ξ ℓ0 c ->
+    (* ----------------- *)
+    IOk Ξ ℓ (tInd ℓ0 a b c)
+
+  | IO_Nat :
+    (* ------------------ *)
+    IOk Ξ ℓ tNat.
 
   Inductive IEq (Ξ : econtext) (ℓ : T) : tm -> tm -> Prop :=
   | I_Var i ℓ0 :
@@ -130,6 +150,26 @@ Module Type geq_sig
     (* -------------------- *)
     IEq Ξ ℓ (tLet ℓ0 ℓ1 a0 b0) (tLet ℓ0 ℓ1 a1 b1)
 
+  | I_Zero :
+    IEq Ξ ℓ tZero tZero
+
+  | I_Suc a0 a1 :
+    IEq Ξ ℓ a0 a1 ->
+    (* ------------ *)
+    IEq Ξ ℓ (tSuc a0) (tSuc a1)
+
+  | I_Ind ℓ0 a0 b0 c0 a1 b1 c1 :
+    ℓ0 ⊆ ℓ ->
+    IEq Ξ ℓ a0 a1 ->
+    IEq (ℓ0 :: ℓ0 :: Ξ) ℓ b0 b1 ->
+    IEq Ξ ℓ c0 c1 ->
+    (* ----------------- *)
+    IEq Ξ ℓ (tInd ℓ0 a0 b0 c0) (tInd ℓ0 a1 b1 c1)
+
+  | I_Nat :
+    (* ------------------ *)
+    IEq Ξ ℓ tNat tNat
+
   with GIEq (Ξ : econtext) (ℓ : T) : T -> tm -> tm -> Prop :=
   | GI_Dist ℓ0 A B :
     ℓ0 ⊆ ℓ ->
@@ -140,51 +180,6 @@ Module Type geq_sig
     ~ (ℓ0 ⊆ ℓ) ->
     (* -------------- *)
     GIEq Ξ ℓ ℓ0 A B.
-
-  Fixpoint compute_level (Ξ : econtext) a : option T :=
-    match a with
-    | var_tm i => nth_error Ξ i
-    | tApp a ℓ0 b => compute_level Ξ a
-    | tAbs ℓ0 a => compute_level (ℓ0 :: Ξ) a
-    | tJ ℓp t p => match compute_level Ξ t with
-                  | Some ℓ => Some (ℓ ∪ ℓp)
-                  | None => Some ℓp
-                  end
-    | tEq ℓ0 a b => match compute_level Ξ a with
-                  | Some ℓa =>
-                      match compute_level Ξ b with
-                      | Some ℓb => Some (ℓa ∪ ℓb)
-                      | None => Some ℓa
-                      end
-                  | None => compute_level Ξ b
-                  end
-    | tRefl => None
-    | tVoid => None
-    | tUniv _ => None
-    | tAbsurd _ => None
-    | tPi ℓ0 A B =>
-        match compute_level Ξ A with
-        | Some ℓA => match compute_level (ℓ0::Ξ) B with
-                    | Some ℓB => Some (ℓA ∪ ℓB)
-                    | None => Some ℓA
-                    end
-        | None => compute_level (ℓ0::Ξ) B
-        end
-    | tSig ℓ0 A B =>
-        match compute_level Ξ A with
-        | Some ℓA => match compute_level (ℓ0::Ξ) B with
-                    | Some ℓB => Some (ℓA ∪ ℓB)
-                    | None => Some ℓA
-                    end
-        | None => compute_level (ℓ0::Ξ) B
-        end
-
-    | tPack ℓ0 a b => compute_level Ξ b
-    | tLet ℓ0 ℓ1 a b => match compute_level (ℓ1::ℓ0::Ξ) b with
-                       | Some ℓb => Some (ℓb ∪ ℓ1)
-                       | None => Some ℓ1
-                       end
-    end.
 
   Fixpoint IEqb Ξ ℓ a b :=
     match a, b with
@@ -220,6 +215,19 @@ Module Type geq_sig
           T_eqb (ℓ1 ∩ ℓ) ℓ1 &&
           IEqb Ξ ℓ a0 a1 &&
           IEqb (ℓ1::ℓ0::Ξ) ℓ b0 b1
+    | tZero, tZero => true
+
+    | tSuc a0, tSuc a1 =>  IEqb Ξ ℓ a0 a1
+
+    | tInd ℓ0 a0 b0 c0, tInd ℓ1 a1 b1 c1 =>
+        T_eqb ℓ0 ℓ1 &&
+        T_eqb (ℓ0 ∩ ℓ) ℓ0 &&
+        IEqb Ξ ℓ a0 a1 &&
+        IEqb (ℓ0::ℓ0::Ξ) ℓ b0 b1 &&
+        IEqb Ξ ℓ c0 c1
+
+    | tNat , tNat => true
+
     | _, _ => false
     end.
 
@@ -301,6 +309,10 @@ Module geq_facts
     - move => *.
       repeat (apply /andP; split); eauto.
       case : T_eqdec=>//=.
+      case : T_eqdec=>//=.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
     - move => *.
       repeat (apply /andP; split); eauto.
       case : T_eqdec=>//=.
@@ -376,6 +388,14 @@ Module geq_facts
     - move => ℓ0 ℓ1 a iha b ihb []//= ℓ0' ℓ1' a' b' Ξ ℓ.
       do 3 case : T_eqdec => //=.
       qauto l:on ctrs:IEq b:on.
+    - hauto lq:on rew:off.
+    - move => a iha []//=b Ξ ℓ.
+      hauto lq:on ctrs:IEq.
+    - move => ℓ a iha b ihb c ihc []//= ℓ0 a0 b0 c0 Ξ ℓ1.
+      do 2 case : T_eqdec => //=.
+      move => ? ?. subst.
+      hauto lq:on ctrs:IEq b:on.
+    - hauto lq:on.
   Qed.
 
   Lemma IEq_dec Ξ ℓ a b : Bool.reflect (IEq Ξ ℓ a b) (IEqb Ξ ℓ a b).
@@ -466,6 +486,7 @@ Module geq_facts
       apply I_Pack; eauto.
       case : (sub_eqdec ℓ0 ℓ1) => //; hauto l:on ctrs:GIEq.
     - hauto lq:on drew:off ctrs:IEq solve+:solve_lattice.
+    - hauto lq:on drew:off ctrs:IEq solve+:solve_lattice.
   Qed.
 
   Lemma elookup_deterministic : forall Ξ i ℓ0 ℓ1,
@@ -482,12 +503,18 @@ Module geq_facts
                    forall ℓ1 c, GIEq Ξ ℓ1 ℓ0 a c ->
                            GIEq Ξ (ℓ ∩ ℓ1) ℓ0 a b).
   Proof.
-    apply IEq_mutual; try qauto l:on inv:IEq,GIEq ctrs:IEq,GIEq.
+    apply IEq_mutual;
+      lazymatch goal with
+      | [|-context[tInd]] => idtac
+      | [|-context[var_tm]] => idtac
+      | _ => try qauto l:on inv:IEq,GIEq ctrs:IEq,GIEq
+      end.
     - move => Ξ ℓ i ℓ0 hi hℓ ℓ1 c h.
       inversion h; subst.
       apply : I_Var; eauto.
       have ? : ℓ0 = ℓ2 by eauto using elookup_deterministic. subst.
       solve_lattice.
+    - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
@@ -622,6 +649,7 @@ Proof.
   - hauto lq:on ctrs:IEq use:ieq_morphing_helper.
   - hauto lq:on ctrs:IEq use:ieq_morphing_helper.
   - hauto lq:on ctrs:IEq use:ieq_morphing_helper.
+  - hauto lq:on ctrs:IEq use:ieq_morphing_helper2.
   - hauto lq:on ctrs:IEq use:ieq_morphing_helper2.
   - hauto lq:on ctrs:GIEq unfold:ieq_good_morphing.
 Qed.
