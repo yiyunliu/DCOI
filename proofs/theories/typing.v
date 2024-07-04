@@ -57,29 +57,30 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
   (* ----------- *)
   Γ ⊢ a ; ℓ ∈ B
 
-(* | T_Zero Γ : *)
-(*   ⊢ Γ -> *)
-(*   (* --------- *) *)
-(*   Γ ⊢ tZero ∈ tNat *)
+| T_Zero Γ ℓ :
+  ⊢ Γ ->
+  (* --------- *)
+  Γ ⊢ tZero ; ℓ ∈ tNat
 
-(* | T_Suc Γ a : *)
-(*   Γ ⊢ a ∈ tNat -> *)
-(*   ⊢ Γ -> *)
-(*   (* --------- *) *)
-(*   Γ ⊢ tSuc a ∈ tNat *)
+| T_Suc Γ ℓ a :
+  Γ ⊢ a ; ℓ ∈ tNat ->
+  ⊢ Γ ->
+  (* --------- *)
+  Γ ⊢ tSuc a ; ℓ ∈ tNat
 
-(* | T_Ind Γ a b c A i : *)
-(*   tNat :: Γ ⊢ A ∈ tUniv i -> *)
-(*   Γ ⊢ a ∈ A [tZero..] -> *)
-(*   A :: tNat :: Γ ⊢ b ∈ A[tSuc (var_tm 0) .: S >> var_tm]⟨S⟩ -> *)
-(*   Γ ⊢ c ∈ tNat -> *)
-(*   (* ------------ *) *)
-(*   Γ ⊢ tInd a b c ∈ (A [c..]) *)
+| T_Ind Γ ℓ ℓ0 a b c A ℓA i :
+  ℓ0 ⊆ ℓ ->
+  (ℓ0, tNat) :: Γ ⊢ A ; ℓA ∈ tUniv i ->
+  Γ ⊢ a ; ℓ0 ∈ A [tZero..] ->
+  (ℓ0, A) :: (ℓ0, tNat) :: Γ ⊢ b ; ℓ0 ∈ A[tSuc (var_tm 0) .: S >> var_tm]⟨S⟩ ->
+  Γ ⊢ c ; ℓ0 ∈ tNat ->
+  (* ------------ *)
+  Γ ⊢ tInd ℓ0 a b c ; ℓ ∈ (A [c..])
 
-(* | T_Nat Γ i : *)
-(*   ⊢ Γ -> *)
-(*   (* ----------- *) *)
-(*   Γ ⊢ tNat ∈ (tUniv i) *)
+| T_Nat Γ ℓ i :
+  ⊢ Γ ->
+  (* ----------- *)
+  Γ ⊢ tNat ; ℓ ∈ tUniv i
 
 | T_Univ Γ ℓ i :
   ⊢ Γ ->
