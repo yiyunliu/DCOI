@@ -653,9 +653,9 @@ can be encoded as a unary tuple as follows.
 
 By these encodings and the typing rules for pairs,
 we obtain the admissible typing rules for box types
-(\rref*{Wt-T}\footnote{\suppl{theories}{preservation.v}{T\_T}}),
-boxes (\rref*{Wt-Box}\footnote{\suppl{theories}{preservation.v}{T\_Box}}),
-and unboxing (\rref*{Wt-Unbox}\footnote{\suppl{theories}{preservation.v}{T\_Unbox}})
+(\rref*{Wt-T}\footnote{\suppl{theories}{admissible.v}{T\_T}}),
+boxes (\rref*{Wt-Box}\footnote{\suppl{theories}{admissible.v}{T\_Box}}),
+and unboxing (\rref*{Wt-Unbox}\footnote{\suppl{theories}{admissible.v}{T\_Unbox}})
 in \cref{fig:typing:box}.
 The level constraint in \rref*{Wt-Unbox} comes from the corresponding constraint in \rref{Wt-Let},
 and intuitively says that the only values that can be unboxed are observable ones.
@@ -738,33 +738,25 @@ The level of the target $[[l2]]$ is not exactly $[[l]]$ but is bounded above by 
 its justification is a subtle technical issue,
 which we defer to \cref{sec:target-level}.
 
-\jc{TODO: Rework the below now that \rref*{Wt-J-alt} no longer holds.}
-
-In addition to requiring the well-typedness of the equality proof $[[p]]$,
-\rref{Wt-J} also takes as premises the well-typedness
-of the endpoints $[[a]], [[b]]$ of the equality and of their type $[[A]]$.
-These premises are required to strengthen the induction hypotheses
-when we later prove the \nameref{thm:fundamental} for our semantic metatheory.
-However, these premises can be omitted by applying \nameref{lem:regularity}
-and inversion to the well-typedness of $[[p]]$.
-We present this simplification as an admissible
-\rref{Wt-J-alt}\punctstack{,}\footnote{\suppl{theories}{preservation.v}{T\_J\_simpler}}
-using a double horizontal bar to indicate admissibility,
-in \cref{fig:typing-eq-lemmas}.
+The other level constraint in \rref{Wt-J},
+which allows the equality endpoints to be typed at a level $[[l1]]$
+possibly lower than the equality observer level $[[l0]]$,
+increases the expressivity of the eliminator,
+since the motive $[[C]]$ is able to abstract over $[[x]]$ at the lower level $[[l1]]$.
 
 \begin{figure}[h]
 \begin{mathpar}
   \mprset{fraction={===}}
-  \inferrule*[lab=\ottdrulename{Wt\_J\_alt},width=0.5\textwidth]{
-    [[G |- p : l2 a ~ l0 b : A]] \\
-    [[(# G ++ x : l0 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ j]] \\
-    [[G |- c : l C { a / x , refl / y }]] \\
-    [[l2 <= l]]
-  }{
-    [[G |- J c l2 p : l C { b / x , p / y }]]
-  }
-  \and
-  \inferrule*[lab=\ottdrulename{Wt\_downgrade},width=0.5\textwidth]{
+  % \inferrule*[lab=\ottdrulename{Wt\_J\_alt},width=0.5\textwidth]{
+  %   [[G |- p : l2 a ~ l0 b : A]] \\
+  %   [[(# G ++ x : l0 A #) ++ y : l2 a ~ l0 x : A |- C : l0 Univ j]] \\
+  %   [[G |- c : l C { a / x , refl / y }]] \\
+  %   [[l2 <= l]]
+  % }{
+  %   [[G |- J c l2 p : l C { b / x , p / y }]]
+  % }
+  % \and
+  \inferrule*[lab=\ottdrulename{Wt\_downgrade},width=\textwidth]{
     [[G |- a : l0 A]] \\
     [[G |- b : l0 A]] \\
     [[G |- p : l a ~ l1 b : A]] \\
@@ -782,18 +774,18 @@ in \cref{fig:typing-eq-lemmas}.
   % }
 \end{mathpar}
 \caption{Admissible typing rules for propositional equality}
-\label{fig:typing-eq-lemmas}
+\label{fig:typing:eq:lemmas}
 \end{figure}
 
-However, \rref*{Wt-J-alt} is not as expressive as \rref{Wt-J},
-because the former fixes the level of the right endpoint
-to the observer level $[[l0]]$ in the motive $[[C]]$,
-while the latter allows it to be some lower level $[[l1]]$,
-so long as the endpoints are also well-typed at level $[[l1]]$.
-This flexibility in the level allows us to derive
-\rref{Wt-downgrade}\punctstack{,}\footnote{\suppl{theories}{preservation.v}{T\_Down\_Alt}}
+In particular, it allows us to show the admissible
+\rref{Wt-downgrade}\footnote{\suppl{theories}{admissible.v}{T\_Down\_Alt}}
+in \cref{fig:typing:eq:lemmas},
 which permits lowering the observer level of an equality proof.
-Intuitively, this internalizes the idea that if two terms are indistinguishable at some higher level,
+Here, the motive is $[[a ~ l0 x]]$,
+which otherwise would not have been well typed
+if the level of $[[x]]$ had to match the observer level $[[l1]]$
+of the equality $[[p]]$ being eliminated.
+Intuitively, this rule internalizes the idea that if two terms are indistinguishable at some higher level,
 then they are also indistinguishable at a lower level,
 since a lower-level indistinguishability is coarser than a higher-level one,
 and treats more things as indistinguishable.
@@ -857,8 +849,8 @@ and are listed in \cref{fig:grading}.
 
 The well-gradedness and indistinguishability judgements
 satisfy some standard properties,
-listed as admissible rules in \cref{fig:grading-lemmas},
-\cref{fig:defeq-lemmas}, and \cref{fig:indist-lemmas}, respectively.
+listed as admissible rules in \cref{fig:grading:lemmas},
+\cref{fig:defeq:lemmas}, and \cref{fig:indist:lemmas}, respectively.
 \Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
 \rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}
 permit weakening the context.
@@ -877,7 +869,7 @@ in place of a variable of that level in the context.
     \drule[width=0.25\textwidth]{Wg-pres}
   \end{gather*}
   \caption{Admissible rules for well-gradedness of terms}
-  \label{fig:grading-lemmas}
+  \label{fig:grading:lemmas}
 \end{figure}
 
 Well-gradedness is subsumptive
@@ -897,7 +889,7 @@ Additionally, parallel reduction preserves well-gradedness
     \drule{I-trans}
   \end{gather*}
   \caption{Admissible rules for indistinguishability of terms}
-  \label{fig:indist-lemmas}
+  \label{fig:indist:lemmas}
 \end{figure}
 
 Indistinguishability is reflexive for well-graded terms
@@ -924,7 +916,7 @@ permits concluding that it is also indistinguishable at the meet of the levels.
     \drule{P-refl}
   \end{gather*}
   \caption{Admissible rules for parallel reduction}
-  \label{fig:pars-lemmas}
+  \label{fig:pars:lemmas}
 \end{figure}
 
 Parallel reduction and its transitive closure admit the substitution lemmas
@@ -932,7 +924,7 @@ Parallel reduction and its transitive closure admit the substitution lemmas
 \rref*{Ps-subst}\punctstack{,}\footnote{\suppl{theories}{par.v}{Pars\_cong\_star}} respectively.
 An additional useful lemma is that single parallel reduction itself is already reflexive
 (\rref*{P-refl}\footnote{\suppl{theories}{par.v}{Par\_refl}}).
-These are given in \cref{fig:pars-lemmas}.
+These are given in \cref{fig:pars:lemmas}.
 
 The key lemmas of parallel reduction are the diamond property and confluence,
 which state that if a term reduces to two different terms,
@@ -976,7 +968,7 @@ and is reflexive for well-graded terms
 (\rref*{E-refl}\footnote{\suppl{theories}{conv.v}{conv\_refl}}),
 symmetric (\rref*{E-sym}\footnote{\suppl{theories}{conv.v}{conv\_sym}}),
 and transitive (\rref*{E-trans}\footnote{\suppl{theories}{conv.v}{conv\_trans}}),
-stated in \cref{fig:defeq-lemmas}.
+stated in \cref{fig:defeq:lemmas}.
 Inverting the premises of transitivity,
 each of them independently have some level at which two terms are indistinguishable,
 so combining them requires the more general transitivity of \rref*{I-trans}.
@@ -991,7 +983,7 @@ The proof also relies on simulation.
     \drule{E-trans}
   \end{gather*}
   \caption{Admissible rules for definitional equality}
-  \label{fig:defeq-lemmas}
+  \label{fig:defeq:lemmas}
 \end{figure}
 
 Finally, we will need some inversion lemmas for definitional equality on our types
@@ -1035,14 +1027,14 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
     \drule[width=0.2\textwidth]{Wt-replace}
   \end{gather*}
   \caption{Admissible rules for well-typedness}
-  \label{fig:typing-lemmas}
+  \label{fig:typing:lemmas}
 \end{figure}
 
 As usual, typing admits weakening
 (\rref*{Wt-weak}\footnote{\suppl{theories}{preservation.v}{weakening\_Syn}})
 and substitution
 (\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}}),
-as stated in \cref{fig:typing-lemmas}.
+as stated in \cref{fig:typing:lemmas}.
 Like grading, it also admits subsumption
 (\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
 allowing the level to be raised while retaining the same type.
