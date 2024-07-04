@@ -1104,6 +1104,58 @@ Proof.
   - asimpl. eapply T_Refl; eauto with wff.
 Qed.
 
+Lemma T_T Γ ℓ ℓ0 i A :
+  Γ ⊢ A ; ℓ ∈ tUniv i ->
+  (* ------------------------------------------ *)
+  Γ ⊢ tSig ℓ0 A (tPi ℓ tVoid tVoid) ; ℓ ∈ tUniv i.
+Proof.
+  move => h.
+  replace i with (max i i) by apply PeanoNat.Nat.max_id.
+  apply T_Sig => //.
+  replace i with (max i i) by apply PeanoNat.Nat.max_id.
+  apply T_Pi.
+  hauto lq:on ctrs:Wt,Wff use:Wt_Wff.
+  apply T_Void.
+  hauto lq:on ctrs:Wt,Wff use:Wt_Wff.
+Qed.
+
+Lemma T_Box Γ ℓ ℓ0 a A :
+  Γ ⊢ a ; ℓ0 ∈ A ->
+  (* ----------------------------------------------------------------- *)
+  Γ ⊢ tPack ℓ0 a (tAbs ℓ (var_tm 0)) ; ℓ ∈ tSig ℓ0 A (tPi ℓ tVoid tVoid).
+Proof.
+  move => /[dup] /Wt_regularity => [[ℓ1]] [j] hA ha.
+  apply : T_Pack => //.
+  - asimpl.
+    apply T_Abs_simple.
+    apply : T_Var; eauto using meet_idempotent.
+    hauto lq:on ctrs:Wt,Wff use:Wt_Wff.
+    apply here.
+  - apply T_Sig with (ℓ := ℓ1) (i := j) => //.
+    apply T_Pi. hauto lq:on ctrs:Wt,Wff use:Wt_Wff.
+    apply T_Void. hauto lq:on ctrs:Wt,Wff use:Wt_Wff.
+  Unshelve. exact 0. exact 0.
+Qed.
+
+Lemma T_Unbox Γ ℓ ℓ0 a A :
+  ℓ0 ⊆ ℓ ->
+  Γ ⊢ a ; ℓ ∈ tSig ℓ0 A (tPi ℓ tVoid tVoid) ->
+  (* -------------------------------------- *)
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 1) ; ℓ ∈ A.
+Proof.
+  move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig ha.
+  replace A with (ren_tm S A)[a..]; last by asimpl.
+  eapply T_Let with (A := A); eauto using meet_idempotent.
+  - have -> : i = j by admit. (* TODO: fix Let rule so this isn't needed *)
+    assumption.
+  - asimpl. apply : T_Var; eauto using hℓ.
+    hauto lq:on ctrs:Wt,Wff use:Wt_Wff.
+    apply : there'; cycle 1.
+    apply here. substify. by asimpl.
+  - eapply weakening_Syn in hA.
+    asimpl in hA. all: eassumption.
+Admitted.
+
 Lemma T_Proj1 Γ ℓ ℓ0 a A B :
   ℓ0 ⊆ ℓ ->
   Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
