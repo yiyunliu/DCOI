@@ -338,8 +338,8 @@ Definition lookup_good_morphing ρ Γ Δ :=
   forall i ℓ A, lookup i Γ ℓ A -> Δ ⊢ ρ i ; ℓ ∈ A [ ρ ].
 
 Lemma good_morphing_suc Γ ℓ0 ℓ1 Δ A j ρ (h : lookup_good_morphing ρ Γ Δ)
-  (hh : Δ ⊢ A [ρ] ; ℓ0 ∈ tUniv j) :
-  lookup_good_morphing (ρ >> ren_tm S) Γ ((ℓ1, A [ρ]) :: Δ).
+  (hh : Δ ⊢ A ; ℓ0 ∈ tUniv j) :
+  lookup_good_morphing (ρ >> ren_tm S) Γ ((ℓ1, A) :: Δ).
 Proof.
   rewrite /lookup_good_morphing in h * => i ℓ A0 /h /weakening_Syn.
   asimpl. eauto.
@@ -859,6 +859,16 @@ Proof.
   apply T_Let with (ℓT := q) (i := i) (j := i0) (k := j0) (A := A) (B := B) => //=; eauto using subsumption.
 Qed.
 
+Lemma T_Let_simpl' Γ ℓ ℓp ℓ0 a b ℓT A B C i U :
+  U = C[a..] ->
+  ℓp ⊆ ℓ ->
+  Γ ⊢ a ; ℓp ∈ tSig ℓ0 A B ->
+  (ℓp, B) :: (ℓ0, A) :: Γ ⊢ b ; ℓ ∈ C[(tPack ℓ0 (var_tm 1) (var_tm 0)) .: (shift >> shift >> var_tm)] ->
+  (ℓp, tSig ℓ0 A B) :: Γ ⊢ C ; ℓT ∈ tUniv i ->
+  (* ----------------------- *)
+  Γ ⊢ tLet ℓ0 ℓp a b ; ℓ ∈ U.
+Proof. move => > -> . apply T_Let_simpl. Qed.
+
 Lemma T_Par Γ ℓ ℓ0 a A B i :
   Γ ⊢ a ; ℓ ∈ A ->
   Γ ⊢ B ; ℓ0 ∈ (tUniv i) ->
@@ -1174,13 +1184,14 @@ Proof.
     asimpl in hA. all: eassumption.
 Qed.
 
-Lemma T_Proj1 Γ ℓ ℓ0 a A B :
+Lemma T_Proj1 Γ ℓ ℓ0 ℓ1 a A B :
   ℓ0 ⊆ ℓ ->
-  Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
+  ℓ1 ⊆ ℓ ->
+  Γ ⊢ a ; ℓ1 ∈ tSig ℓ0 A B ->
   (* ------------------------------*)
-  Γ ⊢ tLet ℓ0 ℓ a (var_tm 1) ; ℓ ∈ A.
+  Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 1) ; ℓ ∈ A.
 Proof.
-  move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  move => hℓ hℓ' /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
   replace A with (ren_tm S A)[a..]; last by asimpl.
   eapply T_Let_simpl ; eauto using meet_idempotent.
   - apply : T_Var; last by apply hℓ.
@@ -1190,29 +1201,35 @@ Proof.
   - apply : weakening_Syn'; eauto. by asimpl.
 Qed.
 
-Lemma T_Proj2 Γ ℓ ℓ0 a A B :
+Lemma T_Proj2 Γ ℓ ℓ0 ℓ1 a A B :
   ℓ0 ⊆ ℓ ->
-  Γ ⊢ tLet ℓ0 ℓ0 a (var_tm 1) ; ℓ0 ∈ A ->
+  Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 1) ; ℓ0 ∈ A ->
   Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
   (* ---------------------------------------------------------- *)
-  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ0 a (var_tm 1))..].
+  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ a (var_tm 1))..].
 Proof.
-  move => hℓ hLet /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
-  replace B[(tLet ℓ0 ℓ0 a (var_tm 1))..]
-    with (B[(tLet ℓ0 ℓ0 (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
+  move => hℓ hLet /[dup] /Wt_regularity => [[ℓ4]] [k] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  replace B[(tLet ℓ0 ℓ a (var_tm 1))..]
+    with (B[(tLet ℓ0 ℓ (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
     last by asimpl.
-  eapply T_Let_simpl; eauto using meet_idempotent.
+  have ? : ⊢ (ℓ0, A) :: Γ by eauto with wff.
+  have ? : ⊢ (ℓ4, B) :: (ℓ0, A) :: Γ by eauto with wff.
+  eapply T_Let_simpl with (ℓT := ℓ4) (i := j); eauto using meet_idempotent.
   - asimpl.
     eapply T_Conv with (A := B ⟨S⟩) (i := j).
     apply : T_Var; last by apply meet_idempotent.
     + hauto lq:on ctrs:Wff use:Wt_Wff.
     + apply here'. reflexivity.
-    + replace (tUniv j) with (tUniv j)[tLet ℓ0 ℓ0 (tPack ℓ0 (var_tm 1) (var_tm 0)) (var_tm 1) .: S >> (S >> var_tm)];
+    + replace (tUniv j) with (tUniv j)[tLet ℓ0 ℓ (tPack ℓ0 (var_tm 1) (var_tm 0)) (var_tm 1) .: S >> (S >> var_tm)];
         last by asimpl.
       eapply morphing_Syn; eauto.
       apply good_morphing_cons.
-      * admit. (* good_morphing_suc *)
-      * admit.
+      * have -> : (S >> (S >> var_tm)) = var_tm >> ren_tm S >> ren_tm S by asimpl.
+        hauto lq:on use:good_morphing_suc, good_morphing_nil db:wff.
+      * apply : T_Let_simpl'; eauto.
+        solve_lattice.
+        apply : T_Pack; eauto.
+        apply : T_Var.
       * hauto lq:on ctrs:Wff use:Wt_Wff.
     + admit.
   - admit.
