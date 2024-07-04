@@ -334,6 +334,14 @@ Lemma weakening_Syn' Γ ℓ ℓ0 ℓ1 a A A0 B i
   ((ℓ1, B) :: Γ) ⊢ (ren_tm shift a) ; ℓ ∈ A0.
 Proof. sfirstorder use:weakening_Syn. Qed.
 
+Lemma weakening_Syn_Univ Γ ℓ ℓ0 ℓ1 a B i k
+  (h0 : Γ ⊢ B ; ℓ0 ∈ (tUniv i))
+  (h1 : Γ ⊢ a ; ℓ ∈ (tUniv k)) :
+  ((ℓ1, B) :: Γ) ⊢ (ren_tm shift a) ; ℓ ∈ tUniv k.
+Proof.
+  apply : weakening_Syn'; eauto. by asimpl.
+Qed.
+
 Definition lookup_good_morphing ρ Γ Δ :=
   forall i ℓ A, lookup i Γ ℓ A -> Δ ⊢ ρ i ; ℓ ∈ A [ ρ ].
 
@@ -460,6 +468,16 @@ Proof.
     + hauto q:on ctrs:Wt, tm use:good_morphing_up, Wff_cons.
 Qed.
 
+Lemma morphing_Syn_Univ Γ ℓ a i (h : Γ ⊢ a ; ℓ ∈ tUniv i) : forall Δ ρ,
+    lookup_good_morphing ρ Γ Δ ->
+    ⊢ Δ ->
+    Δ ⊢ a[ρ] ; ℓ ∈ tUniv i.
+Proof.
+  move => Δ ρ.
+  change (tUniv i) with (tUniv i)[ρ].
+  eauto using morphing_Syn.
+Qed.
+
 Lemma subst_Syn Γ ℓ ℓ0 A a b B
   (h0 : ((ℓ0, A) :: Γ) ⊢ b ; ℓ ∈ B)
   (h1 : Γ ⊢ a ; ℓ0 ∈ A) :
@@ -489,7 +507,7 @@ Proof.
     + hauto l:on inv:lookup use:weakening_Syn.
     + move => _ n A1 Γ0 ℓ2 B + ? []*. subst.
       move /ih => [ℓ2 [j ?]].
-      exists ℓ2, j. apply : weakening_Syn'; eauto. done.
+      exists ℓ2, j. eauto using weakening_Syn_Univ.
 Qed.
 
 Lemma Wt_regularity Γ ℓ a A
@@ -685,8 +703,7 @@ Proof.
     + move => ℓ4 A2 Γ0 ? [] *. subst. asimpl.
       eapply T_Conv with (A := ren_tm shift A1) (i := j).
       * apply : T_Var; hauto l:on use:meet_idempotent db:wff.
-      * change (tUniv j) with (ren_tm shift (tUniv j)).
-        eapply weakening_Syn with (i := i) => //; eauto.
+      * eauto using weakening_Syn_Univ.
       * simpl.
         apply cfacts.conv_renaming with (Ξ := c2e Γ)=>//.
         rewrite /iok_ren_ok.
@@ -722,8 +739,7 @@ Proof.
     apply T_Conv with (A := B1 ⟨S⟩) (i := k) (ℓ0 := ℓB0).
     + apply : T_Var; hauto lq:on use:meet_idempotent ctrs:lookup db:wff.
     + asimpl.
-      eapply weakening_Syn' with (A := tUniv k); eauto.
-      eapply preservation_helper; eauto.
+      eauto using weakening_Syn_Univ, preservation_helper.
     + asimpl => /=.
       eapply cfacts.conv_renaming; eauto.
       rewrite /iok_ren_ok.
@@ -733,7 +749,7 @@ Proof.
     + move => lookn A0' Γ'' ? E' [*]. subst.
       apply T_Conv with (A := A1 ⟨S⟩ ⟨S⟩) (i := i) (ℓ0 := ℓA0).
       * apply : T_Var; hauto lq:on use:meet_idempotent ctrs:lookup db:wff.
-      * repeat eapply weakening_Syn' with (A := tUniv i); eauto.
+      * repeat eapply weakening_Syn_Univ; eauto.
       * apply cfacts.conv_renaming with (Ξ := ℓ2 :: c2e Γ); eauto.
         apply cfacts.conv_renaming with (Ξ := c2e Γ); eauto.
         rewrite /iok_ren_ok.
@@ -1198,42 +1214,84 @@ Proof.
     + hauto lq:on ctrs:Wff use:Wt_Wff.
     + apply : there'; cycle 1.
       apply here. substify. by asimpl.
-  - apply : weakening_Syn'; eauto. by asimpl.
+  - eauto using weakening_Syn_Univ. 
 Qed.
 
 Lemma T_Proj2 Γ ℓ ℓ0 ℓ1 a A B :
-  ℓ0 ⊆ ℓ ->
+  ℓ1 ⊆ ℓ ->
+  ℓ1 ⊆ ℓ0 ->
   Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 1) ; ℓ0 ∈ A ->
-  Γ ⊢ a ; ℓ ∈ tSig ℓ0 A B ->
+  Γ ⊢ a ; ℓ1 ∈ tSig ℓ0 A B ->
   (* ---------------------------------------------------------- *)
-  Γ ⊢ tLet ℓ0 ℓ a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ a (var_tm 1))..].
+  Γ ⊢ tLet ℓ0 ℓ1 a (var_tm 0) ; ℓ ∈ B[(tLet ℓ0 ℓ1 a (var_tm 1))..].
 Proof.
-  move => hℓ hLet /[dup] /Wt_regularity => [[ℓ4]] [k] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
-  replace B[(tLet ℓ0 ℓ a (var_tm 1))..]
-    with (B[(tLet ℓ0 ℓ (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
+  move => hℓ hℓ' hLet /[dup] /Wt_regularity => [[ℓ4]] [k] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
+  replace B[(tLet ℓ0 ℓ1 a (var_tm 1))..]
+    with (B[(tLet ℓ0 ℓ1 (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
     last by asimpl.
   have ? : ⊢ (ℓ0, A) :: Γ by eauto with wff.
-  have ? : ⊢ (ℓ4, B) :: (ℓ0, A) :: Γ by eauto with wff.
+  have ? : ⊢ (ℓ1, B) :: (ℓ0, A) :: Γ by eauto with wff.
   eapply T_Let_simpl with (ℓT := ℓ4) (i := j); eauto using meet_idempotent.
-  - asimpl.
+  - move => [:eqb].
+    asimpl.
     eapply T_Conv with (A := B ⟨S⟩) (i := j).
-    apply : T_Var; last by apply meet_idempotent.
-    + hauto lq:on ctrs:Wff use:Wt_Wff.
+    apply : T_Var; eauto.
     + apply here'. reflexivity.
-    + replace (tUniv j) with (tUniv j)[tLet ℓ0 ℓ (tPack ℓ0 (var_tm 1) (var_tm 0)) (var_tm 1) .: S >> (S >> var_tm)];
-        last by asimpl.
-      eapply morphing_Syn; eauto.
+    + eapply morphing_Syn_Univ; eauto.
       apply good_morphing_cons.
       * have -> : (S >> (S >> var_tm)) = var_tm >> ren_tm S >> ren_tm S by asimpl.
         hauto lq:on use:good_morphing_suc, good_morphing_nil db:wff.
-      * apply : T_Let_simpl'; eauto.
-        solve_lattice.
+      * apply : T_Proj1; eauto. solve_lattice.
         apply : T_Pack; eauto.
-        apply : T_Var.
-      * hauto lq:on ctrs:Wff use:Wt_Wff.
-    + admit.
-  - admit.
-Admitted.
+        apply : T_Var => //.
+        apply : there'; cycle 1.
+        by apply here.
+        by substify; asimpl.
+        solve_lattice.
+        apply : T_Var=>//.
+        apply here'.
+        2 : { solve_lattice. }
+        2 : { 
+          suff : (ℓ1, B)::(ℓ0, A)::Γ ⊢ (tSig ℓ0 A B)⟨S⟩⟨S⟩; ℓ4 ∈ tUniv k.
+          substify; asimpl.  apply.
+          eapply weakening_Syn_Univ; eauto.
+          eapply weakening_Syn_Univ; eauto.
+        }
+        asimpl.
+        abstract : eqb.
+        substify.
+        f_equal. fext. elim => //=.
+    + move => //=.
+      exists ℓ4. apply cfacts.iconv_sym.
+      apply cfacts.iconv_rpar with (a := B ⟨S⟩).
+      apply cfacts.ieq_iconv.
+      apply iok_ieq with (ℓ := ℓ4).
+      have : (ℓ1, B) :: (ℓ0, A):: Γ ⊢ B ⟨S⟩; ℓ4 ∈ tUniv j by
+        sfirstorder use:weakening_Syn_Univ.
+      move/typing_iok => //=.
+      solve_lattice.
+      have hr : tLet ℓ0 ℓ1 (tPack ℓ0 (var_tm 1) (var_tm 0)) (var_tm 1) ⇒ var_tm 1 by apply P_LetPackCBN'; asimpl.
+      rewrite -eqb.
+      apply Par_morphing; last by apply Par_refl.
+      hauto lq:on ctrs:Par inv:nat unfold:Par_m.
+  - move => [:tr0].
+    apply : morphing_Syn_Univ; eauto; last by abstract :tr0; hauto lq:on db:wff.
+    rewrite /lookup_good_morphing.
+    move => i0 ℓ2 A0.
+    elim/lookup_inv => //= _.
+    + move => ℓ3 A1 Γ0 ? [*]. subst.
+      apply : T_Proj1=>//. solve_lattice.
+      apply : T_Var; eauto.
+      apply here'.
+      asimpl. substify. eauto.
+      solve_lattice.
+    + move => n A1 Γ0 ℓ3 B0 ? ? [*]. subst.
+      asimpl.
+      have -> :  var_tm (S n) = (var_tm n)⟨S⟩ by asimpl.
+      renamify.
+      apply : weakening_Syn; eauto.
+      apply : T_Var; eauto. eauto with wff. solve_lattice.
+Qed.
 
 (* I think this version holds too but I'm not sure? *)
 Lemma T_Proj2_Alt Γ ℓ ℓ0 a A B :

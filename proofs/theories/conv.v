@@ -148,6 +148,10 @@ Proof. hauto lq:on use:ieq_sym_mutual unfold:conv, iconv. Qed.
 Lemma conv_sym Ξ a b : conv Ξ a b -> conv Ξ b a.
 Proof. hauto lq:on use:iconv_sym unfold:conv. Qed.
 
+Lemma iconv_rpar Ξ ℓ a b a0  :
+  iconv Ξ ℓ a b -> a0 ⇒ a -> iconv Ξ ℓ a0 b.
+Proof. hauto lq:on ctrs:rtc unfold:iconv. Qed.
+
 Lemma iconv_par Ξ ℓ a b a0  :
   iconv Ξ ℓ a b -> a ⇒ a0 -> iconv Ξ ℓ a0 b.
 Proof.

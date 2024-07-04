@@ -158,6 +158,11 @@ Lemma P_LetPack' ℓ0 ℓ1 a0 b0 c0 a1 b1 c1 t :
   tLet ℓ0 ℓ1 (tPack ℓ0 a0 b0) c0 ⇒ t.
 Proof. move => > ->. apply P_LetPack. Qed.
 
+Lemma P_LetPackCBN' ℓ0 ℓ1 a b c t :
+  t = c[b.:a..] ->
+  tLet ℓ0 ℓ1 (tPack ℓ0 a b) c ⇒ t.
+Proof. hauto lq:on use:P_LetPack, Par_refl. Qed.
+
 (* ------------------------------------------------------------ *)
 
 (* Par (⇒), Pars (⇒* ), and ⇔ are closed under renaming *)
