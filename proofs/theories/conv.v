@@ -44,6 +44,22 @@ Proof.
       apply : iok_morphing; eauto.
       have /iha {}iha  : tPack ℓ0 a0 b0 ⇒ tPack ℓ0 a1 b1 by eauto with par.
       hauto lq:on use:iok_subst_cons, iok_subst_id inv:IOk.
+  (* Ind *)
+  - move => Ξ ℓ ℓ0 a b c ? ha iha hb ihb hc ihc b0.
+    elim /Par_inv=>//_.
+    + hauto lq:on ctrs:IOk.
+    + move => ℓ1 a0 a1 b1 ? [*]. subst.
+      eauto using iok_subsumption.
+    + move => ℓ1 a0 a1 b1 b2 c0 c1 ha' hb' hc' [*] [:tr0]. subst.
+      apply : iok_morphing; eauto.
+      by eauto using iok_subsumption.
+      apply iok_subst_cons; eauto.
+      apply iok_subst_cons.
+      apply iok_subst_id.
+      abstract : tr0.
+      have : tSuc c0 ⇒ tSuc c1 by eauto with par.
+      qauto l:on inv:IOk.
+      hauto q:on ctrs:IOk use:meet_idempotent.
 Qed.
 
 Lemma iok_preservation_star Ξ ℓ a (h : IOk Ξ ℓ a) : forall b, a ⇒* b -> IOk Ξ ℓ b.
@@ -123,7 +139,29 @@ Proof.
         scongruence.
         case : (lprop.sub_eqdec ℓ2 ℓ) => ?;
                by eauto with ieq.
-  (* - hauto q:on ctrs:Par, IEq inv:Par, IEq. *)
+  - hauto q:on ctrs:Par, IEq inv:Par, IEq.
+  - move => Ξ ℓ ℓ0 a0 b0 c0 a1 b1 c1 ? ha iha hb ihb hc ihc a'.
+    elim/Par_inv=>//=_.
+    + hauto lq:on ctrs:IEq, Par.
+    + move => ℓ1 a2 a3 b2 ? [*]. subst.
+      inversion hc; subst. hauto lq:on ctrs:Par, IEq.
+    + move => ℓ1 a2 a3 b2 b3 c2 c3 +++ [*]. subst.
+      elim /IEq_inv : hc => //=_ a2 a4 ha24 [?]?. subst.
+      move /iha => {iha} [a1'][ha1]ha1'.
+      move /ihb => {ihb} [b1'][hb1]hb1'.
+      move /P_Suc /ihc => {ihc} [c1'][hc1]hc1'.
+      elim /Par_inv : hc1 => //= _ a2 b2 ? [*]. subst.
+      elim /IEq_inv : hc1' => //= _ a2 a5 ? [?][?]. subst.
+      eexists.
+      split. eauto with par.
+      eapply ieq_morphing_mutual; eauto.
+      case => [|i]//=.
+      hauto lq:on ctrs:GIEq, IEq unfold:elookup.
+      move => ℓ1; rewrite /elookup //=.
+      case : i => [|i]//=.
+      hauto lq:on ctrs:GIEq, IEq unfold:elookup.
+      move => ?. apply ieq_gieq. move => *.
+      apply : I_Var; eauto.
   - hauto l:on ctrs:Par use:Par_refl.
 Qed.
 
@@ -271,7 +309,9 @@ Proof. rewrite /conv; eauto using ieq_iconv. Qed.
 
 Lemma conv_univ_inj Ξ i j : conv Ξ (tUniv i) (tUniv j) -> i = j.
 Proof.
-  hauto l:on dep:on use:Pars_univ_inv inv:IEq unfold:conv, iconv.
+  rewrite /conv/iconv.
+  move => [ℓ][c0][c1][/Pars_univ_inv h0][/Pars_univ_inv h1]h2. subst.
+  by inversion h2; subst.
 Qed.
 
 Lemma iconv_pi_inj Ξ ℓ ℓ0 A0 B0 ℓ1 A1 B1 :
