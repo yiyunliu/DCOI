@@ -530,7 +530,7 @@ Proof.
   - hauto q:on use:subst_Syn, Wt_Pi_Univ_inv.
   - hauto lq:on ctrs:Wt db:wff.
   - hauto lq:on ctrs:Wt db:wff.
-  - move => Γ _ a ℓ0 A hΓ ha [ℓA [i hA]].
+  - move => Γ _ a ℓ0 A ha [ℓA [i hA]].
     exists (ℓ0 ∪ ℓA), 0.
     hauto use:T_Eq lq:on use:subsumption solve+:(by solve_lattice).
   - hauto lq:on ctrs:Wt db:wff.
@@ -798,7 +798,7 @@ Proof.
   move : E.
   elim : Γ ℓ p T / h=>//.
   - hauto lq:on rew:off use:cfacts.conv_trans.
-  - move => Γ ℓ a ℓ0 A hΓ ha _ _.
+  - move => Γ ℓ a ℓ0 A ha _ _.
     have : exists ℓ, Γ ⊢ tEq ℓ0 a a ; ℓ ∈ tUniv 0 by eauto using T_Eq_simpl.
     move => [ℓ1 ?].
     exists ℓ0, a , A.

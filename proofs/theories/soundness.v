@@ -285,7 +285,7 @@ Proof.
     exists i,PA. split => //.
     qauto l:on use:nfacts.wne_absurd, adequacy unfold:SemWt.
   (* Refl *)
-  - move => Γ ℓ a ℓ0 A hΓ _ /typing_iok /cfacts.ifacts.iok_ieq.
+  - move => Γ ℓ a ℓ0 A /typing_iok /cfacts.ifacts.iok_ieq.
     rewrite /SemWt.
     move => ha iha Δ ρ hρ.
     move /iha : (hρ) {iha} => [m][PA][hPA]ha'.
