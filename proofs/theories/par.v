@@ -98,6 +98,37 @@ Inductive Par : tm -> tm -> Prop :=
   c0 ⇒ c1 ->
   tLet ℓ0 ℓ1 (tPack ℓ0 a0 b0) c0 ⇒ c1[b1 .: a1 ..]
 
+| P_Zero :
+  (* ------- *)
+  tZero ⇒ tZero
+
+| P_Suc a b :
+  a ⇒ b ->
+  (* ---------- *)
+  tSuc a ⇒ tSuc b
+
+| P_Ind ℓ a0 a1 b0 b1 c0 c1:
+  a0 ⇒ a1 ->
+  b0 ⇒ b1 ->
+  c0 ⇒ c1 ->
+  (* ---------- *)
+  tInd ℓ a0 b0 c0 ⇒ tInd ℓ a1 b1 c1
+
+| P_IndZero ℓ a0 a1 b:
+  a0 ⇒ a1 ->
+  (* ---------- *)
+  tInd ℓ a0 b tZero ⇒ a1
+| P_IndSuc ℓ a0 a1 b0 b1 c0 c1 :
+  a0 ⇒ a1 ->
+  b0 ⇒ b1 ->
+  c0 ⇒ c1 ->
+  (* ---------------------  *)
+  tInd ℓ a0 b0 (tSuc c0) ⇒ b1 [(tInd ℓ a1 b1 c1) .: c1  ..]
+| P_Nat :
+  (* ---------- *)
+  tNat ⇒ tNat
+
+
 where "A ⇒ B" := (Par A B).
 #[export]Hint Constructors Par : par.
 
@@ -140,15 +171,14 @@ Lemma P_AppAbs' a a0 b0 b b1 ℓ0 :
   (tApp (tAbs ℓ0 a) ℓ0 b0) ⇒ b.
 Proof. hauto lq:on use:P_AppAbs. Qed.
 
-
-(* Lemma P_IndSuc' a0 a1 b0 b1 c0 c1 t : *)
-(*   t = b1 [(tInd a1 b1 c1) .: c1 ..] -> *)
-(*   a0 ⇒ a1 -> *)
-(*   b0 ⇒ b1 -> *)
-(*   c0 ⇒ c1 -> *)
-(*   (* ---------------------  *) *)
-(*   tInd a0 b0 (tSuc c0) ⇒ t. *)
-(* Proof. move => > ->. apply P_IndSuc. Qed. *)
+Lemma P_IndSuc' ℓ a0 a1 b0 b1 c0 c1 t :
+  t = b1 [(tInd ℓ a1 b1 c1) .: c1 ..] ->
+  a0 ⇒ a1 ->
+  b0 ⇒ b1 ->
+  c0 ⇒ c1 ->
+  (* ---------------------  *)
+  tInd ℓ a0 b0 (tSuc c0) ⇒ t.
+Proof. move => > ->. apply P_IndSuc. Qed.
 
 Lemma P_LetPack' ℓ0 ℓ1 a0 b0 c0 a1 b1 c1 t :
   t = c1[b1 .: a1 ..] ->
@@ -179,6 +209,8 @@ Proof.
   (*   apply : P_IndSuc'; eauto; by asimpl. *)
   - move => *.
     apply : P_LetPack'; eauto; by asimpl.
+  - move => *.
+    apply : P_IndSuc'; eauto; by asimpl.
 Qed.
 
 Lemma Pars_renaming a b (ξ : fin -> fin) :
@@ -256,14 +288,17 @@ Proof.
     apply P_LetPack' with (a1 := a1[σ1]) (b1 := b1[σ1]) (c1 := c1[up_tm_tm (up_tm_tm σ1)]); eauto.
     by asimpl.
     sfirstorder use:(Par_morphing_lift_n 2).
+  - move => //=; eauto with par.
+  - move => //=; eauto with par.
+  - qauto db:par use: (Par_morphing_lift_n 2).
+  - move => //=; eauto with par.
+  - move => ℓ a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc σ0 σ1 hσ /=.
+    apply P_IndSuc' with
+      (b1 := b1[up_tm_tm_n 2 σ1]) (a1 := a1[σ1]) (c1 := c1[σ1]);
+      eauto => /=. by asimpl.
+    sfirstorder use:(Par_morphing_lift_n 2).
+  - move => //=; eauto with par.
 Qed.
-
-  (* - qauto db:par use:(Par_morphing_lift_n 2). *)
-  (* - move => a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc σ0 σ1 hσ /=. *)
-  (*   apply P_IndSuc' with *)
-  (*     (b1 := b1[up_tm_tm_n 2 σ1]) (a1 := a1[σ1]) (c1 := c1[σ1]); *)
-  (*     eauto => /=. by asimpl. *)
-  (*   sfirstorder use:(Par_morphing_lift_n 2). *)
 
 Lemma Par_morphing_star a0 a1 (h : a0 ⇒* a1) (σ0 σ1 : fin -> tm) :
   (σ0 ⇒ς σ1) ->
@@ -522,6 +557,12 @@ Function tstar (a : tm) :=
   | tPack ℓ a b => tPack ℓ (tstar a) (tstar b)
   | tVoid => tVoid
   | tAbsurd a => tAbsurd (tstar a)
+  | tZero => tZero
+  | tSuc a => tSuc (tstar a)
+  | tInd ℓ a b tZero => tstar a
+  | tInd ℓ a b (tSuc c) => (tstar b) [(tInd ℓ (tstar a) (tstar b) (tstar c)) .: (tstar c)  .. ]
+  | tInd ℓ a b c => tInd ℓ (tstar a) (tstar b) (tstar c)
+  | tNat => tNat
   end.
 
 Lemma Par_triangle a : forall b, (a ⇒ b) -> (b ⇒ tstar a).
