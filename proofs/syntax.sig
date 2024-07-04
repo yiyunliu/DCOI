@@ -8,11 +8,9 @@ tPi : T -> tm -> (tm -> tm) -> tm
 tUniv : nat -> tm
 tVoid : tm
 tAbsurd : tm -> tm
-tEq : T -> tm -> tm -> tm -> tm
+tEq : T -> tm -> tm -> tm
 tJ : T -> tm -> tm -> tm
 tRefl : tm
 tSig : T -> tm -> (tm -> tm) -> tm
 tPack : T -> tm -> tm -> tm
 tLet : T -> T -> tm -> (tm -> tm -> tm) -> tm
-tD : tm
-tDown : T -> tm -> tm

@@ -78,12 +78,11 @@ Proof.
       by auto using Par_refl with par.
       sfirstorder use:ieq_morphing_mutual, ieq_subst_cons, ieq_subst_id.
   - hauto lq:on ctrs:IEq inv:Par use:Par_refl.
-  - move => Ξ ℓ ℓ0 a0 a1 b0 b1 A0 A1 ? ha iha hb ihb ?.
-    elim /Par_inv=>// _ ? ? ? ? a2 b2 A2 + + + [*]. subst.
+  - move => Ξ ℓ ℓ0 a0 a1 b0 b1 ? ha iha hb ihb ?.
+    elim /Par_inv=>// _ ? ? ? a2 b2 + + [*]. subst.
     move /iha => {iha} [a1' ha1'].
     move /ihb => {ihb} [b1' hb1'].
-    move => ?.
-    exists (tEq ℓ0 a1' b1' A1).
+    exists (tEq ℓ0 a1' b1').
     hauto lq:on ctrs:Par, IEq use:Par_refl.
   - move => Ξ ℓ ℓp t0 t1 p0 p1 ? ? ht ? hp p.
     elim /Par_inv=>// _.
@@ -124,7 +123,7 @@ Proof.
         scongruence.
         case : (lprop.sub_eqdec ℓ2 ℓ) => ?;
                by eauto with ieq.
-  - hauto q:on ctrs:Par, IEq inv:Par, IEq.
+  (* - hauto q:on ctrs:Par, IEq inv:Par, IEq. *)
   - hauto l:on ctrs:Par use:Par_refl.
 Qed.
 
@@ -313,13 +312,13 @@ Lemma conv_sig_inj Ξ ℓ0 A0 B0 ℓ1 A1 B1 :
   conv (ℓ0 :: Ξ) B0 B1.
 Proof. rewrite/conv; hauto lq:on use:iconv_sig_inj. Qed.
 
-Lemma conv_eq_inj Ξ ℓ0 a0 b0 A0 ℓ1 a1 b1 A1 : conv Ξ (tEq ℓ0 a0 b0 A0) (tEq ℓ1 a1 b1 A1) -> ℓ0 = ℓ1 /\ exists ℓ, ℓ0 ⊆ ℓ /\ iconv Ξ ℓ a0 a1 /\ iconv Ξ ℓ b0 b1.
+Lemma conv_eq_inj Ξ ℓ0 a0 b0 ℓ1 a1 b1 : conv Ξ (tEq ℓ0 a0 b0) (tEq ℓ1 a1 b1) -> ℓ0 = ℓ1 /\ exists ℓ, ℓ0 ⊆ ℓ /\ iconv Ξ ℓ a0 a1 /\ iconv Ξ ℓ b0 b1.
 Proof.
   rewrite /conv/iconv.
   move => [ℓ][c0][c1][h0][h1]h2.
-  move /Pars_eq_inv : h0 => [a0'][b0'][A0'][?][h3][h4]h5. subst.
-  move /Pars_eq_inv : h1 => [a1'][b1'][A1'][?][h6][h7]h8. subst.
-  elim /IEq_inv : h2 => // _ ℓ2 a2 a3 b2 b3 A2 A3 ? ? ?  [? ? ? ?][? ? ? ?]. subst.
+  move /Pars_eq_inv : h0 => [a0'][b0'][h3][h4]h5. subst.
+  move /Pars_eq_inv : h1 => [a1'][b1'][h6][h7]h8. subst.
+  elim /IEq_inv : h2 => // _ ℓ2 a2 a3 b2 b3 ? ? ?  [? ? ?] [? ? ?]. subst.
   sfirstorder.
 Qed.
 

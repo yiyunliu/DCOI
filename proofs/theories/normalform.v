@@ -18,15 +18,13 @@ Fixpoint ne (a : tm) : bool :=
   (* | tSuc _ => false *)
   (* | tInd a b c => nf a && nf b && ne c *)
   (* | tNat => false *)
-  | tEq _ _ _ _ => false
+  | tEq _ _ _ => false
   | tRefl => false
   | tSig _ _ _ => false
   | tPack _ _ _ => false
   | tLet _ _ a b => ne a && nf b
   | tVoid => false
   | tAbsurd a => ne a
-  | tD => true
-  | tDown _ a => ne a
   end
 with nf (a : tm) : bool :=
   match a with
@@ -40,15 +38,13 @@ with nf (a : tm) : bool :=
   (* | tSuc a => nf a *)
   (* | tInd a b c => nf a && nf b && ne c *)
   (* | tNat => true *)
-  | tEq _ a b A => nf a && nf b && nf A
+  | tEq _ a b => nf a && nf b
   | tRefl => true
   | tSig _ A B => nf A && nf B
   | tPack _ a b => nf a && nf b
   | tLet _ _ a b => ne a && nf b
   | tVoid => true
   | tAbsurd a => ne a
-  | tD => true
-  | tDown _ a => ne a
   end.
 
 (* Terms that are weakly normalizing to a neutral or normal form. *)
@@ -57,7 +53,7 @@ Definition wne (a : tm) := exists b, a ⇒* b /\ ne b.
 
 Definition var_or_d a :=
   match a with
-  | tD => true
+  | (tAbsurd (var_tm _)) => true
   | var_tm _ => true
   | _ => false
   end.
@@ -127,10 +123,10 @@ Create HintDb nfne.
 (* ------------------ antirenaming ------------------------- *)
 
 Lemma ren_var_or_d ξ a : var_or_d a = var_or_d a⟨ξ⟩.
-Proof. case : a => //=. Qed.
+Proof. case : a; hauto q:on. Qed.
 
 Lemma var_or_d_ne a : var_or_d a -> ne a && nf a.
-Proof. case : a => //=. Qed.
+Proof. case : a; hauto lq:on. Qed.
 
 Lemma ren_with_d_ne ξ i : ren_with_d ξ -> ne (ξ i) && nf (ξ i).
 Proof. sfirstorder use:var_or_d_ne unfold:ren_with_d. Qed.
@@ -193,10 +189,10 @@ Proof.
     hauto lq:on ctrs:Par.
   - hauto q:on ctrs:Par inv:tm.
   - move => + + + + []//=.
-    hauto q:on use:ren_with_d_imp.
+    hauto q:on ctrs:Par inv:Par use:ren_with_d_imp.
     qauto l:on ctrs:Par.
   - hauto q:on inv:tm ctrs:Par.
-  - move => > ++++++ [] //.
+  - move => > ++++ [] //.
     hauto q:on use:ren_with_d_imp.
     hauto q:on ctrs:Par.
   - move => > + + + + []//.
@@ -230,15 +226,6 @@ Proof.
     move /(_ ltac:(auto using ren_with_d_up_tm)) : ihc => [c2 [ihc ?]]. subst.
     exists (c2[b2 .: a2 ..]).
     split; [by auto with par | by asimpl].
-  - hauto q:on inv:tm ctrs:Par.
-  - move => ℓ0 p0 p1 h ih []//.
-    hauto q:on use:ren_with_d_imp.
-    hauto q:on ctrs:Par.
-  - move => + []//=.
-    hauto q:on use:ren_with_d_imp.
-    move => ℓ0 ℓ1 t0 ξ [*]. subst.
-    have ? : t0 = tRefl by hauto q:on inv:tm use:ren_with_d_imp. subst.
-    hauto l:on.
 Qed.
 
 Local Lemma Pars_antirenaming (a b0 : tm) ξ
@@ -336,14 +323,6 @@ Proof.
   hauto b:on use:S_Let.
 Qed.
 
-Lemma wne_down ℓ0 (a : tm) :
-  wne a -> wne (tDown ℓ0 a).
-Proof.
-  move => [a0 [? ?]].
-  exists (tDown ℓ0 a0).
-  sfirstorder b:on use:S_Down.
-Qed.
-
 Lemma wn_abs ℓ0 (a : tm) (h : wn a) : wn (tAbs ℓ0 a).
 Proof.
   move : h => [v [? ?]].
@@ -372,11 +351,11 @@ Proof.
   hauto lqb:on use:S_Pack.
 Qed.
 
-Lemma wn_eq ℓ0 a b A : wn a -> wn b -> wn A -> wn (tEq ℓ0 a b A).
+Lemma wn_eq ℓ0 a b : wn a -> wn b -> wn (tEq ℓ0 a b).
 Proof.
   rewrite /wn.
-  move => [va [? ?]] [vb [? ?]] [vA [? ?]].
-  exists (tEq ℓ0 va vb vA).
+  move => [va [? ?]] [vb [? ?]].
+  exists (tEq ℓ0 va vb).
   split.
   - by apply S_Eq.
   - hauto lqb:on.
@@ -388,25 +367,26 @@ Qed.
    inversion principle for terms with normal forms. If a term applied to a
    variable is normal, then the term itself is normal. *)
 
-Lemma ext_wn ℓ0 (a : tm) :
-    wn (tApp a ℓ0 tD) ->
+Lemma ext_wn ℓ0 (a : tm) i :
+    wn (tApp a ℓ0 (tAbsurd (var_tm i))) ->
     wn a.
 Proof.
-  move E : (tApp a ℓ0 tD) => a0 [v [hr hv]].
+  move E : (tApp a ℓ0 (tAbsurd (var_tm i))) => a0 [v [hr hv]].
   move : a E.
   move : hv.
   elim : a0 v / hr.
   - hauto q:on inv:tm ctrs:rtc b:on db: nfne.
   - move => a0 a1 a2 hr0 hr1 ih hnfa2.
+    set d := tAbsurd (var_tm i) in ih *.
     move /(_ hnfa2) in ih.
     move => a.
     case : a0 hr0=>// => b0 ℓ b1.
     elim /Par_inv=>//.
     + hauto q:on inv:Par ctrs:rtc b:on.
     + move => ? a0 a3 b2 b3 ℓ1 ? ? [? ? ?] ? [? ? ?]. subst.
-      have ? : b3 = tD by hauto lq:on inv:Par. subst.
+      have ? : b3 = d by hauto lq:on inv:Par. subst.
       suff : wn (tAbs ℓ a3) by hauto lq:on ctrs:Par, rtc unfold:wn.
-      have : wn (subst_tm (tD ..) a3) by sfirstorder.
+      have : wn (subst_tm (d ..) a3) by sfirstorder.
       move /wn_antirenaming => h.
       apply : wn_abs.
       apply h.

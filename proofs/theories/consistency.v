@@ -23,15 +23,13 @@ Fixpoint debruijnDepth a : nat :=
   | tPi _ A B => max (debruijnDepth A) (debruijnDepth B - 1)
   | tSig _ A B => max (debruijnDepth A) (debruijnDepth B - 1)
   | tUniv _ => 0
-  | tEq _ a b A => max (debruijnDepth a) (max (debruijnDepth b) (debruijnDepth A))
+  | tEq _ a b => max (debruijnDepth a) (debruijnDepth b)
   | tRefl => 0
   | tJ _ t p => max (debruijnDepth t - 2) (debruijnDepth p)
-  | tD => 1
   | tVoid => 0
   | tLet _ _ a b => max (debruijnDepth a) (debruijnDepth b - 2)
   | tPack _ a b => max (debruijnDepth a) (debruijnDepth b)
   | tAbsurd a => debruijnDepth a
-  | tDown _ p => debruijnDepth p
   end.
 
 Lemma lookup_lt i Γ ℓ A : lookup i Γ ℓ A -> i < length Γ.

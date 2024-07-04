@@ -57,12 +57,11 @@ Inductive Par : tm -> tm -> Prop :=
   (* ---------- *)
   tRefl ⇒ tRefl
 
-| P_Eq ℓ0 a0 b0 A0 a1 b1 A1 :
+| P_Eq ℓ0 a0 b0 a1 b1 :
   (a0 ⇒ a1) ->
   (b0 ⇒ b1) ->
-  (A0 ⇒ A1) ->
   (* ---------- *)
-  (tEq ℓ0 a0 b0 A0) ⇒ (tEq ℓ0 a1 b1 A1)
+  (tEq ℓ0 a0 b0) ⇒ (tEq ℓ0 a1 b1)
 
 | P_J ℓp t0 p0 t1 p1 :
   (t0 ⇒ t1) ->
@@ -99,15 +98,6 @@ Inductive Par : tm -> tm -> Prop :=
   c0 ⇒ c1 ->
   tLet ℓ0 ℓ1 (tPack ℓ0 a0 b0) c0 ⇒ c1[b1 .: a1 ..]
 
-| P_D :
-  tD ⇒ tD
-
-| P_Down ℓ0 p0 p1 :
-  p0 ⇒ p1 ->
-  tDown ℓ0 p0 ⇒ tDown ℓ0 p1
-
-| P_DownRefl ℓ0 :
-  tDown ℓ0 tRefl ⇒ tRefl
 where "A ⇒ B" := (Par A B).
 #[export]Hint Constructors Par : par.
 
@@ -261,9 +251,6 @@ Proof.
     apply P_LetPack' with (a1 := a1[σ1]) (b1 := b1[σ1]) (c1 := c1[up_tm_tm (up_tm_tm σ1)]); eauto.
     by asimpl.
     sfirstorder use:(Par_morphing_lift_n 2).
-  - sfirstorder.
-  - hauto lq:on ctrs:Par.
-  - hauto lq:on ctrs:Par.
 Qed.
 
   (* - qauto db:par use:(Par_morphing_lift_n 2). *)
@@ -395,11 +382,12 @@ Proof.
   elim : T C / h; hecrush inv:Par ctrs:Par, rtc.
 Qed.
 
-Lemma Pars_eq_inv ℓ a b A C (h : (tEq ℓ a b A) ⇒* C) :
-  exists a0 b0 A0, C = tEq ℓ a0 b0 A0 /\ a ⇒* a0 /\ b ⇒* b0 /\ A ⇒* A0.
+
+Lemma Pars_eq_inv ℓ a b C (h : (tEq ℓ a b) ⇒* C) :
+  exists a0 b0, C = tEq ℓ a0 b0 /\ a ⇒* a0 /\ b ⇒* b0.
 Proof.
-  move E : (tEq ℓ a b A) h => T h.
-  move : ℓ a b A E.
+  move E : (tEq ℓ a b) h => T h.
+  move : ℓ a b E.
   elim : T C / h; hecrush inv:Par ctrs:Par, rtc.
 Qed.
 
@@ -472,22 +460,6 @@ Proof.
     apply P_J; sfirstorder use:Par_refl.
 Qed.
 
-Lemma P_DownRefl_star ℓ0 p :
-  p ⇒* tRefl  ->
-  tDown ℓ0 p ⇒* tRefl.
-Proof.
-  move E : tRefl => v h.
-  move : E.
-  elim : p v / h.
-  - move => _ <-.
-    apply rtc_once.
-    apply P_DownRefl.
-  - move => x y z h0 h1 ih ?. subst.
-    move /(_ ltac:(done)) in ih.
-    apply : rtc_l; eauto.
-    by apply P_Down.
-Qed.
-
 Lemma P_LetPack_star t ℓ0 ℓ1 a b c :
   t ⇒* tPack ℓ0 a b ->
   tLet ℓ0 ℓ1 t c ⇒* c[b .: a ..].
@@ -533,7 +505,7 @@ Function tstar (a : tm) :=
   (* | tInd a b c => tInd (tstar a) (tstar b) (tstar c) *)
   (* | tNat => tNat *)
   | tRefl => tRefl
-  | tEq ℓ a b A => tEq ℓ (tstar a) (tstar b) (tstar A)
+  | tEq ℓ a b => tEq ℓ (tstar a) (tstar b)
   | tJ ℓp t tRefl => tstar t
   | tJ ℓp t p => tJ ℓp (tstar t) (tstar p)
   | tLet ℓ0 ℓ1 (tPack ℓ2 a b) c =>
@@ -545,9 +517,6 @@ Function tstar (a : tm) :=
   | tPack ℓ a b => tPack ℓ (tstar a) (tstar b)
   | tVoid => tVoid
   | tAbsurd a => tAbsurd (tstar a)
-  | tD => tD
-  | tDown ℓ0 tRefl => tRefl
-  | tDown ℓ0 a => tDown ℓ0 (tstar a)
   end.
 
 Lemma Par_triangle a : forall b, (a ⇒ b) -> (b ⇒ tstar a).
@@ -576,9 +545,6 @@ Proof.
     case : T_eqdec=>//.
     hauto lq:on inv:Par use:Par_refl,Par_cong,Par_cong2 ctrs:Par.
   - hauto lq:on inv:Par use:Par_refl,Par_cong,Par_cong2 ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
-  - hauto lq:on inv:Par ctrs:Par.
   - hauto lq:on inv:Par ctrs:Par.
   - hauto lq:on inv:Par ctrs:Par.
   - hauto lq:on inv:Par ctrs:Par.
@@ -635,15 +601,6 @@ Proof.
   auto using rtc_refl.
 Qed.
 
-Lemma S_Down ℓ0 a b :
-  a ⇒* b ->
-  tDown ℓ0 a ⇒* tDown ℓ0 b.
-Proof.
-  move => h.
-  elim : a b / h; last by solve_s_rec.
-  auto using rtc_refl.
-Qed.
-
 Lemma S_Pi ℓ0 (a a0 b b0 : tm) :
   a ⇒* a0 ->
   b ⇒* b0 ->
@@ -697,23 +654,17 @@ Proof.
   auto using rtc_refl.
 Qed.
 
-Lemma S_Eq ℓ0 a0 a1 b0 b1 A0 A1 :
+Lemma S_Eq ℓ0 a0 a1 b0 b1 :
   a0 ⇒* a1 ->
   b0 ⇒* b1 ->
-  A0 ⇒* A1 ->
-  (tEq ℓ0 a0 b0 A0) ⇒* (tEq ℓ0 a1 b1 A1).
+  (tEq ℓ0 a0 b0) ⇒* (tEq ℓ0 a1 b1).
 Proof.
   move => h.
-  move : b0 b1 A0 A1.
-  elim : a0 a1 /h.
-  - move => + b0 b1 + + h.
-    elim : b0 b1 /h.
-    + move => + + A0 A1 h.
-      elim : A0 A1 /h.
-      * auto using rtc_refl.
-      * solve_s_rec.
-    + solve_s_rec.
-  - solve_s_rec.
+  move : b0 b1.
+  elim : a0 a1 /h; last by solve_s_rec.
+  move => + b0 b1 h.
+  elim : b0 b1 /h; last by solve_s_rec.
+  auto using rtc_refl.
 Qed.
 
 End par_facts.
