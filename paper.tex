@@ -104,7 +104,7 @@
 \newcommand{\ie}{\textit{i.e.}\@\xspace}
 \newcommand{\eg}{\textit{e.g.}\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
-\newcommand{\suppl}[3]{\texttt{#1/#2:#3}}
+\newcommand{\suppl}[3]{\texttt{#2:#3}}
 \newcommand{\judgement}[1]{{\setlength{\fboxsep}{1.5pt}\fbox{#1}}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
@@ -346,6 +346,7 @@ type check in the previous version of \dcoi.
 \jc{TODO: Remember to introduce $[[l A -> B]]$ as sugar for $[[Pi x : l A . B]]$
 where $[[B]]$ is not dependent on $[[x]]$
 and $[[Unit]]$ as sugar for $[[l Void -> Void]]$
+and $[[unit]]$ as sugar for $[[\l x. absurd x]]$
 and also introduce the box type for examples}
 
 \jc{TODO: Mention implementation here}
@@ -599,11 +600,11 @@ such as the preservation of definitional equality between two terms as they redu
     \drule[width=0.5\textwidth]{P-LetPair}
   \end{gather*}
   \caption{Typing and parallel reduction rules (pairs)}
-  \label{fig:typing:pairs}
+  \label{fig:typing:pair}
 \end{figure}
 
 Dependent pairs are annotated with a fixed level in their first component,
-given by $[[l0]]$ in \rref{Wt-Sig,Wt-Pair} of \cref{fig:typing:pairs}.
+given by $[[l0]]$ in \rref{Wt-Sig,Wt-Pair} of \cref{fig:typing:pair}.
 Like for function types, the levels of pair types are not necessarily related
 to that annotated level.
 While the first component of the pair constructor has a fixed level,
@@ -650,7 +651,25 @@ can be encoded as a unary tuple as follows.
   [[unbox l0 a]] &\coloneqq [[proj1 l0 a]]
 \end{align*}
 
-\jc{TODO: Discuss typing rules for boxes here.}
+By these encodings and the typing rules for pairs,
+we obtain the admissible typing rules for box types
+(\rref*{Wt-T}\footnote{\suppl{theories}{preservation.v}{T\_T}}),
+boxes (\rref*{Wt-Box}\footnote{\suppl{theories}{preservation.v}{T\_Box}}),
+and unboxing (\rref*{Wt-Unbox}\footnote{\suppl{theories}{preservation.v}{T\_Unbox}})
+in \cref{fig:typing:box}.
+The level constraint in \rref*{Wt-Unbox} comes from the corresponding constraint in \rref{Wt-Let},
+and intuitively says that the only values that can be unboxed are observable ones.
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \begin{gather*}
+    \drule{Wt-T}
+    \drule{Wt-Box}
+    \drule{Wt-Unbox}
+  \end{gather*}
+  \caption{Admissible typing rules for box types}
+  \label{fig:typing:box}
+\end{figure}
 
 The primary use case of the box type is to be able to enclose higher-level terms
 and to treat them as indistinguishable from one another by a lower-level observer.
@@ -666,11 +685,11 @@ similar to how function arguments are compared.
     \drule[width=\textwidth]{I-Let}
   \end{gather*}
   \caption{Indistinguishability rules (pairs)}
-  \label{fig:conv:pairs}
+  \label{fig:conv:pair}
 \end{figure}
 
 The remaining indistinguishability rules for pair types and eliminators
-are given in \cref{fig:conv:pairs}.
+are given in \cref{fig:conv:pair}.
 The constraint $[[l1 <= l]]$ in \rref{I-Let} is required due to its presence in \rref{Wt-Let}.
 
 \subsection{Propositional equality} \label{sec:eq}
@@ -718,6 +737,8 @@ the level of the method must match the level $[[l]]$ of the overall eliminator.
 The level of the target $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
 its justification is a subtle technical issue,
 which we defer to \cref{sec:target-level}.
+
+\jc{TODO: Rework the below now that \rref*{Wt-J-alt} no longer holds.}
 
 In addition to requiring the well-typedness of the equality proof $[[p]]$,
 \rref{Wt-J} also takes as premises the well-typedness
@@ -808,7 +829,7 @@ In this section, we develop the syntactic metatheory of \name,
 ultimately culminating in subjection reduction,
 \ie type preservation of typing with respect to parallel reduction.
 The metatheory has been mechanized in Coq,
-and the development can be found in \repo{} under the \texttt{proofs} directory.
+and the development can be found in \repo{} under the \texttt{proofs/theories} directory.
 Definitions, lemmas, and theorems given here are annotated with a footnote
 to the corresponding file and top-level name in the development.
 Some lemmas are presented as admissible derivation rules of the corresponding judgement,

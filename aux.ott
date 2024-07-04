@@ -305,6 +305,21 @@ G |- A1 : l1 Univ i
 ------------------------- :: replace
 G ++ x : l0 A1 |- b : l B
 
+%% Box types
+
+G |- A : l Univ i
+---------------------- :: T
+G |- T l0 A : l Univ i
+
+G |- a : l0 A
+------------------------ :: Box
+G |- box l0 a : l T l0 A
+
+G |- a : l T l0 A
+l0 <= l
+--------------------- :: Unbox
+G |- unbox l0 a : l A
+
 defns
   IOk :: '' ::=
 
