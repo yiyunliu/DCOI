@@ -14,7 +14,6 @@ Inductive lookup : nat -> context -> T -> tm -> Prop :=
   | there n A Γ ℓ B :
       lookup n Γ ℓ A -> lookup (S n) (B :: Γ) ℓ (A ⟨shift⟩).
 
-
 Definition lookup_good_renaming ξ Γ Δ :=
   forall i ℓ A, lookup i Γ ℓ A -> exists ℓ0, lookup (ξ i) Δ ℓ0 A⟨ξ⟩ /\ ℓ0 ⊆ ℓ.
 
@@ -139,10 +138,10 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
   (* -------------------- *)
   Γ ⊢ tPack ℓ0 a b ; ℓ ∈ tSig ℓ0 A B
 
-| T_Let Γ ℓ ℓp ℓ0 a b ℓT A B C i j :
+| T_Let Γ ℓ ℓp ℓ0 a b ℓT A B C i j k :
   ℓp ⊆ ℓ ->
   Γ ⊢ A ; ℓT ∈ tUniv j ->
-  (ℓ0, A) :: Γ ⊢ B ; ℓT ∈ tUniv j ->
+  (ℓ0, A) :: Γ ⊢ B ; ℓT ∈ tUniv k ->
   Γ ⊢ a ; ℓp ∈ tSig ℓ0 A B ->
   (ℓp, B) :: (ℓ0, A) :: Γ ⊢ b ; ℓ ∈ C[(tPack ℓ0 (var_tm 1) (var_tm 0)) .: (shift >> shift >> var_tm)] ->
   (ℓp, tSig ℓ0 A B) :: Γ ⊢ C ; ℓT ∈ tUniv i ->

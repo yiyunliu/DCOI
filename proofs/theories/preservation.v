@@ -106,12 +106,12 @@ Lemma T_Pack' Γ ℓ ℓ0 a A b B ℓT i B0:
   Γ ⊢ tPack ℓ0 a b ; ℓ ∈ tSig ℓ0 A B.
 Proof. move =>> ->. apply T_Pack. Qed.
 
-Lemma T_Let' Γ ℓ ℓp ℓ0 a b ℓT A B C i j C0 C1 :
+Lemma T_Let' Γ ℓ ℓp ℓ0 a b ℓT A B C i j k C0 C1 :
   C0 = (subst_tm (a..) C) ->
   C1 = (subst_tm ((tPack ℓ0 (var_tm 1) (var_tm 0)) .: (shift >> shift >> var_tm)) C) ->
   ℓp ⊆ ℓ ->
   Γ ⊢ A ; ℓT ∈ tUniv j ->
-  (ℓ0, A) :: Γ ⊢ B ; ℓT ∈ tUniv j ->
+  (ℓ0, A) :: Γ ⊢ B ; ℓT ∈ tUniv k ->
   Γ ⊢ a ; ℓp ∈ tSig ℓ0 A B ->
   (ℓp, B) :: (ℓ0, A) :: Γ ⊢ b ; ℓ ∈ C1 ->
   (ℓp, tSig ℓ0 A B) :: Γ ⊢ C ; ℓT ∈ tUniv i ->
@@ -307,16 +307,15 @@ Proof.
   (*   + auto. *)
   - move => Γ ℓ ℓ0 a A b B ℓT i ha iha hb ihb hSig ihSig Δ ξ hξ hΔ /=.
     eapply T_Pack' with (B0 := B[a..] ⟨ξ⟩); eauto. by asimpl.
-  - move => Γ ℓ ℓp ℓ0 a b ℓT A B C i j hA ? ihA hB ihB ha iha hb ihb hS ihS Δ ξ hξ hΔ /=.
+  - move => Γ ℓ ℓp ℓ0 a b ℓT A B C i j k hA ? ihA hB ihB ha iha hb ihb hS ihS Δ ξ hξ hΔ /=.
     eapply T_Let' with
       (C := C ⟨upRen_tm_tm ξ⟩)
-      (C1 := C[(tPack ℓ0 (var_tm 1) (var_tm 0)) .: (shift >> shift >> var_tm)] ⟨upRen_tm_tm (upRen_tm_tm ξ)⟩);
-      eauto => /=.
+      (C1 := C[(tPack ℓ0 (var_tm 1) (var_tm 0)) .: (shift >> shift >> var_tm)] ⟨upRen_tm_tm (upRen_tm_tm ξ)⟩) (i := i) (j := j) (k := k);
+      eauto; rewrite-/ren_tm.
     1-2: by asimpl.
     + sauto q:on dep:on use:good_renaming_up.
     + hauto q:on use:Wff_cons, good_renaming_up.
-    + rewrite -/ren_tm.
-      hauto q:on ctrs:Wt use:Wff_cons, good_renaming_up.
+    + hauto q:on ctrs:Wt use:Wff_cons, good_renaming_up.
 Qed.
 
 Lemma weakening_Syn Γ ℓ ℓ0 ℓ1 a A B i
@@ -449,10 +448,10 @@ Proof.
     hauto lq:on use:good_morphing_up, Wff_cons.
   - move => Γ ℓ ℓ0 a A b B ℓT i hA ihA hB ihB hS ihS Δ ρ hρ hΔ.
     eapply T_Pack' with (B0 := B[a .: var_tm][ρ]); eauto. by asimpl.
-  - move => Γ ℓ ℓp ℓ0 a b ℓT A B C i j ? hA ihA hB ihB ha iha hb ihb hS ihS Δ ρ hρ hΔ.
+  - move => Γ ℓ ℓp ℓ0 a b ℓT A B C i j k ? hA ihA hB ihB ha iha hb ihb hS ihS Δ ρ hρ hΔ.
     eapply T_Let' with
       (C := C[up_tm_tm ρ])
-      (C1 := C[tPack ℓ0 (var_tm 1) (var_tm 0) .: (S >> S) >> var_tm][up_tm_tm (up_tm_tm ρ)]);
+      (C1 := C[tPack ℓ0 (var_tm 1) (var_tm 0) .: (S >> S) >> var_tm][up_tm_tm (up_tm_tm ρ)]) (i := i) (j := j) (k := k);
       eauto.
     + by asimpl.
     + by asimpl; substify.
@@ -582,9 +581,9 @@ Qed.
 
 Lemma Wt_Let_inv Γ ℓ ℓ0 ℓ1 a b T (h : Γ ⊢ tLet ℓ0 ℓ1 a b ; ℓ ∈ T) :
   ℓ1 ⊆ ℓ /\
-  exists i j ℓT A B C,
+  exists i j k ℓT A B C,
     Γ ⊢ A ; ℓT ∈ tUniv j /\
-    (ℓ0, A) :: Γ ⊢ B ; ℓT ∈ tUniv j /\
+    (ℓ0, A) :: Γ ⊢ B ; ℓT ∈ tUniv k /\
     Γ ⊢ a ; ℓ1 ∈ tSig ℓ0 A B /\
     (ℓ1, B) :: (ℓ0, A) :: Γ ⊢ b ; ℓ ∈ C[(tPack ℓ0 (var_tm 1) (var_tm 0)) .: (shift >> shift >> var_tm)] /\
     (ℓ1, tSig ℓ0 A B) :: Γ ⊢ C ; ℓT ∈ tUniv i /\
@@ -600,10 +599,10 @@ Proof.
     split => //.
     exists j, k, ℓT, A,B,C.
     hauto l:on use:cfacts.conv_trans.
-  - move => Γ ℓ ℓp ℓ0 a b ℓT A B C i j ? hA _ hB _ ha _ hb _ hC _.
+  - move => Γ ℓ ℓp ℓ0 a b ℓT A B C i j k ? hA _ hB _ ha _ hb _ hC _.
     move => ? ? ? ? [*]. subst.
     split => //.
-    exists i, j, ℓT, A , B,C.
+    exists i, j, k , ℓT, A , B,C.
     have /Wt_regularity Cwf : Γ ⊢ tLet ℓ0 ℓp a b ; ℓ ∈ C[a..] by eauto using T_Let.
     repeat split => //.
     sfirstorder use:typing_conv.
@@ -842,6 +841,24 @@ Proof.
     hauto lq:on use:typing_conv.
 Qed.
 
+Lemma T_Let_simpl Γ ℓ ℓp ℓ0 a b ℓT A B C i :
+  ℓp ⊆ ℓ ->
+  Γ ⊢ a ; ℓp ∈ tSig ℓ0 A B ->
+  (ℓp, B) :: (ℓ0, A) :: Γ ⊢ b ; ℓ ∈ C[(tPack ℓ0 (var_tm 1) (var_tm 0)) .: (shift >> shift >> var_tm)] ->
+  (ℓp, tSig ℓ0 A B) :: Γ ⊢ C ; ℓT ∈ tUniv i ->
+  (* ----------------------- *)
+  Γ ⊢ tLet ℓ0 ℓp a b ; ℓ ∈ C[a ..].
+Proof.
+  move =>  + /[dup] /Wt_regularity h.
+  move : h => [ℓ1][j]/[dup]/Wt_Sig_Univ_inv + ?.
+  move => [i0][j0][?][h0]h1. subst.
+  move => h2 h3 h4 h5.
+  set q := ℓT ∪ ℓ1.
+  have ? : ℓ1 ⊆ q by subst q; solve_lattice.
+  have ? : ℓT ⊆ q by subst q; solve_lattice.
+  apply T_Let with (ℓT := q) (i := i) (j := i0) (k := j0) (A := A) (B := B) => //=; eauto using subsumption.
+Qed.
+
 Lemma T_Par Γ ℓ ℓ0 a A B i :
   Γ ⊢ a ; ℓ ∈ A ->
   Γ ⊢ B ; ℓ0 ∈ (tUniv i) ->
@@ -1007,7 +1024,7 @@ Proof.
     eapply subst_Syn_Univ; eauto.
   (* Let *)
   - move => ℓ0 ℓ1 a0 b0 a1 b1 h0 ih0 h1 ih1 Γ ℓ A /Wt_Let_inv.
-    intros (? & i & j & ℓT& A0 & B0 & C & hA0 & hB0 & ha & hb & hC & hCoherent & ℓ2 & k & hA).
+    intros (? & i & j & j0 & ℓT& A0 & B0 & C & hA0 & hB0 & ha & hb & hC & hCoherent & ℓ2 & k & hA).
     apply T_Conv with (A := C[a1..]) (i := k) (ℓ0 := ℓ2)  => //.
     + eapply T_Let' with (j := j); eauto.
     + apply : cfacts.conv_trans; eauto.
@@ -1017,7 +1034,7 @@ Proof.
       hauto l:on use:cfacts.iconv_par.
   (* LetPack *)
   - move => ℓ0 ℓ1 a0 b0 c0 a1 b1 c1 h0 ih0 h1 ih1 h2 ih2 Γ ℓ A /Wt_Let_inv.
-    intros (? & i & j & ℓT  & A0 & B0 & C & hA0 & hB0 & hPack & hc0 & hC & hCoherent & ℓ2 & k & hA).
+    intros (? & i & j & k0 & ℓT  & A0 & B0 & C & hA0 & hB0 & hPack & hc0 & hC & hCoherent & ℓ2 & k & hA).
     move /Wt_Pack_inv : hPack.
     intros (ℓT0 & A1 & B1 & l & ha0 & hb0 & hSig & hSub & _).
     move /Wt_Sig_Univ_inv : hSig => [m][n][?][hA1] hB1. subst.
@@ -1167,15 +1184,13 @@ Lemma T_Proj1 Γ ℓ ℓ0 a A B :
 Proof.
   move => hℓ /[dup] /Wt_regularity => [[?]] [?] /[dup] /Wt_Sig_inv => [[i]] [j] [hA] [hB] _ hSig h.
   replace A with (ren_tm S A)[a..]; last by asimpl.
-  eapply T_Let with (j := Nat.max i j); eauto using meet_idempotent.
-  - admit.
-  - admit.
+  eapply T_Let_simpl ; eauto using meet_idempotent.
   - apply : T_Var; last by apply hℓ.
     + hauto lq:on ctrs:Wff use:Wt_Wff.
     + apply : there'; cycle 1.
       apply here. substify. by asimpl.
   - apply : weakening_Syn'; eauto. by asimpl.
-Admitted.
+Qed.
 
 Lemma T_Proj2 Γ ℓ ℓ0 a A B :
   ℓ0 ⊆ ℓ ->
@@ -1188,9 +1203,7 @@ Proof.
   replace B[(tLet ℓ0 ℓ0 a (var_tm 1))..]
     with (B[(tLet ℓ0 ℓ0 (var_tm 0) (var_tm 1)) .: shift >> var_tm])[a..];
     last by asimpl.
-  eapply T_Let with (j := Nat.max i j); eauto using meet_idempotent.
-  - admit.
-  - admit.
+  eapply T_Let_simpl; eauto using meet_idempotent.
   - asimpl.
     eapply T_Conv with (A := B ⟨S⟩) (i := j).
     apply : T_Var; last by apply meet_idempotent.
@@ -1217,9 +1230,7 @@ Proof.
   replace (tLet ℓ0 ℓ a B[(var_tm 1) .: shift >> shift >> var_tm])
     with (tLet ℓ0 ℓ (var_tm 0) B[var_tm 1 .: shift >> shift >> shift >> var_tm])[a..];
     last by asimpl.
-  eapply T_Let with (i := j) (j := Nat.max i j); eauto using meet_idempotent.
-  - admit.
-  - admit.
+  eapply T_Let_simpl; eauto using meet_idempotent.
   - eapply T_Conv with (A := B ⟨S⟩) (i := j).
     apply : T_Var; last by apply meet_idempotent.
     + hauto lq:on ctrs:Wff use:Wt_Wff.
