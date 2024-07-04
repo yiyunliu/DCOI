@@ -1378,7 +1378,27 @@ Proof.
            eauto.
            by asimpl.
            solve_lattice.
-        *** admit.
+        *** have E : A ⟨S⟩ = A[S >> var_tm] by substify.
+            have -> : B ⟨0 .: S >> S⟩ = B[var_tm 0 .: S >> S >> var_tm] by substify; asimpl.
+            have hA' : (ℓ1, tSig ℓ0 A B) :: Γ ⊢ A[S >> var_tm]; ℓB ∈ tUniv i.
+            { eapply weakening_Syn in hA.
+              rewrite E in hA. exact hA. exact hSig. }
+            have hwff' : ⊢ (ℓ0, A[S >> var_tm]) :: (ℓ1, tSig ℓ0 A B) :: Γ
+              by hauto lq:on ctrs:Wff use:Wff_cons, Wt_Wff.
+            rewrite E.
+            apply : Wff_cons => //.
+            eapply morphing_Syn_Univ
+              with (ρ := var_tm 0 .: S >> S >> var_tm)
+                   (Δ := (ℓ0, A[S >> var_tm]) :: (ℓ1, tSig ℓ0 A B) :: Γ)
+              in hB => //.
+            exact hB. asimpl.
+            have -> : (S >> (S >> var_tm)) = var_tm >> ren_tm S >> ren_tm S by asimpl.
+            apply good_morphing_cons.
+            apply : good_morphing_suc; eauto.
+            apply : good_morphing_suc; eauto.
+            hauto lq:on rew:off use:good_morphing_nil, Wt_Wff.
+            apply : T_Var; auto using meet_idempotent.
+            apply here'. by asimpl.
         ** rewrite -/ren_tm.
            apply T_Univ => //.
            admit.
