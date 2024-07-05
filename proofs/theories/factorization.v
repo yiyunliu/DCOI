@@ -1132,6 +1132,26 @@ Fixpoint LoRedOpt a :=
   | tUniv _ => None
   | tRefl => None
   | tVoid => None
+  | tNat => None
+  | tZero => None
+  | tSuc a => match LoRedOpt a with
+             | Some a0 => Some (tSuc a0)
+             | None => None
+             end
+  | tInd ℓ a b tZero => Some a
+  | tInd ℓ a b (tSuc c) =>
+      Some (b[(tInd ℓ a b c) .: c ..])
+  | tInd ℓ a b c =>
+      match LoRedOpt c with
+      | Some c0 => Some (tInd ℓ a b c0)
+      | None => match LoRedOpt a with
+               | Some a0 => Some (tInd ℓ a0 b c)
+               | None => match LoRedOpt b with
+                        | Some b0 => Some (tInd ℓ a b0 c)
+                        | None =>None
+                        end
+               end
+      end
   end.
 
 Lemma nf_no_red a : nf a -> LoRedOpt a = None.
@@ -1173,6 +1193,25 @@ Proof.
     hauto b:on drew:off inv:tm use:nf_no_red, ne_nf.
   - move => ℓ0 ℓ1 a b c.
     case : T_eqdec => //.
+  - move => ℓ a b c0 c1 nc hc ihc.
+    rewrite !{}ihc.
+    hauto q:on inv:LoRed.
+  - move => ℓ a0 a1 b c nec ha iha.
+    rewrite !{}iha.
+    hauto b:on drew:off inv:tm use:nf_no_red, ne_nf.
+  - move => ℓ a b0 b1 c nec nfa hb ihb.
+    rewrite !{}ihb.
+    set q := (X in X = _).
+    have -> : q = match LoRedOpt c with
+           | Some c0 => Some (tInd ℓ a b0 c0)
+           | None => match LoRedOpt a with
+                     | Some a0 => Some (tInd ℓ a0 b0 c)
+                     | None => Some (tInd ℓ a b1 c)
+                     end
+                  end by hauto dep:on inv:tm.
+    move {q}.
+    hauto b:on drew:off inv:tm use:nf_no_red, ne_nf.
+  - hauto lq:on.
 Qed.
 
 Definition LoRed' a b := LoRedOpt a = Some b.
@@ -1231,6 +1270,35 @@ Proof.
       * move E0 : (LoRedOpt b) => T.
         elim : T E0=>//=;
                  hauto qb:on drew:off ctrs:Par use:Par_refl.
+  - hauto q:on ctrs:Par.
+  - move => ℓ a iha b ihb c ihc.
+    case E : (isNum c) => //=.
+    + have [] : c = tZero \/ exists c0, c = tSuc c0 by move : E; clear; hauto q:on inv:tm.
+      move => ?. subst. hauto q:on ctrs:Par use:Par_refl.
+      move => [c0]?. subst.
+      move => b0 [?]. subst.
+      hauto q:on ctrs:Par use:Par_refl.
+    + move => b0.
+      move E0 : (LoRedOpt c) => T.
+      case : T E0 => //=.
+      * move => a0 h.
+        set q := (X in X = _).
+        have : q = Some (tInd ℓ a b a0).
+        move : E. clear. subst q. case : c =>//=.
+        move ->.  move =>[?]. subst.
+        hauto lq:on rew:off ctrs:Par use:Par_refl.
+      * move E0 : (LoRedOpt a) => T.
+        case : T E0 => //=.
+        ** move => a0 ? h.
+           hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
+        ** move E0 : (LoRedOpt b) => T.
+           case : T E0 => //=.
+           *** hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
+           *** move => ? ? E0.
+               set q := (X in X = _).
+               have : q = None.
+               move : E. clear. subst q. case : c =>//=.
+               congruence.
 Qed.
 
 Lemma LoRed'_Par a b :
@@ -1258,19 +1326,6 @@ Proof.
   - hauto q:on ctrs:Acc use:nf_no_lored.
   - hauto l:on ctrs:Acc.
 Qed.
-
-(* Lemma LoRed'_sequence a b c : *)
-(*   rtc LoRed' a b -> *)
-(*   rtc LoRed' a c -> *)
-(*   rtc LoRed' b c \/ rtc LoRed' c b. *)
-(* Proof. *)
-(*   move => h. move : c. *)
-(*   elim : a b / h. hauto lq:on. *)
-(*   - move => a b c ha hb ih d had. *)
-(*     destruct had. *)
-(*     hauto lq:on rew:off ctrs:rtc. *)
-(*     hauto l:on unfold:LoRed'. *)
-(* Qed. *)
 
 Lemma LoRed'_nf_unique a b c :
   rtc LoRed' a b ->
