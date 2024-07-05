@@ -441,6 +441,13 @@ Definition isPack a :=
   | _ => false
   end.
 
+Definition isNum a :=
+  match a with
+  | tSuc _ => true
+  | tZero => true
+  | _ => false
+  end.
+
 (* Leftmost-outermost reduction *)
 Inductive LoRed : tm -> tm -> Prop :=
 | LoR_Pi0 ℓ0 A0 A1 B :
@@ -542,7 +549,38 @@ Inductive LoRed : tm -> tm -> Prop :=
 
 | LoR_LetPack ℓ0 ℓ1 a b c :
   (* --------------------------------------------- *)
-  LoRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) c[b .: a ..].
+  LoRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) c[b .: a ..]
+
+| LoR_Ind0 ℓ a b c0 c1 :
+  ~~ isNum c0 ->
+  LoRed c0 c1 ->
+  (* --------------------- *)
+  LoRed (tInd ℓ a b c0) (tInd ℓ a b c1)
+
+| LoR_Ind1 ℓ a0 a1 b c :
+  ne c ->
+  LoRed a0 a1 ->
+  (* ------------------------- *)
+  LoRed (tInd ℓ a0 b c) (tInd ℓ a1 b c)
+
+| LoR_Ind2 ℓ a b0 b1 c :
+  ne c ->
+  nf a ->
+  LoRed b0 b1 ->
+  (* ------------------------- *)
+  LoRed (tInd ℓ a b0 c) (tInd ℓ a b1 c)
+
+| LoR_IndZero ℓ a b :
+  (* ----------------------------- *)
+  LoRed (tInd ℓ a b tZero) a
+
+| LoR_IndSuc ℓ a b c :
+  (* ----------------------------- *)
+  LoRed (tInd ℓ a b (tSuc c)) b[(tInd ℓ a b c) .: c ..]
+
+| LoR_Suc a b:
+  LoRed a b ->
+  LoRed (tSuc a) (tSuc b).
 
 Module nfact := normalform_fact lattice syntax par normalform.
 Import nfact.
@@ -564,6 +602,15 @@ Proof.
   elim : a T/h; hauto lq:on ctrs:rtc inv:NPar.
 Qed.
 
+Lemma NPar_Suc_inv a b :
+  rtc NPar a (tSuc b) ->
+  exists a0, a = tSuc a0 /\ rtc Par a0 b.
+Proof.
+  move E : (tSuc b) => T h.
+  move : b E.
+  elim : a T/h; hauto lq:on ctrs:rtc inv:NPar.
+Qed.
+
 Lemma HRed_LoRed : subrelation HRed LoRed.
 Proof. induction 1; hauto lq:on inv:HRed ctrs:LoRed. Qed.
 
@@ -578,12 +625,28 @@ Lemma LoRed_Abs_Cong a b ℓ :
   rtc LoRed (tAbs ℓ a) (tAbs ℓ b).
 Proof. move => h. elim:a b/h; hauto lq:on ctrs:LoRed, rtc. Qed.
 
+Lemma LoRed_Suc_Cong a b :
+  rtc LoRed a b ->
+  rtc LoRed (tSuc a) (tSuc b).
+Proof. move => h. elim:a b/h; hauto lq:on ctrs:LoRed, rtc. Qed.
+
 Lemma NPar_App_inv u a ℓ0 b :
   rtc NPar u (tApp a ℓ0 b) ->
   exists a0 b0, u = tApp a0 ℓ0 b0 /\ rtc NPar a0 a /\ rtc Par b0 b.
 Proof.
   move E : (tApp a ℓ0 b) => T h.
   move : a b E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Ind_inv u ℓ a b c :
+  rtc NPar u (tInd ℓ a b c) ->
+  exists a0 b0 c0, u = tInd ℓ a0 b0 c0 /\ rtc NPar c0 c  /\ rtc Par a0 a /\ rtc Par b0 b.
+Proof.
+  move E : (tInd ℓ a b c) => T h.
+  move : a b c E.
   elim : u T /h.
   - hauto lq:on ctrs:rtc inv:NPar.
   - hauto lq:on inv:NPar ctrs:Par, rtc.
@@ -614,6 +677,15 @@ Lemma NPar_Void_inv u :
   u = tVoid.
 Proof.
   move E : tVoid => T h.
+  move : E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Nat_inv u :
+  rtc NPar u tNat ->
+  u = tNat.
+Proof.
+  move E : tNat => T h.
   move : E.
   elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
 Qed.
@@ -681,6 +753,11 @@ Lemma LoRed_IsPack_inv a b :
   isPack a -> isPack b.
 Proof. induction 1; hauto inv:LoRed. Qed.
 
+Lemma LoRed_IsNum_inv a b :
+  rtc LoRed a b ->
+  isNum a -> isNum b.
+Proof. induction 1; hauto inv:LoRed. Qed.
+
 Lemma LoRed_Abs_inv ℓ a b :
   rtc LoRed (tAbs ℓ a) b ->
   exists a0, b = tAbs ℓ a0 /\ rtc LoRed a a0.
@@ -714,6 +791,15 @@ Proof.
   elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
 Qed.
 
+Lemma NPar_Zero_inv u :
+  rtc NPar u tZero ->
+  u = tZero.
+Proof.
+  move E : tZero => T h.
+  move : E.
+  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
 Lemma LoRed_App_Cong a0 a1 ℓ b0 b1 :
   rtc LoRed a0 a1 ->
   ne a1 ->
@@ -732,6 +818,30 @@ Proof.
     move => ?.
     have : isAbs a2 by hauto q:on ctrs:rtc use:LoRed_IsAbs_inv.
     move : ha2; clear. elim : a2 => //=.
+Qed.
+
+Lemma LoRed_Ind_Cong ℓ c0 c1 a0 a1 b0 b1 :
+  rtc LoRed c0 c1 ->
+  ne c1 ->
+  rtc LoRed a0 a1 ->
+  nf a1 ->
+  rtc LoRed b0 b1 ->
+  rtc LoRed (tInd ℓ a0 b0 c0) (tInd ℓ a1 b1 c1).
+Proof.
+  move => h. move : a0 a1 b0 b1.
+  elim : c0 c1 /h.
+  - move => c a0 a1 + + h h0.
+    elim : a0 a1  /h0; last by hauto lq:on ctrs:rtc,LoRed.
+    move => a b0 b1 h0 h1.
+    elim : b0 b1 /h1; last by hauto lq:on ctrs:rtc,LoRed.
+    eauto using rtc_refl.
+  - move => c0 c1 c2 hc hc' ih a0 a1 b0 b1 nec ha nfa hb.
+    apply : rtc_l; eauto.
+    apply LoR_Ind0; last by eauto using rtc_l.
+    apply /negP.
+    move => ?.
+    have : isNum c2 by hauto q:on ctrs:rtc use:LoRed_IsNum_inv.
+    move : nec. clear. elim : c2 => //=.
 Qed.
 
 Lemma LoRed_Pi_Cong ℓ A0 A1 B0 B1 :
@@ -914,6 +1024,24 @@ Proof.
     move /andP => ?.
     apply : rtc_transitive; eauto.
     sfirstorder use:ne_nf, NPars_Pars, LoRed_Let_Cong.
+  - move => a /factorization.
+    move => [u0][/HReds_LoReds hu0].
+    move /NPar_Zero_inv => ?. by subst.
+  - move => a iha a0 /factorization.
+    move => [u0][/HReds_LoReds hu0].
+    move /NPar_Suc_inv.
+    hauto lq:on use:rtc_transitive, LoRed_Suc_Cong.
+  - move => ℓ a iha b ihb c ihc u /factorization.
+    move => [u0][/HReds_LoReds hu0].
+    move /NPar_Ind_inv.
+    move => [a0][b0][c0][?][hc][ha]hb.
+    move /andP => [+ h].
+    move /andP => [? ?]. subst.
+    apply : rtc_transitive; eauto.
+    sfirstorder use:NPars_Pars, ne_nf, LoRed_Ind_Cong.
+  - move => a /factorization.
+    move => [u][/HReds_LoReds hu0].
+    move /NPar_Nat_inv => ? _. by subst.
 Qed.
 
 Fixpoint LoRedOpt a :=
