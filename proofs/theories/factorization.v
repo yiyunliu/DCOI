@@ -33,7 +33,20 @@ Inductive HRed : tm -> tm -> Prop :=
   HRed (tLet ℓ0 ℓ1 a0 b) (tLet ℓ0 ℓ1 a1 b)
 
 | HR_LetPack ℓ0 ℓ1 a b c :
-  HRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) c[b .: a ..].
+  HRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) c[b .: a ..]
+
+| HR_Ind ℓ a b c0 c1 :
+  HRed c0 c1 ->
+  (* ------------------------ *)
+  HRed (tInd ℓ a b c0) (tInd ℓ a b c1)
+
+| HR_IndZero ℓ a b :
+  (* ------------------------ *)
+  HRed (tInd ℓ a b tZero) a
+
+| HR_IndSuc ℓ a b c:
+  (* ------------------------ *)
+  HRed (tInd ℓ a b (tSuc c)) b[(tInd ℓ a b c) .: c ..].
 
 (* Non-essential parallel reduction *)
 (* Reduces the parts that are not reduced by weak head reduction *)
@@ -102,7 +115,25 @@ Inductive NPar : tm -> tm -> Prop :=
   NPar tVoid tVoid
 
 | NP_Refl :
-  NPar tRefl tRefl.
+  NPar tRefl tRefl
+
+| NP_Nat :
+  NPar tNat tNat
+
+| NP_Zero :
+  NPar tZero tZero
+
+| NP_Suc a b :
+  a ⇒ b ->
+  (* ---------------- *)
+  NPar (tSuc a) (tSuc b)
+
+| NP_Ind ℓ a0 b0 c0 a1 b1 c1  :
+  a0 ⇒ a1 ->
+  b0 ⇒ b1 ->
+  NPar c0 c1 ->
+  (* ----------- *)
+  NPar (tInd ℓ a0 b0 c0) (tInd ℓ a1 b1 c1).
 
 Module pfacts := par_facts lattice syntax par.
 Import pfacts.
@@ -128,12 +159,19 @@ Lemma HR_LetPack' ℓ0 ℓ1 a b c u :
   HRed (tLet ℓ0 ℓ1 (tPack ℓ0 a b) c) u.
 Proof. move => ->. by apply HR_LetPack. Qed.
 
+Lemma HR_IndSuc' ℓ a b c u:
+  u = b[(tInd ℓ a b c) .: c ..] ->
+  (* ------------------------ *)
+  HRed (tInd ℓ a b (tSuc c)) u.
+Proof. move => ->. by apply HR_IndSuc. Qed.
+
 Lemma HRed_renaming a b (h : HRed a b) :
   forall ξ, HRed (ren_tm ξ a) (ren_tm ξ b).
 Proof.
   elim:a b/h; try qauto ctrs:HRed.
   - move => *; apply : HR_AppAbs'; by asimpl.
   - move => *; apply : HR_LetPack'; by asimpl.
+  - move => *; apply : HR_IndSuc'; by asimpl.
 Qed.
 
 Lemma merge t a u :
@@ -179,6 +217,14 @@ Proof.
   hauto lq:on ctrs:NPar use:starseq_par.
 Qed.
 
+Lemma starseq_suc_cong M N
+  (h : starseq M N) :
+  starseq (tSuc M) (tSuc N).
+Proof.
+  apply S_Refl.
+  hauto lq:on ctrs:NPar use:starseq_par.
+Qed.
+
 Lemma starseq_app_cong M N ℓ P Q :
   starseq M N ->
   P ⇒ Q ->
@@ -206,6 +252,16 @@ Proof.
   elim : p0 p1 /h0; hauto lq:on ctrs:starseq, NPar,Par,HRed.
 Qed.
 
+Lemma starseq_ind_cong ℓ a0 a1 b0 b1 c0 c1 :
+  a0 ⇒ a1 ->
+  b0 ⇒ b1 ->
+  starseq c0 c1 ->
+  starseq (tInd ℓ a0 b0 c0) (tInd ℓ a1 b1 c1).
+Proof.
+  move => h0 h1 h2.
+  elim : c0 c1 /h2; hauto lq:on ctrs:starseq, NPar,Par,HRed.
+Qed.
+
 Lemma starseq_ρ_par ρ0 ρ1 :
   (forall i : fin, starseq (ρ0 i) (ρ1 i)) ->
   (forall i : fin, Par (ρ0 i) (ρ1 i)).
@@ -231,16 +287,13 @@ Proof.
   - move => a0 a1 ℓ0 b0 b1 ha iha hb ihb ρ0 ρ1 hρ /=.
     apply starseq_app_cong.
     sfirstorder.
-    (* par cong *)
     sfirstorder use:Par_morphing, starseq_ρ_par.
   - move => a0 a1 b0 b1 ℓ0 ha iha hb ihb ρ0 ρ1 h /=.
     apply : S_Step.
     by apply HR_AppAbs.
     apply P_AppAbs' with (a0 := subst_tm (up_tm_tm ρ1) a1) (b1 := subst_tm ρ1 b1).
     by asimpl.
-    (* par cong *)
     sfirstorder use:Par_morphing, starseq_ρ_par, Par_morphing_lift unfold:Par_m.
-    (* par cong *)
     sfirstorder use:Par_morphing, starseq_ρ_par, Par_morphing_lift unfold:Par_m.
     asimpl.
     apply iha.
@@ -278,6 +331,32 @@ Proof.
     apply ihc.
     case => //=. hauto l:on.
     case => //=. hauto l:on.
+  - hauto l:on.
+  - eauto using starseq_suc_cong.
+  - move => ℓ a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc ρ0 ρ1 hρ /=.
+    move/starseq_ρ_par : (hρ) => ?.
+    apply starseq_ind_cong; eauto.
+    hauto lq:on ctrs:Par use:Par_morphing unfold:Par_m.
+    hauto lq:on ctrs:Par use:Par_morphing, Par_morphing_lift2 unfold:Par_m.
+  - move => ℓ a0 a1 b ha iha ρ0 ρ1 hρ /=.
+    apply : S_Step; eauto.
+    apply HR_IndZero.
+    apply P_IndZero.
+    sfirstorder use:Par_morphing, starseq_ρ_par unfold:Par_m.
+  - move => ℓ a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc ρ0 ρ1 hρ.
+    move/starseq_ρ_par : (hρ) => ?.
+    apply S_Step with (P := b0[(tInd ℓ a0 b0 c0).: c0 ..][ρ0]).
+    apply : HR_IndSuc'. rewrite-/subst_tm; by asimpl.
+    apply Par_morphing. hauto l:on use:starseq_ρ_par unfold:Par_m.
+    by apply P_IndSuc.
+    asimpl.
+    apply ihb.
+    case => //=.
+    apply starseq_ind_cong ; eauto. hauto l:on use:Par_morphing unfold:Par_m.
+    suff : b0[up_tm_tm (up_tm_tm ρ0)] ⇒ b1[up_tm_tm (up_tm_tm ρ1)] by asimpl.
+    sfirstorder use:Par_morphing_lift2, Par_morphing unfold:Par_m.
+    case => //=; eauto.
+  - hauto l:on.
 Qed.
 
 Lemma split t s (h : t ⇒ s) :
@@ -302,6 +381,16 @@ Proof.
     by apply HR_LetPack.
     by apply P_LetPack.
     hauto lq:on ctrs:starseq inv:nat use:ipar_starseq_morphing.
+  - eauto using starseq_ind_cong.
+  - hauto lq:on ctrs:starseq, HRed, Par.
+  - move => *.
+    apply : S_Step=>//.
+    by apply HR_IndSuc.
+    by apply P_IndSuc.
+    apply : ipar_starseq_morphing; eauto.
+    case => //=.
+    sfirstorder use:starseq_ind_cong.
+    case => //=. move => n. apply S_Refl. apply NP_Var.
 Qed.
 
 (* Erase the information about one step par from starseq *)
