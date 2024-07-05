@@ -333,9 +333,41 @@ type check in the previous version of \dcoi.
 % a ~>* na, b ~>* nb, na == nb @ (min la lb) where la = lvl(na), lb = lvl(nb)
 % level of term can go down after reduction
 
+\begin{lstlisting}
+  data Nat : Type where
+    zero
+    succ @k of Nat@k
+
+  ex : (f : Nat@1 -> Nat)@0 -> f (succ zero) ~@0 f zero @ 1
+  ex = \f. refl
+\end{lstlisting}
+
 \subsection{Examples new to this paper}
 
 \jc{why have the below subsubsection headings (except the first one) disappeared?}
+
+\subsubsection{Absurd elimination}
+
+\begin{lstlisting}
+  data Void : Type where {}
+
+  data List (A : Type)@1 : Type where
+    nil
+    cons @k of A@k (List A)@k
+
+  length : (A : Type)@1 -> List A -> Nat @ 0
+  length = \A l.
+    case l of
+      nil       => zero
+      cons _ xs => succ (length A xs)
+
+  head : (A : Type)@1 -> (l : List A) ->
+         ((length A l ~ Zero) -> Void)@1 -> A @ 0
+  head = \A l. 
+    case l of 
+      nil      => \f. case (f Refl) of {}
+      cons x _ => \_. x
+\end{lstlisting}
 
 \subsubsection{More expressive eliminator for propositional equality}
 
@@ -357,29 +389,6 @@ type check in the previous version of \dcoi.
   proj2' : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
            (p : Pair A B)@2 -> case p of pair a b => B a @ 2
   proj2' = \A B p. case p of pair a b => b
-\end{lstlisting}
-
-\subsubsection{Absurd elimination}
-
-\begin{lstlisting}
-  data Void : Type where {}
-
-  data List (A : Type)@1 : Type where
-    nil
-    cons @k of A@k (List A)@k
-
-  length : (A : Type)@1 -> List A -> Nat
-  length = \A l.
-    case l of
-      nil       => zero
-      cons _ xs => succ (length A xs)
-
-  head : (A : Type)@1 -> (l : List A) ->
-         ((length A l ~ Zero) -> Void)@1 -> A
-  head = \A l. 
-    case l of 
-      nil      => \f. case (f Refl) of {}
-      cons x _ => \_. x
 \end{lstlisting}
 
 \begin{align*}
