@@ -2419,6 +2419,19 @@ irrelevant sorts.
 \end{itemize}
 
 \subsection{Dependent Types and Counting}
+Counting is a type of fine-grained static analysis that tracks the
+number of times a resource can be used. Unlike systems that track
+dependency, usage information is represented in the form of a semiring
+rather than a lattice. However, with a boolean semiring, one can use a
+semiring to track dependency and perform external erasure.
+
+Quantitative Type Theory
+(QTT)~\citep{atkey:qtt} adds usage tracking to a dependent type
+theory.
+
+\todo{GRTT, Graded Modal Dependent Type Theory (type-level grades but
+  no external erasure)}
+
 
 \subsection{Dependent Types and Indistinguishability}
 
