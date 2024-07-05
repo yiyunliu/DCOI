@@ -30,6 +30,10 @@ Fixpoint debruijnDepth a : nat :=
   | tLet _ _ a b => max (debruijnDepth a) (debruijnDepth b - 2)
   | tPack _ a b => max (debruijnDepth a) (debruijnDepth b)
   | tAbsurd a => debruijnDepth a
+  | tNat => 0
+  | tZero => 0
+  | tSuc a => debruijnDepth a
+  | tInd _ a b c => max (debruijnDepth a) (max (debruijnDepth b - 2) (debruijnDepth c))
   end.
 
 Lemma lookup_lt i Γ ℓ A : lookup i Γ ℓ A -> i < length Γ.
