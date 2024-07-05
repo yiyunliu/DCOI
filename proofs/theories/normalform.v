@@ -25,6 +25,10 @@ Fixpoint ne (a : tm) : bool :=
   | tLet _ _ a b => ne a && nf b
   | tVoid => false
   | tAbsurd a => ne a
+  | tZero => false
+  | tNat => false
+  | tSuc _ => false
+  | tInd _ a b c => nf a && nf b && ne c
   end
 with nf (a : tm) : bool :=
   match a with
@@ -45,6 +49,10 @@ with nf (a : tm) : bool :=
   | tLet _ _ a b => ne a && nf b
   | tVoid => true
   | tAbsurd a => ne a
+  | tZero => true
+  | tNat => true
+  | tSuc a => nf a
+  | tInd _ a b c => nf a && nf b && ne c
   end.
 
 (* Terms that are weakly normalizing to a neutral or normal form. *)
@@ -226,6 +234,44 @@ Proof.
     move /(_ ltac:(auto using ren_with_d_up_tm)) : ihc => [c2 [ihc ?]]. subst.
     exists (c2[b2 .: a2 ..]).
     split; [by auto with par | by asimpl].
+  - move => []//=.
+    hauto l:on use:ren_with_d_imp.
+    hauto q:on ctrs:Par use:ren_with_d_up_tm.
+  - move => a b ? iha []//=.
+    hauto l:on use:ren_with_d_imp.
+    hauto q:on ctrs:Par use:ren_with_d_up_tm.
+  - move => ℓ a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc []//=.
+    hauto q:on use:ren_with_d_imp.
+    hauto lq:on ctrs:Par use:ren_with_d_up_tm.
+  - move => ℓ a0 a1 b ha iha []//=.
+    hauto q:on use:ren_with_d_imp.
+    move => ℓ0 a2 b2 c2 ξ [? ? ?] h hξ. subst.
+    case : c2 h=>//=.
+    hauto q:on use:ren_with_d_imp.
+    qauto l:on ctrs:Par.
+  - move => ℓ a0 a1 b0 b1 c0 c1 ha iha hb ihb hc ihc []//=.
+    hauto q:on use:ren_with_d_imp.
+    move => ℓ0 a2 b2 c2 ξ [? ? ?] h hξ. subst.
+    case : c2 h=>//=.
+    hauto q:on use:ren_with_d_imp.
+    move => t [?]. subst.
+    specialize ihc with (1 := eq_refl).
+    specialize ihb with (1 := eq_refl).
+    specialize iha with (1 := eq_refl).
+    have : ren_with_d (up_tm_tm (up_tm_tm ξ)) by auto using ren_with_d_up_tm.
+    move /ihb => {}ihb.
+    move /iha : (hξ) => {}iha.
+    move /ihc : (hξ) => {}ihc.
+    move : iha ihb ihc. clear.
+    move => [t'][h0]?.
+    move => [b2'][h1]?.
+    move => [t0'][h2]?. subst.
+    eexists.
+    split. apply P_IndSuc; eauto.
+    by asimpl.
+  - case=>//=.
+    hauto l:on use:ren_with_d_imp.
+    hauto q:on ctrs:Par use:ren_with_d_up_tm.
 Qed.
 
 Local Lemma Pars_antirenaming (a b0 : tm) ξ
@@ -248,35 +294,6 @@ Proof.
   move: Pars_antirenaming (hξ) (rv); repeat move/[apply]. move => [b [hb ?]]. subst.
   hauto q:on use:ne_nf_renaming_with_d.
 Qed.
-
-(* ------------------------------------------------------------- *)
-
-(* The next set of lemmas are congruence rules for multiple steps
-   of parallel reduction. *)
-
-(* Lemma S_Ind a0 a1 : forall b0 b1 c0 c1, *)
-(*     a0 ⇒* a1 -> *)
-(*     b0 ⇒* b1 -> *)
-(*     c0 ⇒* c1 -> *)
-(*     (tInd a0 b0 c0) ⇒* (tInd a1 b1 c1). *)
-(* Proof. *)
-(*   move => + + + + h. *)
-(*   elim : a0 a1 /h. *)
-(*   - move => + b0 b1 + + h. *)
-(*     elim : b0 b1 /h. *)
-(*     + move => + + c0 c1 h. *)
-(*       elim : c0 c1 /h. *)
-(*       * auto using rtc_refl. *)
-(*       * solve_s_rec. *)
-(*     + solve_s_rec. *)
-(*   - solve_s_rec. *)
-(* Qed. *)
-
-(* Lemma S_Suc a b (h : a ⇒* b) : tSuc a ⇒* tSuc b. *)
-(* Proof. *)
-(*   elim : a b / h; last by solve_s_rec. *)
-(*   move => ?; apply rtc_refl. *)
-(* Qed. *)
 
 (* ------------------------------------------------------ *)
 
