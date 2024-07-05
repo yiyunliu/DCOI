@@ -64,7 +64,6 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
 
 | T_Suc Γ ℓ a :
   Γ ⊢ a ; ℓ ∈ tNat ->
-  ⊢ Γ ->
   (* --------- *)
   Γ ⊢ tSuc a ; ℓ ∈ tNat
 

@@ -260,7 +260,7 @@ Proof.
   (* Zero *)
   - hauto l:on.
   (* Suc *)
-  - move => Γ ℓ a _ ha _ hΓ Δ ρ hρ.
+  - move => Γ ℓ a _ ha Δ ρ hρ.
     move /(_ _ ρ hρ) : ha.
     move => [m][PA][h] h0.
     exists m, PA. split=>//.

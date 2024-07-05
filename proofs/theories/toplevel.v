@@ -1,4 +1,4 @@
-Require Import conv par geq imports normalform semtyping typing soundness preservation consistency factorization iconv_dec.
+Require Import conv par geq imports normalform semtyping typing soundness preservation consistency factorization iconv_dec admissible.
 
 Module MkAll
   (Import lattice : Lattice).
@@ -42,6 +42,8 @@ Module MkAll
   Module consistency := consistency lattice syntax par nf ieq conv typing lr.
 
   Module iconv_dec := iconv_dec lattice syntax par ieq nf factorization conv.
+
+  Module admissible := admissible lattice syntax par ieq conv typing.
 End MkAll.
 
 Module nat_lattice <: Lattice.

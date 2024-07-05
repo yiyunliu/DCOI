@@ -816,7 +816,7 @@ Proof.
   move : a E.
   elim : Γ ℓ a0 T / h=>//.
   - hauto lq:on rew:off use:cfacts.conv_trans.
-  - hauto lq:on ctrs:Wt use:T_Nat, typing_conv.
+  - hauto lq:on ctrs:Wt use:T_Nat, typing_conv db:wff.
 Qed.
 
 Lemma Wt_Refl_Coherent Γ ℓ ℓ0 a b (h : Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a b)) :
@@ -1084,7 +1084,6 @@ Proof.
   - move => a b h ih Γ ℓ A /Wt_Suc_inv.
     move => [?][h0][h1][i]h2.
     apply : T_Conv; eauto.
-    have : ⊢ Γ by eauto with wff.
     have : Γ ⊢ b ; ℓ ∈ tNat by auto.
     apply T_Suc.
   (* Ind *)
