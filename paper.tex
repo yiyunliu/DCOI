@@ -1201,9 +1201,11 @@ which proceeds by induction on the typing derivation.
   \caption{Logical predicate}
   \label{fig:logpred}
 \end{figure}
-
 In this section, we use a logical predicate to show weak
 normalization and consistency for \name.
+Due to \name{}'s flexible treatment of type conversion \emph{and}
+and its support for large elimination, we cannot directly reuse the
+proofs found in \citet{abel:irrelevance, geuvers:cc-sn}.
 We structure the section as follows. In \cref{sec:logpred}, we
 present the definition of the logical predicate and its properties. In
 \cref{sec:soundness}, we define valid substitutions and
@@ -2437,10 +2439,60 @@ semiring to track dependency and perform external erasure.
 
 Quantitative Type Theory
 (QTT)~\citep{atkey:qtt} adds usage tracking to a dependent type
-theory.
+theory. In QTT, variables in the typing contexts are annotated with
+elements from the semiring. Its typing judgment takes the form
+$\Gamma \vdash M :^{\sigma} T$ where $\sigma$ ranges over the
+constants $0$ and $1$ from the semiring, reminiscent of \citet{pfenning:modal}'s
+$\div$ and $:$ modalities.
+In QTT, usage annotations are only enforced at the term-level, not at the
+type-level. In the following QTT formation rule for function
+types, the usage annotation $\pi$ for the variable $x$ is ignored and
+set to $0$ when checking the output type $T$.
+\begin{mathpar}
+  \infer{
+    0 \Gamma \vdash S \\
+    0 \Gamma \vdash x:^0 S \vdash T
+  }{
+    0 \Gamma \vdash (x :^\pi S) \rightarrow T
+  }
+\end{mathpar}
+In fact, type formation rule in QTT completely discards usage
+information; as seen in the above rule, the context for the type
+formation judgment is always $0
+\Gamma$, which is obtained by resetting the usage information in
+$\Gamma$ to $0$.
 
-\todo{GRTT, Graded Modal Dependent Type Theory (type-level grades but
-  no external erasure)}
+GraD~\citep{choudhury:grad} later gives a more uniform design where
+type formation rules are presented in the style of a PTS and share the
+same judgment form as typing for terms. This allows one to analyze
+usage information for a type expression. \citet{choudhury:grad}
+point out the possibility of leveraging usage information for type
+conversion. Unlike QTT, the soundness of resource tracking in GraD is
+proven using a syntactic approach through heap semantics. As a logic,
+GraD is inconsistent as it admits the \emph{type in type} axiom.
+
+Graded Modal Dependent Type Theory (GRTT)~\citep{moon:graded} is a
+predicative type theory that tracks
+resource usage separately for types and terms.
+The fine-grained
+usage tracking allows one to recover parametricity by rejecting
+undesired type-level or term-level access of
+variables. \citet{moon:graded} further explores how one can take
+advantage of the usage information to optimize the type checking
+algorithm through their prototype implementation. For example,
+given a dependent function type $x : A \rightarrow B$, if the
+variable $x$ has $0$ usage in $B$, then the substitution $B {t / x}$
+can be ignored. However, this optimization is not formalized in
+GRTT. Type conversion in GRTT is oblivious of the usage
+information. The lack of interaction between modalities and type
+conversion allows them to recover the strong normalization by adapting
+the strong normalization for CC found in \citet{geuvers:cc-sn}.
+
+\citet{abel:grade} introduce a graded modal dependent
+type theory that also allows tracking usage for both terms and
+types. The language by Abel and others is more
+expressive as it supports large elimination, though its definitional
+equality, like GRTT, is also defined independently of the modalities.
 
 
 \subsection{Dependent Types and Indistinguishability}
