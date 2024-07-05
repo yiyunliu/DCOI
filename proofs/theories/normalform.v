@@ -323,13 +323,13 @@ Proof.
   hauto lq:on b:on use:S_J.
 Qed.
 
-(* Lemma wne_ind (a b c : tm) : *)
-(*   wn a -> wn b -> wne c -> wne (tInd a b c). *)
-(* Proof. *)
-(*   move => [a0 [? ?]] [b0 [? ?]] [c0 [? ?]]. *)
-(*   exists (tInd a0 b0 c0). *)
-(*   qauto l:on use:S_Ind b:on. *)
-(* Qed. *)
+Lemma wne_ind ℓ (a b c : tm) :
+  wn a -> wn b -> wne c -> wne (tInd ℓ a b c).
+Proof.
+  move => [a0 [? ?]] [b0 [? ?]] [c0 [? ?]].
+  exists (tInd ℓ a0 b0 c0).
+  qauto l:on use:S_Ind b:on.
+Qed.
 
 Lemma wne_app ℓ0 (a b : tm) :
   wne a -> wn b -> wne (tApp a ℓ0 b).

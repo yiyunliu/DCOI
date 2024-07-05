@@ -808,7 +808,7 @@ Qed.
 
 (* (* ------------------------ adequacy ------------------------------- *) *)
 
-Lemma InterpUnivN_Nat Ξ : ⟦ Ξ ⊨ tNat ⟧ 0 ↘ (fun ℓ a => IOk Ξ ℓ a /\ exists v, a ⇒* v /\ is_nat_val v).
+Lemma InterpUnivN_Nat Ξ i : ⟦ Ξ ⊨ tNat ⟧ i ↘ (fun ℓ a => IOk Ξ ℓ a /\ exists v, a ⇒* v /\ is_nat_val v).
 Proof. simp InterpUniv. apply InterpExt_Nat. Qed.
 
 End lr_sig.
