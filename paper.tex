@@ -492,8 +492,14 @@ We then look at the rules for dependent pair types (\cref{sec:pairs}),
 and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
 
-\jc{TODO: paragraph here about naturals;
-interested readers can refer to the rules in \cref{sec:naturals}}
+\name also includes the naturals and their induction principle.
+Notably, the induction principle permits large elimination:
+we can branch on a natural and return different types for each branch.
+Our mechanized metatheoretic results all include the naturals.
+However, as their interactions with dependency levels
+are no more interesting than those of the other constructs,
+we omit them from our discussion in the remainder of this paper.
+The interested reader can refer to their rules in \cref{sec:naturals}.
 
 \subsection{Dependency tracking} \label{sec:dep}
 
