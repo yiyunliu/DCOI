@@ -26,15 +26,6 @@ Import solver.
 (* Try use the existential version of ρ_ok and then derive the universal version of ρ_ok as a lemma *)
 Definition ρ_ok Γ Δ ρ := forall i ℓ A, lookup i Γ ℓ A -> IOk (c2e Δ) ℓ (ρ i) /\ forall m PA, ⟦ c2e Δ ⊨ A [ρ] ⟧ m ↘ PA -> PA ℓ (ρ i).
 
-(* Lemma ρ_ok_forall Γ Δ ρ : *)
-(*   ρ_ok Γ Δ ρ -> forall i ℓ A, lookup i Γ ℓ A -> IOk Δ ℓ (ρ i) /\ forall m PA, ⟦ c2e Δ ⊨ A [ρ] ⟧ m ↘ PA -> PA ℓ (ρ i). *)
-(* Proof. *)
-(*   rewrite /ρ_ok => hρ. *)
-(*   move => i ℓ A + m PA hPA. *)
-(*   move /hρ => [m0][PA0][h0]h1. *)
-(*   by have -> : PA = PA0 by eauto using InterpUnivN_deterministic'. *)
-(* Qed. *)
-
 (* Semantic typing, written Γ ⊨ a : A in the paper *)
 Definition SemWt Γ ℓ a A := forall Δ ρ, ρ_ok Γ Δ ρ -> exists m PA, ( ⟦ c2e Δ ⊨ A [ρ] ⟧ m ↘ PA)  /\ PA ℓ (a [ρ]).
 
