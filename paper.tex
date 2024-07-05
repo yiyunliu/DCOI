@@ -392,12 +392,12 @@ type check in the previous version of \dcoi.
 \end{lstlisting}
 
 \begin{align*}
-  [[:concrete: length & : Pi A : H Univ 0 . L (! List H A) -> ! Nat @ L]] \\
+  [[:concrete: length & : Pi A : H Univ 0 . L (! List H A) -> Nat @ L]] \\
   [[:concrete: length & := \ H A . \ L l . phantom]] \\
   & [[:concrete: case l of
-      & null => ! Z ++
-      & cons x xs => ! S L (! length H A L xs)]] \\
-  [[:concrete: head & : Pi A : H Univ 0 . Pi l : L ! List H A . H (H (! length H A L l ~ L ! Z) -> Void) -> A @ L]] \\
+      & null => zero ++
+      & cons x xs => succ (! length H A L xs)]] \\
+  [[:concrete: head & : Pi A : H Univ 0 . Pi l : L ! List H A . H (H (! length H A L l ~ L zero) -> Void) -> A @ L]] \\
   [[:concrete: head & := \ H A . \ L l . phantom]] \\
   & [[:concrete: case l of
       & null => \ H f . absurd (f H refl) ++
@@ -405,16 +405,13 @@ type check in the previous version of \dcoi.
 \end{align*}
 
 \begin{align*}
-  [[:concrete: Ifz & : H ! Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
-  [[:concrete: Ifz & := \ H n . \ H A . \ H B . phantom]] \\
-  & [[:concrete: case n return Univ 0 of
-      & Z => A ++
-      & S n => B]] \\
-  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H ! Nat . H (! Z ~ H ! S H n) -> A @ H]] \\
-  [[:concrete: discr & := \ H A . \ H n . \ H p . J ! Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H ! Nat H A)
-  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H ! Nat . L (! Vec H A H n) -> A @ L]] \\
+  [[:concrete: Ifz & : H Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
+  [[:concrete: Ifz & := \ H n . \ H A . \ H B . ind H n A (\m k. B)]] \\
+  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H Nat . H (zero ~ H succ n) -> A @ H]] \\
+  [[:concrete: discr & := \ H A . \ H n . \ H p . J Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H Nat H A)
+  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H Nat . L (! Vec H A H n) -> A @ L]] \\
   [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
-  & [[:concrete: (case v return \ H m . H (m ~ H ! S H n) -> A of
+  & [[:concrete: (case v return \ H m . H (m ~ H succ n) -> A of
       & vnil => \ H p . absurd (! discr H Void H n H p) ++
       & vcons n x xs => \ H p . x) H refl]]
 \end{align*}
@@ -438,7 +435,8 @@ which is parameterized over a meet-semilattice of dependency levels
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
   & \mid [[Pi x : l A . B]] \mid [[\ l x . b]] \mid [[b l a]] & \quad & \textit{function types, abstractions, applications} \\
   & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l0 x, y) = l a in b]] & \quad & \textit{pair types, pairs, matching} \\
-  & \mid [[a ~ l b]] \mid [[refl]] \mid [[J c l p]] & \quad & \textit{equality types, reflexivity, J eliminator}
+  & \mid [[a ~ l b]] \mid [[refl]] \mid [[J c l p]] & \quad & \textit{equality types, reflexivity, J eliminator} \\
+  & \mid [[Nat]] \mid [[zero]] \mid [[succ a]] \mid [[ind l a b0 (\x y. b1)]] & \quad & \textit{naturals, zero, successor, induction}
 \end{alignat*}
 \caption{Grammar of contexts and terms}
 \label{fig:grammar}
@@ -493,6 +491,9 @@ typing uses a definitional equality that is defined in terms of indistinguishabi
 We then look at the rules for dependent pair types (\cref{sec:pairs}),
 and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
+
+\jc{TODO: paragraph here about naturals;
+interested readers can refer to the rules in \cref{sec:naturals}}
 
 \subsection{Dependency tracking} \label{sec:dep}
 
@@ -2509,9 +2510,16 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \section{Omitted judgement rules}
 
+\subsection{Naturals} \label{sec:naturals}
+
+\drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Nat,Zero,Succ,Ind}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{IndZero,IndSucc}
+\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
+\drules[Wg]{$[[E |- a : l]]$}{Well-gradedness}{Nat,Zero,Succ,Ind}
+
 \subsection{Parallel reduction}
 
-\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Nat,Zero,Succ,Ind}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 
 \end{document}

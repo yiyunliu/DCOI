@@ -340,7 +340,7 @@ G |- proj1 l0 a : l0 A
 ---------------------------------------- :: proj2
 G |- proj2 l0 a : l B { proj1 l0 a / x }
 
-G |- a : l1 Sig x : l0 A . B
+G |- a : l Sig x : l0 A . B
 ------------------------------------------------------------ :: proj2alt
 G |- proj2 l0 a : l let (l0 y, z) = l a in (# B { y / x } #)
 

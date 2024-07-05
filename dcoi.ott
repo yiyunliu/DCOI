@@ -115,6 +115,19 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
     {{ com unbox }}
     {{ coq }}
     {{ tex \ottkw{unbox}^{[[l]]} [[a]] }}
+  | Nat :: :: Nat
+    {{ com naturals }}
+    {{ tex \ottkw{Nat} }}
+  | zero :: :: Zero
+    {{ com zero }}
+    {{ tex \ottkw{zero} }}
+  | succ a :: :: Succ
+    {{ com successor }}
+    {{ tex \ottkw{succ} \, [[a]] }}
+  | ind l a b0 ( \ x y . b1 ) :: :: Ind
+    (+ bind x union y in b1 +)
+    {{ com induction principle for naturals }}
+    {{ tex \ottkw{ind}^{[[l]]} \, [[a]] \, [[b0]] \, (\lambda [[x]] \, [[y]] \mathpunct{.} [[b1]]) }}
   | ( a ) :: S :: Parens
     {{ com parentheses }}
     {{ coq ([[a]]) }}
@@ -266,6 +279,16 @@ c0 => c1
 ------------------------------------------------------------- :: LetPair
 let (l0 x, y) = l (l0 a0, b0) in c0 => c1 { a1 / x , b1 / y }
 
+b0 => b1
+------------------------------ :: IndZero
+ind l zero b0 (\x y. c0) => b1
+
+a0 => a1
+b0 => b1
+c0 => c1
+--------------------------------------------------------------------------- :: IndSucc
+ind l (succ a0) b0 (\x y. c0) => c1 { a1 / x , ind l a1 b1 (\x y. c1) / y }
+
 % congruence rules
 
 ------ :: Var
@@ -322,6 +345,22 @@ a0 => a1
 b0 => b1
 -------------------------------------------------------- :: Let
 let (l0 x, y) = l a0 in b0 => let (l0 x, y) = l a1 in b1
+
+---------- :: Nat
+Nat => Nat
+
+------------ :: Zero
+zero => zero
+
+a0 => a1
+------------------ :: Succ
+succ a0 => succ a1
+
+a0 => a1
+b0 => b1
+c0 => c1
+------------------------------------------------ :: Ind
+ind l a0 b0 (\x y. c0) => ind l a1 b1 (\x y. c1)
 
 ---------------------- :: D
 dummy => dummy
@@ -414,6 +453,22 @@ l1 <= l
 ------------------------------------------------------------------- :: Let
 E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l
 
+------------------- :: Nat
+E |- Nat == Nat @ l
+
+--------------------- :: Zero
+E |- zero == zero @ l
+
+E |- a0 == a1 @ l
+--------------------------- :: Succ
+E |- succ a0 == succ a1 @ l
+
+E |- a0 == a1 @ l
+E |- b0 == b1 @ l
+(# E ++ x : l0 #) ++ y : l0 |- c0 == c1 @ l
+l0 <= l
+----------------------------------------------------------- :: Ind
+E |- ind l0 a0 b0 (\x y. c0) == ind l0 a1 b1 (\x y. c1) @ l
 
 ---------------------- :: D
 E |- dummy == dummy @ l
@@ -573,6 +628,26 @@ l1 <= l
 ------------------------------------------------------------ :: Let
 G |- let (l0 x, y) = l1 a in b : l C { a / z }
 
+|- G
+------------------- :: Nat
+G |- Nat : l Univ i
+
+|- G
+----------------- :: Zero
+G |- zero : l Nat
+
+G |- a : l Nat
+------------------- :: Succ
+G |- succ a : l Nat
+
+G ++ z : l0 Nat |- A : l1 Univ i
+G |- a : l0 Nat
+G |- b0 : l0 A {zero / z}
+(# G ++ x : l0 Nat #) ++ y : l0 A {x / z} |- b1 : l0 A {succ x / z}
+l0 <= l
+------------------------------------------------------------------- :: Ind
+G |- ind l0 a b0 (\x y. b1) : l A {a / z}
+
 G |- a : l A
 G |- B : Univ i
 | G | |- A == B
@@ -647,6 +722,23 @@ l1 <= l
 ------------------------------------ :: Let
 E |- let (l0 x, y) = l1 a in b : l
 
+------------ :: Nat
+E |- Nat : l
+
+------------- :: Zero
+E |- zero : l
+
+E |- a : l
+--------------- :: Succ
+E |- succ a : l
+
+E |- a : l0
+E |- b0 : l0
+(# E ++ x : l0 #) ++ y : l0 |- b1 : l0
+l0 <= l
+-------------------------------------- :: Ind
+E |- ind l0 a b0 (\x y. b1) : l
+
 ------------------ :: D
 E |- dummy : l
 
@@ -684,6 +776,11 @@ nf b
 ------------------------------ :: Let
 ne let ( l0 x , y ) = l a in b
 
+ne a
+nf b0
+nf b1
+------------------------ :: Ind
+ne ind l a b0 (\x y. b1)
 
 ------------------------------ :: D
 ne dummy
@@ -730,6 +827,16 @@ nf a
 nf b
 -------------- :: Pair
 nf ( l a , b )
+
+------ :: Nat
+nf Nat
+
+------- :: Zero
+nf zero
+
+nf a
+--------- :: Succ
+nf succ a
 
 defns
   WNE :: '' ::=
