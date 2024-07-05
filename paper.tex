@@ -320,7 +320,7 @@ experimentation.
 
 \section{Examples} \label{sec:examples}
 
-We start with examples that demonstrate how the \dcoi type system can support runtime and compiletime irrevelance.
+We start with examples that demonstrate how the \dcoi type system can support run-time and compile-time irrevelance.
 
 These examples have been type checked by our implementation, which is based on a bidirectional type system and uses constraint solving to infer level annotations. 
 
@@ -2237,7 +2237,7 @@ such as extensionality, or a generalized semantic notion of noninterference
 that goes beyond our syntactic simulation property
 (\ref{lem:simulation}). Since logical relations are indexed by types,
 when defining the interpretation for functions, we run into the same
-issue where runtime irrelevant arguments that are vacuously related by guarded
+issue where run-time irrelevant arguments that are vacuously related by guarded
 equality may result in distinguishable types after being substituted
 into the output type.
 
@@ -2248,7 +2248,7 @@ The counterexample about polymorphic identity function from earlier
 shows that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not necessarily
 \emph{syntactically} inhabit both $[[B {a0 / x}]]$ $[[B {a1 / x}]]$. However,
 semantically, two instantiated identity functions with different type
-annotations do not behave differently at runtime.
+annotations do not behave differently at run time.
 
 In fact, we find it difficult, if not impossible, to construct a
 counterexample where $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not behave
@@ -2283,9 +2283,9 @@ In this section, we discuss dependently typed systems with relevance
 tracking. In the literature, irrelevance sometimes refers specifically
 to proof-irrelevance or irrelevance during type conversion. Here, we
 use a more liberal notion of relevance tracking that incorporates both
-runtime erasability and proof irrelevance.
+run-time erasability and proof irrelevance.
 % both
-% runtime erasability and proof-irrelevance and sometimes refer to .
+% run-time erasability and proof-irrelevance and sometimes refer to .
 
 % One specific use case of dependency tracking in dependently typed
 % languages is relevance tracking. 
@@ -2340,7 +2340,7 @@ indistinguishability judgment.
 
 While \citet{abel:irrelevance} uses Pfenning's resurrection mechanism
 for internal erasure, the Erasure Pure Type Systems (EPTS) by
-\citet{mishra:erasure} uses the mechanism only for runtime
+\citet{mishra:erasure} uses the mechanism only for run-time
 erasure. Like ICC, the EPTS uses untyped $\beta$
 equivalence as its definitional equality; relevance levels do not
 affect type conversion.
@@ -2348,11 +2348,11 @@ affect type conversion.
 Unlike in ICC, ICC*, EPTS, and \name, an irrelevant binder in \citet{pfenning:modal,
   abel:irrelevance}'s systems must be treated as
 irrelevant in both a function's body and its output type. As a result,
-a runtime erasable type variable must be marked as relevant if the
+a run-time erasable type variable must be marked as relevant if the
 variable appears relevantly in the type signature. One such example is
 the type variable from the polymorphic identity
 function. \citet{abel:irrelevance} observe that allowing
-runtime irrelevant but compiletime relevant binders
+run-time irrelevant but compile-time relevant binders
 makes it difficult to define a
 type-directed checking algorithm, an issue that is side-stepped by our
 use of an untyped conversion rule. In Section~\ref{sec:typeddefeq}, we
@@ -2363,14 +2363,14 @@ declarative judgmental equality.
 In the Predicative Calculus of Cumulative Inductive
 Construction (PCUIC)~\citep{sozeau:coq-coq-correct}, a simplified core
 language for Coq~\citep{coq}, the proof-irrelevant \texttt{Prop} sort can be used
-for erasure at runtime. Given a type $A$ with sort \texttt{Prop}, the
+for erasure at run time. Given a type $A$ with sort \texttt{Prop}, the
 inhabitants of $A$ can be safely erased from the terms during program
 extraction. \sw{cite Letouzey 2004? Also erasure is also sound for Impredicative Prop, but this paragraph is about predicative type theories.}
 The soundness of erasure for closed terms (referred to as
 \emph{external} or \emph{post-mortem erasure} by
 \citet{abel:irrelevance}) is ensured by a form of dependency tracking,
 where only singleton types (e.g. equality proofs) or empty
-types of the \texttt{Prop} sort can be destructed to produce runtime
+types of the \texttt{Prop} sort can be destructed to produce run-time
 relevant terms whose types are of the relevant sort \texttt{Type}.
 
 The \texttt{Prop} sort in PCUIC does not affect type conversion and
