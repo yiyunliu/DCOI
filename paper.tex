@@ -66,21 +66,17 @@
 }
 
 \lstset{
-  basicstyle=\sffamily,
-  columns=flexible,
+  basicstyle=\ttfamily,
+  columns=fixed,
   mathescape=true,
   breaklines=false,
-  morekeywords={data,type,case,of,if,then,else,let,in,refl,transp,J},
-  %stringstyle=\color{string},
-  %morestring=*[d]{"}, % chktex 18
-  %morestring=*[d]{'},
+  morekeywords={data,where,case,of},
+  morecomment=[l][\color{gray}]--,
   literate=
     {->}{{$\mathrel{\rightarrow}$}}2
     {\\}{{$\lambda$}}1
     {=>}{{$\mathrel{\Rightarrow}$}}2
-    {|-}{{$\vdash$}}1
     {~}{{$\mathbin{\sim}$}}1
-    {'}{{$^\prime$}}0
 }
 \def\lstinlinecol{\lstinline[columns=fullflexible]}
 
@@ -331,25 +327,73 @@ These examples have been type checked by our implementation, which is based on a
 \subsection{Examples from prior work}
 
 To see the benefit of dependency tracking, we summarize examples that already
-type check in the previous version of \dcoi. 
-
-\subsection{Examples new to this paper}
-
-\paragraph{More expressive eliminator for propositional equality}
-
-\paragraph{Absurd elimination}
+type check in the previous version of \dcoi.
 
 % (unbox H x) H 1 == (unbox H x) H 2 @ H
 % a ~>* na, b ~>* nb, na == nb @ (min la lb) where la = lvl(na), lb = lvl(nb)
 % level of term can go down after reduction
 
-\jc{TODO: Remember to introduce $[[l A -> B]]$ as sugar for $[[Pi x : l A . B]]$
-where $[[B]]$ is not dependent on $[[x]]$
-and $[[Unit]]$ as sugar for $[[l Void -> Void]]$
-and $[[unit]]$ as sugar for $[[\l x. absurd x]]$
-and also introduce the box type for examples}
+\subsection{Examples new to this paper}
 
-\jc{TODO: Mention implementation here}
+\jc{why have the below subsubsection headings (except the first one) disappeared?}
+
+\subsubsection{More expressive eliminator for propositional equality}
+
+\subsubsection{More expressive eliminator for dependent pairs}
+
+\begin{lstlisting}
+  data Pair (A : Type)@1 (B : A@1 -> Type)@1 : Type where
+    pair @k of (x : A)@1 (B x)@k
+
+  proj1 : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
+          (Pair A B)@1 -> A @ 1
+  proj1 = \A B p. case p of pair a b => a
+  
+  proj2 : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
+          (p : Pair A B)@0 -> B (proj1 A B p) @ 0
+  proj2 = \A B p. case p of pair a b => b
+
+  -- not possible with only pair projections
+  proj2' : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
+           (p : Pair A B)@2 -> case p of pair a b => B a @ 2
+  proj2' = \A B p. case p of pair a b => b
+\end{lstlisting}
+
+\subsubsection{Absurd elimination}
+
+\begin{lstlisting}
+  data Void : Type where {}
+
+  data List (A : Type)@1 : Type where
+    nil
+    cons @k of A@k (List A)@k
+
+  length : (A : Type)@1 -> List A -> Nat
+  length = \A l.
+    case l of
+      nil       => zero
+      cons _ xs => succ (length A xs)
+
+  head : (A : Type)@1 -> (l : List A) ->
+         ((length A l ~ Zero) -> Void)@1 -> A
+  head = \A l. 
+    case l of 
+      nil      => \f. case (f Refl) of {}
+      cons x _ => \_. x
+\end{lstlisting}
+
+\begin{align*}
+  [[:concrete: length & : Pi A : H Univ 0 . L (! List H A) -> ! Nat @ L]] \\
+  [[:concrete: length & := \ H A . \ L l . phantom]] \\
+  & [[:concrete: case l of
+      & null => ! Z ++
+      & cons x xs => ! S L (! length H A L xs)]] \\
+  [[:concrete: head & : Pi A : H Univ 0 . Pi l : L ! List H A . H (H (! length H A L l ~ L ! Z) -> Void) -> A @ L]] \\
+  [[:concrete: head & := \ H A . \ L l . phantom]] \\
+  & [[:concrete: case l of
+      & null => \ H f . absurd (f H refl) ++
+      & cons x xs => \ H f . x]]
+\end{align*}
 
 \begin{align*}
   [[:concrete: Ifz & : H ! Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
@@ -393,7 +437,7 @@ which is parameterized over a meet-semilattice of dependency levels
 
 We use the metavariable $[[l]]$ for dependency levels,
 and $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$.
-As in the previous section, we use the low $[[L]]$ and high $[[H]]$ levels in our examples,
+We use low $[[L]]$ and high $[[H]]$ levels in our examples,
 with $[[L < H]]$.
 Similarly, we use the metavariables $[[i]], [[j]], [[k]]$ for universe levels,
 which we take to be meta-level naturals,
@@ -404,6 +448,13 @@ for clarity we use named variables and single substitutions for our presentation
 We use the metavariables $[[x]], [[y]], [[z]]$ for variables
 and $[[a { b / x }]]$ for the substitution of a term $[[b]]$ in place of the variable $[[x]]$
 inside the term $[[a]]$.
+
+Similarly to \cref{sec:examples},
+we use $[[l A -> B]]$ as shorthand for nondependent functions $[[Pi x : l A . B]]$
+where $[[x]]$ does not appear in $[[B]]$.
+We also use $[[Unit]]$ as a trivial singleton type,
+encoded as $[[l Void -> Void]]$ for some $[[l]]$,
+with its inhabitant $[[unit]]$ encoded as $[[\l x. absurd x]]$.
 
 The main judgement is the typing judgement,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
@@ -453,10 +504,7 @@ which is typed at an arbitrary level independent of the function itself
 in the second premise of \rref{Wt-Abs}.
 By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codomain types either
 (as long as they match).
-
-As an example, consider the following typing judgement,
-using $[[l A -> B]]$ as shorthand for nondependent functions $[[Pi x : l A . B]]$
-where $[[x]]$ does not appear in $[[B]]$.
+As an example, consider the following typing judgement.
 %
 \begin{displaymath}
   [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ 0 . H X -> L (H X -> X) -> X)]]
@@ -670,8 +718,8 @@ and then subsitutes in the first component inside of $[[B]]$,
 rather than matching on the pair within the substitution in $[[B]]$.
 The second projection is therefore well typed regardless
 of the well-typedness of the first projection.
-In particular, we can take the second projection of a lower-level pair
-even if it contains a higher-level first component.
+In particular, we can take the second projection of a higher-level pair
+even if it contains a lower-level first component.
 This was not possible when pair projections were the primitive operators on a pair
 and not the eliminator we have, which is strictly more expressive.
 
