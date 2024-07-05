@@ -2317,7 +2317,8 @@ Construction (PCUIC)~\citep{sozeau:coq-coq-correct}, a simplified core
 language for Coq~\citep{coq}, the proof-irrelevant \texttt{Prop} sort can be used
 for erasure at runtime. Given a type $A$ with sort \texttt{Prop}, the
 inhabitants of $A$ can be safely erased from the terms during program
-extraction. The soundness of erasure for closed terms (referred to as
+extraction. \sw{cite Letouzey 2004? Also erasure is also sound for Impredicative Prop, but this paragraph is about predicative type theories.}
+The soundness of erasure for closed terms (referred to as
 \emph{external} or \emph{post-mortem erasure} by
 \citet{abel:irrelevance}) is ensured by a form of dependency tracking,
 where only singleton types (e.g. equality proofs) or empty
@@ -2361,6 +2362,13 @@ extrinsically. \citet{mishra:erasure} argue that the extrinsic
 approach addresses code duplication problems as it avoids the need to
 duplicate data type and function definitions for both relevant and
 irrelevant sorts.
+
+\begin{itemize}
+\item Squash types (cite Nuprl book), Propositional truncation (Awody Bauer 2004)
+\item Quantitative Type Theory (McBride 16, Atkey 18, Abel and Bernardy 2020, GrAD)
+\item Propositional Proof irrelevance (i.e. propositional irrelevance) Miquel and Werner 2003 (The Not So Simple Proof-Irrelevant Model of CC)
+\item Werner 2008 (On the strength of proof-irrelevant type theories), has definitional proof irrelevance
+\end{itemize}
 
 \subsection{Dependent Types and Counting}
 
