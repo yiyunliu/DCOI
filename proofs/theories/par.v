@@ -450,40 +450,40 @@ Qed.
 (* ------------------------------------------------------------ *)
 
 
-(* Lemma P_IndZero_star a b c : *)
-(*   (c ⇒* tZero) -> *)
-(*   (tInd a b c  ⇒* a). *)
-(* Proof. *)
-(*   move E : tZero => v h. *)
-(*   move : E. *)
-(*   elim : c v / h. *)
-(*   - move => *. subst. *)
-(*     apply rtc_once. apply P_IndZero. apply Par_refl. *)
-(*   - move => c c0 c1 h0 h1 h2 ?; subst. *)
-(*     move /(_ eq_refl) in h2. *)
-(*     apply : rtc_transitive; eauto. *)
-(*     hauto lq:on use:@rtc_once,Par_refl ctrs:Par. *)
-(* Qed. *)
+Lemma P_IndZero_star ℓ a b c :
+  (c ⇒* tZero) ->
+  (tInd ℓ a b c  ⇒* a).
+Proof.
+  move E : tZero => v h.
+  move : E.
+  elim : c v / h.
+  - move => *. subst.
+    apply rtc_once. apply P_IndZero. apply Par_refl.
+  - move => c c0 c1 h0 h1 h2 ?; subst.
+    move /(_ eq_refl) in h2.
+    apply : rtc_transitive; eauto.
+    hauto lq:on use:@rtc_once,Par_refl ctrs:Par.
+Qed.
 
-(* Lemma P_IndSuc_star a b c c0 : *)
-(*   (c ⇒* tSuc c0) -> *)
-(*   (tInd a b c  ⇒* b[(tInd a b c0) .: c0 ..]). *)
-(* Proof. *)
-(*   move E : (tSuc c0) => v h. *)
-(*   move : E.  elim : c v /h. *)
-(*   - move=> > <- *. *)
-(*     apply rtc_once. apply P_IndSuc; apply Par_refl. *)
-(*   - move => c1 c2 c3 h0 h1 ih ?. subst. *)
-(*     move /(_ eq_refl) : ih. *)
-(*     apply rtc_l. *)
-(*     hauto lq:on use:Par_refl ctrs:Par. *)
-(* Qed. *)
+Lemma P_IndSuc_star ℓ a b c c0 :
+  (c ⇒* tSuc c0) ->
+  (tInd ℓ a b c  ⇒* b[(tInd ℓ a b c0) .: c0 ..]).
+Proof.
+  move E : (tSuc c0) => v h.
+  move : E.  elim : c v /h.
+  - move=> > <- *.
+    apply rtc_once. apply P_IndSuc; apply Par_refl.
+  - move => c1 c2 c3 h0 h1 ih ?. subst.
+    move /(_ eq_refl) : ih.
+    apply rtc_l.
+    hauto lq:on use:Par_refl ctrs:Par.
+Qed.
 
-(* Lemma P_IndSuc_star' a b c c0 t : *)
-(*   b[(tInd a b c0) .: c0 ..] = t -> *)
-(*   (c ⇒* tSuc c0) -> *)
-(*   (tInd a b c  ⇒* t). *)
-(* Proof. move => > <-. apply P_IndSuc_star. Qed. *)
+Lemma P_IndSuc_star' ℓ a b c c0 t :
+  b[(tInd ℓ a b c0) .: c0 ..] = t ->
+  (c ⇒* tSuc c0) ->
+  (tInd ℓ a b c  ⇒* t).
+Proof. move => > <-. apply P_IndSuc_star. Qed.
 
 Lemma P_JRefl_star ℓp t p :
   (p ⇒* tRefl)  ->
@@ -538,12 +538,6 @@ Function tstar (a : tm) :=
        then (tstar a) [(tstar b)..]
        else tApp (tAbs ℓ0 (tstar a)) ℓ1 (tstar b)
   | tApp a ℓ0 b => tApp (tstar a) ℓ0 (tstar b)
-  (* | tZero => tZero *)
-  (* | tSuc a => tSuc (tstar a) *)
-  (* | tInd a b tZero => tstar a *)
-  (* | tInd a b (tSuc c) => (tstar b) [(tInd (tstar a) (tstar b) (tstar c)) .: (tstar c)  .. ] *)
-  (* | tInd a b c => tInd (tstar a) (tstar b) (tstar c) *)
-  (* | tNat => tNat *)
   | tRefl => tRefl
   | tEq ℓ a b => tEq ℓ (tstar a) (tstar b)
   | tJ ℓp t tRefl => tstar t
