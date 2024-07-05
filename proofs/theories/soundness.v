@@ -276,35 +276,51 @@ Proof.
     move /InterpUnivN_Nat_inv in h. subst.
     hauto ctrs:IOk lq:on use:S_Suc.
   (* Ind *)
-  - move => Γ ℓ ℓ0 a b c A ℓA l ? ? /SemWt_Univ hA ? ha ? hb ? hc Δ ρ hρ.
-    have wtorig : Wt Γ ℓ (tInd ℓ0 a b c) A[c..] by eauto with wt.
+  - move => Γ ℓ ℓ0 a b c A ℓA l ? ? /SemWt_Univ hA wta ha wtb hb wtc hc Δ ρ hρ.
+    have : Wt Γ ℓ (tInd ℓ0 a b c) A[c..] by eauto with wt.
+    move {wta wtb wtc}.
+    move /wt_ρ_ok_morphing_iok.
+    move /(_ Δ ρ hρ) => /=.
+    elim /IOk_inv => //=_ ℓ1 a0 b0 c0 ? wga wgb _ [*]. subst.
     move /(_ _ ρ hρ) : ha => [m][PA][ha0]ha1.
     move /(_ _ ρ hρ) : hc => [n][PA0][/InterpUnivN_Nat_inv ->][hv [v[hc1 hc2]]]/=.
     asimpl.
+    suff : exists (m0 : fin) (PA1 : T -> tm -> Prop),
+        ⟦ c2e Δ ⊨ A[v .: ρ] ⟧ m0 ↘ PA1 /\ PA1 ℓ0 (tInd ℓ0 a[ρ] b[var_tm 0 .: (var_tm 1 .: ρ >> ren_tm (S >> S))] v).
+    move => [m0][PA1][h0]h1.
+    exists m0, PA1. split => //.
+    apply  : InterpUnivN_back_preservation_star;eauto.
+    hauto lq:on rew:off use:Pars_morphing_star,good_Pars_morphing_ext ctrs:rtc.
+
+    apply : InterpUnivN_back_clos_star; eauto.
+    apply IO_Ind=>//. move : wgb. by asimpl.
+    apply S_Ind; eauto using rtc_refl.
+    hauto l:on use:InterpUnivN_subsumption.
+
+    have {}hv : IOk (c2e Δ) ℓ0 v by hauto l:on use:cfacts.iok_preservation_star.
+    move {c hc1}.
     set bs := (X in tInd _ _ X _).
-    move E : (c[ρ]) hc2 hc1 hv => cρ.
+    move : hc2 hv .
     apply nfacts.is_nat_val_ind => {v}.
-    + move => ? ? ? ? wgc. subst.
+    + move => ? ? _ _. subst.
       exists m, PA. split.
-      * apply : InterpUnivN_back_preservation_star;eauto.
-        asimpl.
-        hauto lq:on rew:off use:Pars_morphing_star,good_Pars_morphing_ext ctrs:rtc.
+      * move : ha0. by asimpl.
       * simpl.
         apply : InterpUnivN_back_clos_star; eauto.
-        move /wt_ρ_ok_morphing_iok : wtorig.
-        move/(_ Δ ρ hρ). simpl. subst bs. by asimpl.
-        by apply P_IndZero_star.
-        qauto l:on use:InterpUnivN_subsumption.
-    + move => ? a0 ? ih c hc ha. subst.
-      move /(_ a0 ltac:(apply rtc_refl) ha) : ih => [m0][PA1][hPA1]hr.
-      have hρ' : ρ_ok (tNat :: Γ) (a0 .: ρ).
+        apply IO_Ind => //=. solve_lattice.
+        move : wgb. by asimpl. apply IO_Zero.
+        apply P_IndZero_star. apply rtc_refl.
+    + move => ? a0 ? ih ha wgc. subst.
+      move /(_ ha ltac:(by inversion wgc)) : ih  => [m0][PA1][hPA1]hr.
+      have hρ' : ρ_ok ((ℓ0, tNat) :: Γ) Δ (a0 .: ρ).
       {
         apply : ρ_ok_cons; auto.
-        apply InterpUnivN_Nat.
+        apply (InterpUnivN_Nat _ 0).
+        simpl. split. by inversion wgc.
         hauto lq:on ctrs:rtc.
       }
-      have : ρ_ok (A :: tNat :: Γ) ((tInd a[ρ] bs a0) .: (a0 .: ρ))
-        by eauto using ρ_ok_cons.
+      have : ρ_ok ((ℓ0, A) :: (ℓ0, tNat) :: Γ) Δ ((tInd ℓ0 a[ρ] bs a0) .: (a0 .: ρ))
+                   by eauto using ρ_ok_cons.
       move /hb => {hb} [m1][PA2][hPA2]h.
       exists m1, PA2.
       split.
@@ -314,46 +330,55 @@ Proof.
       * move : h.
         move /InterpUnivN_back_clos_star. apply; eauto.
         subst bs.
-        apply : P_IndSuc_star'; eauto.
+        constructor => //=.
+        solve_lattice.
+        move : wgb. by asimpl.
+        apply : P_IndSuc_star'; eauto using rtc_refl.
+        subst bs.
         by asimpl.
-    + move => a0 ? <- _ a1 *.
-      have ? : wne a1 by hauto lq:on.
-      suff  /hA : ρ_ok (tNat :: Γ) (a1 .: ρ).
-      move => [S hS].
-      exists l, S. split=>//.
-      suff ? : wn bs.
-      have ? : wn a[ρ] by sfirstorder use:adequacy.
-      have : wne (tInd a[ρ] bs a1) by auto using wne_ind.
-      eapply adequacy; eauto.
-
-      subst bs.
-      rewrite /SemWt in hb.
-      have /hA : ρ_ok (tNat :: Γ) (var_tm 0 .: ρ).
+    + move => a0 ? <-  _ nea0 wga0.
+      set tD := tAbsurd (var_tm 0).
+      have ? : IOk (c2e Δ) ℓ0 tD by eauto using IO_Absurd.
+      have hwff : ρ_ok ((ℓ0, tNat) :: Γ) Δ (tD .: ρ).
       {
         apply : ρ_ok_cons; auto.
-        apply InterpUnivN_Nat.
+        apply (InterpUnivN_Nat _ 0).
         hauto lq:on ctrs:rtc.
       }
-      move => [S1 hS1].
-      have /hb : ρ_ok (A :: tNat :: Γ) (var_tm 0 .: (var_tm 0 .: ρ)).
+      have wnea0 : wne a0 by hauto lq:on rew:off ctrs:rtc unfold:wne.
+      suff  /hA : ρ_ok ((ℓ0, tNat) :: Γ) Δ (a0 .: ρ).
+      move => [? [S hS]].
+      exists l, S. split=>//.
+      suff ? : wn bs.
+      have ? : wn a[ρ] by hauto l:on use:adequacy unfold:CR.
+      have : wne (tInd ℓ0 a[ρ] bs a0) by eauto using nfacts.wne_ind.
+      have ha : forall Ξ i A PA, ⟦ Ξ ⊨ A ⟧ i ↘ PA -> forall ℓ a, wne a -> IOk Ξ ℓ a -> PA ℓ a by hauto lq:on rew:off use:adequacy unfold:CR.
+      move => ?. apply : ha; eauto.
+      apply IO_Ind=>//=. solve_lattice.
+      move : wgb. by asimpl.
+      subst bs.
+      rewrite /SemWt in hb.
+      move /hA : (hwff) => [wgA [S1 hS1]] .
+      have /hb : ρ_ok ((ℓ0, A) :: (ℓ0, tNat) :: Γ) Δ (tD .: (tD .: ρ)).
       {
         apply : ρ_ok_cons; cycle 2; eauto.
-        apply : ρ_ok_cons; cycle 2; eauto.
-        apply InterpUnivN_Nat.
-        hauto lq:on ctrs:rtc.
-        hauto q:on ctrs:rtc use:adequacy.
+        hauto q:on ctrs:rtc use:adequacy, wne_var.
       }
       move =>[m0][PA1][h1]h2.
-      have : wn b[var_tm 0 .: (var_tm 0 .: ρ)] by hauto q:on use:adequacy.
+      have : wn b[tD .: (tD .: ρ)] by hauto q:on use:adequacy, wne_var.
       clear => h.
-      apply wn_antirenaming with (ξ :=  var_zero .: (var_zero .: id)).
+      apply nfacts.wn_antirenaming with (ξ :=  tD .: (tD .: var_tm)).
+      hauto lq:on inv:nat unfold:ren_with_d.
       by asimpl.
 
       apply : ρ_ok_cons; auto.
-      apply InterpUnivN_Nat.
-      hauto lq:on use:adequacy db:nfne.
+      apply (InterpUnivN_Nat _ 0).
+      split => //=.
 
-
+      move : wnea0 => [v][hv]nev.
+      exists v. split => //=. eauto using nfacts.ne_nat_val.
+  (* Nat *)
+  - hauto lq:on use:SemWt_Univ, IO_Nat, (InterpUnivN_Nat _ 0).
   (* Univ *)
   - move => Γ ℓ i _ hΓ.
     rewrite SemWt_Univ.
