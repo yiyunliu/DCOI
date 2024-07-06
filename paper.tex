@@ -2478,7 +2478,7 @@ Calculus
 of Constructions~\citep{luo1990:extended} with an implicit quantifier that
 is intended for irrelevant function arguments. A syntactic check is
 performed to ensure that an irrelevant binder is free in the function
-body after erasure. However, the type formation rules of both ICC and
+body after erasure. The type formation rules in both ICC and
 ICC* permit the function's codomain type to treat an irrelevant binder
 as relevant. This permissive design allows them to treat type
 variables appearing in parametric polymorphism as irrelevant while
@@ -2598,7 +2598,7 @@ though the information is never truly squashed but only temporarily
 hidden from low observers. Finally, none of the works mentioned so far
 explores the interaction between extrinsic irrelevance and universe
 levels. On the other hand, an impredicative \texttt{Prop} sort
-increases the strength of the type system and can be proven consistent
+increases the logical strength of the type system and can be proven consistent
 through a proof-irrelevant model~\citep{miquel:proof-irrel-model, timany:pcuic-consistency}.
 
 
@@ -2643,21 +2643,22 @@ logical consistency.
 % extracted programs.
 
 
-\begin{itemize}
-\item Propositional Proof irrelevance (i.e. propositional irrelevance) Miquel and Werner 2003 (The Not So Simple Proof-Irrelevant Model of CC)
-\end{itemize}
-
 \subsection{Dependent Types and Counting}
 Counting is a type of fine-grained static analysis that tracks the
 number of times a resource can be used. Unlike systems that track
 dependency, usage information is represented in the form of a semiring
-rather than a lattice. However, with a boolean semiring, one can use a
-semiring to track dependency and perform external erasure.
+rather than a lattice. With a boolean semiring, one can also use the counting
+mechanism to track dependency and perform external erasure.
 
+\citet{mcbride:plentyo} extends a dependently typed system with usage
+tracking. Usage tracking is disabled in type formation rules and
+therefore allows him to embeds his system into a predicative type
+theory, whose normalization property is given by
+\citet{abel:normalization}. However, the typing judgment in his system
+fails to admit the substitution property, an issue that is later 
+addressed by \citep{atkey:qtt} in his design of the
 Quantitative Type Theory
-(QTT)~\citep{atkey:qtt} adds usage tracking to a dependent type
-theory. In QTT, variables in the typing contexts are annotated with
-elements from the semiring. Its typing judgment takes the form
+(QTT). The typing judgment in QTT takes the form
 $\Gamma \vdash M :^{\sigma} T$ where $\sigma$ ranges over the
 constants $0$ and $1$ from the semiring, reminiscent of \citet{pfenning:modal}'s
 $\div$ and $:$ modalities.
@@ -2673,7 +2674,7 @@ set to $0$ when checking the output type $T$.
     0 \Gamma \vdash (x :^\pi S) \rightarrow T
   }
 \end{mathpar}
-In fact, type formation rule in QTT completely discards usage
+Like the system by \citet{mcbride:plentyo}, type formation rule in QTT completely discards usage
 information; as seen in the above rule, the context for the type
 formation judgment is always $0
 \Gamma$, which is obtained by resetting the usage information in
@@ -2719,9 +2720,6 @@ semantics is refined to account for usage. In \name, since type
 conversion relies on indistinguishability, properties about dependency
 tracking must be developed before we define our semantic model.
 
-\begin{itemize}
-\item Quantitative Type Theory (McBride 16, Atkey 18, Abel and Bernardy 2020, GrAD)
-\end{itemize}
 \subsection{Dependent Types and Indistinguishability}
 Compared to the languages that track
 relevance (Section~\ref{sec:discuss-irrel}), the most notable
