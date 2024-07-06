@@ -66,6 +66,8 @@
 }
 
 \lstset{
+  aboveskip=0pt,
+  belowskip=0pt,
   basicstyle=\ttfamily,
   columns=fixed,
   mathescape=true,
@@ -342,15 +344,36 @@ type check in the previous version of \dcoi.
   ex = \f. refl
 \end{lstlisting}
 
+\begin{lstlisting}
+  data Subset (A : Type)@1 (B : A@0 -> Type)@1 : Type where
+    pack @k of (x : A)@k (B x)@1
+
+  congSubset : (A : Type) -> (B : A -> Type) ->
+               (x : A)@0 -> (y : A)@0 ->
+               (bx : B x)@1 -> (by : B y)@1 ->
+               (x ~ y) -> (pack x bx ~ pack y by : Subset A B)
+  congSubset = \A B x y bx by p. J refl p
+  -- J (\z q. pack x bx ~ pack z (J B by (trans y x z (sym x y p) q))) refl p
+\end{lstlisting}
+
 \subsection{Examples new to this paper}
 
 \jc{why have the below subsubsection headings (except the first one) disappeared?}
 
 \subsubsection{Absurd elimination}
 
-\begin{lstlisting}
-  data Void : Type where {}
+In general, irrelevant inductives may not be eliminated to relevant terms.
+The sole exception in \dcoi is the empty type,
+whose eliminator may be typed at any level,
+regardless of the level of the proof it eliminates.
+In our implementation, this applies to any inductive type that has no constructors
+and therefore no closed inhabitants.
 
+\begin{lstlisting}
+  data Empty : Type where {}
+\end{lstlisting}
+
+\begin{lstlisting}
   data List (A : Type)@1 : Type where
     nil
     cons @k of A@k (List A)@k
@@ -362,7 +385,7 @@ type check in the previous version of \dcoi.
       cons _ xs => succ (length A xs)
 
   head : (A : Type)@1 -> (l : List A) ->
-         ((length A l ~ Zero) -> Void)@1 -> A @ 0
+         ((length A l ~ Zero) -> Empty)@1 -> A @ 0
   head = \A l. 
     case l of 
       nil      => \f. case (f Refl) of {}
@@ -374,9 +397,6 @@ type check in the previous version of \dcoi.
 \subsubsection{More expressive eliminator for dependent pairs}
 
 \begin{lstlisting}
-  data Pair (A : Type)@1 (B : A@1 -> Type)@1 : Type where
-    pair @k of (x : A)@1 (B x)@k
-
   proj1 : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
           (Pair A B)@1 -> A @ 1
   proj1 = \A B p. case p of pair a b => a
