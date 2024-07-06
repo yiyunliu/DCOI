@@ -2314,6 +2314,16 @@ a relational model to justify more complex properties.
 % The decision procedure for type conversion presented in
 % Section~\ref{sec:decconv} can be categorized as a normalize-and-compare
 
+\subsection{Casting with irrelevant equalities}
+\begin{itemize}
+\item Talk about why we can't leverage
+  the fact that the equality type is a singleton in our grading rules
+  because of internal erasure
+\item Talk about alternative non-strict elimination forms (Obs
+  Equality, DE, Trellys) and how they interact with decidability
+\end{itemize}
+
+
 \section{Related work}
 
 \subsection{Dependent Types and Irrelevance}
@@ -2581,6 +2591,7 @@ irrelevant projections at any levels from the lattice. However, their
 metatheoretic results are limited to syntactic soundness and the
 consistency of the equational theory. 
 
+\todo{move this to the conclusion?}
 In this work, we design \name, an instantiation of \dcoi with more expressive elimination forms for dependent
 pairs and equalities, and the ability to construct relevant terms from
 irrelevant empty proofs.
