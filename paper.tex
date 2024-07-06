@@ -2014,7 +2014,7 @@ For finite or countable lattices, the decision procedure from
 \cref{lem:deciconv} can be iterated to recover the decidability
 of conversion in \rref{Wt-Conv}.
 
-\section{Discussion}
+\section{Discussion and Future Work}
 
 % design and technical issues
 % perhaps merge with related work
@@ -2297,6 +2297,7 @@ a relational model to justify more complex properties.
 \section{Related work}
 
 \subsection{Dependent Types and Irrelevance}
+\label{sec:discuss-irrel}
 In this section, we discuss dependently typed systems with relevance
 tracking. In the literature, irrelevance sometimes refers specifically
 to proof-irrelevance or irrelevance during type conversion. Here, we
@@ -2380,7 +2381,7 @@ declarative judgmental equality.
 
 In the Predicative Calculus of Cumulative Inductive
 Construction (PCUIC)~\citep{sozeau:coq-coq-correct}, a simplified core
-language for Coq~\citep{coq}, the proof-irrelevant \texttt{Prop} sort can be used
+language for Coq~\citep{coq}, the proof-irrelevant and impredicative \texttt{Prop} sort can be used
 for erasure at run time. Given a type $A$ with sort \texttt{Prop}, the
 inhabitants of $A$ can be safely erased from the terms during program
 extraction. \sw{cite Letouzey 2004? Also erasure is also sound for Impredicative Prop, but this paragraph is about predicative type theories.}
@@ -2502,6 +2503,62 @@ equality, like GRTT, is also defined independently of the modalities.
 
 
 \subsection{Dependent Types and Indistinguishability}
+Compared to the languages that track
+relevance (Section~\ref{sec:discuss-irrel}), the most notable
+feature of \dcoi and \name is the ability to reason about dependency
+from different observer levels that range over a lattice through the
+internalized indistinguishability judgment. In
+\citet{abel:irrelevance, gilbert:sprop}, equalities are always based
+on an observer who can only access relevant information.
+
+
+Type-theory with color (TTC)~\citep{bernardy:color} extends the
+Calculus of Constructions with the notion of colors to support erasure
+and internalize
+parametricity. While \name does not internalize parametricity, there
+are a lot of similarites between TTC and \name when viewed purely as systems
+that track dependencies.
+% Taints are sets of colors, which represent the
+% resources that a computation may depend on. 
+% Taints can be viewed as a lattice with set intersection and union as
+% meet and join. 
+The typing judgment in TTC takes the form $\Gamma
+\vdash a :_\theta A$ where $\theta$ is a metavariable representing
+taints, a set of colors. The taint $\theta$ determines the variables that the term $a$ is
+allowed to access. The dependency tracking in TTC
+is more precise than \name. Variables can only be used if their
+taint exactly matches the taint from typing. Functions keep track of a
+set of anti-taints, colors that the argument is oblivious to, in
+addition to a set of taints, colors that the argument depends on.
+The erasure operator $\lfloor a
+\rfloor_i$ erases all components dependent on the color $i$ from the
+term $a$ and also serves the purpose of interpreting types as
+predicates. The ability to shift the view by choosing which color to erase is reminiscent
+of the observer level from the indistinguishability
+judgment of \name. However, in TTC, the internalized reasoning about
+erasure is achieved by adding a parametricity rule to the type
+system rather than generalizing the type conversion rule. Furthermore,
+similar to \citet{pfenning:modal, abel:irrelevance} and unlike \name,
+the same taint is used for checking a term and the well-formedness of
+its type. In \name, the observer level between terms and types are
+decoupled from each other (\ref{lem:regularity}) to be able to type check
+irrelevant strong projections and irrelevant type parameters.
+
+
+% The set of taints form a lattice with set
+% intersection and union as meet and join. 
+
+
+
+
+% Taints form a lattice with
+% the set union and intersection operations and thus is highly related
+% to the dependency tracking mechanism found in \name. 
+
+
+
+
+
 
 \subsection{Dependent Types and Mechanized Logical Relations}
 % \citet{luo1990:extended} introduces the Extended Calculus of
