@@ -2574,7 +2574,6 @@ relevant sort.
 observational equalities to cast the type of relevant terms while
 retaining decidable type conversion.
 
-
 Bracket types and squash types~\citep{awodey:propastype,
   mendler:quotient} introduce the bracket and squash operators that
 remove the computional information from types. Two inhabitants of a
@@ -2585,10 +2584,29 @@ content. Squash types can also be viewed as an intrinsic
 treatment of irrelevance since a squashed type is always irrelevant
 regardless of how it is used.
 
-\citet{mishra:erasure} argue that the extrinsic
-approach addresses code duplication problems as it avoids the need to
-duplicate data type and function definitions for both relevant and
-irrelevant sorts. 
+Despite the differences between extrinsinc and intrinsinc irrelevance, 
+they bear a lot of similarities. For example, irrelevant function
+arrows from \citet{pfenning:modal, abel:irrelevance} and \name can be
+implemented as a regular function type with a squashed input type in
+\citet{gilbert:sprop, awodey:propastype, mendler:quotient}. In the
+other direction, the squash operator can be implemented in the form of
+a weak irrelevant dependent pair~\citep{abel:irrelevance}. In \name,
+the admissible box type is reminiscent of the squash type,
+though the information is never truly squashed but only temporarily
+hidden from low observers. Finally, none of the works mentioned so far
+explores the interaction between extrinsic irrelevance and universe
+levels. On the other hand, an impredicative \texttt{Prop} sort
+increases the strength of the type system and can be proven consistent
+through a proof-irrelevant model~\citep{miquel:proof-irrel-model, timany:pcuic-consistency}.
+
+
+
+\citet{mishra:erasure} argue that the extrinsic approach should be
+preferred as it avoids the need to duplicate data type and function
+definitions for both relevant and irrelevant sorts. This idea is
+further advocated by \citet{tejiscak:erasure}, \todo{actually read the
+paper first}
+
 
 
 % Unlike in ICC, ICC*, EPTS, and \name, an irrelevant binder in \citet{pfenning:modal,
@@ -2605,8 +2623,6 @@ irrelevant sorts.
 % observe a technical issue related to extending \name with typed
 % equality, though we formulate this issue in the simpler context of a
 % declarative judgmental equality.
-
-\citet{awodey:propastype}
 
 % \citet{paulin-mohring:coc} introduces the 
 % \texttt{Prop} to distinguish between computationally relevant and
@@ -2691,7 +2707,6 @@ semantics is refined to account for usage. In \name, since type
 conversion relies on indistinguishability, properties about dependency
 tracking must be developed before we define our semantic model.
 
-\todo{talk about \citet{tejiscak:erasure}}
 \begin{itemize}
 \item Quantitative Type Theory (McBride 16, Atkey 18, Abel and Bernardy 2020, GrAD)
 \end{itemize}
