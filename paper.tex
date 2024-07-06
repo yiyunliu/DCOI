@@ -2445,6 +2445,8 @@ a relational model to justify more complex properties.
 % Section~\ref{sec:decconv} can be categorized as a normalize-and-compare
 
 \subsection{Casting with irrelevant equalities}
+\label{sec:castirrel}
+
 \begin{itemize}
 \item Talk about why we can't leverage
   the fact that the equality type is a singleton in our grading rules
@@ -2604,9 +2606,19 @@ through a proof-irrelevant model~\citep{miquel:proof-irrel-model, timany:pcuic-c
 \citet{mishra:erasure} argue that the extrinsic approach should be
 preferred as it avoids the need to duplicate data type and function
 definitions for both relevant and irrelevant sorts. This idea is
-further advocated by \citet{tejiscak:erasure}, \todo{actually read the
-paper first}
-
+further advocated by \citet{tejiscak:erasure}, who
+also point out that the proof-irrelevance mechanism by \citet{pfenning:modal,
+  abel:irrelevance} is too restrictive for expressing the erasability
+of irrelevant type indices. The same issue is not present in \name
+since types and terms can be checked at different levels. A run-time
+irrelevant variable can still be used relevantly at the
+type-level. However, we note that our observation in
+Section~\ref{sec:castirrel} is consistent with
+\citet{tejiscak:erasure}'s view that internal erasure is more limited
+than external erasure. Since external erasure does not affect
+typing, it is possible to erase more aggressively
+without affecting metatheoretic properties such as decidability or
+logical consistency.
 
 
 % Unlike in ICC, ICC*, EPTS, and \name, an irrelevant binder in \citet{pfenning:modal,
@@ -2731,8 +2743,8 @@ indexes its typing judgment by an observer level drawn from an arbitrary
 lattice so it can analyze dependency from different view
 points. Unlike the systems discussed in Section~\ref{sec:discuss-irrel},
 DDC's run-time dependency tracking mechanism is flexible and allows
-one to encode
-strong irrelevant projections.
+one to encode strong irrelevant projections and irrelevant type
+indices.
 A disjoint mechanism based on \citet{pfenning:modal} is
 introduced to separately track compile-time irrelevance. This requires
 DDC to augment the lattice structure with two upper bounds $C$ and $T$
@@ -2747,8 +2759,8 @@ $C$. The restrictive conversion rule makes it difficult to define the
 elimination form for an indexed equality type since levels below $C$
 do not affect conversion. In the other direction, the compile-time irrelevance fragment
 does not enjoy the same flexibility as the run-time irrelevance
-fragment. For example, strong irrelevant projection is not admissible when the
-irrelevance level is $T$.
+fragment. % For example, strong irrelevant projection is not admissible when the
+% irrelevance level is $T$.
 
 \citet{liu:dcoi} introduce a unified mechanism for handling both
 run-time and compile-time dependency tracking. The generalized type
