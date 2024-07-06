@@ -977,3 +977,52 @@ pages = {61–72},
 numpages = {12},
 keywords = {erasure, parametricity, type-theory}
 }
+
+@InProceedings{choudhury:ddc,
+  author="Choudhury, Pritam and Eades III, Harley and Weirich, Stephanie",
+  editor="Sergey, Ilya",
+  title="A Dependent Dependency Calculus",
+  booktitle="Programming Languages and Systems, ESOP 2022",
+  year="2022",
+  series="Lecture Notes in Computer Science",
+  volume=13240,
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="403--430",
+  abstract="Over twenty years ago, Abadi et al. established the Dependency
+		  Core Calculus (DCC) as a general purpose framework for
+		  analyzing dependency in typed programming languages. Since
+		  then, dependency analysis has shown many practical benefits
+		  to language design: its results can help users and compilers
+		  enforce security constraints, eliminate dead code, among
+		  other applications. In this work, we present a Dependent
+		  Dependency Calculus (DDC), which extends this general idea
+		  to the setting of a dependently-typed language. We use this
+		  calculus to track both run-time and compile-time
+		  irrelevance, enabling faster type-checking and program
+		  execution.",
+  isbn="978-3-030-99336-8",
+  doi="10.1007/978-3-030-99336-8_15",
+  url={https://github.com/sweirich/graded-haskell},
+  plclub = yes,
+  note = {Artifact available}
+}
+
+@article{abel:dectt,
+author = {Abel, Andreas and \"{O}hman, Joakim and Vezzosi, Andrea},
+title = {Decidability of Conversion for Type Theory in Type Theory},
+year = {2017},
+issue_date = {January 2018},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {2},
+number = {POPL},
+url = {https://doi.org/10.1145/3158111},
+doi = {10.1145/3158111},
+abstract = {Type theory should be able to handle its own meta-theory, both to justify its foundational claims and to obtain a verified implementation. At the core of a type checker for intensional type theory lies an algorithm to check equality of types, or in other words, to check whether two types are convertible. We have formalized in Agda a practical conversion checking algorithm for a dependent type theory with one universe \`{a} la Russell, natural numbers, and η-equality for Π types. We prove the algorithm correct via a Kripke logical relation parameterized by a suitable notion of equivalence of terms. We then instantiate the parameterized fundamental lemma twice: once to obtain canonicity and injectivity of type formers, and once again to prove the completeness of the algorithm. Our proof relies on inductive-recursive definitions, but not on the uniqueness of identity proofs. Thus, it is valid in variants of intensional Martin-L\"{o}f Type Theory as long as they support induction-recursion, for instance, Extensional, Observational, or Homotopy Type Theory.},
+journal = {Proc. ACM Program. Lang.},
+month = {dec},
+articleno = {23},
+numpages = {29},
+keywords = {Agda, Logical relations, Formalization, Dependent types}
+}

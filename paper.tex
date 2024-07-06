@@ -2501,8 +2501,15 @@ the strong normalization for CC found in \citet{geuvers:cc-sn}.
 type theory that also allows tracking usage for both terms and
 types. The language by Abel and others is more
 expressive as it supports large elimination, though its definitional
-equality, like GRTT, is also defined independently of the modalities.
-
+equality, like GRTT, is also defined independently of the
+modalities. This allows them to reuse the technique in
+\citet{abel:dectt} to mechanically prove metatheoretic results
+including normalization and decidable type conversion for a
+standard dependently typed language that is free of usage tracking.
+Grading is then defined separately from the typing judgment and their
+semantics is refined to account for usage. In \name, since type
+conversion relies on indistinguishability, properties about dependency
+tracking must be developed before we define our semantic model.
 
 \subsection{Dependent Types and Indistinguishability}
 Compared to the languages that track
@@ -2513,6 +2520,8 @@ internalized indistinguishability judgment. In
 \citet{abel:irrelevance, gilbert:sprop}, equalities are always based
 on an observer who can only access relevant information.
 
+The Dependent Dependency Calculus (DDC)~\citep{choudhury:ddc} 
+and then \citet{liu:dcoi} \todo{complete the discussion about DDC and DCOI}
 
 Type-theory with color (TTC)~\citep{bernardy:color} extends the
 Calculus of Constructions with the notion of colors to support erasure
@@ -2537,14 +2546,15 @@ The erasure operator $\lfloor a
 term $a$ and also serves the purpose of interpreting types as
 predicates. The ability to shift the view by choosing which color to erase is reminiscent
 of the observer level from the indistinguishability
-judgment of \name. However, in TTC, the internalized reasoning about
+judgment of \name. The internalized reasoning about
 erasure is achieved by adding a parametricity rule to the type
-system rather than generalizing the type conversion rule. Furthermore,
-similar to \citet{pfenning:modal, abel:irrelevance} and unlike \name,
-the same taint is used for checking a term and the well-formedness of
-its type. In \name, the observer level between terms and types are
-decoupled from each other (\ref{lem:regularity}) to be able to type check
-irrelevant strong projections and irrelevant type parameters.
+system. Its type conversion rule still relies on untyped $\beta$
+equivalence. Furthermore, similar to \citet{pfenning:modal,
+abel:irrelevance} and unlike \name, in TTC, the same taint is used for
+checking a term and the well-formedness of its type. In \name, the
+observer level between terms and types are decoupled from each other
+(\ref{lem:regularity}) to be able to type check irrelevant strong
+projections and irrelevant type parameters.
 
 
 % The set of taints form a lattice with set
