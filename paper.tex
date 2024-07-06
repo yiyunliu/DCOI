@@ -2410,9 +2410,10 @@ a relational model to justify more complex properties.
 \subsection{Dependent Types and Irrelevance}
 \label{sec:discuss-irrel}
 In this section, we discuss dependently typed systems with relevance
-tracking. In the literature, irrelevance sometimes refers specifically
-to proof-irrelevance or irrelevance during type conversion. Here, we
-use a more liberal notion of relevance tracking that incorporates both
+tracking. As pointed out by \citet{tejiscak:erasure}, the notion of irrelevance is
+used inconsistently in the literature and can refer to either 
+run-time erasure or proof irrelevance, or even both. Here, we
+use the more liberal notion of relevance tracking to refer to both
 run-time erasability and proof irrelevance.
 % both
 % run-time erasability and proof-irrelevance and sometimes refer to .
@@ -2622,6 +2623,8 @@ semantics is refined to account for usage. In \name, since type
 conversion relies on indistinguishability, properties about dependency
 tracking must be developed before we define our semantic model.
 
+\todo{talk about \citet{tejiscak:erasure}}
+
 \subsection{Dependent Types and Indistinguishability}
 Compared to the languages that track
 relevance (Section~\ref{sec:discuss-irrel}), the most notable
@@ -2744,45 +2747,48 @@ projections and irrelevant type parameters.
 
 
 \subsection{Dependent Types and Mechanized Logical Relations}
-% \citet{luo1990:extended} introduces the Extended Calculus of
-% Constructions (ECC), 
-% an extension of Coquand-Huet's Calculus of
-% Constructions~\citep{coquand:coc} with a predicative universe
-% hierarchy on top of its impredicative sort \texttt{Prop}. The
-% \texttt{Prop} sort, 
+Compared to simply and polymorphically typed languages, mechanizing a
+logical relation for a dependently typed language with large
+elimination is difficult as it requires one to specify the set of
+semantically well-formed types while simultaneously interpreting those
+types as sets of terms.
 
+\citet{barras:coq-coq} proves strong normalization for the Calculus of
+Constructions in Coq. Similar to \citet{geuvers:cc-sn}, Barras
+leverages the fact that CC does not have large elimination. 
+Terms can be erased from type level computations, and a generalized
+notion of Girard's reducibility candidates~\citep{girard:proofs} is
+used to model the system.
 
+The same shortcut is not applicable to systems with a predicative
+universe and large elimination and thus requires one to resolve the
+mutual dependency between the well-formedness definition of types and the
+interpretation of their meanings.
 
+\citet{abel:dectt} use Agda's an inductive recursive definition to
+define a Kripke-style logical relation for a dependent type theory with
+judgmental equality and large elimination. The induction part
+specifies the set of valid types and the recursion part assigns the
+types their meanings. Their work is later extended by
+\citet{abel:grade} to prove the decidable type checking, consistency,
+and preservation for a graded modal type theory.
 
-% Unlike \name, Pfenning's system does not parameterize the typing
-% judgment over an observer level. Instead, typing for irrelevant
-% function arguments is defined as a synonym for
-% typing with a ``resurrected'' context, where all
-% relevance levels in the context are squashed to become relevant,
-% making them available to use when type checking the irrelevant
-% argument.
-
-
-
-% \citet{abel:irrelevance}
-
-
-
+Similar to our approach, \citet{anand:corenuprl,
+wieczorek:coqnbe, adjedj:mltt-coq} define their logical relations
+directly as an inductive type in Coq. One can view this definition as
+defining the logical relation as a partial function, whose
+functionality is proven a posteriori. Compared to \citet{abel:dectt}'s
+inductive recursive model, this approach requires less power from the
+metalanguage~\citep{adjedj:mltt-coq}, though an impredicative
+\texttt{Prop} sort is required to model an object language with infinitely
+many universe levels~\citep{anand:corenuprl}.
 
 
 
 
 \begin{itemize}
-  \item DCOI \cite{liu:dcoi}
-  \item ICC \cite{miquel:icc}
-  \item EPTS \cite{mishra-linger:erasure}
-  \item \cite{abel:irrelevance}
-  \item \cite{gilbert:sprop}
-  \item \cite{atkey:qtt}
   \item \cite{kovacs:2LTT}
-  \item DDC
   \item degrees of relatedness (internalizing parametricity) % \cite{nuyts:paramdtt}
-  \item type theory in colour --- colours are dependency levels (internalizing parametricity)
 \end{itemize}
 
 \section{Future work}

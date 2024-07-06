@@ -1026,3 +1026,57 @@ articleno = {23},
 numpages = {29},
 keywords = {Agda, Logical relations, Formalization, Dependent types}
 }
+
+@book{girard:proofs,
+  title={Proofs and types},
+  author={Girard, Jean-Yves and Taylor, Paul and Lafont, Yves},
+  volume={7},
+  year={1989},
+  publisher={Cambridge university press Cambridge}
+}
+
+@article{tejiscak:erasure,
+author = {Teji\v{s}\v{c}\'{a}k, Mat\'{u}\v{s}},
+title = {A dependently typed calculus with pattern matching and erasure inference},
+year = {2020},
+issue_date = {August 2020},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {4},
+number = {ICFP},
+url = {https://doi.org/10.1145/3408973},
+doi = {10.1145/3408973},
+abstract = {Some parts of dependently typed programs constitute evidence of their type-correctness and, once checked, are unnecessary for execution. These parts can easily become asymptotically larger than the remaining runtime-useful computation, which can cause normally linear-time programs run in exponential time, or worse. We should not make programs run slower by just describing them more precisely.  Current dependently typed systems do not erase such computation satisfactorily. By modelling erasure indirectly through type universes or irrelevance, they impose the limitations of these means to erasure. Some useless computation then cannot be erased and idiomatic programs remain asymptotically sub-optimal.  In this paper, we explain why we need erasure, that it is different from other concepts like irrelevance, and propose a dependently typed calculus with pattern matching with erasure annotations to model it. We show that erasure in well-typed programs is sound in that it commutes with reduction. Assuming the Church-Rosser property, erasure furthermore preserves convertibility in general.  We also give an erasure inference algorithm for erasure-unannotated or partially annotated programs and prove it sound, complete, and optimal with respect to the typing rules of the calculus.  Finally, we show that this erasure method is effective in that it can not only recover the expected asymptotic complexity in compiled programs at run time, but it can also shorten compilation times.},
+journal = {Proc. ACM Program. Lang.},
+month = {aug},
+articleno = {91},
+numpages = {29},
+keywords = {inference, erasure, dependent types}
+}
+
+@inproceedings{anand:corenuprl,
+  title={Towards a formally verified proof assistant},
+  author={Anand, Abhishek and Rahli, Vincent},
+  booktitle={Interactive Theorem Proving: 5th International Conference, ITP 2014, Held as Part of the Vienna Summer of Logic, VSL 2014, Vienna, Austria, July 14-17, 2014. Proceedings 5},
+  pages={27--44},
+  year={2014},
+  organization={Springer}
+}
+
+@inproceedings{wieczorek:coqnbe,
+author = {Wieczorek, Pawe\l{} and Biernacki, Dariusz},
+title = {A Coq Formalization of Normalization by Evaluation for Martin-L\"{o}f Type Theory},
+year = {2018},
+isbn = {9781450355865},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3167091},
+doi = {10.1145/3167091},
+abstract = {We present a Coq formalization of the normalization-by-evaluation algorithm for Martin-L\"{o}f dependent type theory with one universe and judgmental equality. The end results of the formalization are certified implementations of a reduction-free normalizer and of a decision procedure for term equality.  The formalization takes advantage of a graph-based variant of the Bove-Capretta method to encode mutually recursive evaluation functions with nested recursive calls. The proof of completeness, which uses the PER-model of dependent types, is formalized by relying on impredicativity of the Coq system rather than on the commonly used induction-recursion scheme which is not available in Coq. The proof of soundness is formalized by encoding logical relations as partial functions.},
+booktitle = {Proceedings of the 7th ACM SIGPLAN International Conference on Certified Programs and Proofs},
+pages = {266–279},
+numpages = {14},
+keywords = {Coq, program certification, normalization by evaluation, type theory},
+location = {Los Angeles, CA, USA},
+series = {CPP 2018}
+}
