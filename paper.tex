@@ -80,7 +80,6 @@
     {=>}{{$\mathrel{\Rightarrow}$}}2
     {~}{{$\mathbin{\sim}$}}1
 }
-\def\lstinlinecol{\lstinline[columns=fullflexible]}
 
 \ifcomments
 \newnote{sw}{blue} % Stephanie Weirich
@@ -385,54 +384,121 @@ using a level-aware propositional equality type, as in the following proof.
 
 \begin{lstlisting}
   isConst : (A : Type)@1 -> (f : A@1 -> A)@0 ->
-            (x : A)@1 -> (y : A)@1 -> f x ~@0 f y
-  isconst = \A f x y. refl
+            (x : A)@1 -> (y : A)@1 -> f x ~@0 f y @ 1
+  isConst = \A f x y. refl
 \end{lstlisting}
 
 This proof asserts that a relevant function taking an irrelevant argument
 is indeed constant in that argument.
 The equality type is annotated with \lstinline{0}
 to indicate that it holds only for relevant terms.
-It holds by reflexivity, meaning that \lstinline{f x} and \lstinline{f y}
-are also \emph{compile-time irrelevant}
+It holds by reflexivity, since \lstinline{f x} and \lstinline{f y}
+are \emph{compile-time irrelevant}
 and considered definitionally equal by the type checker.
 When checking that they are equal relevant terms,
 it will ignore the irrelevant arguments.
 
-We can combine run-time irrelevance and compile-time irrelevance by using more levels.
-In the following example, \lstinline{0} and \lstinline{1} remain
-the relevant and run-time irrelevant levels, respectively,
-while \lstinline{2} can be considered a compile-time irrelevant level.
+Irrelevance is always relative to some lower level.
+For instance, a term at level \lstinline{1} is irrelevant to one at level \lstinline{0},
+and a term at level \lstinline{2} is irrelevant to terms at both level \lstinline{0} and \lstinline{1}.
+The following example demonstrates this with irrelevant proofs.
 
-\jc{TODO}
+\begin{lstlisting}
+  irr : (A : Type)@1 -> (B : A@0 -> Type)@1 ->
+        (C : (x : A)@0 -> (B x)@2 -> Type)@1
+        (x : A) -> (b1 : B x)@2 -> (b2 : B x)@2 ->
+        C x b1 -> C x b2 @ 0
+  irr = \A B C x b1 b2 c. c
+\end{lstlisting}
 
-In general, terms as higher levels appear indistinguishable to terms at lower levels,
-and cannot be used in meaningful ways by lower-level terms,
-except to be passed around without being inspected.
+This function takes a type \lstinline{A} of a relevant term \lstinline{x},
+a predicate \lstinline{B} whose proofs \lstinline{b1} and \lstinline{b2} are irrelevant,
+and another predicate \lstinline{C}.
+Given a term \lstinline{c} of type \lstinline{C x b1},
+the goal is to produce a term of type \lstinline{C y b2}.
+As the type \lstinline{C} is at level \lstinline{1}
+while \lstinline{bx} and \lstinline{by} are at level \lstinline{2},
+they appear irrelevant to \lstinline{C},
+so \lstinline{c} itself fulfills the goal.
+
+The two levels of irrelevance are thus necessary if we want to consider
+the compile-time irrelevance of proofs within run-time irrelevant types.
+If \lstinline{b1} and \lstinline{b2} were merely level \lstinline{1},
+while they are still erasable within the level \lstinline{0} function,
+they would not be definitionally equal when comparing
+\lstinline{C x b1} and \lstinline{C x b2} at level \lstinline{1}.
 
 We can also introduce inductive types
 that package up irrelevant terms
 and which can only be unpackaged by other irrelevant terms.
-
-\jc{TODO}
+The following is a constructor for subset types
+containing a relevant term and an irrelevant proof
+of a predicate satisfied by the term.
 
 \begin{lstlisting}
   data Subset (A : Type)@1 (B : A@0 -> Type)@1 : Type where
-    pack @k of (x : A)@k (B x)@1
+    pack of (x : A)@0 (B x)@1
 
-  congSubset : (A : Type) -> (B : A -> Type) ->
-               (x : A)@0 -> (y : A)@0 ->
-               (bx : B x)@1 -> (by : B y)@1 ->
-               (x ~ y) -> (pack x bx ~ pack y by : Subset A B)
-  congSubset = \A B x y bx by p. subst refl by p
-  -- J (\z q. pack x bx ~ pack z (J B by (trans y x z (sym x y p) q))) refl p
+  mem : (A : Type) -> (B : A -> Type) -> (Subset A B)@0 -> A @ 0
+  mem = \A B p. case p of pack x y => x
+
+  prf : (A : Type) -> (B : A -> Type) ->
+        (p : Subset A B)@0 -> B (mem A B p) @ 1
+  prf = \A B p. case p of pack x y => y
 \end{lstlisting}
+
+We can project out both the relevant term and the proof,
+but the projection of the proof must be irrelevant.
+Irrelevance of the proof also means that we may equate
+two members of a subset type merely when the relevant terms are equal,
+proven as follows.
 
 \begin{lstlisting}
-  data Nat : Type where
-    zero
-    succ @k of Nat@k
+  pcong : (A : Type) -> (B : A -> Type) ->
+          (x : A) -> (y : A) -> (bx : B x)@1 -> (by : B y)@1 ->
+          (x ~@0 y)@1 -> (pack x bx ~@0 pack y by : Subset A B) @ 1
+  pcong = \A B x y bx by p. subst refl by p
 \end{lstlisting}
+
+Thus compile-time irrelevance of proofs helps us write fewer proofs.
+As a concrete example, suppose we define the naturals \lstinline{Nat},
+their addition operator \lstinline{+},
+a predicate \lstinline{isEven} on naturals asserting their evenness,
+a proof that addition is commutative,
+and a proof that the sum of two even numbers is even.
+The following are the types of the latter two definitions.
+
+\begin{lstlisting}
+  comm : (n : Nat) -> (m : Nat) -> (n + m ~@0 m + n) @ 1
+  esum : (n : Nat) -> (m : Nat) -> (en : isEven n)@1 ->
+         (em : isEven m)@1 -> isEven (n + m) @ 1
+\end{lstlisting}
+
+An even number \lstinline{Even} can be represented
+as a subset type of even naturals \lstinline{Subset Nat isEven},
+and correspondingly define their addition.
+
+\begin{lstlisting}
+  eadd : Even -> Even -> Even @0
+  eadd = \en em. case en of n en' =>
+                 case em of m em' => pack (n + m) (esum n m en' em')
+\end{lstlisting}
+
+We can then prove that addition of even numbers is also commutative using \lstinline{pcong}.
+
+\begin{lstlisting}
+  ecomm : (en : Even) -> (em : Even) -> (eadd en em ~@0 eadd em en) @ 1
+  ecomm = \en em.
+    case en of n en' =>
+    case em of m em' =>
+      pcong Nat isEven (n + m) (m + n)
+        (esum n m en' em') (esum m n em' en') (comm n m)
+\end{lstlisting}
+
+If the proof in the subset type were not irrelevant,
+we would have the additional proof obligation of showing that
+\lstinline{(esum n m en' em')} and
+\lstinline{(esum m n em' en')} are equal.
 
 \subsection{Examples new to this paper}
 
@@ -471,23 +537,6 @@ and therefore no closed inhabitants.
 \end{lstlisting}
 
 \subsubsection{More expressive eliminator for propositional equality}
-
-\subsubsection{More expressive eliminator for dependent pairs}
-
-\begin{lstlisting}
-  proj1 : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
-          (Pair A B)@1 -> A @ 1
-  proj1 = \A B p. case p of pair a b => a
-  
-  proj2 : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
-          (p : Pair A B)@0 -> B (proj1 A B p) @ 0
-  proj2 = \A B p. case p of pair a b => b
-
-  -- not possible with only pair projections
-  proj2' : (A : Type)@1 -> (B : A@1 -> Type)@1 ->
-           (p : Pair A B)@2 -> case p of pair a b => B a @ 2
-  proj2' = \A B p. case p of pair a b => b
-\end{lstlisting}
 
 \begin{align*}
   [[:concrete: length & : Pi A : H Univ 0 . L (! List H A) -> Nat @ L]] \\
