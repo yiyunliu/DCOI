@@ -2540,14 +2540,73 @@ internalized indistinguishability judgment. In
 \citet{abel:irrelevance, gilbert:sprop}, equalities are always based
 on an observer who can only access relevant information.
 
-The Dependent Dependency Calculus (DDC)~\citep{choudhury:ddc} 
-and then \citet{liu:dcoi} \todo{complete the discussion about DDC and DCOI}
+The design of \dcoi~\citep{liu:dcoi} and its instantiation \name is
+directly inspired by the Dependent Dependency Calculus
+(DDC)~\citep{choudhury:ddc}. DDC aims to provide a framework
+for tracking both run-time and compile-time dependencies. Its
+mechanism for run-time dependency tracking is based on 
+the same mechanism found in simply typed languages such as the Sealing
+Calculus~\citep{shikuma:noninterference}.
+Unlike \citet{abel:irrelevance}, DDC
+indexes its typing judgment by an observer level drawn from an arbitrary
+lattice so it can analyze dependency from different view
+points. Unlike the systems discussed in Section~\ref{sec:discuss-irrel},
+DDC's run-time dependency tracking mechanism is flexible and allows
+one to encode
+strong irrelevant projections.
+A disjoint mechanism based on \citet{pfenning:modal} is
+introduced to separately track compile-time irrelevance. This requires
+DDC to augment the lattice structure with two upper bounds $C$ and $T$
+such that $C < T$. The typing judgment can never be indexed by the top
+element $T$ from the augmented lattice. Instead, Pfenning's
+resurrection mechanism is used to resurrect the context to the level
+$C$.
+While their system includes a indistinguishability relation
+similar to the one we present in Section~\ref{sec:indist}, the type
+conversion rule only performs conversion at some fixed level
+$C$. The restrictive conversion rule makes it difficult to define the
+elimination form for an indexed equality type since levels below $C$
+do not affect conversion. In the other direction, the compile-time irrelevance fragment
+does not enjoy the same flexibility as the run-time irrelevance
+fragment. For example, strong irrelevant projection is not admissible when the
+irrelevance level is $T$.
 
-Type-theory with color (TTC)~\citep{bernardy:color} extends the
+\citet{liu:dcoi} introduce a unified mechanism for handling both
+run-time and compile-time dependency tracking. The generalized type
+conversion rule based on indistinguishability allows one to define
+elimination rules for indexed equality types. This unified mechanism
+also retains the flexibility of DDC's run-time dependency tracking
+mechanism. It supports irrelevant type parameters and strong
+irrelevant projections at any levels from the lattice. However, their
+metatheoretic results are limited to syntactic soundness and the
+consistency of the equational theory. 
+
+In this work, we design \name, an instantiation of \dcoi with more expressive elimination forms for dependent
+pairs and equalities, and the ability to construct relevant terms from
+irrelevant empty proofs.
+We complete the semantic side of the story by
+proving logical consistency, normalization, and decidable type
+conversion, thus making \name suitable as the core language of theorem provers.
+
+% DDC combines the dependency tracking
+% mechanism from  and Pfenning's resurrection
+% mechanism in the same language. The observer level of the typing
+% judgment ranges over a lattice structure augmented with two upper
+% bounds $C$ and $T$ with $T$ being the top element. 
+
+% combines the 
+% dependency tracking mechanism found in simply typed languages such as
+% the Dependent Core Calculus~\citep{abadi:dcc} and the Sealing
+% Calculus~\citep{shikuma:noninterference} and the proof-irrelevance
+% mechanism found in dependently typed languages \citet{pfenning:modal}. 
+
+% and then \citet{liu:dcoi} \todo{complete the discussion about DDC and DCOI}
+Another work worth mentioning is Type-theory with color (TTC)~\citep{bernardy:color}.
+TTC extends the
 Calculus of Constructions with the notion of colors to support erasure
 and internalize
 parametricity. While \name does not internalize parametricity, there
-are a lot of similarites between TTC and \name when viewed purely as systems
+are a lot of similarites between TTC and \name when both are viewed purely as systems
 that track dependencies.
 % Taints are sets of colors, which represent the
 % resources that a computation may depend on. 
