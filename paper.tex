@@ -502,12 +502,16 @@ we would have the additional proof obligation of showing that
 
 \subsection{Examples new to this paper}
 
-\jc{why have the below subsubsection headings (except the first one) disappeared?}
+Aside from instantiating \dcoi's sorts to a universe hierarchy,
+\name introduces two new features that make it more expressive:
+an empty type with a level-unrestricted eliminator,
+and a more general eliminator for propositional equalities.
+We demonstrate their expressivity with some example applications.
 
 \subsubsection{Absurd elimination}
 
 In general, irrelevant inductives may not be eliminated to relevant terms.
-The sole exception in \dcoi is the empty type,
+The sole exception in \name is the empty type,
 whose eliminator may be typed at any level,
 regardless of the level of the proof it eliminates.
 In our implementation, this applies to any inductive type that has no constructors
@@ -517,27 +521,46 @@ and therefore no closed inhabitants.
   data Empty : Type where {}
 \end{lstlisting}
 
+Level-unrestricted elimination of the empty type allows us to handle impossible match cases,
+for instance, even when the proof of impossibility is irrelevant,
+which could not be done in \dcoi from prior work.
+An example application is taking the head of a nonempty list
+given an irrelevant proof of its nonemptiness.
+We begin with a list type and a length function on lists.
+
 \begin{lstlisting}
   data List (A : Type)@1 : Type where
     nil
-    cons @k of A@k (List A)@k
+    cons of A@0 (List A)@0
 
   length : (A : Type)@1 -> List A -> Nat @ 0
-  length = \A l.
-    case l of
-      nil       => zero
-      cons _ xs => succ (length A xs)
+\end{lstlisting}
 
+The \lstinline{head} function then additionally takes an irrelevant proof
+that the length of the given list is not equal to zero.
+In the \lstinline{nil} case, the type of the proof is
+\lstinline{(zero ~  zero) ->  Empty},
+so we can obtain and eliminate a proof of the empty type.
+
+\begin{lstlisting}
   head : (A : Type)@1 -> (l : List A) ->
-         ((length A l ~ Zero) -> Empty)@1 -> A @ 0
-  head = \A l. 
-    case l of 
-      nil      => \f. case (f Refl) of {}
-      cons x _ => \_. x
+         ((length A l ~ zero) -> Empty)@1 -> A @ 0
+  head = \A l. case l of 
+                 nil      => \f. case (f Refl) of {}
+                 cons x _ => \_. x
 \end{lstlisting}
 
 \subsubsection{More expressive eliminator for propositional equality}
 
+\jc{TODO: write}
+
+\begin{lstlisting}
+  downgrade : (A : Type)@1 -> (x : A)@0 -> (y : A)@0 ->
+              (x ~@1 y) -> (x ~@0 y) @ 1
+  downgrade = \A x y p. subst refl by p
+\end{lstlisting}
+
+\iffalse
 \begin{align*}
   [[:concrete: length & : Pi A : H Univ 0 . L (! List H A) -> Nat @ L]] \\
   [[:concrete: length & := \ H A . \ L l . phantom]] \\
@@ -562,6 +585,7 @@ and therefore no closed inhabitants.
       & vnil => \ H p . absurd (! discr H Void H n H p) ++
       & vcons n x xs => \ H p . x) H refl]]
 \end{align*}
+\fi
 
 \section{\name}
 
