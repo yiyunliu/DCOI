@@ -1105,18 +1105,20 @@ and are listed in \cref{fig:grading}.
 \begin{figure}[h]
   \mprset{fraction={===}}
   \begin{gather*}
-    \drule[width=0.25\textwidth]{Wg-subst}
-    \drule[width=0.25\textwidth]{Wg-sub}
-    \drule[width=0.25\textwidth]{I-subst}
-    \drule[width=0.25\textwidth]{I-down}
+    \drule{Wg-subst}
+    \drule{Wg-sub}
+    \drule{I-subst} \\\\
+    \drule{I-down}
+    \drule{Wt-subst}
+    \drule{Wt-sub}
   \end{gather*}
-  \caption{Admissible rules for well-gradedness and indistinguishability}
-  \label{fig:grading-indist:lemmas}
+  \caption{Admissible rules for well-gradedness, indistinguishability, and well-typedness}
+  \label{fig:lemmas}
 \end{figure}
 
 The well-gradedness and indistinguishability judgements
 satisfy some standard properties,
-listed as admissible rules in \cref{fig:grading-indist:lemmas}.
+listed as admissible rules in \cref{fig:lemmas}.
 \Rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
 \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
 permit substituting in a well-graded term of the appropriate level
@@ -1196,30 +1198,11 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
 
 \subsection{Type preservation}
 
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \begin{gather*}
-    \drule[width=0.2\textwidth]{Wt-weak}
-    \drule{Wt-subst}
-    \drule[width=0.2\textwidth]{Wt-sub}
-    \drule[width=0.2\textwidth]{Wt-replace}
-  \end{gather*}
-  \caption{Admissible rules for well-typedness}
-  \label{fig:typing:lemmas}
-\end{figure}
-
-As usual, typing admits weakening
-(\rref*{Wt-weak}\footnote{\suppl{theories}{preservation.v}{weakening\_Syn}})
-and substitution
-(\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}}),
-as stated in \cref{fig:typing:lemmas}.
-Like grading, it also admits subsumption
+Like grading, typing admits substitution
+(\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}})
+and subsumption
 (\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
-allowing the level to be raised while retaining the same type.
-Furthermore, it satisfies replacement
-(\rref*{Wt-replace}\footnote{\suppl{theories}{preservation.v}{preservation\_helper}}),
-allowing a type in the context to be replaced by a definitionally equal one.
-
+as stated in \cref{fig:lemmas}.
 Due to \rref{Wt-Conv},
 deducing the well-typedness of subterms of a well-typed term
 doesn't follow immediately from inversion and requires separate inversion lemmas,
