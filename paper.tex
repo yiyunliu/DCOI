@@ -1071,15 +1071,27 @@ and we defer its explanation to \cref{sec:eq-level}.
 In this section, we develop the syntactic metatheory of \name,
 ultimately culminating in subjection reduction,
 \ie type preservation of typing with respect to parallel reduction.
-The metatheory has been mechanized in Coq,
+Because the syntactic metatheory has already been established for \dcoi by \citet{liu:dcoi},
+here we only state without proof the most important lemmas
+that may also be used in the next section for the semantic metatheory.
+Nevertheless, everything has been mechanized in Coq,
 and the development can be found in \repo{} under the \texttt{proofs/theories} directory.
+
 Definitions, lemmas, and theorems given here are annotated with a footnote
 to the corresponding file and top-level name in the development.
 Some lemmas are presented as admissible derivation rules of the corresponding judgement,
 which are written with a double horizontal bar instead of a single bar.
 Their corresponding mechanizations are annotated where mentioned in the prose.
 
-\subsection{Well-gradedness}
+\subsection{Preliminaries}
+
+\begin{figure}[h]
+  % \drule{Wg-Univ} \drule{Wg-Empty} \drule{Wg-Refl}
+  % who's gonna know? nobody's gonna know
+  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
+  \caption{Term grading rules}
+  \label{fig:grading}
+\end{figure}
 
 As indistinguishability and definitional equality involve a grading context,
 we require a well-gradedness judgement on terms to be able to prove some substitution lemmas.
@@ -1091,91 +1103,31 @@ but with all typing information stripped out, leaving only the levels,
 and are listed in \cref{fig:grading}.
 
 \begin{figure}[h]
-  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
-  \caption{Term grading rules}
-  \label{fig:grading}
+  \mprset{fraction={===}}
+  \begin{gather*}
+    \drule[width=0.25\textwidth]{Wg-subst}
+    \drule[width=0.25\textwidth]{Wg-sub}
+    \drule[width=0.25\textwidth]{I-subst}
+    \drule[width=0.25\textwidth]{I-down}
+  \end{gather*}
+  \caption{Admissible rules for well-gradedness and indistinguishability}
+  \label{fig:grading-indist:lemmas}
 \end{figure}
-
-\subsection{Properties of grading and indistinguishability}
 
 The well-gradedness and indistinguishability judgements
 satisfy some standard properties,
-listed as admissible rules in \cref{fig:grading:lemmas},
-\cref{fig:defeq:lemmas}, and \cref{fig:indist:lemmas}, respectively.
-\Rref*{Wg-weak}\footnote{\suppl{theories}{geq.v}{iok\_morphing}} and
-\rref*{I-weak}\footnote{\suppl{theories}{geq.v}{ieq\_weakening\_mutual}}
-permit weakening the context.
+listed as admissible rules in \cref{fig:grading-indist:lemmas}.
 \Rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
 \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
 permit substituting in a well-graded term of the appropriate level
 in place of a variable of that level in the context.
-
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \begin{gather*}
-    % \drule{Wg-Wt}
-    \drule{Wg-weak}
-    \drule[width=0.25\textwidth]{Wg-subst}
-    \drule[width=0.25\textwidth]{Wg-sub}
-    \drule[width=0.25\textwidth]{Wg-pres}
-  \end{gather*}
-  \caption{Admissible rules for well-gradedness of terms}
-  \label{fig:grading:lemmas}
-\end{figure}
-
 Well-gradedness is subsumptive
 (\rref*{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
 the level of a well-graded term may be raised.
-Additionally, parallel reduction preserves well-gradedness
-(\rref*{Wg-pres}\footnote{\suppl{theories}{conv.v}{iok\_preservation}}).
-
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \begin{gather*}
-    \drule{I-weak}
-    \drule{I-subst}
-    \drule{I-down} \\\\
-    \drule{I-refl}
-    \drule{I-sym}
-    \drule{I-trans}
-  \end{gather*}
-  \caption{Admissible rules for indistinguishability of terms}
-  \label{fig:indist:lemmas}
-\end{figure}
-
-Indistinguishability is reflexive for well-graded terms
-(\rref*{I-refl}\footnote{\suppl{theories}{geq.v}{iok\_ieq}}),
-symmetric (\rref*{I-sym}\footnote{\suppl{theories}{geq.v}{ieq\_sym\_mutual}}),
-and transitive (\rref*{I-trans}\footnote{\suppl{theories}{geq.v}{ieq\_trans\_heterogeneous}}).
-Transitivity is slightly more general in its observer level:
-given a chain of three indistinguishable terms at two different observer levels,
-the end terms are indistinguishable at the meet of the levels.
-This generalization is crucial for definitional equality,
-as we will see shortly.
-Proving transitivity relies on a downgrade property
+Indistinguishability satisfies a downgrade property
 (\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
 where knowing that a term is indistinguishable from another at two different levels
 permits concluding that it is also indistinguishable at the meet of the levels.
-
-\subsection{Properties of parallel reduction and definitional equality}
-
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \begin{gather*}
-    \drule{P-subst}
-    \drule{Ps-subst}
-    \drule{P-refl}
-  \end{gather*}
-  \caption{Admissible rules for parallel reduction}
-  \label{fig:pars:lemmas}
-\end{figure}
-
-Parallel reduction and its transitive closure admit the substitution lemmas
-\rref*{P-subst}\footnote{\suppl{theories}{par.v}{Par\_cong}} and
-\rref*{Ps-subst}\punctstack{,}\footnote{\suppl{theories}{par.v}{Pars\_cong\_star}} respectively.
-An additional useful lemma is that single parallel reduction itself is already reflexive
-(\rref*{P-refl}\footnote{\suppl{theories}{par.v}{Par\_refl}}).
-These are given in \cref{fig:pars:lemmas}.
 
 The key lemmas of parallel reduction are the diamond property and confluence,
 which state that if a term reduces to two different terms,
@@ -1211,31 +1163,6 @@ to reconnect the two sides after reduction.
   If $[[a0 => a1]]$ and $[[b0 => b1]]$,
   then $[[E |- a1 == b1]]$.
 \end{lemma}
-
-As with indistinguishability,
-definitional equality admits weakening
-(\rref*{E-weak}\footnote{\suppl{theories}{conv.v}{conv\_renaming}}),
-and is reflexive for well-graded terms
-(\rref*{E-refl}\footnote{\suppl{theories}{conv.v}{conv\_refl}}),
-symmetric (\rref*{E-sym}\footnote{\suppl{theories}{conv.v}{conv\_sym}}),
-and transitive (\rref*{E-trans}\footnote{\suppl{theories}{conv.v}{conv\_trans}}),
-stated in \cref{fig:defeq:lemmas}.
-Inverting the premises of transitivity,
-each of them independently have some level at which two terms are indistinguishable,
-so combining them requires the more general transitivity of \rref*{I-trans}.
-The proof also relies on simulation.
-
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \begin{gather*}
-    \drule{E-weak}
-    \drule{E-refl}
-    \drule{E-sym}
-    \drule{E-trans}
-  \end{gather*}
-  \caption{Admissible rules for definitional equality}
-  \label{fig:defeq:lemmas}
-\end{figure}
 
 Finally, we will need some inversion lemmas for definitional equality on our types
 (\ie injectivity of type constructors).
