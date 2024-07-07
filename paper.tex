@@ -333,13 +333,11 @@ The implementation can be found in \repo{} under the \texttt{impl} directory,
 and all examples in this section are in \texttt{impl/pi/Paper.pi}.
 
 We use the naturals and their usual order as our concrete levels.
-Level annotations are omitted in the presentation below
-where they can be inferred by the type checker.
+Some level annotations are omitted in the presentation below
+where they can be inferred by the type checker,
+though many are retained for clarity.
 
-\subsection{Examples from prior work}
-
-To see the benefit of dependency tracking, we summarize examples that already
-type check in \dcoi from prior work.
+\subsection{Run- and compile-time irrelevance}
 
 Parts of programs that are not meaningfully used during computation
 can be considered \emph{run-time irrelevant}.
@@ -398,6 +396,8 @@ and considered definitionally equal by the type checker.
 When checking that they are equal relevant terms,
 it will ignore the irrelevant arguments.
 
+\subsection{Irrelevance is relative}
+
 Irrelevance is always relative to some lower level.
 For instance, a term at level \lstinline{1} is irrelevant to one at level \lstinline{0},
 and a term at level \lstinline{2} is irrelevant to terms at both level \lstinline{0} and \lstinline{1}.
@@ -428,7 +428,33 @@ while they are still erasable within the level \lstinline{0} function,
 they would not be definitionally equal when comparing
 \lstinline{C x b1} and \lstinline{C x b2} at level \lstinline{1}.
 
-We can also introduce inductive types
+In general, if two terms are irrelevant at a given level,
+then they are also irrelevant at a lower level, but not necessarily a higher one.
+In the example above,
+knowing that \lstinline{b1} and \lstinline{b2} are irrelevant at level \lstinline{1}
+allows us to reason that they are also irrelevant at level \lstinline{0},
+but they are not irrelevant at level \lstinline{2},
+since they are variables declared at and therefore useable at level \lstinline{2}.
+
+As equality types internalize the notion of definitional equality at some level,
+we can also internalize the ability to lower the level.
+In particular, given an equality annotated at level \lstinline{1},
+we are able to prove the same equality annotated at level \lstinline{0}
+by the following.
+
+\begin{lstlisting}
+  downgrade : (A : Type)@1 -> (x : A)@0 -> (y : A)@0 ->
+              (x ~@1 y) -> (x ~@0 y) @ 1
+  downgrade = \A x y p. subst refl by p
+\end{lstlisting}
+
+In \dcoi from prior work,
+the specification of the eliminator for equalities was not general enough
+for \lstinline{downgrade} above to be provable.
+
+\subsection{Irrelevant constructor components}
+
+We now introduce inductive types
 that package up irrelevant terms
 and which can only be unpackaged by other irrelevant terms.
 The following is a constructor for subset types
@@ -438,10 +464,8 @@ of a predicate satisfied by the term.
 \begin{lstlisting}
   data Subset (A : Type)@1 (B : A@0 -> Type)@1 : Type where
     pack of (x : A)@0 (B x)@1
-
   mem : (A : Type) -> (B : A -> Type) -> (Subset A B)@0 -> A @ 0
   mem = \A B p. case p of pack x y => x
-
   prf : (A : Type) -> (B : A -> Type) ->
         (p : Subset A B)@0 -> B (mem A B p) @ 1
   prf = \A B p. case p of pack x y => y
@@ -500,15 +524,7 @@ we would have the additional proof obligation of showing that
 \lstinline{(esum n m en' em')} and
 \lstinline{(esum m n em' en')} are equal.
 
-\subsection{Examples new to this paper}
-
-Aside from instantiating \dcoi's sorts to a universe hierarchy,
-\name introduces two new features that make it more expressive:
-an empty type with a level-unrestricted eliminator,
-and a more general eliminator for propositional equalities.
-We demonstrate their expressivity with some example applications.
-
-\subsubsection{Absurd elimination}
+\subsection{Eliminating empty types}
 
 In general, irrelevant inductives may not be eliminated to relevant terms.
 The sole exception in \name is the empty type,
@@ -532,7 +548,6 @@ We begin with a list type and a length function on lists.
   data List (A : Type)@1 : Type where
     nil
     cons of A@0 (List A)@0
-
   length : (A : Type)@1 -> List A -> Nat @ 0
 \end{lstlisting}
 
@@ -548,16 +563,6 @@ so we can obtain and eliminate a proof of the empty type.
   head = \A l. case l of 
                  nil      => \f. case (f Refl) of {}
                  cons x _ => \_. x
-\end{lstlisting}
-
-\subsubsection{More expressive eliminator for propositional equality}
-
-\jc{TODO: write}
-
-\begin{lstlisting}
-  downgrade : (A : Type)@1 -> (x : A)@0 -> (y : A)@0 ->
-              (x ~@1 y) -> (x ~@0 y) @ 1
-  downgrade = \A x y p. subst refl by p
 \end{lstlisting}
 
 \iffalse
@@ -793,13 +798,10 @@ Otherwise, if $[[not (l0 <= l)]]$, then \rref{GI-Indist} applies,
 and the arguments are too high to be observed at $[[l]]$,
 so indistinguishability of the applications does not consider the arguments.
 As a simple example,
-$[[:concrete: (# w : L ++ x : H #) ++ y : H |- (\ H z . w) H x == (\ H z . w) H y @ L]]$
+$[[:concrete: (# (# w : L ++ x : H #) ++ y : H #) ++ f : L |- f H x == f H y @ L]]$
 holds even though $[[x]]$ and $[[y]]$ could be anything,
 because the observer level is $[[L]]$,
 while the arguments' levels are $[[H]]$ and therefore unobservable.
-\yl{Would it be possible to use neutral terms for functions in this
-  example? Would be nice to have a program that is convertible only
-  because of indistinguishability. }
 Indistinguishability of unobservable arguments articulates the intuition that
 functions may safely ignore these arguments that they cannot meaningfully use.
 
