@@ -2855,14 +2855,6 @@ irrelevant projections at any levels from the lattice. However, their
 metatheoretic results are limited to syntactic soundness and the
 consistency of the equational theory. 
 
-\todo{move this to the conclusion?}
-In this work, we design \name, an instantiation of \dcoi with more expressive elimination forms for dependent
-pairs and equalities, and the ability to construct relevant terms from
-irrelevant empty proofs.
-We complete the semantic side of the story by
-proving logical consistency, normalization, and decidable type
-conversion, thus making \name suitable as the core language of theorem provers.
-
 % DDC combines the dependency tracking
 % mechanism from  and Pfenning's resurrection
 % mechanism in the same language. The observer level of the typing
@@ -2981,6 +2973,25 @@ many universe levels~\citep{anand:corenuprl}.
 \end{itemize}
 
 \section{Conclusion}
+In this work, we define \name, an instantiation of \dcoi with a
+predicative universe hierarchy extended with more expressive
+elimination forms. We use a syntactic logical predicate to show that
+\name satisfies normalization, logical consistency, and decidable type
+conversion in addition to the syntactic soundness results established
+by \citet{liu:dcoi}; these results are all mechanized in the Coq proof
+asisstant.
+The logical consistency property makes \name suitable for both
+programming and internalized reasoning about information flow. In the
+future, we plan to build on top of our decidable type conversion
+result and extend our system to support full
+decidable type checking in the style of the bidirectional system
+by \citet{adjedj:mltt-coq}.
+
+
+% We complete the semantic side of the story by
+% proving logical consistency, normalization, and decidable type
+% conversion, thus making \name suitable as the core language of theorem provers.
+
 
 \begin{acks} 
 The authors would like to thank the anonymous reviewers for their comments and suggestions.
