@@ -1066,7 +1066,7 @@ The constraint $[[l2 <= l]]$ in \rref{I-J} is required due to its presence in \r
 The constraint $[[l0 <= l]]$ in \rref{I-Eq} is yet another subtle technical issue,
 and we defer its explanation to \cref{sec:eq-level}.
 
-\section{Syntactic metatheory} \label{sec:synmeta}
+\section{Syntactic Metatheory} \label{sec:synmeta}
 
 In this section, we develop the syntactic metatheory of \name,
 ultimately culminating in subjection reduction,
@@ -1229,7 +1229,7 @@ which proceeds by induction on the typing derivation.
   and similarly for $[[a =>* b]]$.
 \end{theorem}
 
-\section{Semantic metatheory}
+\section{Semantic Metatheory}
 \label{sec:semmeta}
 
 \begin{figure}[h]
@@ -2103,9 +2103,6 @@ of conversion in \rref{Wt-Conv}.
 
 \section{Discussion and Future Work}
 
-% design and technical issues
-% perhaps merge with related work
-
 \subsection{Target level constraints} \label{sec:target-level}
 
 The level of eliminator targets must be bounded by the level of the overall eliminator.
@@ -2210,7 +2207,7 @@ Because the observer level $[[l0]]$ is explicitly annotated in the equality type
 we cannot enforce $[[l]]$ to be exactly $[[l0]]$,
 as it would violate subsumption by fixing the overall level to $[[l0]]$ in \rref{Wt-Eq}.
 
-\subsection{Scoped Logical Predicate,  non-Kripke Style}
+\subsection{Scoped logical predicate, non--Kripke-style}
 \label{sec:nokripke}
 % To justify the type conversion rule (\rref*{Wt-Conv}) semantically, we
 % need to prove that indistinguishable types have the same meaning
@@ -2284,10 +2281,9 @@ since they both involve binders.
 
 % By defining soundness in terms of 
 
+\subsection{Towards typed definitional equality
+  and relational semantic models}
 
-
-\subsection{Towards typed definitional equality and relational
-  semantic models}
 \label{sec:typeddefeq}
 Following \citet{liu:dcoi}, we formulate \name as an instantiation of
 Barendregt's Pure Type Systems~\citep{barendregt:PTS} with a predicative
@@ -2309,9 +2305,11 @@ However, it turns out that even defining judgmental equality for \name
 poses enough of a challenge. Consider the following
 typed congruence rule for functions obtained by naively adding type
 annotations to \rref{I-App}.
+
 \begin{center}
-  \drule{I-AppTy}
+  \drule[width=\textwidth]{I-AppTy}
 \end{center}
+
 Ignoring the levels, \rref{I-AppTy} is exactly how the application
 equivalence rule is defined for PTS with judgmental equality. However,
 \rref{I-AppTy} breaks the
@@ -2441,7 +2439,6 @@ type~\citep{pujet:ttobs}. As part of our future work, we want to
 extend \name with elimination of irrelevant equality proofs while
 preserving its normalization property.
 
-
 \begin{itemize}
 \item Talk about why we can't leverage
   the fact that the equality type is a singleton in our grading rules
@@ -2450,11 +2447,11 @@ preserving its normalization property.
   Equality, DE, Trellys) and how they interact with decidability
 \end{itemize}
 
+\section{Related Work}
 
-\section{Related work}
-
-\subsection{Dependent Types and Irrelevance}
+\subsection{Dependent types and irrelevance}
 \label{sec:discuss-irrel}
+
 In this section, we discuss dependently typed systems with relevance
 tracking. As pointed out by \citet{tejiscak:erasure}, the notion of irrelevance is
 used inconsistently in the literature and can refer to either 
@@ -2637,8 +2634,8 @@ logical consistency.
 % the Coq proof assistant to ensure that proofs do not appear in
 % extracted programs.
 
+\subsection{Dependent types and counting}
 
-\subsection{Dependent Types and Counting}
 Counting is a type of fine-grained static analysis that tracks the
 number of times a resource can be used. Unlike systems that track
 dependency, usage information is represented in the form of a semiring
@@ -2715,7 +2712,8 @@ semantics is refined to account for usage. In \name, since type
 conversion relies on indistinguishability, properties about dependency
 tracking must be developed before we define our semantic model.
 
-\subsection{Dependent Types and Indistinguishability}
+\subsection{Dependent types and indistinguishability}
+
 Compared to the languages that track
 relevance (Section~\ref{sec:discuss-irrel}), the most notable
 feature of \dcoi and \name is the ability to reason about dependency
@@ -2812,23 +2810,15 @@ observer level between terms and types are decoupled from each other
 (\ref{lem:regularity}) to be able to type check irrelevant strong
 projections and irrelevant type parameters.
 
-
 % The set of taints form a lattice with set
 % intersection and union as meet and join. 
-
-
-
 
 % Taints form a lattice with
 % the set union and intersection operations and thus is highly related
 % to the dependency tracking mechanism found in \name. 
 
+\subsection{Dependent types and mechanized logical relations}
 
-
-
-
-
-\subsection{Dependent Types and Mechanized Logical Relations}
 Compared to simply and polymorphically typed languages, mechanizing a
 logical relation for a dependently typed language with large
 elimination is difficult as it requires one to specify the set of
@@ -2865,15 +2855,10 @@ metalanguage~\citep{adjedj:mltt-coq}, though an impredicative
 \texttt{Prop} sort is required to model an object language with infinitely
 many universe levels~\citep{anand:corenuprl}.
 
-
-
-
 \begin{itemize}
   \item \cite{kovacs:2LTT}
   \item degrees of relatedness (internalizing parametricity) % \cite{nuyts:paramdtt}
 \end{itemize}
-
-\section{Future work}
 
 \begin{itemize}
   \item application rule with argument level leq pi type parameter level; same with first component of pair
@@ -2883,6 +2868,7 @@ many universe levels~\citep{anand:corenuprl}.
 \end{itemize}
 
 \section{Conclusion}
+
 In this work, we define \name, an instantiation of \dcoi with a
 predicative universe hierarchy extended with more expressive
 elimination forms. We use a syntactic logical predicate to show that
@@ -2913,7 +2899,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \appendix
 
-\section{Omitted judgement rules}
+\section{Omitted Judgement Rules}
 
 \subsection{Naturals} \label{sec:naturals}
 
