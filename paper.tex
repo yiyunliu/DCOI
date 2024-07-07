@@ -2263,6 +2263,7 @@ as it would violate subsumption by fixing the overall level to $[[l0]]$ in \rref
 
 \subsection{Scoped logical predicate, non--Kripke-style}
 \label{sec:nokripke}
+
 % To justify the type conversion rule (\rref*{Wt-Conv}) semantically, we
 % need to prove that indistinguishable types have the same meaning
 % (\ref{lem:lrfunci}), which in turn requires us to show that only
@@ -2282,17 +2283,17 @@ generalization are referred to as Kripke-style logical relations
 
 However, the logical predicate for \name is different in that the
 scoping information is not the full-fledged typing judgment, unlike
-the forementioned works, but the weaker well-gradedness judgment. This
+the aforementioned works, but the weaker well-gradedness judgment. This
 allows us to introduce in Section~\ref{sec:logpred} an ill-typed but
-well-graded constant $[[dummy]]$, which has similar reduction behavior
-as free variables, but is not subject to scoping constraints.
+well-graded constant $[[dummy]]$, which has a reduction behavior similar
+to free variables, but is not subject to scoping constraints.
 
-When deriving the normalization of functions, we can use the antirenaming
-property formulated in terms of $[[d]]$ to avoid weakening the grading
+When deriving the normalization of functions, we use the antirenaming
+property formulated in terms of $[[dummy]]$ to avoid weakening the grading
 context with a Kripke-style logical predicate. This proof technique
 simplifies our definition of the logical predicate significantly; in a
 dependently typed system, a Kripke-style predicate would require us to
-generalize not only functions, but also function and sigma types themselves
+generalize not only functions, but also function and pair types themselves
 since they both involve binders.
 
 % However, our non-Kripke style logical relation requires us to be
@@ -2356,7 +2357,7 @@ similar equivalence holds between \name and a variant with typed
 equality.
 However, it turns out that even defining judgmental equality for \name
 poses enough of a challenge. Consider the following
-typed congruence rule for functions obtained by naively adding type
+typed congruence rule for functions obtained by na\"ively adding type
 annotations to \rref{I-App}.
 
 \begin{center}
@@ -2364,7 +2365,7 @@ annotations to \rref{I-App}.
 \end{center}
 
 Ignoring the levels, \rref{I-AppTy} is exactly how the application
-equivalence rule is defined for PTS with judgmental equality. However,
+equivalence rule is defined for a PTS with judgmental equality. However,
 \rref{I-AppTy} breaks the
 type correctness property, which states that $[[G |- a == b @ l : A]]$
 implies $[[G |- a : l A]]$ and $[[G |- b : l A]]$.
@@ -2374,24 +2375,24 @@ arguments are not observable and therefore we do not need to check the
 equality between $[[a0]]$ and $[[a1]]$ other than their respective
 well-typedness. However, \name does not prohibit the type $[[B]]$ from
 depending on the variable $[[x]]$ as the type $[[Pi x : l0 A . B]]$
-can be well-formed at a level unrelated to the observer level $[[l]]$
-(\ref{lem:regularity}).
+can be well formed at a level unrelated to the observer level $[[l]]$
+by \nameref{lem:regularity}.
 As a result, there is no guarantee that $[[B {a0 / x}]]$ and $[[B {a1
   / x}]]$ are indistinguishable types.
 
 As a simple counterexample, we can pick $[[b0]]$ and $[[b1]]$ to be
-a level $[[L]]$ polymorphic identity function with a level $[[H]]$
+level $[[L]]$ polymorphic identity functions with a level $[[H]]$
 (thus irrelevant)
 type parameter. Instantiating $[[a0]]$ and $[[a1]]$ with distinct
-types, we end up with two distinct arrow types $[[B {a0 / x}]] = [[L
+types, we end up with two distinct function types $[[B {a0 / x}]] = [[L
 a0 -> a0]]$ and $[[B {a1 / x}]] = [[L a1 -> a1]]$. Type correctness
 breaks as soon as we add input type annotations to functions.
 
 The problem of extending \name with judgmental equality also
 directly relates to the problem of defining a relational model for justifying properties
 such as extensionality, or a generalized semantic notion of noninterference
-that goes beyond our syntactic simulation property
-(\ref{lem:simulation}). Since logical relations are indexed by types,
+that goes beyond our syntactic \nameref{lem:simulation} property.
+Since logical relations are indexed by types,
 when defining the interpretation for functions, we run into the same
 issue where run-time irrelevant arguments that are vacuously related by guarded
 equality may result in distinguishable types after being substituted
@@ -2400,9 +2401,9 @@ into the output type.
 Rather than patching \rref{I-AppTy} with side conditions until
 syntactic properties such as type correctness is satisfied, a more
 pressing problem is whether \rref{I-AppTy} is semantically sound.
-The counterexample about polymorphic identity function from earlier
+The counterexample above for polymorphic identity functions
 shows that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not necessarily
-\emph{syntactically} inhabit both $[[B {a0 / x}]]$ $[[B {a1 / x}]]$. However,
+\emph{syntactically} inhabit both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$. However,
 semantically, two instantiated identity functions with different type
 annotations do not behave differently at run time.
 
@@ -2441,19 +2442,19 @@ a relational model to justify more complex properties.
 Equality type has the special property that
 there is only one canonical form $[[refl]]$. For closed terms, the
 fundamental theorem guarantees that an equality can only evaluate to
-the $[[refl]]$ form. As a result, during runtime, the J elimination
-form is perfectly erasable since no information is gained from
+$[[refl]]$. As a result, during run time, the J eliminator
+is perfectly erasable since no information is gained from
 matching against a singleton type.
 
 Despite the erasability of equality proofs at runtime,
 \dcoi does not allow casting a relevant term using an irrelevant proof.
 In Section~\ref{sec:target-level}, we see that this restriction is
 necessary for the simulation property to hold since an open equality
-proof can normalize to either $[[refl]]$ or a neutral term.
+proof can normalize to either $[[refl]]$ or to a neutral term.
 
 However, it is possible to modify the operational semantics of \name
 by adding the rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
-so the J eliminator is simply erased during evaluation without having
+so the that J eliminator is simply erased during evaluation without having
 to reduce the equality proof.
 Since the equality proof is discarded during evaluation, it can be ignored by the
 indistinguishability, and therefore the simulation property is preserved.
@@ -2461,23 +2462,23 @@ indistinguishability, and therefore the simulation property is preserved.
 Such a rule violates subject reduction. Given a term $[[a]]$ of type
 $[[Nat]]$ and a bogus assumption $x$ of type $[[Nat ~ l Void]]$, we
 have $[[J a l x => a]]$ where the former is of type $[[Void]]$ but the
-latter is of type $[[Nat]]$. However, the addition of this rule
+latter is of type $[[Nat]]$. Even so, the addition of this rule
 still gives us a consistent equational
 theory. In fact, it is even possible to recover logical consistency,
 though we lose decidable type conversion.
 With a proof of $A \sim A \rightarrow A$ in the context,
 one can define a well-typed term that reduces to the diverging
-term $(\lambda x . x\ x)\ (\lambda x . x\ x)$, since J eliminator no
-longer gets stuck at a bogus equality proof.
+term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$,
+since the J eliminator no longer gets stuck at a bogus equality proof.
 
 \citet{werner:proofirrel} attempts to address this problem while still
-allow the irrelevance treatment of equality proofs. In his system, the
+allowing the irrelevant treatment of equality proofs. In his system, the
 elimination form for equalities is annotated with the terms appearing
 in the equality. The $\beta$ rule for the eliminator does not examine
 the equality proof. Instead, the reduction happens when the terms on the left hand
 side and the right hand side of the equality are convertible. Werner's
-rule requires that the terms in the equality to be relevant, which is
-not always desirable when these terms are irrelevant type
+rule requires that the terms in the equality be relevant, which is
+not always desirable when these terms may be irrelevant type
 indices. % Furthermore, as shown by \citet{abel:failurenorm}, the more
 % restrictive reduction rule by \citet{werner:proofirrel} still violates
 % normalization for impredicative systems.
@@ -2485,9 +2486,9 @@ indices. % Furthermore, as shown by \citet{abel:failurenorm}, the more
 It is possible to recover decidable type conversion for a non-strict
 elimination rule through annotations~\citep{liu:dependently}, or by
 exploring beyond intensional equality
-type~\citep{pujet:ttobs}. As part of our future work, we want to 
-extend \name with elimination of irrelevant equality proofs while
-preserving its normalization property.
+types~\citep{pujet:ttobs}. As part of our future work, we want to 
+extend \name with the elimination of irrelevant equality proofs while
+preserving normalization.
 
 \begin{itemize}
 \item Talk about why we can't leverage
