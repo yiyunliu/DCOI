@@ -227,13 +227,15 @@ staged compilation and information flow control~\cite{abadi:dcc}.
 \dcoi lays the foundation for the design of a dependently-typed
 programming language based on dependency tracking. Its conversion
 may use indistinguishability at any observer level when comparing types for
-equality. Despite this coarse notion of equality, prior work showed that \dcoi
+equality, and thus enabling the definition of an elimination form for level indexed
+equality types. Despite this flexible notion of
+definitional equality, prior work showed that \dcoi
 is type sound.
 
-Prior work focused on syntactic methods for reasoning about
+\citet{liu:dcoi} focused on syntactic methods for reasoning about
 \dcoi. While sufficient for type soundness, they cannot be used to identify
 an instantiation of \dcoi that enjoys properties such as logical consistency,
-weak normalization, and decidable observer-indexed equivalence. For flexibility,
+normalization, and decidable observer-indexed equivalence. For flexibility,
 \dcoi is designed around a \emph{Pure Type System} (PTS), where various
 instances of sorts, rules and axioms determine the versions of quantification
 that is allowed in the language. While some instances of PTSes are known to
@@ -242,31 +244,78 @@ others (such as those that include a predicative universe hierarchy, or a
 single impredicative sort) can form the basis of a consistent logic.
 
 In this paper, we define the language \name, which is a dependent type theory
-featuring a predicative universe hierarchy. This calculus retains many of the
+featuring a predicative universe hierarchy and large elimination. This calculus retains many of the
 features of \dcoi, including level-indexed dependent function types
 ($[[Pi x : l A . B]]$), level-indexed dependent pairs ($[[Sig x : l A. B]]$),
-level-indexed propositional equality $[[a ~l b]]$, and an empty type
-$[[Void]]$. \jc{sentence here about what this list is about}
-
+level-indexed propositional equality ($[[a ~l b]]$). Below, we provide an
+overview of our contributions, which include extensions
+that increase the expressiveness of the system, and new metatheoretic
+results established through semantic means.
+% and an empty type
+% $[[Void]]$. \jc{sentence here about what this list is about}
 \begin{itemize}
+\item We extend the language with an empty type $[[Void]]$ with an
+  elimination form that allows programmers to apply the principle of
+  explosion (\textit{ex falso quodlibet}) on high-level empty proofs
+  to refute impossible execution paths. Proofs can exist at an
+  erasable while still remain useful for programming. The validity of
+  this extension is easily justified by extending \citet{liu:dcoi}'s
+  syntactic simulation proof.
+
+
+\item We further develop the theory of the observer-indexed propositional
+  equality type in \name, including its elimination via the $\ottkw{J}$
+  operator. (Prior work used a restricted form of $\ottkw{J}$.) We
+  make the elimination rule more flexible, and show that it is
+  possible to internalize the reasoning principle that equalities
+  indistinguishable by a high observer are also indistinguishable by a
+  low observer. % To retain decidable type conversion and the soundness
+  % of internal erasure~\citep{}, 
+
+\item We provide a weak elimination form for level-indexed dependent
+  pairs, from which we recover strong projections. We show that the
+  weak elimination form for level-indexed pairs is more general than \citet{liu:dcoi}'s
+  treatment of strong projections as primitives; our admissible second
+  projection rule no longer requires a well-formedness check when a
+  high-level observer tries to project out the second component of a
+  low-level pair.
 
 \item We show that \name is logically consistent (there is no inhabitant of
-  the empty type), weakly normalizing (every term can be reduced to a normal
-  form), and that level-indexed equality is decidable. Logical consistency means
-  that programmers can use it to reason internally about their code. Like Coq
-  (Rocq?)~\citep{coq}, Agda~\citep{agda}, and Lean~\citep{lean},
+  the empty type) and weakly normalizing (every term can be reduced to a normal
+  form). % , and that type conversion \yl{I think it's fine to say type conversion
+    % instead of indexed defeq?} is decidable. 
+  Due to its
+  expressive conversion rule, support for large elimination, and
+  infinite universe levels, we cannot reuse
+  proofs found in \citet{geuvers:cc-sn, abel:irrelevance}
+  by embedding \name into their systems. Instead, we define our own
+  syntactic logical predicate for well-graded\yl{we shouldn't use grade, but
+    well-leveled just sounds silly} terms to directly show the above
+  new metatheoretic results as corollaries of the fundamental theorem.
+  Logical consistency means
+  that programmers can use \name to reason internally about their code. Like Coq
+  ~\citep{coq}, Agda~\citep{agda}, and Lean~\citep{lean},
   \name supports programming and program
   verification in the same framework. Unlike these systems, programmers may
   also internally reason about information flow.
 
-\item Because the empty type is uninhabited, we show that this type system
-  supports an expressive rule for its elimination. A high-level proof of
-  the empty type can eliminated to produce low-level results. This rule justifies the
-  irrelevance of all proof terms used to construct contradictions.
-
-\item We further develop the theory of the observer-indexed propositional
-  equality type in \name, including its elimination via the $\ottkw{J}$
-  operator. (Prior work used a restricted form of $\ottkw{J}$.)
+\item Following \citet{takahashi:par} and
+  \citet{accattoli:factorization}, we prove the standardization
+  theorem, which states that every weakly normalizing term can be
+  reduced to normal form through the deterministic leftmost-outermost reduction
+  strategy. From the standardization theorem and the weak
+  normalization property, we recover a decision procedure for
+  indexed type conversion, which can be extracted as an OCaml function from
+  our Coq proof. \yl{Is it understood that the algorithm
+    can be extracted as OCaml code or should I explicitly mention it?
+    We don't have a surface type checker to link against the OCaml
+    code so I don't know what to say} 
+\item \yl{not sure if the following counts as contributions so I
+    commented them out}
+% \item Because the empty type is uninhabited, we show that this type system
+%   supports an expressive rule for its elimination. A high-level proof of
+%   the empty type can eliminated to produce low-level results. This rule justifies the
+%   irrelevance of all proof terms used to construct contradictions.
   % We also add a new
   % reasoning principle to the language, allowing programmers to
   % \emph{downgrade} \sw{I wonder now if downgrade is the right term to use for
@@ -275,40 +324,43 @@ $[[Void]]$. \jc{sentence here about what this list is about}
   % high-level observers can perceive differences missed by their low-level
   % counterparts.)
 
-\item (Weak) normalization means that all \name programs terminate. The
-  elimination forms for positive types, such as the $\ottkw{J}$ operator for
-  propositional equality, is strict. Because of this strictness, uses of $\ottkw{J}$
-  are considered relevant, even though there is only a single thread of
-  execution. However, termination justifies (external) erasure of all equality
-  proofs during computation. \sw{Not sure what to say here and maybe this is
-    an anti-contribution. Does it make sense to have a dependency level that
-    is ``a run-time argument, but only used to construct equality proofs''
-    that can be used to track this erasure?}
-  \jc{``positive''? ``thread''?}
+% \item (Weak) normalization means that all \name programs terminate. The
+%   elimination forms for positive types, such as the $\ottkw{J}$ operator for
+%   propositional equality, is strict. Because of this strictness, uses of $\ottkw{J}$
+%   are considered relevant, even though there is only a single thread of
+%   execution. However, termination justifies (external) erasure of all equality
+%   proofs during computation. \sw{Not sure what to say here and maybe this is
+%     an anti-contribution. Does it make sense to have a dependency level that
+%     is ``a run-time argument, but only used to construct equality proofs''
+%     that can be used to track this erasure?}
+%   \jc{``positive''? ``thread''?}
 
-\item Decidable type conversion is the key step to showing decidable
-  typechecking for \name. What remains is merely the selection and propagation
-  of type annotations: should the source type system for \name be based on
-  unification, bidirectional type checking, or other forms of type inference?
-  Because this last step is more of a user-interface question than a semantic
-  question, we leave it for future work.
+% \item Decidable type conversion is the key step to showing decidable
+%   typechecking for \name. What remains is merely the selection and propagation
+%   of type annotations: should the source type system for \name be based on
+%   unification, bidirectional type checking, or other forms of type inference?
+%   Because this last step is more of a user-interface question than a semantic
+%   question, we leave it for future work.
 
-\item Our semantic reasoning replicates the syntactic type soundness result of
-  prior work. \jc{What does it mean that it replicates?}
-  The structure of our proofs show that the prior type system
-  design is not accidentally sound, and provides new perspective on its
-  design. In particular, in our experiments with \name, we have encountered
-  opportunities for
+% \item Our semantic reasoning replicates the syntactic type soundness result of
+%   prior work. \jc{What does it mean that it replicates?}
+%   The structure of our proofs show that the prior type system
+%   design is not accidentally sound, and provides new perspective on its
+%   design. In particular, in our experiments with \name, we have encountered
+%   opportunities for
 
 \end{itemize}
 
-All of our results have been developed using the Coq/Rocq proof assistant and
-our proofs are available as supplementary material. Despite the expressiveness
-of our language, our proofs have been designed to be remarkably concise
-compared to similar results.
+All of our results have been developed using the Coq/Rocq proof
+assistant and our proofs are available as supplementary
+material. Furthermore, we have extended the prototype type checker by
+\citet{liu:dcoi},
+suitable for exprimenting with the newly introduced features.
+ % Despite the expressiveness
+% of our language, our proofs have been designed to be remarkably concise
+% compared to similar results.
+\yl{removed the concise proof comment because we did not expand on that}
 
-Furthermore, we have developed a prototype type checker, suitable for
-experimentation.
 
 %\begin{itemize}
 %  \item low elimination of high absurd proofs
