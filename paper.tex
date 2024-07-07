@@ -2223,9 +2223,8 @@ logical predicate. As observed by \citet{abel:normalization}, to
 derive the adequacy property for a scoped logical relation, the
 interpretation for functions must be generalized to account for
 weakened contexts. Logical relations augmented with this
-generalization are referred to as Kripke-style logical relations and
-can be found in \citet{abel:poplmark, abel:irrelevance,
-  adjedj:mltt-coq, harper:equivalence}.
+generalization are referred to as Kripke-style logical relations
+\citep{abel:poplmark, abel:irrelevance, adjedj:mltt-coq, harper:equivalence}.
 
 However, the logical predicate for \name is different in that the
 scoping information is not the full-fledged typing judgment, unlike
@@ -2294,7 +2293,7 @@ Equality by \citet{adams:pure}, replaces the untyped conversion rule from PTS
 with a type-directed equality judgment. While untyped conversion rules
 are still used in practice by theorem provers such as Coq~\citep{coq},
 judgmental equality enables more expressive $\eta$ laws that cannot be
-expressed without type annotation.
+expressed without type annotations.
 
 \citet{siles:PTS} proves the equivalence between typed and untyped
 Pure Type Systems in the absence of $\eta$ laws.
@@ -2393,32 +2392,29 @@ form is perfectly erasable since no information is gained from
 matching against a singleton type.
 
 Despite the erasability of equality proofs at runtime,
-\dcoi does not allow an irrelevant proof to be used to cast a relevant
-term.
+\dcoi does not allow casting a relevant term using an irrelevant proof.
 In Section~\ref{sec:target-level}, we see that this restriction is
 necessary for the simulation property to hold since an open equality
 proof can normalize to either $[[refl]]$ or a neutral term.
 
 However, it is possible to modify the operational semantics of \name
+by adding the rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
 so the J eliminator is simply erased during evaluation without having
-to reduce the equality proof, as shown in the following rule.
-\begin{center}
-  \drule{P-JIrrel}
-\end{center}
+to reduce the equality proof.
 Since the equality proof is discarded during evaluation, it can be ignored by the
 indistinguishability, and therefore the simulation property is preserved.
 
-\Rref{P-JIrrel} violates subject reduction. Given a term $[[a]]$ of type
+Such a rule violates subject reduction. Given a term $[[a]]$ of type
 $[[Nat]]$ and a bogus assumption $x$ of type $[[Nat ~ l Void]]$, we
 have $[[J a l x => a]]$ where the former is of type $[[Void]]$ but the
-latter is of type $[[Nat]]$. However, the addition of \rref{P-JIrrel}
-to parallel reduction still gives us a consistent equational
+latter is of type $[[Nat]]$. However, the addition of this rule
+still gives us a consistent equational
 theory. In fact, it is even possible to recover logical consistency,
 though we lose decidable type conversion.
 With a proof of $A \sim A \rightarrow A$ in the context,
 one can define a well-typed term that reduces to the diverging
 term $(\lambda x . x\ x)\ (\lambda x . x\ x)$, since J eliminator no
-longer gets stuck at a bogus scrutinee.
+longer gets stuck at a bogus equality proof.
 
 \citet{werner:proofirrel} attempts to address this problem while still
 allow the irrelevance treatment of equality proofs. In his system, the
