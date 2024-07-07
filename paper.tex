@@ -1232,6 +1232,60 @@ which proceeds by induction on the typing derivation.
 \section{Semantic Metatheory}
 \label{sec:semmeta}
 
+In this section, we use a logical predicate to show weak
+normalization and consistency for \name.
+Due to \name{}'s flexible treatment of type conversion \emph{and}
+and its support for large elimination, we cannot directly reuse the
+proofs found in \citet{abel:irrelevance, geuvers:cc-sn}.
+We structure the section as follows. In \cref{sec:logpred}, we
+present the definition of the logical predicate and its properties. In
+\cref{sec:soundness}, we define valid substitutions and
+semantic typing judgments based on the logical predicate and then
+prove the fundamental theorem, which states that all syntactically
+well-typed terms must be semantically well-typed, from which we derive
+weak normalization and consistency. In \cref{sec:decconv}, we combine
+weak normalization and the standardization theorem to recover a decidable
+type conversion algorithm.
+
+\subsection{A logical predicate for \name}
+\label{sec:logpred}
+
+% Before we can define the logical predicate, we need to first define
+% the notion of neutral and normal terms so we can characterize
+% semantically well-behaved terms.
+% Before we can state and prove the adequacy property for the
+% logical predicate, we need to first define normal and neutral forms
+% and prove some useful lemmas about how they interact with parallel
+% reduction.
+
+\begin{figure}[h]
+  \centering
+  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Let}
+  \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
+  \caption{Neutral and normal forms}
+  \label{fig:normalform}
+\end{figure}
+
+To characterize semantically well-behaved terms through the logical predicate,
+we define the notions of neutral forms \judgement{$[[ne a]]$}
+and normal forms \judgement{$[[nf a]]$} in \cref{fig:normalform},
+which characterize sets of terms that are free of redexes.
+This property can be formulated using parallel reduction as follows.
+
+\begin{lemma}
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
+  If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
+  b]]$, we have $[[a]] = [[b]]$.
+\end{lemma}
+
+\begin{definition}[Weakly normalizing terms]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
+  Given a term $[[a]]$, if there exists some term $[[b]]$ such that
+  $[[a =>* b]]$, then we say that $[[a]]$ weakly normalizes to a
+  normal (resp. neutral) form, which we denote in judgment form as
+  \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
+\end{definition}
+
 \begin{figure}[h]
   \centering
   \hfill \textit{(Auxiliary notation)}
@@ -1294,59 +1348,6 @@ which proceeds by induction on the typing derivation.
   \caption{Logical predicate}
   \label{fig:logpred}
 \end{figure}
-In this section, we use a logical predicate to show weak
-normalization and consistency for \name.
-Due to \name{}'s flexible treatment of type conversion \emph{and}
-and its support for large elimination, we cannot directly reuse the
-proofs found in \citet{abel:irrelevance, geuvers:cc-sn}.
-We structure the section as follows. In \cref{sec:logpred}, we
-present the definition of the logical predicate and its properties. In
-\cref{sec:soundness}, we define valid substitutions and
-semantic typing judgments based on the logical predicate and then
-prove the fundamental theorem, which states that all syntactically
-well-typed terms must be semantically well-typed, from which we derive
-weak normalization and consistency. In \cref{sec:decconv}, we combine
-weak normalization and the standardization theorem to recover a decidable
-type conversion algorithm.
-
-\subsection{A logical predicate for \name}
-\label{sec:logpred}
-To characterize semantically well-behaved terms through the logical
-predicate, we need to first define the notion of neutral and normal terms.
-% Before we can define the logical predicate, we need to first define
-% the notion of neutral and normal terms so we can characterize
-% semantically well-behaved terms.
-% Before we can state and prove the adequacy property for the
-% logical predicate, we need to first define normal and neutral forms
-% and prove some useful lemmas about how they interact with parallel
-% reduction.
-
-\begin{figure}[h]
-  \centering
-  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Let}
-  \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
-  \caption{Neutral and normal forms}
-  \label{fig:normalform}
-\end{figure}
-
-\Cref{fig:normalform} defines neutral and normal forms in the
-form of two judgments \judgement{$[[ne a]]$} and \judgement{$[[nf a]]$}.
-These predicates characterize a set of terms that are free of redexes.
-This property can be formulated using parallel reduction as follows.
-
-\begin{lemma}
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
-  If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
-  b]]$, we have $[[a]] = [[b]]$.
-\end{lemma}
-
-\begin{definition}[Weakly normalizing terms]
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
-  Given a term $[[a]]$, if there exists some term $[[b]]$ such that
-  $[[a =>* b]]$, then we say that $[[a]]$ weakly normalizes to a
-  normal (resp. neutral) form, which we denote in judgment form as
-  \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
-\end{definition}
 
 \Cref{fig:logpred} gives the full definition of our logical
 predicate.
@@ -1891,12 +1892,11 @@ imply the well-formedness of the types in $[[G]]$. % The universal
 % for types in $[[G]]$. 
 Instead, the existence of interpretations
 for types in $[[G]]$ is separately provided by the semantic
-context well-formedness judgment,
-defined inductively in \cref{fig:swf}.
+context well-formedness judgment \judgement{$\swf{[[G]]}$},
+defined in \cref{fig:swf}.
 
 \begin{figure}[h]
   \begin{mathpar}
-    \fbox{$\swf{[[G]]}$} \hfill \textit{(Semantic well-formedness)} \\
     \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
     \infer[\ottdrulename{SWf\_cons}]{
       \swf{[[G]]} \\
@@ -2074,7 +2074,7 @@ While conceptually simple, the algorithm depends
 on the structure of the lattice. For bottomless
 lattices, there is no minimal level we can return for values such as
 $[[Void]]$ and $[[Univ i]]$. Instead, we need to conjure a level
-$[[l]]$ that can ignore as many boxed terms as possible when comparing
+$[[l]]$ that can ignore the most terms possible when comparing
 $[[A]]$ and $[[B]]$. There are sufficient conditions for coming up
 with such a level, such as the existence of a bottom element,
 or the size of the lattice being (possibly infinitely) countable. The
