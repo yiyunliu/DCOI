@@ -61,8 +61,7 @@
 \hypersetup{
   colorlinks=true,
   urlcolor=blue,
-  citecolor=violet,
-  backref=true
+  citecolor=violet
 }
 
 \lstset{
@@ -98,7 +97,7 @@
 
 \newcommand{\suppress}[1]{}
 \newcommand{\dcoi}{DCOI\@\xspace}
-\newcommand{\name}{DCOI$\omega$\@\xspace}
+\newcommand{\name}{\texorpdfstring{DCOI$\omega$\@\xspace}{DCOI-omega}}
 \newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
 \newcommand{\ie}{\textit{i.e.}\@\xspace}
 \newcommand{\eg}{\textit{e.g.}\@\xspace}
@@ -730,6 +729,7 @@ which is parameterized over a meet-semilattice of dependency levels
   & \mid [[Nat]] \mid [[zero]] \mid [[succ a]] \mid [[ind l a b0 (\x y. b1)]] & \quad & \textit{naturals, zero, successor, induction}
 \end{alignat*}
 \caption{Grammar of contexts and terms}
+\Description{}
 \label{fig:grammar}
 \end{figure}
 
@@ -767,6 +767,7 @@ and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]]
   \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
   \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
   \caption{Well-formedness and typing rules (universes, empty, functions)}
+  \Description{}
   \label{fig:typing:dep}
 \end{figure}
 
@@ -859,6 +860,7 @@ using a higher-level proof of its impossibility.
     \drule{P-AppAbs}
   \end{gather*}
   \caption{Conversion, definitional equality, and parallel reduction ($\beta$ only) rules}
+  \Description{}
   \label{fig:conv}
 \end{figure}
 
@@ -890,6 +892,7 @@ Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive c
   \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
   \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability}{Dist,Indist}    
   \caption{(Guarded) indistinguishability rules (universes, empty, functions)}
+  \Description{}
   \label{fig:indist}
 \end{figure}
 
@@ -979,6 +982,7 @@ power that is not present in PTSes.
     \drule{P-SeqTT}
   \end{gather*}
   \caption{Typing and parallel reduction rules (pairs)}
+  \Description{}
   \label{fig:typing:pair}
 \end{figure}
 
@@ -1038,6 +1042,7 @@ using \rref*{Wt-proj1} to recover well-typedness.
     \drule{Wt-projTwoalt}
   \end{gather*}
   \caption{Admissible typing rules for pair projections}
+  \Description{}
   \label{fig:typing:proj}
 \end{figure}
 
@@ -1089,6 +1094,7 @@ and intuitively says that the only values that can be unboxed are observable one
     \drule{Wt-Unbox}
   \end{gather*}
   \caption{Admissible typing rules for box types}
+  \Description{}
   \label{fig:typing:box}
 \end{figure}
 
@@ -1109,6 +1115,7 @@ similar to how function arguments are compared.
     \drule[width=\textwidth]{I-Seq}
   \end{gather*}
   \caption{Indistinguishability rules (pairs)}
+  \Description{}
   \label{fig:conv:pair}
 \end{figure}
 
@@ -1126,6 +1133,7 @@ The constraint $[[l1 <= l]]$ in \rref{I-Let} is required due to its presence in 
     \drule{P-JRefl}
   \end{gather*}
   \caption{Typing and parallel reduction rules (equality)}
+  \Description{}
   \label{fig:typing:eq}
 \end{figure}
 
@@ -1173,6 +1181,7 @@ since the motive $[[C]]$ is able to abstract over $[[x]]$ at the lower level $[[
     \drule[width=\textwidth]{Wt-downgrade}
   \end{gather*}
   \caption{Admissible typing rules for propositional equality}
+  \Description{}
   \label{fig:typing:eq:lemmas}
 \end{figure}
 
@@ -1196,6 +1205,7 @@ and treats more things as indistinguishable.
     \drule[width=0.3\textwidth]{I-J}
   \end{gather*}
   \caption{Indistinguishability rules (equality)}
+  \Description{}
   \label{fig:conv:eq}
 \end{figure}
 
@@ -1257,6 +1267,7 @@ We omit them here, but they are listed in \cref{sec:levelling}.
     \drule{Wt-sub}
   \end{gather*}
   \caption{Admissible rules for level checking, indistinguishability, and type checking}
+  \Description{}
   \label{fig:lemmas}
 \end{figure}
 
@@ -1410,6 +1421,7 @@ type conversion algorithm.
   \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
   \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
   \caption{Neutral and normal forms}
+  \Description{}
   \label{fig:normalform}
 \end{figure}
 
@@ -1493,6 +1505,7 @@ This property can be formulated using parallel reduction as follows.
     }
   \end{mathpar}  
   \caption{Logical predicate}
+  \Description{}
   \label{fig:logpred}
 \end{figure}
 
@@ -1774,6 +1787,7 @@ neutral forms.
     \drule{Ne-D}
   \end{gather*}
   \caption{Extended rules for the dummy constant $[[dummy]]$}
+  \Description{}
   \label{fig:dummy}
 \end{figure}
 
@@ -2052,6 +2066,7 @@ defined in \cref{fig:swf}.
     }
   \end{mathpar}
   \caption{Semantic well-formedness of typing contexts}
+  \Description{}
   \label{fig:swf}
 \end{figure}
 
@@ -3060,6 +3075,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \subsection{Level checking} \label{sec:levelling}
 
-\drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq,}
+\drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq}
 
 \end{document}
