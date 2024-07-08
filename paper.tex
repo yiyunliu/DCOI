@@ -80,7 +80,7 @@
     {->}{{$\mathrel{\rightarrow}$}}2
     {\\}{{$\lambda$}}1
     {=>}{{$\mathrel{\Rightarrow}$}}2
-    {~}{{$\mathbin{\sim}$}}1
+    {~}{{=}}1
 }
 
 \ifcomments
@@ -124,7 +124,7 @@
 \newcommand{\prodspace}{\hat{\Pi}}
 \newcommand{\sigspace}{\hat{\Sigma}}
 \newcommand{\univspace}[1]{\hat{\mathcal{U}}_{#1}}
-\newcommand{\eqspace}{\hat{\sim}}
+\newcommand{\eqspace}{\hat{=}}
 
 \newlength{\punctwidth}
 % \punctstack{<punct>} treats <punct> as having no width,
@@ -151,7 +151,7 @@
 
 \inputott{dcoi-rules}
 
-\title{On Indistinguishability in Predicative Type Theory}
+\title{Indistinguishability in Predicative Type Theory}
 
 \author{Yiyun Liu}
 \orcid{0009-0006-8717-2498}
@@ -446,6 +446,8 @@ using a level-aware propositional equality type, as in the following proof.
   isConst = \A f x y. refl
 \end{lstlisting}
 
+\jc{TODO for me: introduce indistinguishability here}
+
 This proof asserts that a relevant function taking an irrelevant argument
 is indeed constant in that argument.
 The equality type \lstinline{f x ~@0 f y} is annotated with \lstinline{0}
@@ -571,6 +573,8 @@ a low observer level.
   downgrade = \A x y p. subst refl by p
 \end{lstlisting}
 
+\jc{TODO for Yiyun: concretize levels, and then reinstantiate with more levels}
+
 In \dcoi from prior work,
 the specification of the eliminator for equalities was not general enough
 for \lstinline{downgrade} above to be provable.
@@ -691,6 +695,9 @@ so we can obtain and eliminate a proof of the empty type.
 \end{lstlisting}
 
 \section{\name}
+
+\jc{TODO: target -> scrutinee; method -> body}
+\jc{TODO: grading -> level checks, level checking (judgement)}
 
 In this section, we present the grammar and judgements of \name,
 which is an instantiation of the \longname (\dcoi)~\citep{liu:dcoi} with
@@ -935,7 +942,6 @@ they reduce and the preservation of meaning for indistinguishable types.
   and $[[E |- a1 == b1 @ l]]$.
 \end{lemma}
 
-
 Compared to prior work by
 \citet{liu:dcoi}, where indistinguishability is defined as an
 undecidable relation
@@ -1124,8 +1130,7 @@ By \rref{Wt-Eq}, the endpoints must themselves be well typed at level $[[l0]]$,
 since it only makes sense to talk about the indistinguishability of observable terms,
 just as \rref{I-Var} only holds for observable variables.
 The observer level $[[l0]]$ must also be bounded by the overall level $[[l]]$
-to maintain logical consistency,
-which we explain in detail in \cref{sec:eq-level}.
+to maintain logical consistency, as explained by \citet{liu:dcoi}.
 Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
 given by \rref{Wt-Refl}.
 
@@ -1224,6 +1229,8 @@ Their corresponding mechanizations are annotated where mentioned in the prose.
 
 \subsection{Preliminaries}
 
+\jc{TODO: remove figure, defined as removing typing information, put in appendix}
+
 \begin{figure}[h]
   % \drule{Wg-Univ} \drule{Wg-Empty} \drule{Wg-Refl}
   % who's gonna know? nobody's gonna know
@@ -1240,6 +1247,8 @@ also need to carry around some well-gradedness information.
 The rules for the judgement can be seen as the same as the typing rules,
 but with all typing information stripped out, leaving only the levels,
 and are listed in \cref{fig:grading}.
+
+\jc{TODO: generalize subst?}
 
 \begin{figure}[h]
   \mprset{fraction={===}}
@@ -1424,6 +1433,8 @@ This property can be formulated using parallel reduction as follows.
   normal (resp. neutral) form, which we denote in judgment form as
   \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
 \end{definition}
+
+\jc{TODO for Yiyun: change auxiliary notation forms}
 
 \begin{figure}[h]
   \centering
@@ -2359,7 +2370,7 @@ dcoi paper}
 % parameterize our logical predicate by the grading context $[[E]]$ and
 % decorate its definition with additional well-gradedness constraints.
 
-The well-gradedness constraints in Figure~\ref{fig:logpred} introduces scoping information to our
+The level-checking judgements in Figure~\ref{fig:logpred} introduces scoping information to our
 logical predicate. As observed by \citet{abel:normalization}, to
 derive the adequacy property for a scoped logical relation, the
 interpretation for functions must be generalized to account for
@@ -2552,7 +2563,7 @@ latter is of type $[[Nat]]$. Even so, the addition of this rule
 still gives us a consistent equational
 theory. In fact, it is even possible to recover logical consistency,
 though we lose decidable type conversion.
-With a proof of $A \sim A \rightarrow A$ in the context,
+With a proof of $A = A \rightarrow A$ in the context,
 one can define a well-typed term that reduces to the diverging
 term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$,
 since the J eliminator no longer gets stuck at a bogus equality proof.

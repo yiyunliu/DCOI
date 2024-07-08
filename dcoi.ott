@@ -82,7 +82,7 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
     {{ tex \ottkw{absurd} \, [[b]] }}
   | a ~ l b :: :: Eq
     {{ com indistinguishability }}
-    {{ tex [[a]] \sim^{[[l]]} \! [[b]] }}
+    {{ tex [[a]] =^{[[l]]} \! [[b]] }}
   | refl :: :: Refl
     {{ com reflexivity }}
     {{ tex \ottkw{refl} }}
