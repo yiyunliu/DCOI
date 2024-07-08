@@ -65,6 +65,7 @@ Inductive InterpExt Ξ i (I : nat -> tm -> Prop) : tm -> (T -> tm -> Prop) -> Pr
   (A ⇒ A0) ->
   InterpExt Ξ i I A0 PA ->
   InterpExt Ξ i I A PA
+| InterpExt_Unit : ⟦ Ξ ⊨ tUnit ⟧ i ; I ↘ (fun ℓ a => IOk Ξ ℓ a /\ exists v, a ⇒* v /\ (v = tTT \/ ne v))
 where " ⟦ Ξ ⊨ A ⟧ i ; I ↘ S" := (InterpExt Ξ i I A S).
 
 Lemma InterpExt_Eq' Ξ i I ℓ0 a b P :
@@ -119,6 +120,7 @@ Proof.
   - hauto l:on ctrs:InterpExt.
   - hauto l:on ctrs:InterpExt.
   - hauto l:on ctrs:InterpExt.
+  - hauto l:on ctrs:InterpExt.
 Qed.
 
 Lemma InterpExt_lt_redundant2 Ξ i I A PA
@@ -139,6 +141,7 @@ Proof.
   - hauto l:on ctrs:InterpExt.
   - hauto l:on ctrs:InterpExt.
   - hauto lq:on ctrs:InterpExt.
+  - hauto l:on ctrs:InterpExt.
   - hauto l:on ctrs:InterpExt.
 Qed.
 
@@ -278,6 +281,7 @@ Proof.
   - move => A B P h0 h1 ih1 C hC.
     have [D [h2 h3]] := Par_confluent _ _ _ h0 hC.
     hauto lq:on ctrs:InterpExt.
+  - hauto lq:on inv:Par ctrs:InterpExt.
 Qed.
 
 Lemma InterpUnivN_preservation Ξ i A B P (h : ⟦ Ξ ⊨ A ⟧ i ↘ P) :
@@ -339,6 +343,15 @@ Proof.
   elim : A P / h; hauto q:on inv:tm,Par.
 Qed.
 
+Lemma InterpExt_Unit_inv Ξ i I P :
+  ⟦ Ξ ⊨ tUnit ⟧ i ; I ↘ P ->
+  P = fun ℓ a => IOk Ξ ℓ a /\ exists v, a ⇒* v /\ (v = tTT \/ ne v).
+Proof.
+  move E : tUnit => A h.
+  move : E.
+  elim : A P / h; hauto q:on inv:tm,Par.
+Qed.
+
 Lemma InterpExt_Univ_inv Ξ i I P j :
   ⟦ Ξ ⊨ tUniv j ⟧ i ; I ↘ P ->
   P = (fun ℓ A => IOk Ξ ℓ A /\  I j A) /\ j < i.
@@ -384,6 +397,14 @@ Lemma InterpUnivN_Void Ξ i :
   ⟦ Ξ ⊨ tVoid ⟧ i ↘ (fun ℓ a => IOk Ξ ℓ a /\ wne a).
 Proof. simp InterpUniv; apply InterpExt_Void. Qed.
 
+Lemma InterpUnivN_Unit_inv Ξ i P :
+  ⟦ Ξ ⊨ tUnit ⟧ i ↘ P ->
+  P = fun ℓ a => IOk Ξ ℓ a /\ exists v, a ⇒* v /\ (v = tTT \/ ne v).
+Proof. sfirstorder use:InterpExt_Unit_inv rew:db:InterpUniv. Qed.
+
+Lemma InterpUnivN_Unit i Ξ :
+  ⟦ Ξ ⊨ tUnit ⟧ i ↘ fun ℓ a => IOk Ξ ℓ a /\ exists v, a ⇒* v /\ (v = tTT \/ ne v).
+Proof. sfirstorder use:InterpExt_Unit rew:db:InterpUniv. Qed.
 
 Lemma InterpUnivN_Eq Ξ i ℓ0 a b :
   wn a -> wn b ->
@@ -446,6 +467,7 @@ Proof.
     apply propositional_extensionality.
     hauto lq:on rew:off.
   - hauto l:on use:InterpExt_preservation.
+  - hauto lq:on rew:off inv:InterpExt ctrs:InterpExt use:InterpExt_Unit_inv.
 Qed.
 
 Lemma InterpUnivN_deterministic Ξ i A PA PB :
@@ -490,6 +512,7 @@ Proof.
   - sfirstorder.
   - sfirstorder.
   - hauto lq:on.
+  - sfirstorder.
 Qed.
 
 Lemma InterpUniv_Ok Ξ i A PA :
@@ -562,6 +585,7 @@ Proof.
       apply.
       case => //=.
   - hauto lq:on ctrs:InterpExt, rtc.
+  - hauto q:on ctrs:rtc db:nfne.
 Qed.
 
 Lemma InterpUnivN_WNe Ξ i A  : wne A -> ⟦ Ξ ⊨ A ⟧  i  ↘ (fun ℓ a => IOk Ξ ℓ a /\ wne a).
@@ -601,6 +625,7 @@ Proof.
     move => [B0][hr']hBA.
     have : ne B0 by hauto lb:on use:nf_ne_preservation.
     by move /ifacts.ieq_sym /ih : hBA.
+  - hauto lq:on inv:IEq.
 Qed.
 
 
@@ -693,6 +718,7 @@ Proof.
     have ? : PA0 = PA by sfirstorder. subst.
     hauto lq:on rew:off use:InterpExt_Ok, ifacts.ieq_iok_subst.
   - hauto lq:on rew:off ctrs:InterpExt use:simulation, InterpExt_preservation.
+  - hauto lq:on inv:IEq ctrs:InterpExt use:InterpExt_Unit_inv.
 Qed.
 
 Lemma InterpUnivN_IEq Ξ i A PA (h : InterpUnivN Ξ i A PA) :
@@ -780,6 +806,7 @@ Proof.
   - hauto lq:on ctrs:rtc.
   - hauto lq:on ctrs:InterpExt, rtc unfold:SumSpace.
   - sfirstorder.
+  - hauto lq:on ctrs:rtc.
 Qed.
 
 

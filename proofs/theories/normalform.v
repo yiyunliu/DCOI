@@ -29,6 +29,9 @@ Fixpoint ne (a : tm) : bool :=
   | tNat => false
   | tSuc _ => false
   | tInd _ a b c => nf a && nf b && ne c
+  | tUnit => false
+  | tTT => false
+  | tSeq _ a b => ne a && nf b
   end
 with nf (a : tm) : bool :=
   match a with
@@ -53,6 +56,9 @@ with nf (a : tm) : bool :=
   | tNat => true
   | tSuc a => nf a
   | tInd _ a b c => nf a && nf b && ne c
+  | tUnit => true
+  | tTT => true
+  | tSeq _ a b => ne a && nf b
   end.
 
 (* Terms that are weakly normalizing to a neutral or normal form. *)
@@ -146,7 +152,7 @@ Lemma ren_var_or_d ξ a : var_or_d a = var_or_d a⟨ξ⟩.
 Proof. case : a; hauto q:on. Qed.
 
 Lemma var_or_d_ne a : var_or_d a -> ne a && nf a.
-Proof. case : a; hauto lq:on. Qed.
+Proof. case : a; try hauto lq:on. case => //=. Qed.
 
 Lemma ren_with_d_ne ξ i : ren_with_d ξ -> ne (ξ i) && nf (ξ i).
 Proof. sfirstorder use:var_or_d_ne unfold:ren_with_d. Qed.
@@ -284,6 +290,19 @@ Proof.
   - case=>//=.
     hauto l:on use:ren_with_d_imp.
     hauto q:on ctrs:Par use:ren_with_d_up_tm.
+  - case => //=.
+    hauto l:on use:ren_with_d_imp.
+    hauto q:on ctrs:Par use:ren_with_d_up_tm.
+  - move => ℓ a0 a1 b0 b1 ha iha hb ihb []//=.
+    hauto q:on use:ren_with_d_imp.
+    hauto lq:on ctrs:Par.
+  - move => ℓ b0 b1 hb ihb []//=.
+    hauto q:on use:ren_with_d_imp.
+    move => ℓ0 [] //=.
+    move => n t ξ [*]. subst.
+    hauto q:on use:ren_with_d_imp.
+    hauto lq:on ctrs:Par.
+  - hauto q:on inv:tm.
 Qed.
 
 Local Lemma Pars_antirenaming (a b0 : tm) ξ
@@ -342,6 +361,14 @@ Proof.
   move => [a0 [? ?]] [b0 [? ?]].
   exists (tApp a0 ℓ0 b0).
   hauto b:on use:S_AppLR.
+Qed.
+
+Lemma wne_seq ℓ0 (a b : tm) :
+  wne a -> wn b -> wne (tSeq ℓ0 a b).
+Proof.
+  move => [a0 [? ?]] [b0 [? ?]].
+  exists (tSeq ℓ0 a0 b0).
+  hauto b:on use:S_Seq.
 Qed.
 
 Lemma wne_let ℓ0 ℓ1 (a b : tm) :
@@ -405,9 +432,8 @@ Proof.
   move : a E.
   move : hv.
   elim : a0 v / hr.
-  - hauto q:on inv:tm ctrs:rtc b:on db: nfne.
+  - hauto inv:tm ctrs:rtc b:on db: nfne.
   - move => a0 a1 a2 hr0 hr1 ih hnfa2.
-
     move /(_ hnfa2) in ih.
     move => a.
     case : a0 hr0=>// => b0 ℓ b1.

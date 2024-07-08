@@ -586,6 +586,38 @@ Proof.
         end.
         apply : wt_ρ_ok_morphing_iok; eauto.
         sfirstorder use:T_Let.
+  - hauto l:on.
+  - hauto lq:on ctrs:IOk use:SemWt_Univ, InterpUnivN_Unit.
+  - move => Γ ℓ ℓ0 ℓC a b C i ? ha iha hb ihb hC /SemWt_Univ ihC Δ ρ hρ.
+    move : iha (hρ) => /[apply].
+    move => /= [m][PA][hPA]iha.
+    have /ihC : ρ_ok ((ℓ0, tUnit) :: Γ) Δ (a[ρ] .: ρ) by eauto using ρ_ok_cons.
+    move => [hC'][S]{}ihC.
+    exists i, S. split => //=. by asimpl.
+    move /InterpUnivN_Unit_inv : hPA => ?. subst.
+    move : iha => [ha'][v[hv hv']].
+    (* have ? : rtc Par (tSeq ℓ0 a[ρ] b[ρ]) (tSeq ℓ0 v b[ρ]) by *)
+    (*   hauto lq:on ctrs:rtc use:S_Seq. *)
+    have tr0 : IOk (c2e Δ) ℓ (tSeq ℓ0 a[ρ] b[ρ]).
+    have ? : exists A, Wt Γ ℓ (tSeq ℓ0 a b) A by eauto using T_Seq.
+    hauto lq:on use:wt_ρ_ok_morphing_iok.
+    case : hv'.
+    + move => ?. subst.
+      have ? : tSeq ℓ0 a[ρ] b[ρ] ⇒* b[ρ] by eauto using P_SeqTT_star, rtc_refl.
+      apply : InterpUnivN_back_clos_star; eauto.
+      move : ihb hρ=>/[apply].
+      move => [m0][PA][hPA]hb'.
+      suff : PA = S by congruence.
+      have ? : C[a[ρ].:ρ] ⇒* C[tTT .: ρ] by
+        hauto lq:on ctrs:rtc use:good_Pars_morphing_ext, Pars_morphing_star.
+      have ? : ⟦ c2e Δ ⊨ C[ tTT .: ρ] ⟧ i ↘ S by hauto lq:on use:InterpUnivN_preservation_star.
+      asimpl in hPA.
+      eauto using InterpUnivN_deterministic'.
+    + move => ?.
+      have ? : wne a[ρ] by hauto lq:on unfold:wne.
+      have ? : wn b[ρ] by hauto q:on use:adequacy unfold:SemWt.
+      suff : wne (tSeq ℓ0 a[ρ] b[ρ]) by hauto q:on use:adequacy inv:IOk.
+      eauto using nfacts.wne_seq.
   (* Nil *)
   - apply SemWff_nil.
   (* Cons *)

@@ -751,6 +751,28 @@ Proof.
   move => ?; apply rtc_refl.
 Qed.
 
+Lemma S_Seq ℓ a0 a1 : forall b0 b1,
+    a0 ⇒* a1 ->
+    b0 ⇒* b1 ->
+    (tSeq ℓ a0 b0) ⇒* (tSeq ℓ a1 b1).
+Proof.
+  move => + + h.
+  elim : a0 a1 /h; last by solve_s_rec.
+  induction 1; last by solve_s_rec.
+  eauto using rtc_refl.
+Qed.
+
+Lemma P_SeqTT_star ℓ a0 : forall b0 b1,
+    a0 ⇒* tTT ->
+    b0 ⇒* b1 ->
+    (tSeq ℓ a0 b0) ⇒* b1.
+Proof.
+  move => b0 b1 ha hb.
+  apply : relations.rtc_r.
+  eauto using S_Seq.
+  sfirstorder use:P_SeqTT, Par_refl.
+Qed.
+
 Lemma S_Ind ℓ a0 a1 : forall b0 b1 c0 c1,
     a0 ⇒* a1 ->
     b0 ⇒* b1 ->
