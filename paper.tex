@@ -401,12 +401,12 @@ Well-typedness of a program ensures that irrelevant arguments
 are never used in a relevant function.
 
 Consider the following polymorphic identity function,
-with arguments and definitions marked as \lstinline{0} when relevant
-and \lstinline{1} when irrelevant. For later examples, we sometimes omit the
-relevant annotations (\lstinline{@0}) for concision.
+with arguments and definitions marked as \lstinline{@0} when relevant
+and \lstinline{@1} when irrelevant. For later examples, we sometimes omit the
+relevant annotations for concision.
 
 \begin{lstlisting}
-  id : (A : Type)@1 -> A@0 -> A @ 0
+  id :@0 (A :@1 Type) -> [@0 A] -> A
   id = \A x. x
 \end{lstlisting}
 
@@ -428,7 +428,7 @@ Consider the following function,
 which takes an irrelevant argument and a constant function.
 
 \begin{lstlisting}
-  app : (A : Type)@1 -> A@1 -> (A@1 -> A)@0 -> A @ 0
+  app :@0 (A :@1 Type) -> (@1 A) -> (@0 [@1 A] -> A) -> A
   app = \A x f. f x
 \end{lstlisting}
 
@@ -440,8 +440,8 @@ We can talk about the idea of constantness within the language itself
 using a level-aware propositional equality type, as in the following proof.
 
 \begin{lstlisting}
-  isConst : (A : Type)@1 -> (f : A@1 -> A)@0 ->
-            (x : A)@1 -> (y : A)@1 -> (f x ~@0 f y) @ 0
+  isConst :@0 (A :@1 Type) -> (f :@0 [@1 A] -> A) ->
+              (x :@1 A) -> (y :@1 A) -> (f x ~@0 f y)
   isConst = \A f x y. refl
 \end{lstlisting}
 
@@ -455,13 +455,11 @@ and considered definitionally equal by the type checker.
 When checking that they are equal relevant terms,
 it will ignore the irrelevant arguments. Finally, the \lstinline{refl}
 proof in the body of \lstinline{isConst} does not refer to any of the
-function arguments, allowing us to annotate \lstinline{@ 0} at the end
-of its type signature to indicate that \lstinline{isConst} is a
-constant function itself.
-\yl{Changed the level for isConst as a whole to level 0. Does it still
-typecheck in the implementation?}
+function arguments, allowing us to type \lstinline{isConst} at level
+\lstinline{0} to indicate that it is a constant function itself.
 
 \subsection{Irrelevance is relative}
+
 In the polymorphic identity function, the type parameter \lstinline{A}
 is irrelevant in the function body but makes a relevant appearance in
 the type signature. Our system allows \lstinline{A} to appear as both
@@ -480,10 +478,12 @@ irrelevant.
 
 Consider the following example, whose well-typedness depends on how we
 instantiate the level, which we mark as \lstinline{?}.
+
 \begin{lstlisting}
-  irr : (f : Bool@1 -> Type)@? -> (b : Bool)@1 -> (f b) @ 0 -> (f True) @ 0
+  irr :@0 (f :@? [@1 Bool] -> Type) -> (b :@1 Bool) -> (@0 f b) -> (f True)
   irr f b x = x
 \end{lstlisting}
+
 Whether \lstinline{irr} type checks depends on whether we can convert the
 type of the variable \lstinline{x} from \lstinline{f b} to
 \lstinline{f True}. Since there is nothing we know about the boolean
@@ -588,12 +588,11 @@ containing a relevant term and an irrelevant proof
 of a predicate satisfied by the term.
 
 \begin{lstlisting}
-  data Subset (A : Type)@1 (B : A@0 -> Type)@1 : Type where
-    pack of (x : A)@0 (B x)@1
-  mem : (A : Type) -> (B : A -> Type) -> (Subset A B)@0 -> A @ 0
+  data Subset (A :@1 Type) (B :@1 [@0 A] -> Type) : Type where
+    pack of (x :@0 A) (@1 B x)
+  mem :@0 (A : Type) -> (B : A -> Type) -> (@0 Subset A B) -> A
   mem = \A B p. case p of pack x y => x
-  prf : (A : Type) -> (B : A -> Type) ->
-        (p : Subset A B)@0 -> B (mem A B p) @ 1
+  prf :@1 (A : Type) -> (B : A -> Type) -> (p :@0 Subset A B) -> B (mem A B p)
   prf = \A B p. case p of pack x y => y
 \end{lstlisting}
 
@@ -604,9 +603,9 @@ two members of a subset type merely when the relevant terms are equal,
 proven as follows.
 
 \begin{lstlisting}
-  pcong : (A : Type) -> (B : A -> Type) ->
-          (x : A) -> (y : A) -> (bx : B x)@1 -> (by : B y)@1 ->
-          (x ~@0 y)@1 -> (pack x bx ~@0 pack y by : Subset A B) @ 1
+  pcong :@1 (A : Type) -> (B : A -> Type) -> (x : A) -> (y : A) ->
+            (bx :@1 B x) -> (by :@1 B y) -> (@1 x ~@0 y) ->
+            (pack x bx ~@0 pack y by : Subset A B)
   pcong = \A B x y bx by p. subst refl by p
 \end{lstlisting}
 
@@ -619,9 +618,8 @@ and a proof that the sum of two even numbers is even.
 The following are the types of the latter two definitions.
 
 \begin{lstlisting}
-  comm : (n : Nat) -> (m : Nat) -> (n + m ~@0 m + n) @ 1
-  esum : (n : Nat) -> (m : Nat) -> (en : isEven n)@1 ->
-         (em : isEven m)@1 -> isEven (n + m) @ 1
+  comm :@1 (n : Nat) -> (m : Nat) -> (n + m ~@0 m + n)
+  esum :@1 (n : Nat) -> (m : Nat) -> (@1 isEven n) -> (@1 isEven m) -> isEven (n + m)
 \end{lstlisting}
 
 An even number \lstinline{Even} can be represented
@@ -629,7 +627,7 @@ as a subset type of even naturals \lstinline{Subset Nat isEven},
 and correspondingly define their addition.
 
 \begin{lstlisting}
-  eadd : Even -> Even -> Even @0
+  eadd :@0 Even -> Even -> Even
   eadd = \en em. case en of n en' =>
                  case em of m em' => pack (n + m) (esum n m en' em')
 \end{lstlisting}
@@ -637,7 +635,7 @@ and correspondingly define their addition.
 We can then prove that addition of even numbers is also commutative using \lstinline{pcong}.
 
 \begin{lstlisting}
-  ecomm : (en : Even) -> (em : Even) -> (eadd en em ~@0 eadd em en) @ 1
+  ecomm :@1 (en : Even) -> (em : Even) -> (eadd en em ~@0 eadd em en)
   ecomm = \en em.
     case en of n en' =>
     case em of m em' =>
@@ -671,10 +669,10 @@ given an irrelevant proof of its nonemptiness.
 We begin with a list type and a length function on lists.
 
 \begin{lstlisting}
-  data List (A : Type)@1 : Type where
+  data List (A :@1 Type) : Type where
     nil
-    cons of A@0 (List A)@0
-  length : (A : Type)@1 -> List A -> Nat @ 0
+    cons of (@0 A) (@0 List A)
+  length :@0 (A :@1 Type) -> List A -> Nat
 \end{lstlisting}
 
 The \lstinline{head} function then additionally takes an irrelevant proof
@@ -684,39 +682,12 @@ In the \lstinline{nil} case, the type of the proof is
 so we can obtain and eliminate a proof of the empty type.
 
 \begin{lstlisting}
-  head : (A : Type)@1 -> (l : List A) ->
-         ((length A l ~ zero) -> Empty)@1 -> A @ 0
+  head :@0 (A :@1 Type) -> (l : List A) ->
+           (@1 [@1 (length A l) ~ zero] -> Empty) -> A
   head = \A l. case l of 
                  nil      => \f. case (f Refl) of {}
                  cons x _ => \_. x
 \end{lstlisting}
-
-\iffalse
-\begin{align*}
-  [[:concrete: length & : Pi A : H Univ 0 . L (! List H A) -> Nat @ L]] \\
-  [[:concrete: length & := \ H A . \ L l . phantom]] \\
-  & [[:concrete: case l of
-      & null => zero ++
-      & cons x xs => succ (! length H A L xs)]] \\
-  [[:concrete: head & : Pi A : H Univ 0 . Pi l : L ! List H A . H (H (! length H A L l ~ L zero) -> Void) -> A @ L]] \\
-  [[:concrete: head & := \ H A . \ L l . phantom]] \\
-  & [[:concrete: case l of
-      & null => \ H f . absurd (f H refl) ++
-      & cons x xs => \ H f . x]]
-\end{align*}
-
-\begin{align*}
-  [[:concrete: Ifz & : H Nat -> H Univ 0 -> H Univ 0 -> Univ 0 @ H]] \\
-  [[:concrete: Ifz & := \ H n . \ H A . \ H B . ind H n A (\m k. B)]] \\
-  [[:concrete: discr & : Pi A : H Univ 0 . Pi n : H Nat . H (zero ~ H succ n) -> A @ H]] \\
-  [[:concrete: discr & := \ H A . \ H n . \ H p . J Z H p]] \\ % (\ H m . \ H q . ! Ifz H m H Nat H A)
-  [[:concrete: head & : Pi A : H Univ 0 . Pi n : H Nat . L (! Vec H A H n) -> A @ L]] \\
-  [[:concrete: head & := \ H A . \ H n . \ L v . phantom]] \\
-  & [[:concrete: (case v return \ H m . H (m ~ H succ n) -> A of
-      & vnil => \ H p . absurd (! discr H Void H n H p) ++
-      & vcons n x xs => \ H p . x) H refl]]
-\end{align*}
-\fi
 
 \section{\name}
 
