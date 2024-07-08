@@ -445,17 +445,17 @@ using a level-aware propositional equality type, as in the following proof.
   isConst = \A f x y. refl
 \end{lstlisting}
 
-\jc{TODO for me: introduce indistinguishability here}
-
 This proof asserts that a relevant function taking an irrelevant argument
 is indeed constant in that argument.
 The equality type \lstinline{f x ~@0 f y} is annotated with \lstinline{0}
 to indicate that it holds only for relevant terms.
 It holds by reflexivity, since \lstinline{f x} and \lstinline{f y}
-are \emph{compile-time irrelevant}
-and considered definitionally equal by the type checker.
-When checking that they are equal relevant terms,
-it will ignore the irrelevant arguments. Finally, the \lstinline{refl}
+considered definitionally equal by the type checker.
+Definitional equality will check that the two terms are
+\emph{indistinguishable} at level \lstinline{0},
+which ignores the higher-level arguments \lstinline{x} and \lstinline{y},
+making them \emph{compile-time irrelevant}.
+Finally, the \lstinline{refl}
 proof in the body of \lstinline{isConst} does not refer to any of the
 function arguments, allowing us to type \lstinline{isConst} at level
 \lstinline{0} to indicate that it is a constant function itself.
@@ -557,8 +557,8 @@ in those scenarios.
 
 The example with the \lstinline{irr} function shows that as the
 observer level increases, more terms can be distinguished by
-the definitional equality since there are less we are allowed to ignore.
-As equality types internalize the notion of indistinguishability,
+definitional equality since there is less than can be ignored.
+As equality types internalize the notion of indistinguishability at a level,
 we can internalize the ability to lower the level.
 In particular, given two elements $[[l0 <= l1]]$ from a lattice, the
 following proof internalizes that idea that a fine equality indexed by
