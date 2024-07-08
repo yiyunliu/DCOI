@@ -292,8 +292,7 @@ results established through semantic means.
   infinite universe levels, we cannot reuse
   proofs found in \citet{geuvers:cc-sn, abel:irrelevance}
   by embedding \name into their systems. Instead, we define our own
-  syntactic logical predicate for well-graded\yl{we shouldn't use grade, but
-    well-leveled just sounds silly} terms to directly show the above
+  syntactic logical predicate for terms that level check to directly show the above
   new metatheoretic results as corollaries of the fundamental theorem.
   Logical consistency means
   that programmers can use \name to reason internally about their code. Like Coq
@@ -696,9 +695,6 @@ so we can obtain and eliminate a proof of the empty type.
 
 \section{\name}
 
-\jc{TODO: target -> scrutinee; method -> body}
-\jc{TODO: grading -> level checks, level checking (judgement)}
-
 In this section, we present the grammar and judgements of \name,
 which is an instantiation of the \longname (\dcoi)~\citep{liu:dcoi} with
 the Pure Type System (PTS)~\citep{barendregt:PTS} axioms and rules
@@ -709,8 +705,8 @@ which is parameterized over a meet-semilattice of dependency levels
 
 \begin{figure}[h]
 \begin{alignat*}{2}
-  [[G]], [[D]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Typing contexts with levels and types} \\
-  [[E]], [[F]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Grading contexts with levels} \\
+  [[G]], [[D]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Typing contexts} \\
+  [[E]], [[F]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Level contexts} \\
   [[A]], [[B]], [[C]], &&& \\
   [[a]], [[b]], [[c]], [[p]] & \Coloneqq & \quad & \text{Terms} \\
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
@@ -859,9 +855,9 @@ using a higher-level proof of its impossibility.
 The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
 which allows converting the type of a well-typed term to a definitionally equal type.
 Our definitional equality is untyped, but eventually relies on the levels of variables,
-so its judgement form \judgement{$[[E |- a == b]]$} requires a grading context $[[E]]$.
+so its judgement form \judgement{$[[E |- a == b]]$} requires a level context $[[E]]$.
 In \rref{Wt-Conv}, this is provided by the erasure operation \judgement{$[[| G |]]$},
-which denotes dropping all type annotations to convert a typing context into a grading context.
+which denotes dropping all type annotations to convert a typing context into a level context.
 
 Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv},
 which separately incorporates parallel reduction and indistinguishability.
@@ -960,17 +956,6 @@ into $\beta$-equivalence. In the presence of multiple levels, the
 indistinguishability judgment is what unlocks the extra expressive
 power that is not present in PTSes.
 
-% Our formulation makes it easier to recover decidable type
-% conversion (Section~\ref{sec:decconv}) since our more syntactic
-% formulation of indistinguishability is decidable.
-
-
-% but also highlights our syntactic  as the
-% key to the expressiveness of our system; by instantiating \name with a
-% singleton lattice, indistinguishability degenerates into
-% $\alpha$-equivalence, 
-
-
 \subsection{Dependent pairs} \label{sec:pairs}
 
 \begin{figure}[h]
@@ -997,16 +982,16 @@ pairs are eliminated using a pattern-matching expression
 for greater expressivity.
 The eliminator is typed according to \rref{Wt-Let},
 and its reduction behaviour is given by \rref{P-LetPair}.
-It targets a pair $[[a]]$ annotated at level $[[l1]]$,
+It scrutinizes a pair $[[a]]$ annotated at level $[[l1]]$,
 binding its first and second components
 as variables $[[x]]$ at level $[[l0]]$
 and $[[y]]$ at level $[[l1]]$ respectively in the body $[[b]]$,
 which is typed at the same level $[[l]]$ as the overall eliminator.
 The overall type of the eliminator is specified by the motive $[[C]]$,
-which is abstracted over the target $[[z]]$.
-The level of the target $[[l2]]$ is not exactly $[[l]]$ but bounded above by it;
+which is abstracted over the scrutinee $[[z]]$.
+The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but bounded above by it;
 its justification is a subtle technical issue,
-which we defer to \cref{sec:target-level}.
+which we defer to \cref{sec:scrutinee-level}.
 
 The first and second pair projections can be recovered using the eliminator as follows,
 assuming the level of the pair $[[a]]$ to be $[[l1]]$.
@@ -1134,24 +1119,24 @@ to maintain logical consistency, as explained by \citet{liu:dcoi}.
 Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
 given by \rref{Wt-Refl}.
 
-In \rref{Wt-J}, the eliminator $\ottkw{J}$ takes as target
+In \rref{Wt-J}, the eliminator $\ottkw{J}$ takes as scrutinee
 an equality proof $[[p]]$ annotated at level $[[l2]]$,
-along with a method $[[c]]$.
-The target must be well typed as an equality between $[[a]]$ and $[[b]]$
+along with a body $[[c]]$.
+The scrutinee must be well typed as an equality between $[[a]]$ and $[[b]]$
 of type $[[A]]$, observed at level $[[l0]]$.
 The observer, so to speak, is the motive $[[C]]$,
 abstracted over the right-hand size of the equality $[[x]]$
 (the left-hand side being fixed at $[[a]]$)
 and the equality proof itself $[[y]]$.
 As the observer, the motive must be well typed at level $[[l0]]$.
-The type of the method is the motive instantiated with $[[a]]$ and $[[refl]]$,
+The type of the body is the motive instantiated with $[[a]]$ and $[[refl]]$,
 while the type of the fully-applied eliminator is the motive instantiated with $[[b]]$ and $[[p]]$.
 The levels of $[[x]]$ and $[[y]]$ must therefore match the levels of $[[b]]$ and $[[p]]$, respectively.
-Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the method,
-the level of the method must match the level $[[l]]$ of the overall eliminator.
-The level of the target $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
+Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the body,
+the level of the body must match the level $[[l]]$ of the overall eliminator.
+The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
 its justification is a subtle technical issue,
-which we defer to \cref{sec:target-level}.
+which we defer to \cref{sec:scrutinee-level}.
 
 The other level constraint in \rref{Wt-J},
 which allows the equality endpoints to be typed at a level $[[l1]]$
@@ -1234,19 +1219,19 @@ Their corresponding mechanizations are annotated where mentioned in the prose.
 \begin{figure}[h]
   % \drule{Wg-Univ} \drule{Wg-Empty} \drule{Wg-Refl}
   % who's gonna know? nobody's gonna know
-  \drules[Wg]{$[[E |- a : l]]$}{Term well-gradedness}{Var,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
-  \caption{Term grading rules}
-  \label{fig:grading}
+  \drules[Wg]{$[[E |- a : l]]$}{Level checking}{Var,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
+  \caption{Level checking rules}
+  \label{fig:levelling}
 \end{figure}
 
-As indistinguishability and definitional equality involve a grading context,
-we require a well-gradedness judgement on terms to be able to prove some substitution lemmas.
+As indistinguishability and definitional equality involve a level context,
+we require a level checking judgement on terms to be able to prove some substitution lemmas.
 The judgement specifies the dependency level that a term may be assigned.
 In later sections, we will see that semantic typing and the logical relation
-also need to carry around some well-gradedness information.
+are defined over level checked terms.
 The rules for the judgement can be seen as the same as the typing rules,
 but with all typing information stripped out, leaving only the levels,
-and are listed in \cref{fig:grading}.
+and are listed in \cref{fig:levelling}.
 
 \jc{TODO: generalize subst?}
 
@@ -1260,20 +1245,20 @@ and are listed in \cref{fig:grading}.
     \drule{Wt-subst}
     \drule{Wt-sub}
   \end{gather*}
-  \caption{Admissible rules for well-gradedness, indistinguishability, and well-typedness}
+  \caption{Admissible rules for level checking, indistinguishability, and type checking}
   \label{fig:lemmas}
 \end{figure}
 
-The well-gradedness and indistinguishability judgements
+The level checking and indistinguishability judgements
 satisfy some standard properties,
 listed as admissible rules in \cref{fig:lemmas}.
 \Rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
 \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
-permit substituting in a well-graded term of the appropriate level
+permit substituting in a level-checked term of the appropriate level
 in place of a variable of that level in the context.
-Well-gradedness is subsumptive
+Level checking is subsumptive
 (\rref*{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
-the level of a well-graded term may be raised.
+the level of a level-checked term may be raised.
 Indistinguishability satisfies a downgrade property
 (\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
 where knowing that a term is indistinguishable from another at two different levels
@@ -1346,7 +1331,7 @@ Finally, we will need some inversion lemmas for definitional equality on our typ
 
 \subsection{Type preservation}
 
-Like grading, typing admits substitution
+Like level checking, type checking admits substitution
 (\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}})
 and subsumption
 (\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
@@ -1512,7 +1497,7 @@ When constructing indexed sets, we use
 \judgement{$\buildset{[[a]]}{[[l]]}{\ldots}$} to indicate a family of sets
 parameterized by $[[l]]$.
 The judgment $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ states that under
-grading context $[[E]]$ and universe level $[[i]]$, the type $[[A]]$
+level context $[[E]]$ and universe level $[[i]]$, the type $[[A]]$
 is interpreted as the family of sets $[[S]]$.
 
 Unlike logical relations for simply typed languages, the logical
@@ -1550,9 +1535,9 @@ specifies the semantic inhabitants of a function type as the set of
 terms that maps well-behaved terms from the input type to a well-behaved
 output type.
 
-The logical predicate takes in a grading context $[[E]]$ as a
-parameter to ensure that $[[S]]$ only includes terms that are
-well-graded with respect to the indexed level.
+The logical predicate takes in a level context $[[E]]$ as a
+parameter to ensure that $[[S]]$ only includes terms that level check
+at the indexed level.
 This property is
 formally stated as follows and can be proven by straightforward
 induction over the logical predicate.
@@ -1568,7 +1553,7 @@ We refer to \cref{lem:escape} as the escape lemma as it is
 reminiscent of the escape lemmas by \citet{abel:irrelevance} and
 \citet{adjedj:mltt-coq}, though instead of escaping from the
 logical predicate to the syntactic typing judgment, we only require
-the much weaker well-gradedness judgment. The well-gradedness
+the much weaker level checking judgment. The level checking
 restriction will be necessary for us to show that indistinguishable
 types have the same interpretation.
 
@@ -1590,7 +1575,7 @@ the subsumption property.
 % the untyped conversion rule, which allows us % to derive properties
 % like $\Pi$-injectivity through the syntactic
 % approaches described in Section~\ref{sec:synmeta} independently of our
-% semantic metatheory. However, the well-gradedness restriction is still
+% semantic metatheory. However, the level checking restriction is still
 % required to justify the use of indistinguishability in the type
 % conversion rule.
 
@@ -1601,7 +1586,7 @@ theorem. We omit some uses of the syntactic lemmas from
 when presenting the proof sketches.
 % The logical predicate is specified as an inductive relation, but we
 % can further show that it is in fact a partial function; that is, given
-% a grading context $[[E]]$, every type $[[A]]$ can only correspond to
+% a level context $[[E]]$, every type $[[A]]$ can only correspond to
 % one unique interpretation $[[S]]$ if there exists one. We establish
 % this fact through the following sequence of lemmas, all of which can
 % be derived by straightforward interpretation and syntactic results
@@ -1760,7 +1745,7 @@ involves both reduction and indistinguishability.
   indistinguishable, we apply
   the substitution property of indistinguishability
   (\rref*{I-subst}).
-  This requires $[[a]]$ to be well-graded at $[[l0]]$,
+  This requires $[[a]]$ to be checked at level $[[l0]]$,
   which follows from $[[a]]$ semantically inhabiting $[[A0]]$ via \nameref{lem:escape}.
 \end{proof}
 
@@ -1815,7 +1800,7 @@ following corollary about weak normalization.
 % Lemmas~\ref{lem:paranti}, \ref{lem:nfneanti}, and \ref{lem:paranti}
 % would still hold if we replace the $[[dummy]]$ occurrences with
 % arbitrarily chosen variables. However, the constant $[[dummy]]$ is
-% different from variables as it is well-graded on all grading contexts,
+% different from variables as it is level checks at all level contexts,
 % whereas variables are subject to scoping restrictions.
 
 % In \citet{geuvers:cc-sn}, the logical predicate does not impose any
@@ -1831,9 +1816,9 @@ following corollary about weak normalization.
 
 In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
-because we want \rref{I-D,Wg-D} to hold. When the grading context is empty,
+because we want \rref{I-D,Wg-D} to hold. When the level context is empty,
 there is no variable we are allowed to pick. However, since
-\rref{I-Absurd} does not impose any scope checking on the target of
+\rref{I-Absurd} does not impose any scope checking on the scrutinee of
 the empty eliminator, we can define $[[dummy]]$ as $[[absurd x]]$ for
 an arbitrarily picked variable $[[x]]$. It is easy to verify that this
 definition respects the rules in \cref{fig:dummy} and the
@@ -1917,18 +1902,18 @@ the single extension of the identity substitution map.
 \end{definition}
 
 By definition, every term $[[rho( x)]]$ in a valid substitution map
-$[[rho]]$ from $[[G]]$ to $[[D]]$ is well-graded with respect to the erased context
+$[[rho]]$ from $[[G]]$ to $[[D]]$ level checks with respect to the erased context
 $[[|D|]]$. This allows us to derive the following lemma about
-well-gradedness and valid substitutions.
+level checking and valid substitutions.
 
-\begin{lemma}[Valid substitutions for well-graded terms]
+\begin{lemma}[Valid substitutions for level-checked terms]
 \stack{.~}\footnote{\suppl{theories}{soundness.v}{iok\_$\rho$\_ok\_morphing}}
   If $[[|G| |- a : l]]$ and $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |-
   a{rho} : l ]]$.
 \end{lemma}
 
 \begin{proof}
-  Immediate by iterating the substitution principle for well-gradedness (\rref*{Wg-subst}).
+  Immediate by iterating the substitution principle for level checking (\rref*{Wg-subst}).
 \end{proof}
 % The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
 % redundant but is in fact required; we are unable to recover it with
@@ -1944,14 +1929,14 @@ Valid substitutions satisfy the following admissible structural rules.
     \item \label{lem:vnil} For every $[[G]]$, $\sws{[[G]]}{[[nil]]}{[[G]]}$ holds; and
     \item \label{lem:vcons} Given $\sws{[[D]]}{[[rho]]}{[[G]]}$,
       if $[[a]]$ semantically inhabits $[[A { rho }]]$
-      at level $[[l0]]$ under grading context $[[| D |]]$,
+      at level $[[l0]]$ under level context $[[| D |]]$,
       then $\sws{[[D]]}{[[rho ++ {a / x} ]]}{[[G ++ x : l0 A ]]}$ holds.
   \end{enumerate}
 \end{lemma}
 
 \begin{proof}
   (\ref{lem:vnil}) is easily justified by the part of the adequacy lemma
-  that states well-graded neutral terms (variables in $[[G]]$ in
+  that states level-checked neutral terms (variables in $[[G]]$ in
   this case) semantically inhabit any well-formed types.
 
   (\ref{lem:vcons}) requires \nameref{lem:lrfunc} and
@@ -1991,7 +1976,7 @@ substitutions and the logical predicate.
   if for every $\rho$, $[[D]]$,
   given $\sws{[[D]]}{\rho}{[[G]]}$,
   the term $[[a {rho}]]$ semantically inhabits the type $[[A {rho}]]$
-  under the grading context $[[|D|]]$.
+  under the level context $[[|D|]]$.
 \end{definition}
 
 Valid substitutions and semantic well-typedness both satisfy weakening
@@ -2098,7 +2083,7 @@ the idea of valid inputs to valid outputs is baked into the
 \rref*{SWt-Pi} case of the logical predicate.
 
 For other cases involving eliminators such as \rref*{Wt-J} and \rref*{Wt-Let}, the
-target either reduces to a desired normal form (\eg $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
+scrutinee either reduces to a desired normal form (\eg $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
 term. In the former case, the conclusion follows by
 \nameref{lem:backclos} and the induction
 hypothesis. In the latter case, we know that the elimination form
@@ -2177,7 +2162,7 @@ the former admits a simpler specification.
   \stack{.~}\footnote{\suppl{theories}{geq.v}{IEq\_dec}}
   \label{lem:indistdec}
   If the lattice admits a decidable comparison operator, then indistinguishability
-  is decidable. That is, given a grading context $[[E]]$, terms
+  is decidable. That is, given a level context $[[E]]$, terms
   $[[A]]$ and $[[B]]$, and a level $[[l]]$, there is an algorithm that
   terminates with \texttt{true} or \texttt{false} depending on whether
   $[[E |- A == B @ l]]$.
@@ -2192,13 +2177,13 @@ the former admits a simpler specification.
 \end{proof}
 
 \begin{definition}[Algorithm for type conversion]
-  Given a grading context $[[E]]$ and two well-formed types $[[A]]$
+  Given a level context $[[E]]$ and two well-formed types $[[A]]$
   and $[[B]]$, the algorithm deciding their equality is as follows.
   \begin{enumerate}
   \item Run the algorithm from \cref{lem:nomdec} on $[[A]]$ and
     $[[B]]$ to obtain normal forms $[[A0]]$ and $[[B0]]$.
   \item Compute the minimal levels $[[l0]]$ and $[[l1]]$
-    at which $[[A0]]$ and $[[B0]]$ can be graded respectively.
+    at which $[[A0]]$ and $[[B0]]$ can be level checked respectively.
   \item Return the result of the decision procedure from
     \cref{lem:indistdec} on the relation
     $[[E |- A0 == A1 @ l0 \/ l1]]$.
@@ -2253,16 +2238,16 @@ of conversion in \rref{Wt-Conv}.
 
 \section{Discussion and Future Work}
 
-\subsection{Target level constraints} \label{sec:target-level}
-The level of eliminator targets must be bounded by the level of the overall eliminator.
+\subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
+The level of eliminator scrutinees must be bounded by the level of the overall eliminator.
 In particular, in \rref{Wt-J}, the level $[[l2]]$ of an equality proof $[[p]]$
 must be bounded by that of its elimination $[[J c l2 p]]$,
 and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
 must be bounded by that of its elimination $[[let (l0 x, y) = l1 a in b]]$.
 The bound is required to prove the \nameref{lem:simulation} property.
-Suppose that targets could instead be typed at any level.
+Suppose that scrutinees could instead be typed at any level.
 First, the indistinguishability rules would need to be updated
-so that targets are indistinguishable if their level is higher
+so that scrutinees are indistinguishable if their level is higher
 than that of the overall eliminator, just like in \rref{I-App}.
 The modified premises are highlighted in \hlcolor{} below.
 %
@@ -2299,17 +2284,17 @@ without knowing \apriori that a closed proof of equality $[[p]]$ normalizes to $
 or that a closed term of a pair type normalizes to a pair.
 
 The one exception is the eliminator for the empty type,
-whose target may be well typed at any arbitrary level in \rref{Wt-Absurd}.
+whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
 Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
 ignoring $[[b]]$ in \rref{I-Absurd} will not violate simulation.
 
-It may seem desirable, then, to simplify things and enforce the target's level
+It may seem desirable, then, to simplify things and enforce the scrutinee's level
 to be exactly the overall level $[[l]]$,
 but this prevents us from proving subsumption (\rref*{Wt-sub}),
-since the level of the target appears in the context.
+since the level of the scrutinee appears in the context.
 In both \rref{Wt-J,Wt-Let}, this occurs when type checking the motive $[[C]]$,
-which abstracts over the target.
-Supposing that both the level of the target and the overall level are $[[l]]$,
+which abstracts over the scrutinee.
+Supposing that both the level of the scrutinee and the overall level are $[[l]]$,
 subsumption states that given a derivation at level $[[l]]$,
 we need to construct a derivation at a higher level $[[l']]$.
 In the case of these eliminators, we are given a derivation concluding something of the shape
@@ -2363,12 +2348,12 @@ dcoi paper}
 
 % To justify the type conversion rule (\rref*{Wt-Conv}) semantically, we
 % need to prove that indistinguishable types have the same meaning
-% (\ref{lem:lrfunci}), which in turn requires us to show that only
-% well-graded terms can inhabit the logical predicate
-% (\ref{lem:escape}).
-% To derive Lemma~\ref{lem:escape}, the escape property, we need to
-% parameterize our logical predicate by the grading context $[[E]]$ and
-% decorate its definition with additional well-gradedness constraints.
+% (\cref{lem:lrfunci}), which in turn requires us to show that only
+% level checked terms can inhabit the logical predicate
+% (\nameref{lem:escape}).
+% To derive \cref{lem:escape}, the escape property, we need to
+% parameterize our logical predicate by the level context $[[E]]$ and
+% decorate its definition with additional level checking constraints.
 
 The level-checking judgements in Figure~\ref{fig:logpred} introduces scoping information to our
 logical predicate. As observed by \citet{abel:normalization}, to
@@ -2380,13 +2365,13 @@ generalization are referred to as Kripke-style logical relations
 
 However, the logical predicate for \name is different in that the
 scoping information is not the full-fledged typing judgment, unlike
-the aforementioned works, but the weaker well-gradedness judgment. This
-allows us to introduce in Section~\ref{sec:logpred} an ill-typed but
-well-graded constant $[[dummy]]$, which has a reduction behavior similar
+the aforementioned works, but the weaker level checking judgment. This
+allows us to introduce in \cref{sec:logpred} an ill-typed but
+level-checkable constant $[[dummy]]$, which has a reduction behavior similar
 to free variables, but is not subject to scoping constraints.
 
 When deriving the normalization of functions, we use the antirenaming
-property formulated in terms of $[[dummy]]$ to avoid weakening the grading
+property formulated in terms of $[[dummy]]$ to avoid weakening the level
 context with a Kripke-style logical predicate. This proof technique
 simplifies our definition of the logical predicate significantly; in a
 dependently typed system, a Kripke-style predicate would require us to
@@ -2394,7 +2379,7 @@ generalize not only functions, but also function and pair types themselves
 since they both involve binders.
 
 % However, our non-Kripke style logical relation requires us to be
-% careful not to rely on the following weakening property on the grading
+% careful not to rely on the following weakening property on the level
 % context, which does not hold with our existing definition of the
 % logical predicate.
 % \begin{proposition}[Context weakening for the logical predicate (does
@@ -2533,7 +2518,7 @@ a relational model to justify more complex properties.
 \subsection{Casting with irrelevant equalities}
 \label{sec:castirrel}
 
-% In Section~\ref{sec:target-level}, we explain why the scrutinees of
+% In Section~\ref{sec:scrutinee-level}, we explain why the scrutinees of
 % pattern matching cannot be treated irrelevantly due to the simulation
 % property. However, the e
 Equality type has the special property that
@@ -2545,7 +2530,7 @@ matching against a singleton type.
 
 Despite the erasability of equality proofs at runtime,
 \dcoi does not allow casting a relevant term using an irrelevant proof.
-In Section~\ref{sec:target-level}, we see that this restriction is
+In \cref{sec:scrutinee-level}, we see that this restriction is
 necessary for the simulation property to hold since an open equality
 proof can normalize to either $[[refl]]$ or to a neutral term.
 
@@ -2589,7 +2574,7 @@ preserving normalization.
 
 \begin{itemize}
 \item Talk about why we can't leverage
-  the fact that the equality type is a singleton in our grading rules
+  the fact that the equality type is a singleton in our level checking rules
   because of internal erasure
 \item Talk about alternative non-strict elimination forms (Obs
   Equality, DE, Trellys) and how they interact with decidability
@@ -3047,10 +3032,10 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \subsection{Naturals} \label{sec:naturals}
 
-\drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Nat,Zero,Succ,Ind}
+\drules[Wt]{$[[G |- a : l A]]$}{Type checking}{Nat,Zero,Succ,Ind}
 \drules[P]{$[[a => b]]$}{Parallel reduction}{IndZero,IndSucc}
 \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
-\drules[Wg]{$[[E |- a : l]]$}{Well-gradedness}{Nat,Zero,Succ,Ind}
+\drules[Wg]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
 \drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
 \begin{center}
 \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
