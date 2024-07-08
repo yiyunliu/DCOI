@@ -402,20 +402,25 @@ are never used in a relevant function.
 
 Consider the following polymorphic identity function,
 with arguments and definitions marked as \lstinline{0} when relevant
-and \lstinline{1} when irrelevant.
-The omitted annotations are inferred to be relevant.
+and \lstinline{1} when irrelevant. For later examples, we sometimes omit the
+relevant annotations (\lstinline{@0}) for concision.
 
 \begin{lstlisting}
-  id : (A : Type)@1 -> A -> A @ 0
+  id : (A : Type)@1 -> A@0 -> A @ 0
   id = \A x. x
 \end{lstlisting}
 
-The overall function is relevant and may be used during computation.
+The type signature tells us that \lstinline{id} is a
+function that takes an irrelevant type parameter \lstinline{A} and a
+relevant term of type \lstinline{A} as inputs, and returns a relevant
+term of type \lstinline{A} as output. 
+% The overall function is relevant and may be used during computation.
 Although the type argument informs the type checker about how the function should be typed,
-it does not appear in the function body and is not used when run.
-Therefore, first parameter \lstinline{A} is irrelevant, while its second \lstinline{x} is relevant.
-This identity function, and relevant functions which take an irrelevant argument in general,
-can be considered as constant in the irrelevant argument.
+it does not appear in the function body and is therefore erasable
+before execution.
+% Therefore, first parameter \lstinline{A} is irrelevant, while its second \lstinline{x} is relevant.
+% This identity function, and relevant functions which take an irrelevant argument in general,
+% can be considered as constant in the irrelevant argument.
 
 This is not to say that irrelevant arguments may never appear in function bodies,
 because they can be applied in other irrelevant positions.
@@ -423,7 +428,7 @@ Consider the following function,
 which takes an irrelevant argument and a constant function.
 
 \begin{lstlisting}
-  app : (A : Type)@1 -> A@1 -> (A@1 -> A) -> A @ 0
+  app : (A : Type)@1 -> A@1 -> (A@1 -> A)@0 -> A @ 0
   app = \A x f. f x
 \end{lstlisting}
 
@@ -436,75 +441,142 @@ using a level-aware propositional equality type, as in the following proof.
 
 \begin{lstlisting}
   isConst : (A : Type)@1 -> (f : A@1 -> A)@0 ->
-            (x : A)@1 -> (y : A)@1 -> f x ~@0 f y @ 1
+            (x : A)@1 -> (y : A)@1 -> (f x ~@0 f y) @ 0
   isConst = \A f x y. refl
 \end{lstlisting}
 
 This proof asserts that a relevant function taking an irrelevant argument
 is indeed constant in that argument.
-The equality type is annotated with \lstinline{0}
+The equality type \lstinline{f x ~@0 f y} is annotated with \lstinline{0}
 to indicate that it holds only for relevant terms.
 It holds by reflexivity, since \lstinline{f x} and \lstinline{f y}
 are \emph{compile-time irrelevant}
 and considered definitionally equal by the type checker.
 When checking that they are equal relevant terms,
-it will ignore the irrelevant arguments.
+it will ignore the irrelevant arguments. Finally, the \lstinline{refl}
+proof in the body of \lstinline{isConst} does not refer to any of the
+function arguments, allowing us to annotate \lstinline{@ 0} at the end
+of its type signature to indicate that \lstinline{isConst} is a
+constant function itself.
+\yl{Changed the level for isConst as a whole to level 0. Does it still
+typecheck in the implementation?}
 
 \subsection{Irrelevance is relative}
+In the polymorphic identity function, the type parameter \lstinline{A}
+is irrelevant in the function body but makes a relevant appearance in
+the type signature. Our system allows \lstinline{A} to appear as both
+relevant and irrelevant by generalizing irrelevance as a notion that
+is relative to an observer level. The level \lstinline{1} variable \lstinline{A}
+is irrelevant with respect to the a level \lstinline{0} observer, the body of the
+identity function. The well-formedness of the \lstinline{id}'s type
+signature can be independently checked at observer level \lstinline{1}.
 
-Irrelevance is always relative to some lower level.
-For instance, a term at level \lstinline{1} is irrelevant to one at level \lstinline{0},
-and a term at level \lstinline{2} is irrelevant to terms at both level \lstinline{0} and \lstinline{1}.
-The following example demonstrates this with irrelevant proofs.
+Therefore, a variable \lstinline{x} with \lstinline{@1} annotation
+is not intrinsically irrelevant. Rather, its
+relevance is dependent on the observer level in which \lstinline{x}
+appears. The equational theory of \name is indexed by an observer
+level and only treats computations at higher levels as
+irrelevant.
 
+Consider the following example, whose well-typedness depends on how we
+instantiate the level, which we mark as \lstinline{?}.
 \begin{lstlisting}
-  irr : (A : Type)@1 -> (B : A@0 -> Type)@1 ->
-        (C : (x : A)@0 -> (B x)@2 -> Type)@1
-        (x : A) -> (b1 : B x)@2 -> (b2 : B x)@2 ->
-        C x b1 -> C x b2 @ 0
-  irr = \A B C x b1 b2 c. c
+  irr : (f : Bool@1 -> Type)@? -> (b : Bool)@1 -> (f b) @ 0 -> (f True) @ 0
+  irr f b x = x
 \end{lstlisting}
+Whether \lstinline{irr} type checks depends on whether we can convert the
+type of the variable \lstinline{x} from \lstinline{f b} to
+\lstinline{f True}. Since there is nothing we know about the boolean
+variable \lstinline{b}, the function \lstinline{f} must behave like a
+constant function, and that is only the case if we instantiate the
+level \lstinline{?} with level \lstinline{0}.
 
-This function takes a type \lstinline{A} of a relevant term \lstinline{x},
-a predicate \lstinline{B} whose proofs \lstinline{b1} and \lstinline{b2} are irrelevant,
-and another predicate \lstinline{C}.
-Given a term \lstinline{c} of type \lstinline{C x b1},
-the goal is to produce a term of type \lstinline{C y b2}.
-As the type \lstinline{C} is at level \lstinline{1}
-while \lstinline{bx} and \lstinline{by} are at level \lstinline{2},
-they appear irrelevant to \lstinline{C},
-so \lstinline{c} itself fulfills the goal.
+Although the variable
+\lstinline{b} is a level \lstinline{1} variable and thus
+is irrlevant to \lstinline{irr}, it may still be used relevantly by
+\lstinline{f} if \lstinline{?} is instantiated to \lstinline{1} or
+some higher level; our type system correctly rejects \lstinline{irr}
+in those scenarios.
 
-The two levels of irrelevance are thus necessary if we want to consider
-the compile-time irrelevance of proofs within run-time irrelevant types.
-If \lstinline{b1} and \lstinline{b2} were merely level \lstinline{1},
-while they are still erasable within the level \lstinline{0} function,
-they would not be definitionally equal when comparing
-\lstinline{C x b1} and \lstinline{C x b2} at level \lstinline{1}.
+% If we instantiate \lstinline{?} by \lstinline{0}, then the function
+% \lstinline{f}, whose body is a level \lstinline{0} observer, cannot
+% dependent on the boolean input. The types \lstinline{f True} and
+% \lstinline{f False} are convertible and therefore \lstinline{irr} is
+% well-typed.
+% On the other hand, if we instantiate \lstinline{?} by \lstinline{1},
+% then 
 
-In general, if two terms are irrelevant at a given level,
-then they are also irrelevant at a lower level, but not necessarily a higher one.
-In the example above,
-knowing that \lstinline{b1} and \lstinline{b2} are irrelevant at level \lstinline{1}
-allows us to reason that they are also irrelevant at level \lstinline{0},
-but they are not irrelevant at level \lstinline{2},
-since they are variables declared at and therefore useable at level \lstinline{2}.
+% If we treat the \lstinline{@1} annotation on \lstinline{A} as being
+% always irrelevant, then we are at trouble since the type
+% \lstinline{A @ 0 -> A @ 0} would be ill-formed. 
 
-As equality types internalize the notion of definitional equality at some level,
-we can also internalize the ability to lower the level.
-In particular, given an equality annotated at level \lstinline{1},
-we are able to prove the same equality annotated at level \lstinline{0}
-by the following.
+% Existing systems either disallow irrelevant type
+% parameters~\citep{abel:irrelevance} or disable tracking on type
+% expressions completely~\citep{mcbride:plentyo, atkey:qtt}. 
 
-\begin{lstlisting}
-  downgrade : (A : Type)@1 -> (x : A)@0 -> (y : A)@0 ->
-              (x ~@1 y) -> (x ~@0 y) @ 1
+% For instance, a term at level \lstinline{1} is irrelevant to one at level \lstinline{0},
+% and a term at level \lstinline{2} is irrelevant to terms at both level \lstinline{0} and \lstinline{1}.
+% The following example demonstrates this with irrelevant proofs.
+
+% \begin{lstlisting}
+%   irr : (A : Type)@1 -> (B : A@0 -> Type)@1 ->
+%         (C : (x : A)@0 -> (B x)@2 -> Type)@1
+%         (x : A) -> (b1 : B x)@2 -> (b2 : B x)@2 ->
+%         C x b1 -> C x b2 @ 0
+%   irr = \A B C x b1 b2 c. c
+% \end{lstlisting}
+
+% This function takes a type \lstinline{A} of a relevant term \lstinline{x},
+% a predicate \lstinline{B} whose proofs \lstinline{b1} and \lstinline{b2} are irrelevant,
+% and another predicate \lstinline{C}.
+% Given a term \lstinline{c} of type \lstinline{C x b1},
+% the goal is to produce a term of type \lstinline{C y b2}.
+% As the type \lstinline{C} is at level \lstinline{1}
+% while \lstinline{bx} and \lstinline{by} are at level \lstinline{2},
+% they appear irrelevant to \lstinline{C},
+% so \lstinline{c} itself fulfills the goal.
+
+% allows us to go beyond the two-point lattice used for run-time
+% erasure and reason about level indexed equalities for arbitrary lattice
+% structures.
+% The two levels of irrelevance are thus necessary if we want to consider
+% the compile-time irrelevance of proofs within run-time irrelevant types.
+% If \lstinline{b1} and \lstinline{b2} were merely level \lstinline{1},
+% while they are still erasable within the level \lstinline{0} function,
+% they would not be definitionally equal when comparing
+% \lstinline{C x b1} and \lstinline{C x b2} at level \lstinline{1}.
+% In general, if two terms are irrelevant at a given level,
+% then they are also irrelevant at a lower level, but not necessarily a higher one.
+% In the example above,
+% knowing that \lstinline{b1} and \lstinline{b2} are irrelevant at level \lstinline{1}
+% allows us to reason that they are also irrelevant at level \lstinline{0},
+% but they are not irrelevant at level \lstinline{2},
+% since they are variables declared at and therefore useable at level \lstinline{2}.
+
+The example with the \lstinline{irr} function shows that as the
+observer level increases, more terms can be distinguished by
+the definitional equality since there are less we are allowed to ignore.
+As equality types internalize the notion of indistinguishability,
+we can internalize the ability to lower the level.
+In particular, given two elements $[[l0 <= l1]]$ from a lattice, the
+following proof internalizes that idea that a fine equality indexed by
+a high observer level can be downcast to a coarser equality indexed by
+a low observer level.
+% an equality annotated at level \lstinline{1},
+% we are able to prove the same equality annotated at level \lstinline{0}
+% by the following.
+\begin{lstlisting}[escapeinside={(*}{*)}]
+  downgrade : (A : Type) -> (x : A) -> (y : A) -> (x ~@(*$[[l1]]$*) y) -> (x ~@(*$[[l0]]$*) y)
   downgrade = \A x y p. subst refl by p
 \end{lstlisting}
 
 In \dcoi from prior work,
 the specification of the eliminator for equalities was not general enough
 for \lstinline{downgrade} above to be provable.
+
+% Finally, we note that treating relevance as a relative concept is a powerful mechanism
+% that allows us to generalize the two-point lattice used for
+% erasure to an arbitrary lattice structure.
 
 \subsection{Irrelevant constructor components}
 
