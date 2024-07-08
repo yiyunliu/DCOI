@@ -733,13 +733,9 @@ for clarity we use named variables and single substitutions for our presentation
 We use the metavariables $[[x]], [[y]], [[z]]$ for variables
 and $[[a { b / x }]]$ for the substitution of a term $[[b]]$ in place of the variable $[[x]]$
 inside the term $[[a]]$.
-
 Similarly to \cref{sec:examples},
 we use $[[l A -> B]]$ as shorthand for nondependent functions $[[Pi x : l A . B]]$
 where $[[x]]$ does not appear in $[[B]]$.
-We also use $[[Unit]]$ as a trivial singleton type,
-encoded as $[[l Void -> Void]]$ for some $[[l]]$,
-with its inhabitant $[[unit]]$ encoded as $[[\l x. absurd x]]$.
 
 The main judgement is the typing judgement,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
