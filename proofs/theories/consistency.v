@@ -33,6 +33,7 @@ Proof.
     tauto.
   - hauto lqb:on.
   - sfirstorder b:on.
+  - hauto lqb:on.
 Qed.
 
 
