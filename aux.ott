@@ -77,12 +77,6 @@ tm :: 'a_' ::=
   | rho ( x ) :: S :: Substituted
     {{ com term substituted for x }}
     {{ tex [[rho]]([[x]]) }}
-  | Unit :: S :: Unit
-    {{ com unit type }}
-    {{ tex \top }}
-  | unit :: S :: MkUnit
-    {{ com unit inhabitant }}
-    {{ tex \ottkw{tt} }}
   | proj1 l a :: S :: Proj1
     {{ com first projection }}
     {{ tex \pi_1^{[[l]]} \, [[a]] }}

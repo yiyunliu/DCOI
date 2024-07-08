@@ -712,6 +712,7 @@ which is parameterized over a meet-semilattice of dependency levels
   & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
   & \mid [[Pi x : l A . B]] \mid [[\ l x . b]] \mid [[b l a]] & \quad & \textit{function types, abstractions, applications} \\
   & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l0 x, y) = l a in b]] & \quad & \textit{pair types, pairs, matching} \\
+  & \mid [[Unit]] \mid [[unit]] \mid [[let unit = l a in b]] & \quad & \textit{unit type, unit value, eliminator} \\
   & \mid [[a ~ l b]] \mid [[refl]] \mid [[J c l p]] & \quad & \textit{equality types, reflexivity, J eliminator} \\
   & \mid [[Nat]] \mid [[zero]] \mid [[succ a]] \mid [[ind l a b0 (\x y. b1)]] & \quad & \textit{naturals, zero, successor, induction}
 \end{alignat*}
@@ -765,7 +766,7 @@ the remaining rules for variables, function abstractions, function applications,
 the empty type, and its eliminator are standard for dependent type theory.
 To change the type of a term to an equivalent one,
 typing uses a definitional equality that is defined in terms of indistinguishability (\cref{sec:indist}).
-We then look at the rules for dependent pair types (\cref{sec:pairs}),
+We then look at the rules for dependent pair types and the unit type (\cref{sec:pairs}),
 and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
 
@@ -872,7 +873,6 @@ listed in \cref{fig:conv} and in following subsections,
 along with rules for the reflexive, congruent closure, omitted here.
 Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive closure of parallel reduction.
 
-
 % This formulation of equality is in contrast to prior work by \citet{liu:dcoi},
 % where indistinguishability a
 % where parallel reduction is merely a metatheoretic tool for proving type soundness.
@@ -956,14 +956,18 @@ into $\beta$-equivalence. In the presence of multiple levels, the
 indistinguishability judgment is what unlocks the extra expressive
 power that is not present in PTSes.
 
-\subsection{Dependent pairs} \label{sec:pairs}
+\subsection{Dependent pairs and unit} \label{sec:pairs}
 
 \begin{figure}[h]
   \begin{gather*}
     \drule[width=0.5\textwidth]{Wt-Sig}
-    \drule[width=0.5\textwidth]{Wt-Pair} \\
-    \drule[width=0.5\textwidth]{Wt-Let}
+    \drule[width=0.6\textwidth]{Wt-Pair} \\\\
+    \drule[width=\textwidth]{Wt-Let} \\\\
+    \drule{Wt-Unit}
+    \drule{Wt-TT}
+    \drule[width=0.5\textwidth]{Wt-Seq} \\\\
     \drule[width=0.5\textwidth]{P-LetPair}
+    \drule{P-SeqTT}
   \end{gather*}
   \caption{Typing and parallel reduction rules (pairs)}
   \label{fig:typing:pair}
@@ -989,7 +993,7 @@ and $[[y]]$ at level $[[l1]]$ respectively in the body $[[b]]$,
 which is typed at the same level $[[l]]$ as the overall eliminator.
 The overall type of the eliminator is specified by the motive $[[C]]$,
 which is abstracted over the scrutinee $[[z]]$.
-The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but bounded above by it;
+The level of the scrutinee $[[l1]]$ is not exactly $[[l]]$ but bounded above by it;
 its justification is a subtle technical issue,
 which we defer to \cref{sec:scrutinee-level}.
 
@@ -1041,6 +1045,13 @@ even if it contains a lower-level first component.
 This was not possible when pair projections were the primitive operators on a pair
 and not the eliminator we have, which is strictly more expressive.
 
+The typing rules for the unit type (\rref{Wt-Unit}),
+its sole inhabitant (\rref{Wt-TT}),
+and the dependent eliminator (\rref{Wt-Seq}) are standard,
+with reduction given by \rref{P-SeqTT}.
+In \rref{Wt-Seq}, the level constraint on the scrutinee exists
+for the same reason as in the pair eliminator.
+
 The box type $[[T l0 A]]$ from \cref{sec:examples}
 can be seen as a pair with meaningful information only in its first component,
 of which we only ever take the first projection,
@@ -1083,7 +1094,10 @@ similar to how function arguments are compared.
   \begin{gather*}
     \drule[width=0.5\textwidth]{I-Sig}
     \drule[width=0.5\textwidth]{I-Pair} \\\\
-    \drule[width=\textwidth]{I-Let}
+    \drule[width=\textwidth]{I-Let} \\\\
+    \drule{I-Unit}
+    \drule{I-TT}
+    \drule[width=\textwidth]{I-Seq}
   \end{gather*}
   \caption{Indistinguishability rules (pairs)}
   \label{fig:conv:pair}
@@ -1384,8 +1398,8 @@ type conversion algorithm.
 
 \begin{figure}[h]
   \centering
-  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,J,Let}
-  \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Eq,Refl,Sig,Pair}
+  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
+  \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
   \caption{Neutral and normal forms}
   \label{fig:normalform}
 \end{figure}
@@ -3040,11 +3054,11 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \subsection{Parallel reduction}
 
-\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Nat,Zero,Succ,Ind}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq,Nat,Zero,Succ,Ind}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 
 \subsection{Level checking} \label{sec:levelling}
 
-\drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
+\drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq,}
 
 \end{document}

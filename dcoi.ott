@@ -80,6 +80,15 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
   | absurd b :: :: Absurd
     {{ com ex falso quodlibet }}
     {{ tex \ottkw{absurd} \, [[b]] }}
+  | Unit :: :: Unit
+    {{ com unit type }}
+    {{ tex \top }}
+  | unit :: :: TT
+    {{ com unit value }}
+    {{ tex \ottkw{tt} }}
+  | let unit = l a in b :: :: Seq
+    {{ com unit eliminator }}
+    {{ tex \ottkw{let} \, \ottkw{tt} = [[a]]^{[[l]]} \, \ottkw{in} \, [[b]] }}
   | a ~ l b :: :: Eq
     {{ com indistinguishability }}
     {{ tex [[a]] =^{[[l]]} \! [[b]] }}
@@ -266,6 +275,10 @@ b0 => b1
 ------------------------------------ :: AppAbs
 (\ l0 x . b0) l0 a0 => b1 { a1 / x }
 
+b0 => b1
+----------------------------- :: SeqTT
+let unit = l unit in b0 => b1
+
 c0 => c1
 ----------------- :: JRefl
 J c0 l refl => c1
@@ -314,6 +327,17 @@ Void => Void
 b0 => b1
 ---------------------- :: Absurd
 absurd b0 => absurd b1
+
+------------ :: Unit
+Unit => Unit
+
+------------ :: TT
+unit => unit
+
+a0 => a1
+b0 => b1
+---------------------------------------------- :: Seq
+let unit = l a0 in b0 => let unit = l a1 in b1
 
 a0 => a1
 b0 => b1
@@ -418,6 +442,18 @@ E |- Void == Void @ l
 
 ------------------------------- :: Absurd
 E |- absurd b0 == absurd b1 @ l
+
+--------------------- :: Unit
+E |- Unit == Unit @ l
+
+--------------------- :: TT
+E |- unit == unit @ l
+
+E |- a0 == a1 @ l
+E |- b0 == b1 @ l
+l1 <= l
+--------------------------------------------------------- :: Seq
+E |- let unit = l1 a0 in b0 == let unit = l1 a1 in b1 @ l
 
 E |- a0 == a1 @ l
 E |- b0 == b1 @ l
@@ -584,6 +620,21 @@ G |- A : Univ i
 ------------------- :: Absurd
 G |- absurd b : l A
 
+|- G
+-------------------- :: Unit
+G |- Unit : l Univ i
+
+|- G
+---------------- :: TT
+G |- unit : l Unit
+
+G |- a : l1 Unit
+G |- b : l C { unit / x }
+G ++ x : l1 Unit |- C : Univ i
+l1 <= l
+----------------------------------------- :: Seq
+G |- let unit = l1 a in b : l C { a / x }
+
 G |- a : l0 A
 G |- b : l0 A
 l0 <= l
@@ -688,6 +739,18 @@ E |- Void : l
 ----------------- :: Absurd
 E |- absurd b : l
 
+------------- :: Unit
+E |- Unit : l
+
+------------- :: TT
+E |- unit : l
+
+E |- a : l1
+E |- b : l
+l1 <= l
+----------------------------- :: Seq
+E |- let unit = l1 a in b : l
+
 E |- a : l0
 E |- b : l0
 l0 <= l
@@ -763,6 +826,11 @@ nf b
 ----------- :: Absurd
 ne absurd b
 
+ne a
+nf b
+---------------------- :: Seq
+ne let unit = l a in b
+
 nf c
 ne p
 ---------- :: J
@@ -805,6 +873,12 @@ nf Univ i
 
 ------- :: Void
 nf Void
+
+------- :: Unit
+nf Unit
+
+------- :: TT
+nf unit
 
 nf a
 nf b
