@@ -1808,12 +1808,13 @@ following corollary about weak normalization.
 In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
 because we want \rref{I-D,L-D} to hold. When the level context is empty,
-there is no variable we are allowed to pick. However, since
-\rref{I-Absurd} does not impose any scope checking on the scrutinee of
-the empty eliminator, we can define $[[dummy]]$ as $[[absurd x]]$ for
-an arbitrarily picked variable $[[x]]$. It is easy to verify that this
-definition respects the rules in \cref{fig:dummy} and the
-antirenaming lemmas.
+there is no variable we are allowed to pick. Instead, we define
+$[[dummy]]$ as $[[absurd Void]]$. Note that the term appearing in the body of $\ottkw{absurd}$
+is flexible; all we need is a term in normal form 
+that has no reference to variables so we do not violate the scoping
+restriction. It is easy to verify that this
+definition respects the rules in \cref{fig:dummy} and the antirenaming
+lemmas.
 
 Finally, we state and prove the adequacy lemma.
 

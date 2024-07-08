@@ -759,7 +759,7 @@ nf a
 -------- :: App
 ne b l a
 
-ne b
+nf b
 ----------- :: Absurd
 ne absurd b
 
