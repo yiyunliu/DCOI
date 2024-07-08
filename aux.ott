@@ -214,6 +214,11 @@ E |- a : l0
 ------------------------------------- :: subst
 E |- b0 { a / x } == b1 { a / x } @ l
 
+E ++ x : l0 |- b : l
+E |- a0 == a1 @ l l0
+------------------------------------- :: cong
+E |- b { a0 / x } == b { a1 / x } @ l
+
 defn
   E |- a == b @ l l0 :: :: GIEq :: 'GI_'
   {{ com guarded indistinguishability }}

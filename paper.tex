@@ -1193,8 +1193,6 @@ technical issue and its necessity is explained by \citet{liu:dcoi};
 without the $[[l0 <= l]]$ constraint, substitution for equalities is
 no longer admissible.
 
-
-
 \section{Syntactic Metatheory} \label{sec:synmeta}
 
 In this section, we develop the syntactic metatheory of \name,
@@ -1214,33 +1212,23 @@ Their corresponding mechanizations are annotated where mentioned in the prose.
 
 \subsection{Preliminaries}
 
-\jc{TODO: remove figure, defined as removing typing information, put in appendix}
-
-\begin{figure}[h]
-  % \drule{Wg-Univ} \drule{Wg-Empty} \drule{Wg-Refl}
-  % who's gonna know? nobody's gonna know
-  \drules[Wg]{$[[E |- a : l]]$}{Level checking}{Var,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
-  \caption{Level checking rules}
-  \label{fig:levelling}
-\end{figure}
-
 As indistinguishability and definitional equality involve a level context,
-we require a level checking judgement on terms to be able to prove some substitution lemmas.
+we require a level checking judgement \judgement{$[[E |- a : l]]$}
+on terms to be able to prove some substitution lemmas.
 The judgement specifies the dependency level that a term may be assigned.
 In later sections, we will see that semantic typing and the logical relation
 are defined over level checked terms.
-The rules for the judgement can be seen as the same as the typing rules,
-but with all typing information stripped out, leaving only the levels,
-and are listed in \cref{fig:levelling}.
-
-\jc{TODO: generalize subst?}
+The rules for the judgement correspond exactly to stripping out
+all typing information from the typing rules, leaving only the levels.
+We omit them here, but they are listed in \cref{sec:levelling}.
 
 \begin{figure}[h]
   \mprset{fraction={===}}
   \begin{gather*}
-    \drule{Wg-subst}
-    \drule{Wg-sub}
-    \drule{I-subst} \\\\
+    \drule[width=0.25\textwidth]{Wg-subst}
+    \drule[width=0.2\textwidth]{Wg-sub}
+    \drule{I-subst}
+    \drule{I-cong} \\\\
     \drule{I-down}
     \drule{Wt-subst}
     \drule{Wt-sub}
@@ -1256,6 +1244,9 @@ listed as admissible rules in \cref{fig:lemmas}.
 \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
 permit substituting in a level-checked term of the appropriate level
 in place of a variable of that level in the context.
+Indistinguishability also satisfies a congruence property
+\rref*{I-cong}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}},
+where indistinguishable terms may be substituted into a level-checked term.
 Level checking is subsumptive
 (\rref*{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
 the level of a level-checked term may be raised.
@@ -3046,12 +3037,13 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
   \end{mathpar}
 \end{center}
 
-
 \subsection{Parallel reduction}
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Nat,Zero,Succ,Ind}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 
+\subsection{Level checking} \label{sec:levelling}
 
+\drules[Wg]{$[[E |- a : l]]$}{Level checking}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
 
 \end{document}
