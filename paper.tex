@@ -213,106 +213,133 @@
 
 \section{Introduction}
 
-Dependency-tracking type systems govern how functions can depend on their
-inputs. Essentially, these systems prevent the flow of information from
-high-level sources to low-level results.
+Dependency-tracking type systems govern when functions are allowed to depend
+on their inputs. More specifically, they classify inputs using various
+dependency levels ($\ell$) and assign a level to the result of a
+computation. The key idea is that the type system prevents the flow of
+information from high-level sources to low-level results. In other words,
+low-level results may not \emph{depend} on high-level input.
 
-The \emph{\longname} (\dcoi)~\cite{liu:dcoi}
-adapts dependency tracking to the context of a dependently-typed programming
-language. The primary goal of dependency tracking in \dcoi is to identify
-irrelevant arguments. These arguments can be erased during compilation to
-produce faster execution and can be ignored during equivalence checking. A key
-notion is \emph{indistinguishability}: a definition of program equivalence
-that takes into account the parts of the program that an observer may depend
-on. However, dependency-tracking type systems serve many purposes, such as
-staged compilation and information flow control~\cite{abadi:dcc}.
+A key ingredient of dependency-tracking systems is the
+\emph{indistinguishability} relation: a definition of program equivalence that
+that takes an observer level into account. This relation identifies more terms
+than standard definitions of program equivalence because the a particular
+observer may be prevented from making a distinction between on program values
+classified above a certain level. When used for information flow
+control~\cite{abadi:dcc}, indistinguishability at low observer levels means
+that high-level secrets are not revealed.
 
-\dcoi lays the foundation for the design of a dependently-typed
-programming language based on dependency tracking. Its conversion
-may use indistinguishability at any observer level when comparing types for
-equality, and thus enabling the definition of an elimination form for level indexed
-equality types. Despite this flexible notion of
-definitional equality, prior work showed that \dcoi
-is type sound.
+The \emph{\longname} (\dcoi)~\cite{liu:dcoi} adapts dependency tracking to the
+context of dependently-typed programming languages. The primary goal of
+dependency tracking in \dcoi is the identification of \emph{irrelevant
+  arguments}.  Such arguments can be erased during compilation to produce
+faster execution and can be ignored during equivalence checks at compile-time.
 
-\citet{liu:dcoi} focused on syntactic methods for reasoning about
-\dcoi. While sufficient for type soundness, they cannot be used to identify
-an instantiation of \dcoi that enjoys properties such as logical consistency,
-normalization, and decidable observer-indexed equivalence. For flexibility,
-\dcoi is designed around a \emph{Pure Type System} (PTS), where various
-instances of sorts, rules and axioms determine the versions of quantification
-that is allowed in the language. While some instances of PTSes are known to
-allow nontermination (such as when including the $[[U]] : [[U]]$ axiom),
-others (such as those that include a predicative universe hierarchy, or a
-single impredicative sort) can form the basis of a consistent logic.
+In \dcoi the indistinguishability relation verifies that irrelevant arguments
+can be erased during computation. If the low-level observer (the runtime)
+produces the same value for all irrelevant arguments, then such arguments may
+be replaced with trivial values. 
 
-In this paper, we define the language \name, which is a dependent type theory
-featuring a predicative universe hierarchy and large elimination. This calculus retains many of the
-features of \dcoi, including level-indexed dependent function types
-($[[Pi x : l A . B]]$), level-indexed dependent pairs ($[[Sig x : l A. B]]$),
-level-indexed propositional equality ($[[a ~l b]]$). Below, we provide an
-overview of our contributions, which include extensions
-that increase the expressiveness of the system, and new metatheoretic
-results established through semantic means.
+Furthermore, the \dcoi type system also uses indistinguishability in its
+conversion rule. If two types cannot be distingiushed by some observer, than
+it is sound to replace one with another at compiletime. Thus, \dcoi supports
+compile-time irrelevance, and may ignore irrevelant arguments when checking
+for type equality. \dcoi also internalizes the indistinguishability as a type, 
+with a level-indexed elimination form.
+
+\citet{liu:dcoi} used syntactic methods to show the soundness of \dcoi's type
+system and that its definition of indistinguishability supports
+non-interference. However, while syntactic methods are sufficient for these
+purposes, they cannot be used to reason about semantic properties of type
+systems such as logical consistency, normalization, and decidable
+observer-indexed equivalence. 
+
+For flexibility, \dcoi is designed around a \emph{Pure Type System} (PTS),
+where various instances of sorts, rules and axioms determine the versions of
+quantification that is allowed in the language. All instances of \dcoi are
+type sound, but only some can be used as the basis of a consistent logic. For
+example, including the $[[U]] : [[U]]$ axiom produces a language that allows
+nontermination while others (such as those that include a predicative universe
+hierarchy, or a single impredicative sort) only include normalizing terms.
+
+We would like to explore the use of dependency tracking in the context of a
+logically consistent dependent type theory.  Therefore, in this paper, we
+define the language \name: a dependent type theory with dependency tracking
+featuring a predicative universe hierarchy and large eliminations.  This
+calculus is based on an instance of \dcoi and includes many of its features,
+such as level-indexed dependent function types ($[[Pi x : l A . B]]$),
+level-indexed dependent pairs ($[[Sig x : l A. B]]$), and level-indexed
+propositional equality ($[[a ~l b]]$), the internalized indistinguishability
+relation.  However, the needs of logical reasoning in a dependent type theory
+means that we must refine these features and enhance their expressiveness.
+
+Logical consistency means that programmers can use \name to reason internally
+about their code. Like Coq ~\citep{coq}, Agda~\citep{agda}, and
+Lean~\citep{lean}, \name supports programming and program verification in the
+same framework. Unlike these systems, programmers may also internally reason
+about irrelevance, information flow, or any other application of dependency
+tracking.
+
+More generally, the contributions of this paper are two-fold: new extensions
+that increase the expressiveness of the systems, and stronger semantics-based
+results about this well-behaved instance of the system.
 % and an empty type
 % $[[Void]]$. \jc{sentence here about what this list is about}
 \begin{itemize}
-\item We extend the language with an empty type $[[Void]]$ with an
-  elimination form that allows programmers to apply the principle of
-  explosion (\textit{ex falso quodlibet}) on high-level empty proofs
-  to refute impossible execution paths. Proofs can exist at an
-  erasable while still remain useful for programming. The validity of
-  this extension is easily justified by extending \citet{liu:dcoi}'s
-  syntactic simulation proof.
 
+\item We extend the language with an empty type $[[Void]]$ with an elimination
+  form that allows programmers to apply the principle of explosion (\textit{ex
+    falso quodlibet}). Importantly, eliminating high-level proofs of the empty
+  type can refute impossible execution paths at any execution level. This
+  feature means that proofs can exist at an erasable dependency level while
+  being useful for programming. The consistency of \name means that there is
+  no closed term of the empty type.
+  %SCW: We don't need to say this yet unless we want to make a point about it.
+  % The validity of this extension is easily
+  % justified by extending \citet{liu:dcoi}'s syntactic simulation proof.
 
-\item We further develop the theory of the observer-indexed propositional
-  equality type in \name, including its elimination via the $\ottkw{J}$
-  operator. (Prior work used a restricted form of $\ottkw{J}$.) We
-  make the elimination rule more flexible, and show that it is
-  possible to internalize the reasoning principle that equalities
-  indistinguishable by a high observer are also indistinguishable by a
-  low observer. % To retain decidable type conversion and the soundness
+\item We develop the theory of the observer-indexed propositional equality
+  type in \name, by enhancing the expressiveness of its elimination form, a
+  label aware variant of the $\ottkw{J}$ operator. We demonstrate that this
+  form is more expressive than prior work by using it to derive the reasoning
+  principle that states that equalities indistinguishable by a high observer
+  are also indistinguishable by a low
+  observer. % To retain decidable type conversion and the soundness
   % of internal erasure~\citep{}, 
 
-\item We provide a weak elimination form for level-indexed dependent
-  pairs, from which we recover strong projections. We show that the
-  weak elimination form for level-indexed pairs is more general than \citet{liu:dcoi}'s
+\item We provide a weak elimination form for level-indexed dependent pairs,
+  from which we recover strong projections. We show that the weak elimination
+  form for level-indexed pairs is more general than \citet{liu:dcoi}'s
   treatment of strong projections as primitives; our admissible second
-  projection rule no longer requires a well-formedness check when a
-  high-level observer tries to project out the second component of a
-  low-level pair.
+  projection rule does not require a well-formedness check when a high-level
+  observer projects the second component of a low-level pair.
 
 \item We show that \name is logically consistent (there is no inhabitant of
   the empty type) and weakly normalizing (every term can be reduced to a normal
   form). % , and that type conversion \yl{I think it's fine to say type conversion
     % instead of indexed defeq?} is decidable. 
   Due to its
-  expressive conversion rule, support for large elimination, and
+  expressive conversion rule, support for large eliminations, and
   infinite universe levels, we cannot reuse
   proofs found in \citet{geuvers:cc-sn, abel:irrelevance}
-  by embedding \name into their systems. Instead, we define our own
-  syntactic logical predicate for well-graded\yl{we shouldn't use grade, but
-    well-leveled just sounds silly} terms to directly show the above
-  new metatheoretic results as corollaries of the fundamental theorem.
+  by embedding \name into their systems. Instead, we define a novel
+  syntactic logical predicate to directly show the above
+  metatheoretic results as corollaries of the fundamental theorem.
   Logical consistency means
-  that programmers can use \name to reason internally about their code. Like Coq
-  ~\citep{coq}, Agda~\citep{agda}, and Lean~\citep{lean},
-  \name supports programming and program
-  verification in the same framework. Unlike these systems, programmers may
-  also internally reason about information flow.
 
 \item Following \citet{takahashi:par} and
   \citet{accattoli:factorization}, we prove the standardization
   theorem, which states that every weakly normalizing term can be
   reduced to normal form through the deterministic leftmost-outermost reduction
   strategy. From the standardization theorem and the weak
-  normalization property, we recover a decision procedure for
-  indexed type conversion, which can be extracted as an OCaml function from
-  our Coq proof. \yl{Is it understood that the algorithm
+  normalization property, we show that indexed type conversion is decidable. 
+  Fthermore, we can can extract from our Coq proof an OCaml function that can 
+  be used as a decision procedure for this relation.
+  \yl{Is it understood that the algorithm
     can be extracted as OCaml code or should I explicitly mention it?
     We don't have a surface type checker to link against the OCaml
-    code so I don't know what to say} 
+    code so I don't know what to say}\sw{doesn't hurt to remind people 
+    that decidability proofs are powerful in constructive logics.}
 \item \yl{not sure if the following counts as contributions so I
     commented them out}
 % \item Because the empty type is uninhabited, we show that this type system
