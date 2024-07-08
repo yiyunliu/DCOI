@@ -3005,11 +3005,13 @@ predicative universe hierarchy extended with more expressive
 elimination forms. We use a syntactic logical predicate to show that
 \name satisfies normalization, logical consistency, and decidable type
 conversion in addition to the syntactic soundness results established
-by \citet{liu:dcoi}; these results are all mechanized in the Coq proof
-asisstant.
-The logical consistency property makes \name suitable for both
-programming and internalized reasoning about information flow. In the
-future, we plan to build on top of our decidable type conversion
+by \citet{liu:dcoi}; these results are all mechanized in Coq.
+Logical consistency makes \name suitable for both
+programming and internalized reasoning about information flow.
+\jc{I don't think logical consistency says anything about programming
+and we probably shouldn't mention information flow
+if all of our examples have been about irrelevance?}
+As future work, we plan to build on top of our decidable type conversion
 result and extend our system to support full
 decidable type checking in the style of the bidirectional system
 by \citet{adjedj:mltt-coq}.
