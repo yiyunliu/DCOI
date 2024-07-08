@@ -2774,18 +2774,18 @@ mechanism to track dependency and perform external erasure.
 
 \citet{mcbride:plentyo} extends a dependently typed system with usage
 tracking. Usage tracking is disabled in type formation rules and
-therefore allows him to embeds his system into a predicative type
+therefore allows him to embed his system into a predicative type
 theory, whose normalization property is given by
 \citet{abel:normalization}. However, the typing judgment in his system
 fails to admit the substitution property, an issue that is later 
-addressed by \citep{atkey:qtt} in his design of the
+addressed by \citep{atkey:qtt} in the design of the
 Quantitative Type Theory
 (QTT). The typing judgment in QTT takes the form
 $\Gamma \vdash M :^{\sigma} T$ where $\sigma$ ranges over the
-constants $0$ and $1$ from the semiring, reminiscent of \citet{pfenning:modal}'s
+constants $0$ and $1$ from the semiring, reminiscent of \citeauthor{pfenning:modal}'s
 $\div$ and $:$ modalities.
-In QTT, usage annotations are only enforced at the term-level, not at the
-type-level. In the following QTT formation rule for function
+In QTT, usage annotations are only enforced at the term level, not at the
+type level. In the following QTT formation rule for function
 types, the usage annotation $\pi$ for the variable $x$ is ignored and
 set to $0$ when checking the output type $T$.
 \begin{mathpar}
@@ -2799,7 +2799,7 @@ set to $0$ when checking the output type $T$.
 Like the system by \citet{mcbride:plentyo}, type formation rule in QTT completely discards usage
 information; as seen in the above rule, the context for the type
 formation judgment is always $0
-\Gamma$, which is obtained by resetting the usage information in
+\Gamma$, which is obtained by resetting usage information in
 $\Gamma$ to $0$.
 
 GraD~\citep{choudhury:grad} later gives a more uniform design where
@@ -2816,21 +2816,21 @@ predicative type theory that tracks
 resource usage separately for types and terms.
 The fine-grained
 usage tracking allows one to recover parametricity by rejecting
-undesired type-level or term-level access of
-variables. \citet{moon:graded} further explores how one can take
+undesired type- or term-level access of
+variables. \citet{moon:graded} further explore how one can take
 advantage of the usage information to optimize the type checking
 algorithm through their prototype implementation. For example,
-given a dependent function type $x : A \rightarrow B$, if the
-variable $x$ has $0$ usage in $B$, then the substitution $B {t / x}$
+given a dependent function type $(x : A) \rightarrow B$, if
+$x$ has $0$ usage in $B$, then the substitution $[[B {t / x}]]$
 can be ignored. However, this optimization is not formalized in
 GRTT. Type conversion in GRTT is oblivious of the usage
 information. The lack of interaction between modalities and type
-conversion allows them to recover the strong normalization by adapting
-the strong normalization for CC found in \citet{geuvers:cc-sn}.
+conversion allows them to recover strong normalization by adapting
+strong normalization for CC by \citet{geuvers:cc-sn}.
 
 \citet{abel:grade} introduce a graded modal dependent
 type theory that also allows tracking usage for both terms and
-types. The language by Abel and others is more
+types. This language is more
 expressive as it supports large elimination, though its definitional
 equality, like GRTT, is also defined independently of the
 modalities. This allows them to reuse the technique in
