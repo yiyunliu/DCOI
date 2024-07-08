@@ -825,7 +825,7 @@ By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codom
 As an example, consider the following typing judgement.
 %
 \begin{displaymath}
-  [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ 0 . H X -> L (H X -> X) -> X)]]
+  [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ i . H X -> L (H X -> X) -> X)]]
 \end{displaymath}
 
 The entire function itself is typed at level $[[L]]$,
@@ -878,7 +878,7 @@ using a higher-level proof of its impossibility.
 \end{figure}
 
 The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
-wich allows converting the type of a well-typed term to a definitionally equal type.
+which allows converting the type of a well-typed term to a definitionally equal type.
 Our definitional equality is untyped, but eventually relies on the levels of variables,
 so its judgement form \judgement{$[[E |- a == b]]$} requires a grading context $[[E]]$.
 In \rref{Wt-Conv}, this is provided by the erasure operation \judgement{$[[| G |]]$},
@@ -896,8 +896,11 @@ Parallel reduction \judgement{$[[a => b]]$} consists of the $\beta$-reduction ru
 listed in \cref{fig:conv} and in following subsections,
 along with rules for the reflexive, congruent closure, omitted here.
 Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive closure of parallel reduction.
-This formulation of equality is in contrast to prior work by \citet{liu:dcoi},
-where parallel reduction is merely a metatheoretic tool for proving type soundness.
+
+
+% This formulation of equality is in contrast to prior work by \citet{liu:dcoi},
+% where indistinguishability a
+% where parallel reduction is merely a metatheoretic tool for proving type soundness.
 
 \begin{figure}[h]
   \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
@@ -924,14 +927,16 @@ Otherwise, if $[[not (l0 <= l)]]$, then \rref{GI-Indist} applies,
 and the arguments are too high to be observed at $[[l]]$,
 so indistinguishability of the applications does not consider the arguments.
 As a simple example,
-$[[:concrete: (# (# w : L ++ x : H #) ++ y : H #) ++ f : L |- f H x == f H y @ L]]$
+$[[:concrete: (# (# f : L ++ x : H #) ++ y : H #) ++ f : L |- f H x == f H y @ L]]$
 holds even though $[[x]]$ and $[[y]]$ could be anything,
 because the observer level is $[[L]]$,
 while the arguments' levels are $[[H]]$ and therefore unobservable.
 Indistinguishability of unobservable arguments articulates the intuition that
 functions may safely ignore these arguments that they cannot meaningfully use.
 
-A level comparison also occurs in \rref{I-Var},
+Indistinguishability is a partial equivalence relation. The source of
+partiality is due to the 
+level comparison that occurs in \rref{I-Var},
 where a variable may only be indistinguishable from itself
 if the observer level is high enough to observe it.
 This prevents equating arbitrary terms via function applications, such as
@@ -945,8 +950,10 @@ which would permit a closed term of $[[Void]]$ via repeated applications of \rre
 
 An important property of indistinguishability is the simulation property,
 which enforces that indistinguishable terms must reduce in lockstep.
-This is crucial for proving further syntactic lemmas in \cref{sec:synmeta},
-such as the preservation of definitional equality between two terms as they reduce.
+This is crucial for proving further syntactic and semantic lemmas in
+\cref{sec:synmeta,sec:semmeta},
+such as the preservation of definitional equality between two terms as
+they reduce and the preservation of meaning for indistinguishable types.
 
 \begin{lemma}[Simulation]
   \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation\_star}}
@@ -955,6 +962,36 @@ such as the preservation of definitional equality between two terms as they redu
   then there exists some $[[b1]]$ such that $[[b0 =>* b1]]$
   and $[[E |- a1 == b1 @ l]]$.
 \end{lemma}
+
+
+Compared to prior work by
+\citet{liu:dcoi}, where indistinguishability is defined as an
+undecidable relation
+that incorporates both $\beta$-reduction and conversion of irrelevant components,
+our formulation of type conversion is more structured as it breaks
+down type conversion into two separate steps: reduction and
+indistinguishability check. 
+Our more syntactic notion of indistinguishability is easily
+decidable, and therefore allows us to reduce the problem of proving
+decidabilitiy of type conversion to the problem of finding a
+normalization procedure for well-typed terms
+(Section~\ref{sec:decconv}). Finally, we note that if we instantiate
+\name with a singleton lattice, then indistinguishability degenerates
+into $\alpha$-equivalence, and the definitional equality degenerates
+into $\beta$-equivalence. In the presence of multiple levels, the
+indistinguishability judgment is what unlocks the extra expressive
+power that is not present in PTSes.
+
+% Our formulation makes it easier to recover decidable type
+% conversion (Section~\ref{sec:decconv}) since our more syntactic
+% formulation of indistinguishability is decidable.
+
+
+% but also highlights our syntactic  as the
+% key to the expressiveness of our system; by instantiating \name with a
+% singleton lattice, indistinguishability degenerates into
+% $\alpha$-equivalence, 
+
 
 \subsection{Dependent pairs} \label{sec:pairs}
 
@@ -1189,8 +1226,12 @@ given indistinguishability of each pair of subterms.
 %
 What is trickier are the level constraints that appear in these rules.
 The constraint $[[l2 <= l]]$ in \rref{I-J} is required due to its presence in \rref{Wt-J}.
-The constraint $[[l0 <= l]]$ in \rref{I-Eq} is yet another subtle technical issue,
-and we defer its explanation to \cref{sec:eq-level}.
+The constraint $[[l0 <= l]]$ in \rref{I-Eq} is yet another subtle yet orthogonal
+technical issue and its necessity is explained by \citet{liu:dcoi};
+without the $[[l0 <= l]]$ constraint, substitution for equalities is
+no longer admissible.
+
+
 
 \section{Syntactic Metatheory} \label{sec:synmeta}
 
