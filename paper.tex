@@ -241,7 +241,7 @@ normalization, and decidable observer-indexed equivalence. For flexibility,
 \dcoi is designed around a \emph{Pure Type System} (PTS), where various
 instances of sorts, rules and axioms determine the versions of quantification
 that is allowed in the language. While some instances of PTSes are known to
-allow nontermination (such as when including the $[[Type]]:[[Type]]$ axiom),
+allow nontermination (such as when including the $[[U]] : [[U]]$ axiom),
 others (such as those that include a predicative universe hierarchy, or a
 single impredicative sort) can form the basis of a consistent logic.
 
@@ -2525,25 +2525,22 @@ body after erasure. The type formation rules in both ICC and
 ICC* permit the function's codomain type to treat an irrelevant binder
 as relevant. This permissive design allows them to treat type
 variables appearing in parametric polymorphism as irrelevant while
-still ensure the well-formedness of types, which may depend on
+still ensuring the well-formedness of types, which may depend on
 those type variables. In \name, the same flexibility is achieved by
-decoupling the observer level used to type check terms and types (\nameref{lem:regularity}); a
-type variable can be irrelevant relative to a term's observer level
-while still be relevant relative to its type's observer level.
+decoupling the observer level used to type check terms and types (\nameref{lem:regularity}):
+a type variable can be irrelevant relative to a term's observer level
+while still being relevant relative to its type's observer level.
 Both ICC and ICC* use untyped $\beta$-equivalence as definitional equality
 and therefore do not leverage erasure during type conversion.
 
-
 \citet{pfenning:modal} introduces a modal type theory where function types
-and typing contexts are annotated relevance levels. In his system,
+and typing contexts are annotated with relevance levels. In his system,
 there are separate judgment forms $\Gamma \vdash a : A $ and
 $\Gamma \vdash a \div A$, which represent typing for \textit{terms}
 and \textit{proofs} respectively. Pfenning's type system is
 not parameterized by levels and only relevant variables can be used.
-The judgment for proofs
-(i.e. irrelevant terms)
-$\Gamma \vdash a \div
-A$ is defined as a synonym for $\Gamma^\oplus \vdash a : A $, where
+The judgment for proofs (\ie irrelevant terms) $\Gamma \vdash a \div A$
+is defined as a synonym for $\Gamma^\oplus \vdash a : A $, where
 $\Gamma^\oplus$ is obtained by changing all relevance
 annotations in $\Gamma$ to be relevant. The operation that resets the
 relevance levels in the context is referred to as \emph{resurrection} and
@@ -2552,67 +2549,66 @@ formerly marked as irrelevant.
 
 \citet{abel:irrelevance} extend Pfenning's system with a predicative
 universe hierarchy. They prove the consistency and decidability of a
-typed-directed conversion algorithm for their extended system through a
+type-directed conversion algorithm for their extended system through a
 Kripke-style logical relation. Similar to \citet{pfenning:modal}, the
-system by Abel and Scherer satisfies the property which they refer to
-as soundness of \emph{internal erasure}, meaning that erasure of
-irrelevant terms can be carried out for open terms without sacrificing
-consistency or decidability. 
+system by Abel and Scherer satisfies soundness of \emph{internal erasure},
+meaning that erasure of irrelevant terms can be carried out for open terms
+without sacrificing consistency or decidability. 
 \name also enjoys the internal erasure
 property. In fact, the consistency of \name relies on the soundness of
 internal erasure since type conversion is defined using the
 indistinguishability judgment.
 
-While \citet{abel:irrelevance} uses Pfenning's resurrection mechanism
+While \citet{abel:irrelevance} use Pfenning's resurrection mechanism
 for internal erasure, the Erasure Pure Type Systems (EPTS) by
-\citet{mishra:erasure} uses the mechanism only for run-time
-erasure. Like ICC, the EPTS uses untyped $\beta$
-equivalence as its definitional equality; relevance levels do not
-affect type conversion.
+\citet{mishra:erasure} use the mechanism only for run-time
+erasure. Like ICC, EPTS uses untyped $\beta$-equivalence as its
+definitional equality; relevance levels do not affect type conversion.
 
 \citet{mishra:erasure} distinguish between extrinsic and intrinsic
 relevance tracking. An extrinsic approach determines relevance purely based on the
 context in which the term is used. All systems we have discussed so
-far, including \name, can be viewed systems that treat relevance
+far, including \name, can be viewed as systems that treat relevance
 extrinsically. An example of an intrinsic treatment of irrelevance is
-the \texttt{Prop} sort introduced by \citet{paulin-mohring:coc}. The
-\texttt{Prop} sort identifies computationally irrelevant terms that
+the $[[Prop]]$ sort introduced by \citet{paulin-mohring:coc},
+which identifies computationally irrelevant terms that
 should be erased during program extraction.
 The soundness of erasure for closed programs (referred to as
 \emph{external} or \emph{post-mortem erasure} by
 \citet{abel:irrelevance}) is ensured by a form of dependency tracking,
-where only singleton types (e.g. equality proofs) or empty
-types of the \texttt{Prop} sort can be destructed to produce run-time
-relevant terms whose types are of the relevant sort \texttt{Type}.
+where only singleton types (\eg equality proofs) or empty
+types of the $[[Prop]]$ sort can be destructed to produce run-time
+relevant terms whose types are of the relevant sort $[[Type]]$.
 
-The \texttt{Prop} sort in Coq does not affect type conversion. Erasing
-terms with sort \texttt{Prop} during type conversion could cause type
-conversion to diverge; with a variable of type $A = A \rightarrow A$
+The $[[Prop]]$ sort in Coq does not affect type conversion. Erasing
+terms with sort $[[Prop]]$ during type conversion could cause type
+conversion to diverge.
+With a variable of type $A = A \rightarrow A$
 in the context, it is possible to construct a term that erases to the
-diverging lambda term $(\lambda x . x\ x)\ (\lambda x . x\ x)$.
+diverging lambda term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$.
 \citet{werner:proofirrel} describes a proof-irrelevant type theory
 where the reduction relation, used in type conversion, erases
-terms with sort \texttt{Prop}. Werner attempts to address the
+terms of sort $[[Prop]]$. Werner attempts to address the
 decidability issue of erasing equality proofs by guarding the
-$\beta$ rule for the $J$ elimination form with the precondition that both sides
-of the equality are convertible. However, his conjecture about the
-normalization property of the system in the presence of equality
+$\beta$-reduction rule for the $\ottkw{J}$ eliminator with the precondition that both sides
+of the equality are convertible. However, his conjecture of normalization
+of the system in the presence of equality
 erasure is refuted by \citet{abel:failurenorm}.
 
 
 \citet{gilbert:sprop} introduce the language sMLTT, an extension to
-MLTT with a proof irrelevant sort named \texttt{SProp}. Similar to
-Werner's system, inhabitants of some type $A:$ \texttt{SProp} are
+MLTT with a proof irrelevant sort $[[SProp]]$. Similar to
+Werner's system, inhabitants of a type $A : [[SProp]]$ are
 treated as definitionally equal during type conversion. They show the
 consistency of their design for both predicative and impredicative
-variants of \texttt{SProp} through a syntactic translation to the
+variants of $[[SProp]]$ through a syntactic translation to
 Extensional Type Theory. Similar to \name, their base system only
-allows the empty type to be eliminated from \texttt{SProp} to the
+allows the empty type to be eliminated from $[[SProp]]$ to the
 relevant universes. An optional consistent extension to their system allows
-an equality type that inhabits \texttt{SProp} to be eliminated
+an equality type that inhabits $[[SProp]]$ to be eliminated
 to produce a relevant expression. However, their decidability proof,
 based on \citet{abel:irrelevance}, does not cover the equality
-extension. In the Agda and Coq implementations of \texttt{SProp},
+extension. In the Agda and Coq implementations of $[[SProp]]$,
 neither support elimination from non-empty strict propositions to the
 relevant sort.
 \citet{pujet:ttobs, pujet:ccobs} allow the irrelevant proofs of
@@ -2621,43 +2617,41 @@ retaining decidable type conversion.
 
 Bracket types and squash types~\citep{awodey:propastype,
   mendler:quotient} introduce the bracket and squash operators that
-remove the computional information from types. Two inhabitants of a
+remove computional information from types. Two inhabitants of a
 squashed type are definitionally equal. To ensure consistency of the
 system, the elimination rule of a squashed or bracketted type is
-restricted so computationally relevant terms cannot access the hidden
+restricted so that computationally-relevant terms cannot access the hidden
 content. Squash types can also be viewed as an intrinsic
 treatment of irrelevance since a squashed type is always irrelevant
 regardless of how it is used.
 
-Despite the differences between extrinsinc and intrinsinc irrelevance, 
+Despite the differences between extrinsic and intrinsic irrelevance, 
 they bear a lot of similarities. For example, irrelevant function
-arrows from \citet{pfenning:modal, abel:irrelevance} and \name can be
-implemented as a regular function type with a squashed input type in
-\citet{gilbert:sprop, awodey:propastype, mendler:quotient}. In the
+types in the systems by \citet{pfenning:modal,abel:irrelevance}
+and in \name can be implemented as regular function types with a squashed input type in
+the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. In the
 other direction, the squash operator can be implemented in the form of
 a weak irrelevant dependent pair~\citep{abel:irrelevance}. In \name,
 the admissible box type is reminiscent of the squash type,
 though the information is never truly squashed but only temporarily
 hidden from low observers. Finally, none of the works mentioned so far
 explores the interaction between extrinsic irrelevance and universe
-levels. On the other hand, an impredicative \texttt{Prop} sort
+levels. On the other hand, an impredicative $[[Prop]]$ sort
 increases the logical strength of the type system and can be proven consistent
 through a proof-irrelevant model~\citep{miquel:proof-irrel-model, timany:pcuic-consistency}.
-
-
 
 \citet{mishra:erasure} argue that the extrinsic approach should be
 preferred as it avoids the need to duplicate data type and function
 definitions for both relevant and irrelevant sorts. This idea is
 further advocated by \citet{tejiscak:erasure}, who
-also point out that the proof-irrelevance mechanism by \citet{pfenning:modal,
-  abel:irrelevance} is too restrictive for expressing the erasability
+also points out that the proof-irrelevance mechanisms by \citet{pfenning:modal,
+  abel:irrelevance} are too restrictive for expressing the erasability
 of irrelevant type indices. The same issue is not present in \name
 since types and terms can be checked at different levels. A run-time
 irrelevant variable can still be used relevantly at the
-type-level. However, we note that our observation in
-Section~\ref{sec:castirrel} is consistent with
-\citet{tejiscak:erasure}'s view that internal erasure is more limited
+type level. However, we note that our observation in
+\cref{sec:castirrel} is consistent with
+\citeauthor{tejiscak:erasure}'s view that internal erasure is more limited
 than external erasure. Since external erasure does not affect
 typing, it is possible to erase more aggressively
 without affecting metatheoretic properties such as decidability or
@@ -2680,7 +2674,7 @@ logical consistency.
 % declarative judgmental equality.
 
 % \citet{paulin-mohring:coc} introduces the 
-% \texttt{Prop} to distinguish between computationally relevant and
+% $[[Prop]]$ to distinguish between computationally relevant and
 % irrelevant types during program extraction. This mechanism is used in
 % the Coq proof assistant to ensure that proofs do not appear in
 % extracted programs.
@@ -2903,7 +2897,7 @@ defining the logical relation as a partial function, whose
 functionality is proven a posteriori. Compared to \citet{abel:dectt}'s
 inductive recursive model, this approach requires less power from the
 metalanguage~\citep{adjedj:mltt-coq}, though an impredicative
-\texttt{Prop} sort is required to model an object language with infinitely
+$[[Prop]]$ sort is required to model an object language with infinitely
 many universe levels~\citep{anand:corenuprl}.
 
 \begin{itemize}

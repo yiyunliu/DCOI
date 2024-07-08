@@ -98,6 +98,14 @@ tm :: 'a_' ::=
   | case a return c of bs :: S :: CaseR
     {{ com case expressions }}
     {{ tex \ottkw{case} \, [[a]] \, \ottkw{return} \, [[c]] \, \ottkw{of} \, [[bs]] }}
+  | U :: :: U
+    {{ tex \mathcal{U} }}
+  | Prop :: :: Prop
+    {{ tex \ottkw{Prop} }}
+  | SProp :: :: SProp
+    {{ tex \ottkw{SProp} }}
+  | Type :: :: Type
+    {{ tex \ottkw{Type} }}
 
 toplevel :: 'tl_' ::=
   {{ com top-level statements }}

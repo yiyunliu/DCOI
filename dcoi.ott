@@ -74,9 +74,6 @@ tm, a, b, c, A, B, C, p :: 'a_' ::=
   | Univ i :: :: Univ
     {{ com type universe }}
     {{ tex \mathcal{U}_{[[i]]} }} % or perhaps \star_{[[i]]}
-  | Type ::  :: Type
-    {{ com no-level for examples }}
-    {{ tex \mathcal{U} }}  % or perhaps \star ?
   | Void :: :: Empty
     {{ com empty type }}
     {{ tex \bot }}
