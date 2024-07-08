@@ -103,6 +103,7 @@
 \newcommand{\ie}{\textit{i.e.}\@\xspace}
 \newcommand{\eg}{\textit{e.g.}\@\xspace}
 \newcommand{\apriori}{\textit{a priori}\@\xspace}
+\newcommand{\aposteriori}{\textit{a posteriori}\@\xspace}
 \newcommand{\suppl}[3]{\texttt{#2:#3}}
 \newcommand{\judgement}[1]{{\setlength{\fboxsep}{1.5pt}\fbox{#1}}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
@@ -353,7 +354,7 @@ results established through semantic means.
 
 \end{itemize}
 
-All of our results have been developed using the Coq/Rocq proof
+All of our results have been developed using the Coq proof
 assistant and our proofs are available as supplementary
 material. Furthermore, we have extended the prototype type checker by
 \citet{liu:dcoi},
@@ -2431,7 +2432,7 @@ universe hierarchy.
 A variation of PTS, referred to as Pure Type System with Judgmental
 Equality by \citet{adams:pure}, replaces the untyped conversion rule from PTS
 with a type-directed equality judgment. While untyped conversion rules
-are still used in practice by theorem provers such as Coq~\citep{coq},
+are still used in practice by theorem provers such as Coq,
 judgmental equality enables more expressive $\eta$ laws that cannot be
 expressed without type annotations.
 
@@ -2949,7 +2950,7 @@ projections and irrelevant type parameters.
 
 \subsection{Dependent types and mechanized logical relations}
 
-Compared to simply and polymorphically typed languages, mechanizing a
+Compared to simply-typed and type-polymorphic languages, mechanizing a
 logical relation for a dependently typed language with large
 elimination is difficult as it requires one to specify the set of
 semantically well-formed types while simultaneously interpreting those
@@ -2967,20 +2968,20 @@ universe and large elimination and thus requires one to resolve the
 mutual dependency between the well-formedness definition of types and the
 interpretation of their meanings.
 
-\citet{abel:dectt} use Agda's an inductive recursive definition to
+\citet{abel:dectt} use induction--recursion in Agda to
 define a Kripke-style logical relation for a dependent type theory with
-judgmental equality and large elimination. The induction part
-specifies the set of valid types and the recursion part assigns the
-types their meanings. Their work is later extended by
-\citet{abel:grade} to prove the decidable type checking, consistency,
+judgmental equality and large elimination. The inductive part
+specifies the set of valid types and the recursive part assigns meanings
+to the types. Their work is later extended by
+\citet{abel:grade} to prove decidable type checking, consistency,
 and preservation for a graded modal type theory.
 
 Similar to our approach, \citet{anand:corenuprl,
 wieczorek:coqnbe, adjedj:mltt-coq} define their logical relations
-directly as an inductive type in Coq. One can view this definition as
+as an inductive type in Coq. One can view this definition as
 defining the logical relation as a partial function, whose
-functionality is proven a posteriori. Compared to \citet{abel:dectt}'s
-inductive recursive model, this approach requires less power from the
+functionality is proven \aposteriori. Compared to \citet{abel:dectt}'s
+inductive--recursive model, this approach requires less power from the
 metalanguage~\citep{adjedj:mltt-coq}, though an impredicative
 $[[Prop]]$ sort is required to model an object language with infinitely
 many universe levels~\citep{anand:corenuprl}.
