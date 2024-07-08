@@ -1225,8 +1225,8 @@ We omit them here, but they are listed in \cref{sec:levelling}.
 \begin{figure}[h]
   \mprset{fraction={===}}
   \begin{gather*}
-    \drule[width=0.25\textwidth]{Wg-subst}
-    \drule[width=0.2\textwidth]{Wg-sub}
+    \drule[width=0.25\textwidth]{L-subst}
+    \drule[width=0.2\textwidth]{L-sub}
     \drule{I-subst}
     \drule{I-cong} \\\\
     \drule{I-down}
@@ -1240,7 +1240,7 @@ We omit them here, but they are listed in \cref{sec:levelling}.
 The level checking and indistinguishability judgements
 satisfy some standard properties,
 listed as admissible rules in \cref{fig:lemmas}.
-\Rref*{Wg-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
+\Rref*{L-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
 \rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
 permit substituting in a level-checked term of the appropriate level
 in place of a variable of that level in the context.
@@ -1248,7 +1248,7 @@ Indistinguishability also satisfies a congruence property
 \rref*{I-cong}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}},
 where indistinguishable terms may be substituted into a level-checked term.
 Level checking is subsumptive
-(\rref*{Wg-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
+(\rref*{L-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
 the level of a level-checked term may be raised.
 Indistinguishability satisfies a downgrade property
 (\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
@@ -1559,7 +1559,7 @@ the subsumption property.
 \end{lemma}
 
 \begin{proof}
-  Immediate by induction over the derivation and \rref{Wg-sub}.
+  Immediate by induction over the derivation and \rref{L-sub}.
 \end{proof}
 
 % The relaxation is possible thanks to
@@ -1748,7 +1748,7 @@ neutral forms.
 \begin{figure}[h]
   \begin{gather*}
     \drule{P-D}
-    \drule{Wg-D}
+    \drule{L-D}
     \drule{I-D}
     \drule{Ne-D}
   \end{gather*}
@@ -1807,7 +1807,7 @@ following corollary about weak normalization.
 
 In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
-because we want \rref{I-D,Wg-D} to hold. When the level context is empty,
+because we want \rref{I-D,L-D} to hold. When the level context is empty,
 there is no variable we are allowed to pick. However, since
 \rref{I-Absurd} does not impose any scope checking on the scrutinee of
 the empty eliminator, we can define $[[dummy]]$ as $[[absurd x]]$ for
@@ -1904,7 +1904,7 @@ level checking and valid substitutions.
 \end{lemma}
 
 \begin{proof}
-  Immediate by iterating the substitution principle for level checking (\rref*{Wg-subst}).
+  Immediate by iterating the substitution principle for level checking (\rref*{L-subst}).
 \end{proof}
 % The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
 % redundant but is in fact required; we are unable to recover it with
@@ -3026,7 +3026,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[Wt]{$[[G |- a : l A]]$}{Type checking}{Nat,Zero,Succ,Ind}
 \drules[P]{$[[a => b]]$}{Parallel reduction}{IndZero,IndSucc}
 \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
-\drules[Wg]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
+\drules[L]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
 \drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
 \begin{center}
 \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
@@ -3044,6 +3044,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \subsection{Level checking} \label{sec:levelling}
 
-\drules[Wg]{$[[E |- a : l]]$}{Level checking}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
+\drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Univ,Empty,Absurd,Pi,Abs,App,Eq,Refl,J,Sig,Pair,Let}
 
 \end{document}

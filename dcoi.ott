@@ -655,7 +655,7 @@ defns
   IOk :: '' ::=
 
 defn
-  E |- a : l :: :: Wg :: 'Wg_'
+  E |- a : l :: :: L :: 'L_'
   {{ com well-gradedness }}
   {{ tex [[E]] \vdash [[a]] : [[l]] }}
 by
