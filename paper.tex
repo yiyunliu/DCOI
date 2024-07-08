@@ -115,16 +115,17 @@
 }
 
 \newcommand{\interp}[4]{\bracks{#1 \vDash_{#2} #3} \searrow #4}
+\newcommand{\interpU}[3]{\bracks{#1 \vDash_{#2} #3}}
 \newcommand{\buildset}[3]{#2 . \braces{#1 \mid #3}}
 \newcommand{\member}[3]{#1 \in #3(#2)}
 \newcommand{\dom}{\mathop{\mathsf{dom}}}
 \newcommand{\sws}[3]{#1 \vDash #2 : #3}
 \newcommand{\swt}[4]{#1 \vDash #2 :^{#3} #4}
 \newcommand{\swf}[1]{\vDash #1}
-\newcommand{\prodspace}{\hat{\Pi}}
-\newcommand{\sigspace}{\hat{\Sigma}}
+\newcommand{\prodspace}[5]{#1 \in \hat{\Pi}(#2^{#3}, #4^{#5})}
+\newcommand{\sigspace}[5]{#1 \in \hat{\Sigma}(#2^{#3}, #4^{#5})}
 \newcommand{\univspace}[1]{\hat{\mathcal{U}}_{#1}}
-\newcommand{\eqspace}{\hat{=}}
+\newcommand{\eqspace}[5]{#1 \in (#2 \vdash #3 \mathrel{\hat{=}}^{#5} #4)}
 
 \newlength{\punctwidth}
 % \punctstack{<punct>} treats <punct> as having no width,
@@ -1453,21 +1454,19 @@ This property can be formulated using parallel reduction as follows.
   \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
 \end{definition}
 
-\jc{TODO for Yiyun: change auxiliary notation forms}
-
 \begin{figure}[h]
   \centering
   \hfill \textit{(Auxiliary notation)}
   \begin{align*}
-    \prodspace([[b]], [[l]], [[l0]], S_A, R) &\coloneqq
+    \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]} &\triangleq
       \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
-    \sigspace([[c]], [[l]], [[l0]], S_A, R) &\coloneqq
+    \sigspace{[[c]]}{S_A}{[[l0]]}{R}{[[l]]} &\triangleq
       \exists a, b, [[c =>* (l0 a, b)]] \wedge
       \member{x}{[[l0]]}{S_A} \wedge
       (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
-    \univspace{j}([[A]], [[E]]) &\coloneqq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S} \\
-    \eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) &\coloneqq
-      [[p =>* refl]] \wedge \exists a', b', [[a =>* a']] \wedge [[b =>* b']] \wedge [[E |- a == b @ l0]]
+    \eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} &\triangleq
+      [[p =>* refl]] \wedge [[E |- a <=> b @ l0]] \\
+    \interpU{[[E]]}{[[j]]}{[[A]]} &\triangleq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S}
   \end{align*}
   \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
   \begin{mathpar}
@@ -1482,7 +1481,7 @@ This property can be formulated using parallel reduction as follows.
       \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
       \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
     }{
-      \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}}
+      \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}}}
     }
     \and
     \infer[\ottdrulename{SWt\_Sigma}]{
@@ -1490,13 +1489,13 @@ This property can be formulated using parallel reduction as follows.
       \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
       \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
     }{
-      \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace([[c]], [[l]], [[l0]], S_A, R) \vee [[wne c]])}}
+      \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace{[[c]]}{S_A}{[[l0]]}{R}{[[l]]} \vee [[wne c]])}}
     }
     \and
     \infer[\ottdrulename{SWt\_Univ}]{
       j < i
     }{
-      \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \univspace{j}([[E]], [[A]])}}
+      \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \interpU{[[E]]}{[[j]]}{[[A]]}}}
     }
     \and
     \infer[\ottdrulename{SWt\_Empty}]{~}{
@@ -1504,7 +1503,7 @@ This property can be formulated using parallel reduction as follows.
     }
     \and
     \infer[\ottdrulename{SWt\_Eq}]{~}{
-      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]], [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}}
+      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]])}}
     }
     \and
     \infer[\ottdrulename{SWt\_Step}]{
@@ -1564,7 +1563,7 @@ for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
 level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed.
 % The interpreted sets appearing in the conclusion follows our usual
 % intuition. 
-In the function case, the definition of $\prodspace$
+In the function case, the definition of $\prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}$
 specifies the semantic inhabitants of a function type as the set of
 terms that maps well-behaved terms from the input type to a well-behaved
 output type.
@@ -1638,13 +1637,13 @@ for equality, function, and empty types.
   \begin{enumerate}
   \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
     If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{S}$, then $S =
-    \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace([[p]],
-      [[l0]], [[a]], [[b]], [[E]]) \vee [[wne p]])}$.
+    \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge
+      (\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]])}$.
   \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
     If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
     exist $S_A$ and $R$ such that following hold:
     \begin{itemize}
-    \item $S = \buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace([[b]], [[l]], [[l0]], S_A, R)}$;
+    \item $S = \buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}}$;
     \item $\interp{[[E]]}{[[i]]}{[[A]]}{S_A}$;
     \item $\forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a,
       S_B)$; and

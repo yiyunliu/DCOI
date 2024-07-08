@@ -85,7 +85,7 @@ tm :: 'a_' ::=
     {{ tex \pi_2^{[[l]]} \, [[a]] }}
   | l A -> B :: S :: Arrow
     {{ com nondependent function type }}
-    {{ tex [[A]]^{[[l]]} \to [[B]] }}
+    {{ tex \prescript{[[l]]}{}{[[A]]} \to [[B]] }}
   | case a of bs :: S :: Case
     {{ com case expressions without motive }}
     {{ tex \ottkw{case} \, [[a]] \, \ottkw{of} \, [[bs]] }}
