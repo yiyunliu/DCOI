@@ -109,7 +109,6 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
   (* ----------------------- *)
   Γ ⊢ (tEq ℓ0 a b) ; ℓ ∈ (tUniv i)
 
-(* Refactor the equality to include the grade for the term *)
 | T_J Γ t a b p A i j C ℓ ℓp ℓT ℓ0 ℓ1:
   ℓ1 ⊆ ℓ0 ->
   ℓp ⊆ ℓ ->
@@ -146,6 +145,24 @@ Inductive Wt : context -> T -> tm -> tm -> Prop :=
   (ℓp, tSig ℓ0 A B) :: Γ ⊢ C ; ℓT ∈ tUniv i ->
   (* ----------------------- *)
   Γ ⊢ tLet ℓ0 ℓp a b ; ℓ ∈ C[a ..]
+
+| T_TT Γ ℓ :
+  ⊢ Γ ->
+  (* --------------- *)
+  Γ ⊢ tTT ; ℓ ∈ tUnit
+
+| T_Unit Γ ℓ i :
+  ⊢ Γ ->
+  (* --------------- *)
+  Γ ⊢ tUnit ; ℓ ∈ tUniv i
+
+| T_Seq Γ ℓ ℓ0 ℓC a b C i :
+  ℓ0 ⊆ ℓ ->
+  Γ ⊢ a ; ℓ0 ∈ tUnit ->
+  Γ ⊢ b ; ℓ ∈ C[tTT..] ->
+  (ℓ0, tUnit) :: Γ ⊢ C ; ℓC ∈ tUniv i ->
+  (* --------------- *)
+  Γ ⊢ tSeq ℓ0 a b ; ℓ ∈ C[a..]
 
 with Wff : context -> Prop :=
 | Wff_nil :

@@ -18,3 +18,6 @@ tZero : tm
 tSuc : tm -> tm
 tInd : T -> tm -> (tm -> tm -> tm) -> tm -> tm
 tNat : tm
+tTT : tm
+tSeq : T -> tm -> tm -> tm
+tUnit : tm

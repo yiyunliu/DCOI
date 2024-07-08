@@ -89,7 +89,22 @@ Module Type geq_sig
 
   | IO_Nat :
     (* ------------------ *)
-    IOk Ξ ℓ tNat.
+    IOk Ξ ℓ tNat
+
+  | IO_Unit :
+    (* ------------------ *)
+    IOk Ξ ℓ tUnit
+
+  | IO_TT :
+    (* ------------------ *)
+    IOk Ξ ℓ tTT
+
+  | IO_Seq ℓ0 a b :
+    ℓ0 ⊆ ℓ ->
+    IOk Ξ ℓ0 a ->
+    IOk Ξ ℓ b ->
+    (* ----------------- *)
+    IOk Ξ ℓ (tSeq ℓ0 a b).
 
   Inductive IEq (Ξ : econtext) (ℓ : T) : tm -> tm -> Prop :=
   | I_Var i ℓ0 :
@@ -171,6 +186,21 @@ Module Type geq_sig
     (* ------------------ *)
     IEq Ξ ℓ tNat tNat
 
+  | I_Unit :
+    (* ------------------ *)
+    IEq Ξ ℓ tUnit tUnit
+
+  | I_TT :
+    (* ------------------ *)
+    IEq Ξ ℓ tTT tTT
+
+  | I_Seq ℓ0 a0 a1 b0 b1 :
+    ℓ0 ⊆ ℓ ->
+    IEq Ξ ℓ a0 a1 ->
+    IEq Ξ ℓ b0 b1 ->
+    (* ----------------- *)
+    IEq Ξ ℓ (tSeq ℓ0 a0 b0) (tSeq ℓ0 a1 b1)
+
   with GIEq (Ξ : econtext) (ℓ : T) : T -> tm -> tm -> Prop :=
   | GI_Dist ℓ0 A B :
     ℓ0 ⊆ ℓ ->
@@ -229,6 +259,13 @@ Module Type geq_sig
 
     | tNat , tNat => true
 
+    | tTT , tTT => true
+    | tUnit, tUnit =>  true
+    | tSeq ℓ0 a0 b0, tSeq ℓ1 a1 b1 =>
+        T_eqb ℓ0 ℓ1 &&
+        T_eqb (ℓ0 ∩ ℓ) ℓ0 &&
+        IEqb Ξ ℓ a0 a1 &&
+        IEqb Ξ ℓ b0 b1
     | _, _ => false
     end.
 
@@ -314,6 +351,10 @@ Module geq_facts
     - move => *.
       repeat (apply /andP; split); eauto.
       case : T_eqdec=>//=.
+      case : T_eqdec=>//=.
+    - move => *.
+      repeat (apply /andP; split); eauto.
+      case : T_eqdec=>//=.
     - move => *.
       repeat (apply /andP; split); eauto.
       case : T_eqdec=>//=.
@@ -360,8 +401,8 @@ Module geq_facts
       case : nat_eqdec => //.
       move => ?. subst => _.
       constructor.
-    - hauto lq:on.
-    - hauto lq:on rew:off.
+    - hauto q:on ctrs:IEq inv:tm.
+    - hauto q:on ctrs:IEq inv:tm.
     - move => ℓ a iha b ihb [] //= ℓ0 t0 t1 Ξ ℓ1.
       move /andP => [+ h].
       move /andP => [+ h0].
@@ -377,7 +418,7 @@ Module geq_facts
       case : T_eqdec => //= ? _.
       case : T_eqdec => //= ? _. subst.
       eauto using I_J.
-    - hauto lq:on rew:off.
+    - hauto q:on ctrs:IEq inv:tm.
     - move => ℓ a iha b ihb []//= ℓ0 a0 b0 Ξ ℓ'.
       move /andP => [+ h]. move /andP => [h0 h1].
       move : h0.
@@ -389,14 +430,18 @@ Module geq_facts
     - move => ℓ0 ℓ1 a iha b ihb []//= ℓ0' ℓ1' a' b' Ξ ℓ.
       do 3 case : T_eqdec => //=.
       qauto l:on ctrs:IEq b:on.
-    - hauto lq:on rew:off.
+    - hauto q:on ctrs:IEq inv:tm.
     - move => a iha []//=b Ξ ℓ.
       hauto lq:on ctrs:IEq.
     - move => ℓ a iha b ihb c ihc []//= ℓ0 a0 b0 c0 Ξ ℓ1.
       do 2 case : T_eqdec => //=.
-      move => ? ?. subst.
       hauto lq:on ctrs:IEq b:on.
-    - hauto lq:on.
+    - hauto q:on ctrs:IEq inv:tm.
+    - hauto q:on ctrs:IEq inv:tm.
+    - move => ℓ a iha b ihb []//= ℓ' t0 t1 Ξ ℓ0.
+      do 2 case : T_eqdec => //=.
+      hauto lq:on ctrs:IEq b:on.
+    - hauto q:on ctrs:IEq inv:tm.
   Qed.
 
   Lemma IEq_dec Ξ ℓ a b : Bool.reflect (IEq Ξ ℓ a b) (IEqb Ξ ℓ a b).
@@ -488,6 +533,9 @@ Module geq_facts
       case : (sub_eqdec ℓ0 ℓ1) => //; hauto l:on ctrs:GIEq.
     - hauto lq:on drew:off ctrs:IEq solve+:solve_lattice.
     - hauto lq:on drew:off ctrs:IEq solve+:solve_lattice.
+    - move => Ξ ℓ ℓ0 a b ? ha iha hb ihb ℓ1 hℓ.
+      have : ℓ0 ⊆ ℓ1 by eauto using leq_trans.
+      hauto lq:on ctrs:IEq.
   Qed.
 
   Lemma elookup_deterministic : forall Ξ i ℓ0 ℓ1,
@@ -515,6 +563,7 @@ Module geq_facts
       apply : I_Var; eauto.
       have ? : ℓ0 = ℓ2 by eauto using elookup_deterministic. subst.
       solve_lattice.
+    - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.
     - hauto lq:on rew:off inv:IEq ctrs:IEq solve+:solve_lattice.

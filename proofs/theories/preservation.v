@@ -85,6 +85,16 @@ Lemma T_App' Γ ℓ ℓ0 a A B b T :
   Γ ⊢ (tApp a ℓ0 b) ; ℓ ∈ T.
 Proof. move =>> ->. apply T_App. Qed.
 
+Lemma T_Seq' Γ ℓ ℓ0 ℓC a b C i T :
+  T = C[a..] ->
+  ℓ0 ⊆ ℓ ->
+  Γ ⊢ a ; ℓ0 ∈ tUnit ->
+  Γ ⊢ b ; ℓ ∈ C[tTT..] ->
+  (ℓ0, tUnit) :: Γ ⊢ C ; ℓC ∈ tUniv i ->
+  (* --------------- *)
+  Γ ⊢ tSeq ℓ0 a b ; ℓ ∈ T.
+Proof. move =>> ->. apply T_Seq. Qed.
+
 Lemma T_J'  Γ t a b p A i j C ℓ ℓp ℓT ℓ0 ℓ1 T :
   T = (C [p .: b..]) ->
   ℓ1 ⊆ ℓ0 ->
@@ -305,6 +315,15 @@ Proof.
     + sauto q:on dep:on use:good_renaming_up.
     + hauto q:on use:Wff_cons, good_renaming_up.
     + hauto q:on ctrs:Wt use:Wff_cons, good_renaming_up.
+  (* Seq *)
+  - move => Γ ℓ ℓ0 ℓC a b C i ? ha iha hb ihb hC ihC Δ ξ hξ hΔ /=.
+    eapply T_Seq' with (C := C⟨upRen_tm_tm ξ⟩); eauto.
+    by asimpl.
+    move : ihb (hξ) (hΔ). repeat move/[apply].
+    by asimpl.
+    move /(_ _ (upRen_tm_tm ξ)) : ihC.
+    asimpl. apply;
+      hauto l:on ctrs:Wt use:good_renaming_up db:wff.
 Qed.
 
 Lemma renaming_Syn_Univ
@@ -466,6 +485,12 @@ Proof.
     + hauto lq:on use:good_morphing_up, Wff_cons.
     + hauto lq:on use:good_morphing_up, Wff_cons.
     + hauto q:on ctrs:Wt, tm use:good_morphing_up, Wff_cons.
+  - move => Γ ℓ ℓ0 ℓC a b C i ? ha iha hb ihb hC ihC Δ ρ hρ hΔ /=.
+    apply T_Seq' with (C := C[up_tm_tm ρ]) (ℓC := ℓC) (i := i)=>//=.
+    by asimpl.
+    hauto l:on.
+    move : ihb hρ => /[apply]. asimpl; by apply.
+    hauto lq:on ctrs:Wt use:good_morphing_up, Wff_cons.
 Qed.
 
 Lemma morphing_Syn_Univ Γ ℓ a i (h : Γ ⊢ a ; ℓ ∈ tUniv i) : forall Δ ρ,
@@ -547,6 +572,9 @@ Proof.
       * by asimpl.
       * asimpl. apply : T_Var; eauto with wff. solve_lattice.
   - hauto lq:on ctrs:Wt db:wff.
+ - eauto using subst_Syn_Univ.
+ - hauto lq:on ctrs:Wt.
+ - hauto lq:on ctrs:Wt.
  - eauto using subst_Syn_Univ.
 Qed.
 
@@ -845,6 +873,34 @@ Proof.
   - hauto lq:on use:typing_conv.
 Qed.
 
+Lemma Wt_TT_inv Γ ℓ A (h : Γ ⊢ tTT ; ℓ ∈ A) :
+  Γ ⊢ tTT ; ℓ ∈ tUnit /\
+  conv (c2e Γ) tUnit A /\ exists ℓ i, Γ ⊢ A ; ℓ ∈ tUniv i.
+Proof.
+  move E : tTT h => t h.
+  move : E.
+  elim : Γ ℓ t A / h=>//.
+  - hauto lq:on use:cfacts.conv_trans.
+  - hauto ctrs:Wt lq:on use:typing_conv db:wff.
+Qed.
+
+Lemma Wt_Seq_inv Γ ℓ ℓ0 a b A (h : Γ ⊢ tSeq ℓ0 a b ; ℓ ∈ A) :
+  exists ℓC C i,
+    ℓ0 ⊆ ℓ /\
+    Γ ⊢ a ; ℓ0 ∈ tUnit /\
+    Γ ⊢ b ; ℓ ∈ C[tTT..] /\
+    (ℓ0, tUnit) :: Γ ⊢ C ; ℓC ∈ tUniv i /\
+    conv (c2e Γ) C[a..] A /\ exists ℓ i, Γ ⊢ A ; ℓ ∈ tUniv i.
+Proof.
+  move E : (tSeq ℓ0 a b) h => u h.
+  move : ℓ0 a b E.
+  elim : Γ ℓ u A /h=>//=.
+  - hauto lq:on use:cfacts.conv_trans.
+  - move => Γ ℓ ℓ0 ℓC a b C i hℓ ha _ hb _ hC _ ???[*]. subst.
+    have /Wt_regularity : Γ ⊢ (tSeq ℓ0 a b) ; ℓ ∈ C[a..] by eauto using T_Seq.
+    hauto lq:on use:typing_conv.
+Qed.
+
 Lemma Wt_J_inv Γ ℓ ℓp t p U (h : Γ ⊢ (tJ ℓp t p) ; ℓ ∈ U) :
   exists ℓT ℓ0 ℓ1 a b A i C,
     ℓ1 ⊆ ℓ0 /\
@@ -1120,6 +1176,15 @@ Proof.
       move => ℓ2 A1 Γ0 ? [*]. subst. by asimpl; auto.
       move => n0 A1 Γ0 ℓ2 B ? ? [*]. subst.
       asimpl.  hauto lq:on ctrs:Wt db:wff solve+:solve_lattice.
+  - move => ℓ0 a0 a1 b0 b1 ha iha hb ihb Γ ℓ A /Wt_Seq_inv.
+    move => [ℓC][C][i][?][ha0][hb0][hC][heq][ℓA][iA]hA.
+    have : Γ ⊢ tSeq ℓ0 a1 b1 ; ℓ ∈ C[a1..] by eauto using T_Seq.
+    have ? : C[a0..] ⇒ C[a1..] by hauto l:on use:Par_cong, Par_refl.
+    move/T_Conv. apply; eauto.
+    have ? : conv (c2e Γ) C[a1..] A by hauto l:on use:cfacts.conv_par.
+    apply : cfacts.conv_trans; eauto.
+    hauto lq:on use:cfacts.conv_sym, cfacts.conv_trans.
+  - hauto lq:on ctrs:Wt use:Wt_Seq_inv.
 Qed.
 
 Lemma subject_reduction_star a b (h : a ⇒* b) : forall Γ ℓ A,

@@ -162,6 +162,12 @@ Proof.
       hauto lq:on ctrs:GIEq, IEq unfold:elookup.
       move => ?. apply ieq_gieq. move => *.
       apply : I_Var; eauto.
+  - move => Ξ ℓ ℓ0 a0 a1 b0 b1 ? ha iha hb ihb u.
+    elim /Par_inv=>//=_.
+    + hauto lq:on ctrs:Par,IEq.
+    + move => ℓ1 b2 b3 ? [*]. subst.
+      have ? : a1 = tTT by inversion ha. subst.
+      hauto lq:on ctrs:IEq, Par.
   - hauto l:on ctrs:Par use:Par_refl.
 Qed.
 

@@ -128,6 +128,24 @@ Inductive Par : tm -> tm -> Prop :=
   (* ---------- *)
   tNat ⇒ tNat
 
+| P_TT :
+  (* --------- *)
+  tTT ⇒ tTT
+
+| P_Seq ℓ a0 a1 b0 b1 :
+  a0 ⇒ a1 ->
+  b0 ⇒ b1 ->
+  (* ---------------------- *)
+  tSeq ℓ a0 b0 ⇒ tSeq ℓ a1 b1
+
+| P_SeqTT ℓ b0 b1 :
+  b0 ⇒ b1 ->
+  (* ------------------- *)
+  tSeq ℓ tTT b0 ⇒ b1
+
+| P_Unit :
+  (* ---------- *)
+  tUnit ⇒ tUnit
 
 where "A ⇒ B" := (Par A B).
 #[export]Hint Constructors Par : par.
@@ -297,6 +315,10 @@ Proof.
       (b1 := b1[up_tm_tm_n 2 σ1]) (a1 := a1[σ1]) (c1 := c1[σ1]);
       eauto => /=. by asimpl.
     sfirstorder use:(Par_morphing_lift_n 2).
+  - move => //=; eauto with par.
+  - move => //=; eauto with par.
+  - move => //=; eauto with par.
+  - move => //=; eauto with par.
   - move => //=; eauto with par.
 Qed.
 
@@ -557,6 +579,10 @@ Function tstar (a : tm) :=
   | tInd ℓ a b (tSuc c) => (tstar b) [(tInd ℓ (tstar a) (tstar b) (tstar c)) .: (tstar c)  .. ]
   | tInd ℓ a b c => tInd ℓ (tstar a) (tstar b) (tstar c)
   | tNat => tNat
+  | tTT => tTT
+  | tUnit => tUnit
+  | tSeq ℓ tTT a => tstar a
+  | tSeq ℓ a b => tSeq ℓ (tstar a) (tstar b)
   end.
 
 Local Ltac solve_triangle := hauto lq:on inv:Par use:Par_refl,Par_cong,Par_cong2 ctrs:Par.
@@ -586,6 +612,10 @@ Proof.
   - move => > ? ? ?. subst.
     case : T_eqdec=>//.
     solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
+  - solve_triangle.
   - solve_triangle.
   - solve_triangle.
   - solve_triangle.
