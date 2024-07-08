@@ -2271,7 +2271,6 @@ of conversion in \rref{Wt-Conv}.
 \section{Discussion and Future Work}
 
 \subsection{Target level constraints} \label{sec:target-level}
-
 The level of eliminator targets must be bounded by the level of the overall eliminator.
 In particular, in \rref{Wt-J}, the level $[[l2]]$ of an equality proof $[[p]]$
 must be bounded by that of its elimination $[[J c l2 p]]$,
@@ -2338,41 +2337,43 @@ which we are unable to conclude.
 
 \sw{Is there a version of propositional equality with an eliminator that is not strict?}
 
-\subsection{Equality type level constraints} \label{sec:eq-level}
+\yl{Removed the eq-level section because we can just directly cite the
+dcoi paper}
+% \subsection{Equality type level constraints} \label{sec:eq-level}
 
-In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b]]$
-must be bounded by the level $[[l]]$ of the overall equality type.
-Otherwise, \name would be inconsistent.
-Suppose that $[[l0]]$ did not have to be bounded by $[[l]]$.
-Once again, the indistinguishability rule would need to be modified
-so that the endpoints are compared using guarded indistinguishability
-to handle the situation where $[[l0]]$ is higher
-than the observer level $[[l]]$ of the indistinguishability judgement.
-The modified premises are highlighed in yellow below.
-%
-\begin{mathpar}
-  \setlength{\fboxsep}{1.5pt}
-  \infer[\ottdrulename{I\_Eq\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l0]]} \\
-    \mathcolorbox{\hlcolor}{[[E |- b0 == b1 @ l l0]]}
-  }{
-    [[E |- a0 ~ l0 b0 == a1 ~ l0 b1 @ l]]
-  }
-\end{mathpar}
+% In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b]]$
+% must be bounded by the level $[[l]]$ of the overall equality type.
+% Otherwise, \name would be inconsistent.
+% Suppose that $[[l0]]$ did not have to be bounded by $[[l]]$.
+% Once again, the indistinguishability rule would need to be modified
+% so that the endpoints are compared using guarded indistinguishability
+% to handle the situation where $[[l0]]$ is higher
+% than the observer level $[[l]]$ of the indistinguishability judgement.
+% The modified premises are highlighed in yellow below.
+% %
+% \begin{mathpar}
+%   \setlength{\fboxsep}{1.5pt}
+%   \infer[\ottdrulename{I\_Eq\_bad}]{
+%     \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l0]]} \\
+%     \mathcolorbox{\hlcolor}{[[E |- b0 == b1 @ l l0]]}
+%   }{
+%     [[E |- a0 ~ l0 b0 == a1 ~ l0 b1 @ l]]
+%   }
+% \end{mathpar}
 
-By \rref{I-Eq-Bad}, it would be possible to derive the judgement
-$[[nil |- Unit ~ H Unit == Unit ~ H Void @ L]]$
-via \rref{GI-Indist} for both premises since $[[not (H <= L)]]$.
-The left-hand size is inhabited by $[[refl]]$,
-which would then also be a proof of the right-hand side via \rref{Wt-Conv},
-a contradiction.
-\nameref{thm:preservation} is also violated,
-since by the contradiction $[[J (\ H x . x) L refl]]$ would be an inhabitant of $[[Void]]$,
-while it reduces to $[[(\ H x . x)]]$, which is not.
+% By \rref{I-Eq-Bad}, it would be possible to derive the judgement
+% $[[nil |- Unit ~ H Unit == Unit ~ H Void @ L]]$
+% via \rref{GI-Indist} for both premises since $[[not (H <= L)]]$.
+% The left-hand size is inhabited by $[[refl]]$,
+% which would then also be a proof of the right-hand side via \rref{Wt-Conv},
+% a contradiction.
+% \nameref{thm:preservation} is also violated,
+% since by the contradiction $[[J (\ H x . x) L refl]]$ would be an inhabitant of $[[Void]]$,
+% while it reduces to $[[(\ H x . x)]]$, which is not.
 
-Because the observer level $[[l0]]$ is explicitly annotated in the equality type,
-we cannot enforce $[[l]]$ to be exactly $[[l0]]$,
-as it would violate subsumption by fixing the overall level to $[[l0]]$ in \rref{Wt-Eq}.
+% Because the observer level $[[l0]]$ is explicitly annotated in the equality type,
+% we cannot enforce $[[l]]$ to be exactly $[[l0]]$,
+% as it would violate subsumption by fixing the overall level to $[[l0]]$ in \rref{Wt-Eq}.
 
 \subsection{Scoped logical predicate, non--Kripke-style}
 \label{sec:nokripke}
