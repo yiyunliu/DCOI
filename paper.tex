@@ -1403,7 +1403,7 @@ In this section, we use a logical predicate to show weak
 normalization and consistency for \name.
 Due to \name{}'s flexible treatment of type conversion \emph{and}
 and its support for large elimination, we cannot directly reuse the
-proofs found in \citet{abel:irrelevance, geuvers:cc-sn}.
+proofs found in \citet{abel:irrelevance, geuvers:cc-sn} through embedding.
 We structure the section as follows. In \cref{sec:logpred}, we
 present the definition of the logical predicate and its properties. In
 \cref{sec:soundness}, we define valid substitutions and
@@ -1516,7 +1516,7 @@ This property can be formulated using parallel reduction as follows.
   \label{fig:logpred}
 \end{figure}
 
-\Cref{fig:logpred} gives the full definition of our logical
+\Cref{fig:logpred} gives the definition of our logical
 predicate.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
@@ -2236,7 +2236,7 @@ use of the lowest possible level $[[l0 \/ l1]]$.
 % choosing the lowest level is good enough.
 
 The only missing piece is the decidability of the algorithm for
-computing levels in step 2.
+computing levels in step (2).
 While conceptually simple, the algorithm depends
 on the structure of the lattice. For bottomless
 lattices, there is no minimal level we can return for values such as
@@ -3066,10 +3066,22 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[P]{$[[a => b]]$}{Parallel reduction}{IndZero,IndSucc}
 \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
 \drules[Wg]{$[[E |- a : l]]$}{Well-gradedness}{Nat,Zero,Succ,Ind}
+\drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
+\begin{center}
+\fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
+  \begin{mathpar}
+    \infer[\ottdrulename{SWt\_Nat}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Nat]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
+          l]] \wedge \exists [[b]], [[wfnat b]] \wedge [[a =>* b]]  } } }
+  \end{mathpar}
+\end{center}
+
 
 \subsection{Parallel reduction}
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Nat,Zero,Succ,Ind}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
+
+
 
 \end{document}

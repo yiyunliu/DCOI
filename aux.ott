@@ -496,3 +496,22 @@ defn
   {{ tex [[G]] \vdash [[a]] \equiv^{[[l]]}_{[[l0]]} [[b]] \in [[A]] }}
 by
 
+defns
+  JNat :: '' ::=
+defn
+  wfnat a  :: :: N :: 'N_'
+  {{ com natural values }}
+  {{ tex \vdash_\mathbb{N} [[a]] }}
+by
+
+ne a 
+---------- :: Ne
+wfnat a
+
+
+---------- :: Zero
+wfnat zero
+
+wfnat a
+---------- :: Succ
+wfnat succ a
