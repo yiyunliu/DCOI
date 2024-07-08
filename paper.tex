@@ -402,21 +402,27 @@ suitable for exprimenting with the newly introduced features.
 
 \section{Examples} \label{sec:examples}
 
-We start with examples that demonstrate how \name
-can support run-time and compile-time irrevelance.
-To make these examples more realistic,
-we use inductive definitions not found in the core \name system.
+We start with examples that demonstrate \name in action, with emphasis on its
+suport for run-time and compile-time irrevelance.  To make these examples more
+realistic, we present these examples using the syntax of our prototype
+implementation, which is which is based on a bidirectional type system and
+uses constraint solving to infer level annotations.  
 
-These examples have been type checked by our implementation,
-which is based on a bidirectional type system
-and uses constraint solving to infer level annotations.
+We use the naturals and their usual order as concrete dependency levels in
+these examples.  Some level annotations are omitted in the presentation below
+where they can be inferred by the type checker, though many are retained for
+clarity.
+
 The implementation can be found in \repo{} under the \texttt{impl} directory,
-and all examples in this section are in \texttt{impl/pi/Paper.pi}.
+and all examples in this section are in \texttt{impl/pi/Paper.pi}.  For
+exposition, our implementation includes a few convenience features not found
+in the core system that we describe in this paper. In particular, we use
+inductive definitions not found in the core \name system. \sw{Perhaps we
+  should replace the False elimination example with \texttt{divides\_to\_Nat}
+  from \texttt{impl/pi/Prime.pi}? This only requires natural number induction,
+  although it is a lot more complicated of an example.}
 
-We use the naturals and their usual order as our concrete levels.
-Some level annotations are omitted in the presentation below
-where they can be inferred by the type checker,
-though many are retained for clarity.
+
 
 \subsection{Run- and compile-time irrelevance}
 
