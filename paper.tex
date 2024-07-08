@@ -108,7 +108,7 @@
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
 \newcommand{\repo}{%
-  \ifpublic our public repository at \mathcolorbox{red}{TODO: replace with repo URL}%
+  \ifpublic our public repository at \jc{TODO: replace with repo URL}%
   \else the supplementary materials%
   \fi
 }
@@ -757,6 +757,9 @@ with type $[[A]]$.
 To reduce clutter,
 we use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
+Premises which may be omitted in admissible variants of rules without them
+are highlighted in grey.
+
 The typing rules are defined mutually with the context well-formedness rules,
 both given in \cref{fig:typing:dep}.
 When viewed as a PTS, the \rref{Wt-Univ,Wt-Pi} correspond

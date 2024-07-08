@@ -252,6 +252,8 @@ formula :: 'formula_' ::=
     {{ com invisible parentheses }}
     {{ coq ([[formula]]) }}
     {{ tex [[formula]] }}
+  | (! formula !) :: :: adm
+    {{ tex \colorbox{lightgray}{$[[formula]]$} }}
 
 %%%%%%%%%%%%%%%%%%
 %%  Judgements  %%
@@ -645,13 +647,13 @@ G |- a : l0 A
 ---------------------- :: Refl
 G |- refl : l a ~ l0 a
 
+(! G |- A : Univ i !)
 G |- a : l1 A
 G |- b : l1 A
-G |- A : Univ i
 G |- p : l2 a ~ l0 b
 (# G ++ x : l1 A #) ++ y : l2 a ~ l0 x |- C : l0 Univ j
 G |- c : l C { a / x , refl / y }
-l1 <= l0
+(! l1 <= l0 !)
 l2 <= l
 ------------------------------------------------------- :: J
 G |- J c l2 p : l C { b / x , p / y }
@@ -667,8 +669,8 @@ G |- Sig x : l0 A . B : Univ i
 ----------------------------------- :: Pair
 G |- (l0 a, b) : l Sig x : l0 A . B
 
-G |- A : Univ i
-G ++ x : l0 A |- B : Univ j
+(! G |- A : Univ i !)
+(! G ++ x : l0 A |- B : Univ j !)
 G |- a : l1 Sig x : l0 A . B
 (# G ++ x : l0 A #) ++ y : l1 B |- b : l C { (l0 x, y) / z }
 G ++ z : l1 Sig x : l0 A . B |- C : Univ k
