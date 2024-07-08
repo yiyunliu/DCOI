@@ -34,7 +34,8 @@ Module Type geq_sig
     IOk Ξ ℓ (tApp a ℓ0 b)
   | IO_Void :
     IOk Ξ ℓ tVoid
-  | IO_Absurd a:
+  | IO_Absurd ℓ0 a:
+    IOk Ξ ℓ0 a ->
     IOk Ξ ℓ (tAbsurd a)
   | IO_Refl :
     IOk Ξ ℓ tRefl

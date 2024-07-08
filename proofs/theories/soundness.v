@@ -328,8 +328,8 @@ Proof.
         subst bs.
         by asimpl.
     + move => a0 ? <-  _ nea0 wga0.
-      set tD := tAbsurd (var_tm 0).
-      have ? : IOk (c2e Δ) ℓ0 tD by eauto using IO_Absurd.
+      set tD := tAbsurd tVoid.
+      have ? : IOk (c2e Δ) ℓ0 tD by hauto lq:on ctrs:IOk.
       have hwff : ρ_ok ((ℓ0, tNat) :: Γ) Δ (tD .: ρ).
       {
         apply : ρ_ok_cons; auto.
@@ -383,11 +383,14 @@ Proof.
   (* Absurd *)
   - move => Γ ℓ ℓ0 ℓ1 i a A ha iha hA /SemWt_Univ ihA Δ ρ hρ /=.
     move /iha : (hρ).
-    move => [m][PA][/InterpUnivN_Void_inv hPA]ha'. subst.
+    move => [m][PA][/InterpUnivN_Void_inv hPA]. subst. move => [? ?].
     move /ihA : (hρ).
     move => [hA'][PA]hPA.
     exists i,PA. split => //.
-    qauto l:on use:nfacts.wne_absurd, adequacy unfold:SemWt.
+    have ? : wn a[ρ] by eauto using nfacts.wne_wn.
+    have ? : wne (tAbsurd a[ρ]) by eauto using nfacts.wne_absurd.
+    have ? : IOk (c2e Δ) ℓ (tAbsurd a[ρ]) by eauto using IO_Absurd.
+    eapply adequacy; eauto.
   (* Refl *)
   - move => Γ ℓ a ℓ0 A /typing_iok /cfacts.ifacts.iok_ieq.
     rewrite /SemWt.
@@ -562,17 +565,18 @@ Proof.
       set a := (X in S ℓ X).
       suff : wne a /\ IOk (c2e Δ) ℓ a by hauto q:on use:adequacy.
       subst a.
-      set tD := tAbsurd (var_tm 0).
+      set tD := tAbsurd tVoid.
       split.
       * apply nfacts.wne_let=>//.
         have hz : wne tD by hauto lq:on ctrs:rtc.
+        have ? : IOk (c2e Δ) ℓ0 tD by apply IO_Absurd with (ℓ0 := ℓ); eauto using IO_Void.
         have hz' : PA0 ℓ0 tD by move : h0 hz; clear; hauto lq:on ctrs:IOk use:adequacy unfold:CR.
         apply nfacts.wn_antirenaming with (ξ := tD .: (tD ..)).
         by do 2 case => //=.
         asimpl.
         have hρ' : ρ_ok ((ℓ0, A) :: Γ) Δ (tD .: ρ) by eauto using ρ_ok_cons.
         move /h1 : hz' => [PB /ltac:(asimpl) hPB].
-        have hz'' : PB ℓp tD by move : hPB hz; clear; hauto lq:on use:adequacy unfold:CR.
+        have hz'' : PB ℓp tD by move : hPB hz; clear; hauto ctrs:IOk lq:on use:adequacy unfold:CR.
         have : ρ_ok ((ℓp, B) :: (ℓ0, A) :: Γ) Δ (tD .: (tD .: ρ)) by eauto using ρ_ok_cons.
         move /hb. clear.
         hauto l:on use:adequacy unfold:CR.
