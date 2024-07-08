@@ -429,7 +429,7 @@ Consider the following function,
 which takes an irrelevant argument and a constant function.
 
 \begin{lstlisting}
-  app :@0 (A :@1 Type) -> (@1 A) -> (@0 [@1 A] -> A) -> A
+  app :@0 (A :@1 Type) -> (@1 A) -> (@0 (@1 A) -> A) -> A
   app = \A x f. f x
 \end{lstlisting}
 
@@ -441,7 +441,7 @@ We can talk about the idea of constantness within the language itself
 using a level-aware propositional equality type, as in the following proof.
 
 \begin{lstlisting}
-  isConst :@0 (A :@1 Type) -> (f :@0 [@1 A] -> A) ->
+  isConst :@0 (A :@1 Type) -> (f :@0 (@1 A) -> A) ->
               (x :@1 A) -> (y :@1 A) -> (f x ~@0 f y)
   isConst = \A f x y. refl
 \end{lstlisting}
@@ -481,7 +481,7 @@ Consider the following example, whose well-typedness depends on how we
 instantiate the level, which we mark as \lstinline{?}.
 
 \begin{lstlisting}
-  irr :@0 (f :@? [@1 Bool] -> Type) -> (b :@1 Bool) -> (@0 f b) -> (f True)
+  irr :@0 (f :@? (@1 Bool) -> Type) -> (b :@1 Bool) -> (@0 f b) -> (f True)
   irr f b x = x
 \end{lstlisting}
 
@@ -589,7 +589,7 @@ containing a relevant term and an irrelevant proof
 of a predicate satisfied by the term.
 
 \begin{lstlisting}
-  data Subset (A :@1 Type) (B :@1 [@0 A] -> Type) : Type where
+  data Subset (A :@1 Type) (B :@1 (@0 A) -> Type) : Type where
     pack of (x :@0 A) (@1 B x)
   mem :@0 (A : Type) -> (B : A -> Type) -> (@0 Subset A B) -> A
   mem = \A B p. case p of pack x y => x
@@ -684,7 +684,7 @@ so we can obtain and eliminate a proof of the empty type.
 
 \begin{lstlisting}
   head :@0 (A :@1 Type) -> (l : List A) ->
-           (@1 [@1 (length A l) ~ zero] -> Empty) -> A
+           (@1 (@1 (length A l) ~ zero) -> Empty) -> A
   head = \A l. case l of 
                  nil      => \f. case (f Refl) of {}
                  cons x _ => \_. x
