@@ -284,10 +284,8 @@ tracking.
 More generally, the contributions of this paper are two-fold: new extensions
 that increase the expressiveness of the systems, and stronger semantics-based
 results about this well-behaved instance of the system.
-% and an empty type
-% $[[Void]]$. \jc{sentence here about what this list is about}
-\begin{itemize}
 
+\begin{itemize}
 \item We extend the language with an empty type $[[Void]]$ with an elimination
   form that allows programmers to apply the principle of explosion (\textit{ex
     falso quodlibet}). Importantly, eliminating high-level proofs of the empty
@@ -317,9 +315,7 @@ results about this well-behaved instance of the system.
 
 \item We show that \name is logically consistent (there is no inhabitant of
   the empty type) and weakly normalizing (every term can be reduced to a normal
-  form). % , and that type conversion \yl{I think it's fine to say type conversion
-    % instead of indexed defeq?} is decidable. 
-  Due to its
+  form). Due to its
   expressive conversion rule, support for large eliminations, and
   infinite universe levels, we cannot reuse
   proofs found in \citet{geuvers:cc-sn, abel:irrelevance}
@@ -346,13 +342,13 @@ results about this well-behaved instance of the system.
 %   supports an expressive rule for its elimination. A high-level proof of
 %   the empty type can eliminated to produce low-level results. This rule justifies the
 %   irrelevance of all proof terms used to construct contradictions.
-  % We also add a new
-  % reasoning principle to the language, allowing programmers to
-  % \emph{downgrade} \sw{I wonder now if downgrade is the right term to use for
-  %   this.} a high-level equality to a lower-level version, allowing
-  % flexibility in reasoning. (The opposite direction is not sound, as
-  % high-level observers can perceive differences missed by their low-level
-  % counterparts.)
+%   We also add a new
+%   reasoning principle to the language, allowing programmers to
+%   \emph{downgrade} \sw{I wonder now if downgrade is the right term to use for
+%     this.} a high-level equality to a lower-level version, allowing
+%   flexibility in reasoning. (The opposite direction is not sound, as
+%   high-level observers can perceive differences missed by their low-level
+%   counterparts.)
 
 % \item (Weak) normalization means that all \name programs terminate. The
 %   elimination forms for positive types, such as the $\ottkw{J}$ operator for
@@ -363,7 +359,6 @@ results about this well-behaved instance of the system.
 %     an anti-contribution. Does it make sense to have a dependency level that
 %     is ``a run-time argument, but only used to construct equality proofs''
 %     that can be used to track this erasure?}
-%   \jc{``positive''? ``thread''?}
 
 % \item Decidable type conversion is the key step to showing decidable
 %   typechecking for \name. What remains is merely the selection and propagation
@@ -373,12 +368,10 @@ results about this well-behaved instance of the system.
 %   question, we leave it for future work.
 
 % \item Our semantic reasoning replicates the syntactic type soundness result of
-%   prior work. \jc{What does it mean that it replicates?}
-%   The structure of our proofs show that the prior type system
+%   prior work. The structure of our proofs show that the prior type system
 %   design is not accidentally sound, and provides new perspective on its
 %   design. In particular, in our experiments with \name, we have encountered
 %   opportunities for
-
 \end{itemize}
 
 All of our results have been developed using the Coq proof
@@ -386,20 +379,6 @@ assistant and our proofs are available as supplementary
 material. Furthermore, we have extended the prototype type checker by
 \citet{liu:dcoi},
 suitable for exprimenting with the newly introduced features.
- % Despite the expressiveness
-% of our language, our proofs have been designed to be remarkably concise
-% compared to similar results.
-\yl{removed the concise proof comment because we did not expand on that}
-
-
-%\begin{itemize}
-%  \item low elimination of high absurd proofs
-%  \item J eliminator
-%  \item weak pair projections
-%  \item consistency
-%  \item normalization
-%  \item decidable type conversion (mechanized up to indistinguishability)
-%\end{itemize}
 
 \section{Examples} \label{sec:examples}
 
@@ -2151,9 +2130,7 @@ In this section, we use the normalization theorem
 conversion.
 
 Let \judgement{$a \leadsto^{lo} b$} be the
-leftmost-outermost reduction relation for
-\name.
-\jc{What does this mean?}
+leftmost-outermost reduction relation for \name.
 
 % \begin{lemma}[Weak head factorization]
 %   \label{lem:factorization}
@@ -2337,10 +2314,6 @@ but we require one of the shape
 $[[G ++ x : l' poltergeist |- C : l0 Univ i]]$,
 which we are unable to conclude.
 
-\sw{Is there a version of propositional equality with an eliminator that is not strict?}
-
-\yl{Removed the eq-level section because we can just directly cite the
-dcoi paper}
 % \subsection{Equality type level constraints} \label{sec:eq-level}
 
 % In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b]]$
