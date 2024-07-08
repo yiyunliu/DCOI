@@ -77,12 +77,6 @@ tm :: 'a_' ::=
   | rho ( x ) :: S :: Substituted
     {{ com term substituted for x }}
     {{ tex [[rho]]([[x]]) }}
-  | Unit :: S :: Unit
-    {{ com unit type }}
-    {{ tex \top }}
-  | unit :: S :: MkUnit
-    {{ com unit inhabitant }}
-    {{ tex \ottkw{tt} }}
   | proj1 l a :: S :: Proj1
     {{ com first projection }}
     {{ tex \pi_1^{[[l]]} \, [[a]] }}
@@ -213,6 +207,11 @@ E ++ x : l0 |- b0 == b1 @ l
 E |- a : l0
 ------------------------------------- :: subst
 E |- b0 { a / x } == b1 { a / x } @ l
+
+E ++ x : l0 |- b : l
+E |- a0 == a1 @ l l0
+------------------------------------- :: cong
+E |- b { a0 / x } == b { a1 / x } @ l
 
 defn
   E |- a == b @ l l0 :: :: GIEq :: 'GI_'
@@ -359,7 +358,7 @@ defns
   IOk :: '' ::=
 
 defn
-  E |- a : l :: :: Wg :: 'Wg_'
+  E |- a : l :: :: L :: 'L_'
   {{ com well-gradedness }}
   {{ tex [[E]] \vdash [[a]] : [[l]] }}
 by

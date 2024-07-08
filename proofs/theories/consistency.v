@@ -15,40 +15,26 @@ Module preservation := preservation lattice syntax par ieq conv typing.
 Import soundness.
 Import preservation.
 
-Fixpoint debruijnDepth a : nat :=
-  match a with
-  | var_tm i => 1 + i
-  | tAbs _ b => debruijnDepth b - 1
-  | tApp a _ b => max (debruijnDepth a) (debruijnDepth b)
-  | tPi _ A B => max (debruijnDepth A) (debruijnDepth B - 1)
-  | tSig _ A B => max (debruijnDepth A) (debruijnDepth B - 1)
-  | tUniv _ => 0
-  | tEq _ a b => max (debruijnDepth a) (debruijnDepth b)
-  | tRefl => 0
-  | tJ _ t p => max (debruijnDepth t - 2) (debruijnDepth p)
-  | tVoid => 0
-  | tLet _ _ a b => max (debruijnDepth a) (debruijnDepth b - 2)
-  | tPack _ a b => max (debruijnDepth a) (debruijnDepth b)
-  | tAbsurd a => debruijnDepth a
-  | tNat => 0
-  | tZero => 0
-  | tSuc a => debruijnDepth a
-  | tInd _ a b c => max (debruijnDepth a) (max (debruijnDepth b - 2) (debruijnDepth c))
-  end.
-
-Lemma lookup_lt i Γ ℓ A : lookup i Γ ℓ A -> i < length Γ.
-Proof. induction 1; sfirstorder. Qed.
-
-Lemma wt_dbound Γ ℓ a A : Γ ⊢ a ; ℓ ∈ A -> debruijnDepth a <= length Γ.
+Lemma ne_contra a ℓ A : nil ⊢ a ; ℓ ∈ A -> ne a -> False.
 Proof.
-  move => h.
-  elim : Γ ℓ a A / h => /=; try lia.
-  hauto lq:on use:lookup_lt.
+  move E : nil => Γ h.
+  move : E.
+  elim : Γ ℓ a A /h => //=.
+  - hauto lq:on inv:lookup.
+  - move => Γ ℓ ℓ0 a A B b ha iha hb ihb ?. subst.
+    move /andP => [h0 h1].
+    sfirstorder.
+  - hauto lqb:on.
+  - move => Γ _ ℓ0 ℓ1 i a A h ih _ _ ? ha. subst.
+    apply soundness in h.
+    move /(_ nil var_tm ltac:(hauto lq:on use:ρ_ok_id)) : h.
+    move => [m][PA][]. asimpl. move/InterpUnivN_Void_inv => -> {PA}[_ [v [hr hv]]].
+    have ? : v = a by sfirstorder use:nfacts.nf_refl_star. subst.
+    tauto.
+  - hauto lqb:on.
+  - sfirstorder b:on.
 Qed.
 
-Lemma ne_depth_gt0 a : ne a -> debruijnDepth a > 0.
-  elim : a => //=; try lia; sfirstorder b:on.
-Qed.
 
 Lemma consistency a ℓ : ~nil ⊢ a ; ℓ ∈ tVoid.
 Proof.
@@ -56,8 +42,7 @@ Proof.
   move => [m][PA][].
   asimpl. move /InterpUnivN_Void_inv => -> {PA}[_ [v [hr hv]]].
   move : subject_reduction_star h hr; repeat move/[apply].
-  move /wt_dbound.
-  move /ne_depth_gt0 : hv => /=. lia.
+  sfirstorder use:ne_contra.
 Qed.
 
 End consistency.

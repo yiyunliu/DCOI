@@ -501,8 +501,8 @@ Definition CR Ξ (P : T -> tm -> Prop) :=
   (forall ℓ a, P ℓ a -> wn a) /\
     (forall ℓ a, wne a -> IOk Ξ ℓ a -> P ℓ a).
 
-Lemma wne_var Ξ ℓ i :
-  let tD := tAbsurd (var_tm i) in
+Lemma wne_var Ξ ℓ :
+  let tD := tAbsurd tVoid in
   wne tD /\ IOk Ξ ℓ tD.
 Proof. hauto lq:on ctrs:rtc, IOk. Qed.
 
@@ -511,7 +511,7 @@ Lemma InterpExt_adequacy Ξ i I A PA
   (h :  ⟦ Ξ ⊨ A ⟧ i ; I ↘ PA) :
   CR Ξ PA /\ wn A.
 Proof.
-  set tD := tAbsurd (var_tm 0).
+  set tD := tAbsurd tVoid.
   rewrite /CR.
   elim : A PA / h.
   - firstorder with nfne.
