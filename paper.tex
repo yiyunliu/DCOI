@@ -208,7 +208,44 @@
 \setlength{\jot}{0pt}
 
 \begin{abstract}
+In this work, we present DCOI$^{\omega}$, a consistent instantiation of of the
+Dependent Calculus of Indistinguishability (DCOI), a PTS style system
+that supports dependency tracking, with a countable
+universe hierarchy.%  and more expressive elimination forms,
+% including an elimination form for empty types that allows constructing
+% computationally relevant terms from irrelevant proofs
+DCOI's use of
+indistinguishability during type conversion results in a uniform mechanism
+system that supports both proof-irrelevance and run-time erasure of
+irrelevant type indicies, and also enables reasoning about
+information flow internally through an observer-level indexed equality.
+However, prior work has only shown syntactic type soundness,
+which is insufficient for justifying the use of DCOI as a program logic.
+In our work, we use a syntactic logical predicate to prove
+normalization and logical consistency for DCOI$^{\omega}$. By proving
+the standardization theorem for the leftmost-outermost reduction strategy, we
+recover a decision procedure for type conversion which can be
+extracted in the form of executable OCaml code. All of our
+results are mechanized in the Coq proof assistant.
+% Semantic properties such as logical consistency and normalization were
+% proposed as conjectures. To justify the use of DCOI 
+% that can be used for
 
+%  with a
+% predicative universe hierarchy and 
+
+% The Dependent Calculus of Indistinguishability (DCOI) extends
+% Barendregt's Pure Type Systems by adding dependency tracking and using
+% indistinguishability as definitional equality. DCOI also
+% provides an observer-level indexed equality type for internalizing
+% indistinguishability, though its syntactic soundness results established in prior work
+% are do not justify the use of DCOI as a program logic. 
+% With a syntactic logical predicate, we prove normalization and logical
+% consistency for DCOI$^{\omega}$. We recover a decision procedure for
+% type conversion by proving the standardization theorem for the
+% leftmost-outermost reduction strategy. All of our results are
+% mechanized in the Coq proof assistant and the decision procedure can
+% be extracted as an executable OCaml program.
 \end{abstract}
 
 \maketitle
