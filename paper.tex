@@ -7,7 +7,7 @@
 \commentstrue         %% toggle comments here
 \extendedfalse
 
-\submissionfalse      %% at most one of these must be true (neither for draft version)
+\submissiontrue       %% at most one of these must be true (neither for draft version)
 \publicfalse          %% but if you want to see comments, these should both be off
 
 % If we are going to make a version public, i.e. on arXiv, we should 
@@ -3088,10 +3088,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \section{Omitted Judgement Rules}
 
-\subsection{Normal and Neutral Forms} \label{sec:neutrals}
-\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
-\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
-
 \subsection{Naturals} \label{sec:naturals}
 
 \drules[Wt]{$[[G |- a : l A]]$}{Type checking}{Nat,Zero,Succ,Ind}
@@ -3108,7 +3104,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
   \end{mathpar}
 \end{center}
 
-\subsection{Parallel reduction}
+\subsection{Parallel reduction} \label{sec:par}
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq,Nat,Zero,Succ,Ind}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
@@ -3117,7 +3113,11 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq}
 
-\subsection{Logical Predicate} \label{sec:logpredfull}
+\subsection{Normal and Neutral Forms} \label{sec:neutrals}
 
+\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
+\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
+
+\subsection{Logical Predicate} \label{sec:logpredfull}
 
 \end{document}
