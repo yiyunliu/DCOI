@@ -1418,7 +1418,16 @@ type conversion algorithm.
 
 \begin{figure}[h]
   \centering
-  \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
+  \fbox{$[[ne a]]$} \hfill \textit{(Neutral forms)}
+  \begin{gather*}
+    \drule{Ne-Var} \!\!\!\!
+    \drule[width=0.1\textwidth]{Ne-App} \!\!\!\!
+    \drule{Ne-Absurd} \!\!\!\!
+    \drule[width=0.1\textwidth]{Ne-J} \!\!\!\!
+    \drule{Ne-Let} \!\!\!\!
+    \drule{Ne-Seq}
+  \end{gather*}
+  %\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
   \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
   \caption{Neutral and normal forms}
   \Description{}
