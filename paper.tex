@@ -2850,10 +2850,11 @@ rather than a lattice. With a boolean semiring, one can also use the counting
 mechanism to track dependency and perform external erasure.
 
 \citet{mcbride:plentyo} extends a dependently typed system with usage
-tracking. Usage tracking is disabled in type formation rules and
-therefore allows him to embed his system into a predicative type
-theory, whose normalization property is given by
-\citet{abel:normalization}. However, the typing judgment in his system
+tracking for computationally relevant terms. % Usage tracking is disabled in type formation rules and
+% therefore allows him to embed his system into a predicative type
+% theory, whose normalization property is given by
+% \citet{abel:normalization}. 
+However, the typing judgment in his system
 fails to admit the substitution property, an issue that is later 
 addressed by \citep{atkey:qtt} in the design of the
 Quantitative Type Theory
@@ -2873,15 +2874,16 @@ $\div$ and $:$ modalities.
 %     0 \Gamma \vdash (x :^\pi S) \rightarrow T
 %   }
 % \end{mathpar}
-Similar to the system by \citet{mcbride:plentyo}, type-level usage
-tracking is disabled.
+Similar to the system by \citet{mcbride:plentyo}, usage tracking does
+not apply to types and is disabled in type formation rules.
 
 GraD~\citep{choudhury:grad} later gives a more uniform design where
 type formation rules are presented in the style of a PTS and share the
 same judgment form as typing for terms. This allows one to analyze
-usage information for a type expression. \citet{choudhury:grad}
-point out the possibility of leveraging usage information for type
-conversion. Unlike QTT, the soundness of resource tracking in GraD is
+usage information for a type expression. % \citet{choudhury:grad}
+% point out the possibility of leveraging usage information for type
+% conversion. 
+Unlike QTT, the type soundness of resource tracking in GraD is
 proven using a syntactic approach through heap semantics. As a logic,
 GraD is inconsistent as it admits the \emph{type in type} axiom.
 
@@ -2891,13 +2893,15 @@ resource usage separately for types and terms.
 The fine-grained
 usage tracking allows one to recover parametricity by rejecting
 undesired type- or term-level access of
-variables. \citet{moon:graded} further explore how one can take
-advantage of the usage information to optimize the type checking
-algorithm through their prototype implementation. For example,
-given a dependent function type $(x : A) \rightarrow B$, if
-$x$ has $0$ usage in $B$, then the substitution $[[B {t / x}]]$
-can be ignored. However, this optimization is not formalized in
-GRTT. Type conversion in GRTT is oblivious of the usage
+variables. \citet{moon:graded} take
+advantage of the usage information to optimize type checking
+through their prototype implementation. % For example,
+% given a dependent function type $(x : A) \rightarrow B$, if
+% $x$ has $0$ usage in $B$, then the substitution $[[B {t / x}]]$
+% can be ignored.
+However, this optimization, while reminiscent of the proof irrelevance
+feature discussed in Section~\ref{sec:discuss-irrel}, is not
+formalized. Type conversion in GRTT is oblivious of the usage
 information. The lack of interaction between modalities and type
 conversion allows them to recover strong normalization by adapting
 strong normalization for CC by \citet{geuvers:cc-sn}.
