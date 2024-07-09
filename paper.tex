@@ -2469,7 +2469,7 @@ depending on the variable $[[x]]$ as the type $[[Pi x : l0 A . B]]$
 can be well formed at a level unrelated to the observer level $[[l]]$
 by \nameref{lem:regularity}.
 As a result, there is no guarantee that $[[B {a0 / x}]]$ and $[[B {a1
-  / x}]]$ are indistinguishable types.
+  / x}]]$ are indistinguishable types. 
 
 As a simple counterexample, we can pick $[[b0]]$ and $[[b1]]$ to be
 level $[[L]]$ polymorphic identity functions with a level $[[H]]$
@@ -2477,7 +2477,10 @@ level $[[L]]$ polymorphic identity functions with a level $[[H]]$
 type parameter. Instantiating $[[a0]]$ and $[[a1]]$ with distinct
 types, we end up with two distinct function types $[[B {a0 / x}]] = [[L
 a0 -> a0]]$ and $[[B {a1 / x}]] = [[L a1 -> a1]]$. Type correctness
-breaks as soon as we add input type annotations to functions.
+breaks as soon as we add input type annotations to
+functions. \citet{abel:irrelevance} observed a similar issue in the
+design of their type-directed conversion algorithm. Their workaround is
+to simply reject programs whose types depend on irrelevant arguments.
 
 The problem of extending \name with judgmental equality also
 directly relates to the problem of defining a relational model for justifying properties
@@ -2501,14 +2504,12 @@ annotations do not behave differently at run time.
 In fact, we find it difficult, if not impossible, to construct a
 counterexample where $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not behave
 like terms from both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$.
-To be more adversarial, we want a counterexample where the output type
-$[[B]]$ pattern matches on the variable $[[x]]$ such that $[[B
-{a0 /x}]]$ and $[[B {a1 / x}]]$ are types with different
-elimination forms. If $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ evaluate to
-different head forms, then we can break semantic soundness. However,
-knowing that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ are indistinguishable
-at $[[l]]$ already rules out the case where they have different head
-forms.
+To be more adversarial, we want a leverage large elimination so $[[B
+{a0 /x}]]$ and $[[B {a1 / x}]]$ are incompatible types. If $[[b0 l0
+a0]]$ and $[[b1 l0 a1]]$ evaluate to different head forms, then we can
+break semantic soundness. However, knowing that $[[b0 l0 a0]]$ and
+$[[b1 l0 a1]]$ are indistinguishable at $[[l]]$ already rules out the
+case where they have different head forms.
 
 Therefore, despite the technical issues demonstrated in this section,
 we are optimistic that our logical predicate can be further extended to
