@@ -2718,7 +2718,7 @@ far, including \dcoi and \name, can be viewed as systems that treat relevance
 extrinsically.
 
 An example of an intrinsic treatment of irrelevance is
-the $[[Prop]]$ sort introduced by \citet{paulin-mohring:coc},
+the $[[Prop]]$ sort, introduced by \citet{paulin-mohring:coc},
 which identifies computationally irrelevant terms that
 should be erased during program extraction.
 The soundness of erasure during program extraction (referred to as
@@ -2728,36 +2728,46 @@ tracking. In Coq, for example,
 only singleton types (\eg equality proofs) or empty
 types of the $[[Prop]]$ sort can be destructed to produce run-time
 relevant terms whose types are of the relevant sort $[[Type]]$.
+As we already dicussed in Section~\ref{sec:castirrel},
+Coq's $[[Prop]]$ sort is limited to run-time irrelevance to preserve
+decidable type checking. \citet{werner:proofirrel}'s type theory with
+a proof-irrelevant $[[Prop]]$ fails to satisfy normalization when
+$[[Prop]]$ is impredicative, a result later shown by \citet{abel:failurenorm}.
 
-The $[[Prop]]$ sort in Coq does not affect type conversion. Erasing
-terms with sort $[[Prop]]$ during type conversion could cause type
-conversion to diverge.
-With a variable of type $A = A \rightarrow A$
-in the context, it is possible to construct a term that erases to the
-diverging lambda term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$.
-\citet{werner:proofirrel} describes a proof-irrelevant type theory
-where the reduction relation, used in type conversion, erases
-terms of sort $[[Prop]]$. Werner attempts to address the
-decidability issue of erasing equality proofs by guarding the
-$\beta$-reduction rule for equalities with the precondition that both sides
-of the equality are convertible. However, his conjecture of normalization
-of the system in the presence of equality
-erasure is refuted by \citet{abel:failurenorm}.
-
+% the $[[Prop]]$ sort in Coq does not affect type conversion. Erasing
+% terms with sort $[[Prop]]$ during type conversion could cause type
+% conversion to diverge.
+% With a variable of type $A = A \rightarrow A$
+% in the context, it is possible to construct a term that erases to the
+% diverging lambda term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$.
+% \citet{werner:proofirrel} describes a proof-irrelevant type theory
+% where the reduction relation, used in type conversion, erases
+% terms of sort $[[Prop]]$. Werner attempts to address the
+% decidability issue of erasing equality proofs by guarding the
+% $\beta$-reduction rule for equalities with the precondition that both sides
+% of the equality are convertible. However, his conjecture of normalization
+% of the system in the presence of equality
+% erasure is refuted by \citet{abel:failurenorm}.
 
 \citet{gilbert:sprop} introduce the language sMLTT, an extension to
 MLTT with a proof irrelevant sort $[[SProp]]$. Similar to
 Werner's system, inhabitants of a type $A : [[SProp]]$ are
-treated as definitionally equal during type conversion. They show the
+treated as definitionally equal during type conversion. They
+introduce an alternative criterion to singleton
+elimination, which characterizes inductive types that can be safely
+eliminated from $[[SProp]]$ into the relevant universe while
+preserving decidablility.
+They show the
 consistency of their design for both predicative and impredicative
 variants of $[[SProp]]$ through a syntactic translation to
-Extensional Type Theory. Similar to \name, their base system only
+Extensional Type Theory. Similar to \name, their formalized system
 allows the empty type to be eliminated from $[[SProp]]$ to the
-relevant universes. An optional consistent extension to their system allows
-an equality type that inhabits $[[SProp]]$ to be eliminated
-to produce a relevant expression. However, their decidability proof,
-based on \citet{abel:irrelevance}, does not cover the equality
-extension. % In the Agda and Coq implementations of $[[SProp]]$,
+relevant universes. % An optional consistent extension to their system allows
+% an equality type that inhabits $[[SProp]]$ to be eliminated
+% to produce a relevant expression. However, their decidability proof,
+% based on \citet{abel:irrelevance}, does not cover the equality
+% extension.
+% In the Agda and Coq implementations of $[[SProp]]$,
 % neither support elimination from non-empty strict propositions to the
 % relevant sort.
 % \citet{pujet:ttobs, pujet:ccobs} allow the irrelevant proofs of
@@ -2904,11 +2914,12 @@ tracking must be developed before we define our semantic model.
 
 \subsection{Dependent types and indistinguishability}
 
-Compared to the languages that track
-relevance (Section~\ref{sec:discuss-irrel}), the most notable
-feature of \dcoi and \name is the ability to reason about dependency
-from different observer levels that range over a lattice through the
-internalized indistinguishability judgment. % In
+% Compared to the languages that track
+% relevance (Section~\ref{sec:discuss-irrel}), the most notable
+% feature of \dcoi and \name is the ability to reason about dependency
+% from different observer levels that range over a lattice through the
+% internalized indistinguishability judgment.
+% In
 % \citet{abel:irrelevance, gilbert:sprop}, equalities are always based
 % on an observer who can only access relevant information.
 
