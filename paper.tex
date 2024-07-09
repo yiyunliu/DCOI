@@ -45,13 +45,15 @@
 % \received[accepted]{}
 
 \let\Bbbk\relax
-\usepackage{todonotes}
 \usepackage{draft} % local
 \usepackage[supertabular]{ottalt} % local
+\let\newlist\relax
+\let\renewlist\relax
+\usepackage{enumitem}
 \usepackage{amsmath,amssymb}
 \usepackage{natbib}
 \usepackage{mathpartir,mathtools,stmaryrd}
-\usepackage{listings,xspace,color,doi}
+\usepackage{todonotes,listings,xspace,color,doi}
 \usepackage[flushmargin,multiple,para]{footmisc}
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
@@ -284,7 +286,7 @@ More generally, the contributions of this paper are two-fold: new extensions
 that increase the expressiveness of the systems, and stronger semantics-based
 results about this well-behaved instance of the system.
 
-\begin{itemize}
+\begin{itemize}[leftmargin=\parindent]
 \item We extend the language with an empty type $[[Void]]$ with an elimination
   form that allows programmers to apply the principle of explosion (\textit{ex
     falso quodlibet}). Importantly, eliminating high-level proofs of the empty
