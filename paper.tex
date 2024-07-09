@@ -2146,7 +2146,10 @@ leftmost-outermost reduction relation for \name.
 \end{lemma}
 
 Its proof, which we omit here,
-is adapted from the standardization proof for the untyped lambda calculus by \citet{takahashi:par}.
+is adapted from the standardization proof for the untyped lambda
+calculus by \citet{takahashi:par} and \citet{accattoli:factorization}.
+
+\ifextended
 We first prove Hindley's local postponement property~\citep{accattoli:factorization}
 for the weak head reduction relation, and then obtain the
 standardization theorem for leftmost-outermost reduction by iterating
@@ -2154,6 +2157,7 @@ weak head reduction. Similar to the mechanized standardization proof
 found in \citet{mckinna:some-lambda-formalized}, we prove local
 postponement for weak head reduction instead of head reduction since
 the former admits a simpler specification.
+\fi
 
 %  Our proof makes a notable simplification to
 % her original proof. Interested readers can refer to the
@@ -2721,7 +2725,7 @@ context in which the term is used. All systems we have discussed so
 far, including \dcoi and \name, can be viewed as systems that treat relevance
 extrinsically.
 
-An example of an intrinsic treatment of irrelevance is
+An example of the intrinsic approach is
 the $[[Prop]]$ sort, introduced by \citet{paulin-mohring:coc},
 which identifies computationally irrelevant terms that
 should be erased during program extraction.
@@ -2793,7 +2797,9 @@ they bear a lot of similarities. For example, irrelevant function
 types can be implemented as regular function types with a squashed input type in
 the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. For the
 other direction, the squash operator can be implemented in the form of
-a weak irrelevant dependent pair~\citep{abel:irrelevance}. % In \name,
+a weak irrelevant dependent pair~\citep{abel:irrelevance}, similar to
+our encoding of the box type.
+ % In \name,
 % the admissible box type is reminiscent of the squash type,
 % though the information is never truly squashed but only temporarily
 % hidden from low observers. Finally, none of the works mentioned so far
@@ -2908,17 +2914,18 @@ strong normalization for CC by \citet{geuvers:cc-sn}.
 
 \citet{abel:grade} introduce a graded modal dependent
 type theory that also allows tracking usage for both terms and
-types. This language is more
-expressive as it supports large elimination, though its definitional
-equality, like GRTT, is also defined independently of the
-modalities. This allows them to reuse the technique in
-\citet{abel:dectt} to mechanically prove metatheoretic results
-including normalization and decidable type conversion for a
-standard dependently typed language that is free of usage tracking.
-Grading is then defined separately from the typing judgment and their
-semantics is refined to account for usage. In \name, since type
-conversion relies on indistinguishability, properties about dependency
-tracking must be developed before we define our semantic model.
+types. % This language supports large elimination, though its definitional
+% equality, like GRTT, is also defined independently of the
+% modalities. 
+Since modalities do not interact with type conversion,
+they reuse the technique in \citet{abel:dectt} to mechanically prove
+metatheoretic results including normalization and decidable type
+conversion for a standard dependently typed language that is free of
+usage tracking.  Grading is then defined separately from the typing
+judgment and their semantics is refined to account for usage. In
+\name, since type conversion relies on indistinguishability,
+properties about dependency tracking must be developed before we
+define our semantic model.
 
 \subsection{Dependent types and indistinguishability}
 
@@ -2933,44 +2940,56 @@ tracking must be developed before we define our semantic model.
 
 The design of \dcoi~\citep{liu:dcoi} and its instantiation \name is
 directly inspired by the Dependent Dependency Calculus
-(DDC)~\citep{choudhury:ddc}. DDC aims to provide a framework
-for tracking both run-time and compile-time dependencies. Its
-mechanism for run-time dependency tracking is based on 
-the same mechanism found in simply typed languages such as the Sealing
-Calculus~\citep{shikuma:noninterference}.
-Unlike \citet{abel:irrelevance}, DDC
-indexes its typing judgment by an observer level drawn from an arbitrary
-lattice so it can analyze dependency from different view
-points. Unlike the systems discussed in Section~\ref{sec:discuss-irrel},
-DDC's run-time dependency tracking mechanism is flexible and allows
-one to encode strong irrelevant projections and irrelevant type
-indices.
-A disjoint mechanism based on \citet{pfenning:modal} is
-introduced to separately track compile-time irrelevance. This requires
-DDC to augment the lattice structure with two upper bounds $C$ and $T$
-such that $C < T$. The typing judgment can never be indexed by the top
-element $T$ from the augmented lattice. Instead, Pfenning's
-resurrection mechanism is used to resurrect the context to the level
-$C$.
+(DDC)~\citep{choudhury:ddc}. Similar to \dcoi,
+DDC supports both run-time and proof irrelevance. However, it achieves
+that by combining two different mechanisms.
+For run-time irrelevance, DDC uses a mechanism similar to
+EPTS~\citep{mishra:erasure} to allow erasable irrelevant type indices.
+For proof-time irrlevance, it uses the resurrection mechanism found in
+\citet{pfenning:modal, abel:irrelevance}.
+% mechanism for run-time dependency tracking is based on 
+% the same mechanism found in simply typed languages such as the Sealing
+% Calculus~\citep{shikuma:noninterference}.
+% Unlike \citet{abel:irrelevance}, DDC
+% indexes its typing judgment by an observer level drawn from an arbitrary
+% lattice so it can analyze dependency from different view
+% points. Unlike the systems discussed in Section~\ref{sec:discuss-irrel},
+% DDC's run-time dependency tracking mechanism is flexible and allows
+% one to encode strong irrelevant projections and irrelevant type
+% indices.
+% A disjoint mechanism based on \citet{pfenning:modal} is
+% introduced to separately track compile-time irrelevance. This requires
+% DDC to augment the lattice structure with two upper bounds $C$ and $T$
+% such that $C < T$. The typing judgment can never be indexed by the top
+% element $T$ from the augmented lattice. Instead, Pfenning's
+% resurrection mechanism is used to resurrect the context to the level
+% $C$.
 While their system includes a indistinguishability relation
 similar to the one we present in Section~\ref{sec:indist}, the type
 conversion rule only performs conversion at some fixed level
-$C$. The restrictive conversion rule makes it difficult to define the
-elimination form for an indexed equality type since levels below $C$
-do not affect conversion. In the other direction, the compile-time irrelevance fragment
-does not enjoy the same flexibility as the run-time irrelevance
-fragment. % For example, strong irrelevant projection is not admissible when the
+$C$. \citet{liu:dcoi} show that the combination of the two mechanisms
+makes it difficult to generalize DDC's conversion rule to support
+indistinguishability at different levels, which is necessary for
+allowing the elimination of indexed equality types.
+
+
+% The restrictive conversion rule makes it difficult to define the
+% elimination form for an indexed equality type since levels below $C$
+% do not affect conversion. In the other direction, the compile-time irrelevance fragment
+% does not enjoy the same flexibility as the run-time irrelevance
+% fragment.
+% For example, strong irrelevant projection is not admissible when the
 % irrelevance level is $T$.
 
-\citet{liu:dcoi} introduce a unified mechanism for handling both
-run-time and compile-time dependency tracking. The generalized type
-conversion rule based on indistinguishability allows one to define
-elimination rules for indexed equality types. This unified mechanism
-also retains the flexibility of DDC's run-time dependency tracking
-mechanism. It supports irrelevant type parameters and strong
-irrelevant projections at any levels from the lattice. However, their
-metatheoretic results are limited to syntactic soundness and the
-consistency of the equational theory. 
+% \citet{liu:dcoi} introduce a unified mechanism for handling both
+% run-time and compile-time dependency tracking. The generalized type
+% conversion rule based on indistinguishability allows one to define
+% elimination rules for indexed equality types. This unified mechanism
+% also retains the flexibility of DDC's run-time dependency tracking
+% mechanism. It supports irrelevant type parameters and strong
+% irrelevant projections at any levels from the lattice. However, their
+% metatheoretic results are limited to syntactic soundness and the
+% consistency of the equational theory. 
 
 % DDC combines the dependency tracking
 % mechanism from  and Pfenning's resurrection
@@ -3011,7 +3030,7 @@ predicates. The ability to shift the view by choosing which color to erase is re
 of the observer level from the indistinguishability
 judgment of \name. The internalized reasoning about
 erasure is achieved by adding a parametricity rule to the type
-system. Its type conversion rule still relies on untyped $\beta$
+system. TTC's type conversion rule still relies on untyped $\beta$
 equivalence. Furthermore, similar to \citet{pfenning:modal,
 abel:irrelevance} and unlike \name, in TTC, the same taint is used for
 checking a term and the well-formedness of its type. In \name, the
