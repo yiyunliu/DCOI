@@ -1178,21 +1178,17 @@ which allows the equality endpoints to be typed at a level $[[l1]]$
 possibly lower than the equality observer level $[[l0]]$,
 increases the expressivity of the eliminator,
 since the motive $[[C]]$ is able to abstract over $[[x]]$ at the lower level $[[l1]]$.
+In particular, it allows us to show the following lemma.
 
-\begin{figure}[h]
-  \mprset{fraction={===}}
-  \begin{gather*}
-    \drule[width=\textwidth]{Wt-downgrade}
-  \end{gather*}
-  \caption{Admissible typing rules for propositional equality}
-  \Description{}
-  \label{fig:typing:eq:lemmas}
-\end{figure}
+\begin{lemma}[Downgrade]
+  \stack{.~}\footnote{\suppl{theories}{admissible.v}{T\_Down\_Alt}}
+  \label{lem:downgrade}
+  Suppose $[[G |- a : l0 A]]$ and $[[G |- b : l0 A]]$.
+  If $[[G |- p : l a ~ l1 b]]$ and $[[l0 <= l1]]$,
+  then $[[G |- p : l a ~ l0 b]]$.
+\end{lemma}
 
-In particular, it allows us to show the admissible
-\rref{Wt-downgrade}\footnote{\suppl{theories}{admissible.v}{T\_Down\_Alt}}
-in \cref{fig:typing:eq:lemmas},
-which permits lowering the observer level of an equality proof.
+\nameref{lem:downgrade} permits lowering the observer level of an equality proof.
 Here, the motive is $[[a ~ l0 x]]$,
 which otherwise would not have been well typed
 if the level of $[[x]]$ had to match the observer level $[[l1]]$
