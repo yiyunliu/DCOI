@@ -494,21 +494,21 @@ Consider the following example, whose well-typedness depends on how we
 instantiate the level, which we mark as \lstinline{?}.
 
 \begin{lstlisting}
-  irr :@0 (f :@? (@1 Bool) -> Type) -> (b :@1 Bool) -> (@0 f b) -> (f True)
-  irr f b x = x
+  irr :@0 (P :@? (@1 Bool) -> Type) -> (b :@1 Bool) -> (@0 P b) -> (P true)
+  irr = \f b x. x
 \end{lstlisting}
 
 Whether \lstinline{irr} type checks depends on whether we can convert the
-type of the variable \lstinline{x} from \lstinline{f b} to
-\lstinline{f True}. Since there is nothing we know about the boolean
-variable \lstinline{b}, the function \lstinline{f} must behave like a
-constant function, and that is only the case if we instantiate the
+type of the variable \lstinline{x} from \lstinline{P b} to
+\lstinline{P true}. Since there is nothing we know about the boolean
+variable \lstinline{b}, the predicate \lstinline{P} must behave like a
+constant predicate, and that is only the case if we instantiate the
 level \lstinline{?} with level \lstinline{0}.
 
 Although the variable
 \lstinline{b} is a level \lstinline{1} variable and thus
 is irrlevant to \lstinline{irr}, it may still be used relevantly by
-\lstinline{f} if \lstinline{?} is instantiated to \lstinline{1} or
+\lstinline{P} if \lstinline{?} is instantiated to \lstinline{1} or
 some higher level; our type system correctly rejects \lstinline{irr}
 in those scenarios.
 
@@ -619,7 +619,7 @@ two members of a subset type merely when the relevant terms are equal,
 proven as follows.
 
 \begin{lstlisting}
-  pcong :@1 (A : Type) -> (B : A -> Type) -> (x : A) -> (y : A) ->
+  pcong :@1 (A :@1 Type) -> (B :@1 A -> Type) -> (x : A) -> (y : A) ->
             (bx :@1 B x) -> (by :@1 B y) -> (@1 x ~@0 y) ->
             (pack x bx ~@0 pack y by : Subset A B)
   pcong = \A B x y bx by p. subst refl by p
@@ -644,19 +644,18 @@ and correspondingly define their addition.
 
 \begin{lstlisting}
   eadd :@0 Even -> Even -> Even
-  eadd = \en em. case en of n en' =>
-                 case em of m em' => pack (n + m) (esum n m en' em')
+  eadd = \en em. case en of pack n en' =>
+                 case em of pack m em' => pack (n + m) (esum n m en' em')
 \end{lstlisting}
 
 We can then prove that addition of even numbers is also commutative using \lstinline{pcong}.
 
 \begin{lstlisting}
   ecomm :@1 (en : Even) -> (em : Even) -> (eadd en em ~@0 eadd em en)
-  ecomm = \en em.
-    case en of n en' =>
-    case em of m em' =>
-      pcong Nat isEven (n + m) (m + n)
-        (esum n m en' em') (esum m n em' en') (comm n m)
+  ecomm = \en em. case en of pack n en' =>
+                  case em of pack m em' =>
+                    pcong Nat isEven (n + m) (m + n)
+                          (esum n m en' em') (esum m n em' en') (comm n m)
 \end{lstlisting}
 
 If the proof in the subset type were not irrelevant,
@@ -700,7 +699,7 @@ so we can obtain and eliminate a proof of the empty type.
 \begin{lstlisting}
   head :@0 (A :@1 Type) -> (l : List A) ->
            (@1 (@1 (length A l) ~ zero) -> Empty) -> A
-  head = \A l. case l of 
+  head = \A l. case l of
                  nil      => \f. case (f Refl) of {}
                  cons x _ => \_. x
 \end{lstlisting}
