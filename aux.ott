@@ -97,7 +97,7 @@ tm :: 'a_' ::=
   | Prop :: :: Prop
     {{ tex \ottkw{Prop} }}
   | SProp :: :: SProp
-    {{ tex \ottkw{SProp} }}
+    {{ tex \ottkw{sProp} }}
   | Type :: :: Type
     {{ tex \ottkw{Type} }}
 

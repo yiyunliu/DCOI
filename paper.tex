@@ -2594,79 +2594,138 @@ preserving normalization.
 \label{sec:discuss-irrel}
 
 In this section, we discuss dependently typed systems with relevance
-tracking. As pointed out by \citet{tejiscak:erasure}, the notion of irrelevance is
+tracking. The notion of irrelevance is
 used inconsistently in the literature and can refer to either 
-run-time erasure or proof irrelevance, or even both. Here, we
-use the more liberal notion of relevance tracking to refer to both
-run-time erasability and proof irrelevance.
+run-time irrelevance and proof irrelevance. Both types of irrelevance
+allow the erasure of computationally irrelevant terms, though
+proof irrelevance further allows the erasure to appear during type
+conversion. Here, we use the more liberal notion of relevance tracking
+to refer to both run-time irrelevance and proof irrelevance. % , or
+% \emph{external erasure} and \emph{internal erasure} following the
+% terminology by \citet{abel:irrelevance}.
+
+
+The Implicit Calculus of Constructions
+(ICC)~\citep{miquel:icc}, its decidable variant ICC*~\citep{barras:icc}, and the
+Erasure Pure Type Systems (EPTS)~\citep{mishra:erasure} are 
+systems that support run-time irrelevance. Irrelevant arguments to
+functions can be erased during program extraction, but not type
+conversion. Since irrelevant type parameters may appear relevantly in
+the type signature, erasing those parameters would allow one to
+convert between distinct types. Therefore, those systems do not
+support proof irrelevance.
+
+Pfenning's modal type system~\citep{pfenning:modal} and its extension
+by \citet{abel:irrelevance} impose more restrictions on the arrow
+type. In particular, \citet{abel:irrelevance}'s system forbids the
+irrelevant arguments from appearing in either the term or its type so
+they can be erased for both program extraction and type
+conversion. However, as pointed out by
+\citet{tejiscak:erasure}, Pfenning's style of relevance tracking is limiting
+as it prevents one from defining type families indexed by an run-time
+irrelevant argument. One such example is the binary type
+\lstinline{Bin n}, whose index \lstinline{n} keeps track of the
+natural number it corresponds to. To avoid exponential overhead during
+execution, the index \lstinline{n} needs to be marked as irrelevant. 
+However, this is impossible with Pfenning's style of relevance
+tracking as irrelevant arguments are convertible, but
+\lstinline{Bin n} and \lstinline{Bin m} are different types for
+different numbers \lstinline{m} and \lstinline{n}.
+
+
+\citet{liu:dcoi} design \dcoi by making the observation that the
+failure of encoding irrelevant type indices is due to a fixed view of
+relevance. They generalize the notion of irrelevance as a relative
+notion indexed by an observer level. A term and its type can have
+different views of irrelevance.  The indistinguishability judgment
+uses the observer level to determine which components of a term can be
+disposed during type conversion. This allows \dcoi, and thus \name, to soundly encode
+\citet{tejiscak:erasure}'s binary number type, while
+still allowing proof irrelevance for arguments that are irrelevant for
+both terms and types.
+
+
+
+% Type parameters marked as
+% irrelevant are allowed to appear in the type signature but are erased
+% before program execution. In those systems, erasure of irrelevant
+% arguments is unsound for type conversion, as 
+
+
+% Systems such as the Implicit Calculus of Constructions (ICC), 
 % both
 % run-time erasability and proof-irrelevance and sometimes refer to .
 
 % One specific use case of dependency tracking in dependently typed
 % languages is relevance tracking. 
 
-The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc} and
-its decidable variant ICC*~\citep{barras:icc} extend the Extended
-Calculus
-of Constructions~\citep{luo1990:extended} with an implicit quantifier that
-is intended for irrelevant function arguments. A syntactic check is
-performed to ensure that an irrelevant binder is free in the function
-body after erasure. The type formation rules in both ICC and
-ICC* permit the function's codomain type to treat an irrelevant binder
-as relevant. This permissive design allows them to treat type
-variables appearing in parametric polymorphism as irrelevant while
-still ensuring the well-formedness of types, which may depend on
-those type variables. In \name, the same flexibility is achieved by
-decoupling the observer level used to type check terms and types (\nameref{lem:regularity}):
-a type variable can be irrelevant relative to a term's observer level
-while still being relevant relative to its type's observer level.
-Both ICC and ICC* use untyped $\beta$-equivalence as definitional equality
-and therefore do not leverage erasure during type conversion.
+% The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc} and
+% its decidable variant ICC*~\citep{barras:icc} extend the Extended
+% Calculus
+% of Constructions~\citep{luo1990:extended} with an implicit quantifier that
+% is intended for irrelevant function arguments. A syntactic check is
+% performed to ensure that an irrelevant binder is free in the function
+% body after erasure. The type formation rules in both ICC and
+% ICC* permit the function's codomain type to treat an irrelevant binder
+% as relevant. This permissive design allows them to treat type
+% variables appearing in parametric polymorphism as irrelevant while
+% still ensuring the well-formedness of types, which may depend on
+% those type variables. In \name, the same flexibility is achieved by
+% decoupling the observer level used to type check terms and types (\nameref{lem:regularity}):
+% a type variable can be irrelevant relative to a term's observer level
+% while still being relevant relative to its type's observer level.
+% Both ICC and ICC* use untyped $\beta$-equivalence as definitional equality
+% and therefore do not leverage erasure during type conversion.
 
-\citet{pfenning:modal} introduces a modal type theory where function types
-and typing contexts are annotated with relevance levels. In his system,
-there are separate judgment forms $\Gamma \vdash a : A $ and
-$\Gamma \vdash a \div A$, which represent typing for \textit{terms}
-and \textit{proofs} respectively. Pfenning's type system is
-not parameterized by levels and only relevant variables can be used.
-The judgment for proofs (\ie irrelevant terms) $\Gamma \vdash a \div A$
-is defined as a synonym for $\Gamma^\oplus \vdash a : A $, where
-$\Gamma^\oplus$ is obtained by changing all relevance
-annotations in $\Gamma$ to be relevant. The operation that resets the
-relevance levels in the context is referred to as \emph{resurrection} and
-allows terms in irrelevant positions to use variables that are
-formerly marked as irrelevant.
+% \citet{pfenning:modal} introduces a modal type theory where function types
+% and typing contexts are annotated with relevance levels. In his system,
+% there are separate judgment forms $\Gamma \vdash a : A $ and
+% $\Gamma \vdash a \div A$, which represent typing for \textit{terms}
+% and \textit{proofs} respectively. Pfenning's type system is
+% not parameterized by levels and only relevant variables can be used.
+% The judgment for proofs (\ie irrelevant terms) $\Gamma \vdash a \div A$
+% is defined as a synonym for $\Gamma^\oplus \vdash a : A $, where
+% $\Gamma^\oplus$ is obtained by changing all relevance
+% annotations in $\Gamma$ to be relevant. The operation that resets the
+% relevance levels in the context is referred to as \emph{resurrection} and
+% allows terms in irrelevant positions to use variables that are
+% formerly marked as irrelevant.
 
-\citet{abel:irrelevance} extend Pfenning's system with a predicative
-universe hierarchy. They prove the consistency and decidability of a
-type-directed conversion algorithm for their extended system through a
-Kripke-style logical relation. Similar to \citet{pfenning:modal}, the
-system by Abel and Scherer satisfies soundness of \emph{internal erasure},
-meaning that erasure of irrelevant terms can be carried out for open terms
-without sacrificing consistency or decidability. 
-\name also enjoys the internal erasure
-property. In fact, the consistency of \name relies on the soundness of
-internal erasure since type conversion is defined using the
-indistinguishability judgment.
+% \citet{abel:irrelevance} extend Pfenning's system with a predicative
+% universe hierarchy. They prove the consistency and decidability of a
+% type-directed conversion algorithm for their extended system through a
+% Kripke-style logical relation. Similar to \citet{pfenning:modal}, the
+% system by Abel and Scherer satisfies soundness of \emph{internal erasure},
+% meaning that erasure of irrelevant terms can be carried out for open terms
+% without sacrificing consistency or decidability. 
+% \name also enjoys the internal erasure
+% property. In fact, the consistency of \name relies on the soundness of
+% internal erasure since type conversion is defined using the
+% indistinguishability judgment.
 
-While \citet{abel:irrelevance} use Pfenning's resurrection mechanism
-for internal erasure, the Erasure Pure Type Systems (EPTS) by
-\citet{mishra:erasure} use the mechanism only for run-time
-erasure. Like ICC, EPTS uses untyped $\beta$-equivalence as its
-definitional equality; relevance levels do not affect type conversion.
+% While \citet{abel:irrelevance} use Pfenning's resurrection mechanism
+% for internal erasure, the Erasure Pure Type Systems (EPTS) by
+% \citet{mishra:erasure} use the mechanism only for run-time
+% erasure. Like ICC, EPTS uses untyped $\beta$-equivalence as its
+% definitional equality; relevance levels do not affect type conversion.
+
+
 
 \citet{mishra:erasure} distinguish between extrinsic and intrinsic
 relevance tracking. An extrinsic approach determines relevance purely based on the
 context in which the term is used. All systems we have discussed so
-far, including \name, can be viewed as systems that treat relevance
-extrinsically. An example of an intrinsic treatment of irrelevance is
+far, including \dcoi and \name, can be viewed as systems that treat relevance
+extrinsically.
+
+An example of an intrinsic treatment of irrelevance is
 the $[[Prop]]$ sort introduced by \citet{paulin-mohring:coc},
 which identifies computationally irrelevant terms that
 should be erased during program extraction.
-The soundness of erasure for closed programs (referred to as
+The soundness of erasure during program extraction (referred to as
 \emph{external} or \emph{post-mortem erasure} by
-\citet{abel:irrelevance}) is ensured by a form of dependency tracking,
-where only singleton types (\eg equality proofs) or empty
+\citet{abel:irrelevance}) is ensured by a form of dependency
+tracking. In Coq, for example,
+only singleton types (\eg equality proofs) or empty
 types of the $[[Prop]]$ sort can be destructed to produce run-time
 relevant terms whose types are of the relevant sort $[[Type]]$.
 
@@ -2680,7 +2739,7 @@ diverging lambda term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct
 where the reduction relation, used in type conversion, erases
 terms of sort $[[Prop]]$. Werner attempts to address the
 decidability issue of erasing equality proofs by guarding the
-$\beta$-reduction rule for the $\ottkw{J}$ eliminator with the precondition that both sides
+$\beta$-reduction rule for equalities with the precondition that both sides
 of the equality are convertible. However, his conjecture of normalization
 of the system in the presence of equality
 erasure is refuted by \citet{abel:failurenorm}.
@@ -2698,12 +2757,12 @@ relevant universes. An optional consistent extension to their system allows
 an equality type that inhabits $[[SProp]]$ to be eliminated
 to produce a relevant expression. However, their decidability proof,
 based on \citet{abel:irrelevance}, does not cover the equality
-extension. In the Agda and Coq implementations of $[[SProp]]$,
-neither support elimination from non-empty strict propositions to the
-relevant sort.
-\citet{pujet:ttobs, pujet:ccobs} allow the irrelevant proofs of
-observational equalities to cast the type of relevant terms while
-retaining decidable type conversion.
+extension. % In the Agda and Coq implementations of $[[SProp]]$,
+% neither support elimination from non-empty strict propositions to the
+% relevant sort.
+% \citet{pujet:ttobs, pujet:ccobs} allow the irrelevant proofs of
+% observational equalities to cast the type of relevant terms while
+% retaining decidable type conversion.
 
 Bracket types and squash types~\citep{awodey:propastype,
   mendler:quotient} introduce the bracket and squash operators that
@@ -2717,35 +2776,34 @@ regardless of how it is used.
 
 Despite the differences between extrinsic and intrinsic irrelevance, 
 they bear a lot of similarities. For example, irrelevant function
-types in the systems by \citet{pfenning:modal,abel:irrelevance}
-and in \name can be implemented as regular function types with a squashed input type in
-the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. In the
+types can be implemented as regular function types with a squashed input type in
+the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. For the
 other direction, the squash operator can be implemented in the form of
-a weak irrelevant dependent pair~\citep{abel:irrelevance}. In \name,
-the admissible box type is reminiscent of the squash type,
-though the information is never truly squashed but only temporarily
-hidden from low observers. Finally, none of the works mentioned so far
-explores the interaction between extrinsic irrelevance and universe
-levels. On the other hand, an impredicative $[[Prop]]$ sort
-increases the logical strength of the type system and can be proven consistent
-through a proof-irrelevant model~\citep{miquel:proof-irrel-model, timany:pcuic-consistency}.
+a weak irrelevant dependent pair~\citep{abel:irrelevance}. % In \name,
+% the admissible box type is reminiscent of the squash type,
+% though the information is never truly squashed but only temporarily
+% hidden from low observers. Finally, none of the works mentioned so far
+% explores the interaction between extrinsic irrelevance and universe
+% levels. On the other hand, an impredicative $[[Prop]]$ sort
+% increases the logical strength of the type system and can be proven consistent
+% through a proof-irrelevant model~\citep{miquel:proof-irrel-model, timany:pcuic-consistency}.
 
-\citet{mishra:erasure} argue that the extrinsic approach should be
-preferred as it avoids the need to duplicate data type and function
-definitions for both relevant and irrelevant sorts. This idea is
-further advocated by \citet{tejiscak:erasure}, who
-also points out that the proof-irrelevance mechanisms by \citet{pfenning:modal,
-  abel:irrelevance} are too restrictive for expressing the erasability
-of irrelevant type indices. The same issue is not present in \name
-since types and terms can be checked at different levels. A run-time
-irrelevant variable can still be used relevantly at the
-type level. However, we note that our observation in
-\cref{sec:castirrel} is consistent with
-\citeauthor{tejiscak:erasure}'s view that internal erasure is more limited
-than external erasure. Since external erasure does not affect
-typing, it is possible to erase more aggressively
-without affecting metatheoretic properties such as decidability or
-logical consistency.
+% \citet{mishra:erasure} argue that the extrinsic approach should be
+% preferred as it avoids the need to duplicate data type and function
+% definitions for both relevant and irrelevant sorts. This idea is
+% further advocated by \citet{tejiscak:erasure}, who
+% also points out that the proof-irrelevance mechanisms by \citet{pfenning:modal,
+%   abel:irrelevance} are too restrictive for expressing the erasability
+% of irrelevant type indices. The same issue is not present in \name
+% since types and terms can be checked at different levels. A run-time
+% irrelevant variable can still be used relevantly at the
+% type level. However, we note that our observation in
+% \cref{sec:castirrel} is consistent with
+% \citeauthor{tejiscak:erasure}'s view that internal erasure is more limited
+% than external erasure. Since external erasure does not affect
+% typing, it is possible to erase more aggressively
+% without affecting metatheoretic properties such as decidability or
+% logical consistency.
 
 
 % Unlike in ICC, ICC*, EPTS, and \name, an irrelevant binder in \citet{pfenning:modal,
