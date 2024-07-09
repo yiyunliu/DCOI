@@ -330,15 +330,15 @@ results about this well-behaved instance of the system.
   reduced to normal form through the deterministic leftmost-outermost reduction
   strategy. From the standardization theorem and the weak
   normalization property, we show that indexed type conversion is decidable. 
-  Fthermore, we can can extract from our Coq proof an OCaml function that can 
+  Furthermore, we can can extract from our Coq proof an OCaml function that can 
   be used as a decision procedure for this relation.
   \yl{Is it understood that the algorithm
     can be extracted as OCaml code or should I explicitly mention it?
     We don't have a surface type checker to link against the OCaml
     code so I don't know what to say}\sw{doesn't hurt to remind people 
     that decidability proofs are powerful in constructive logics.}
-\item \yl{not sure if the following counts as contributions so I
-    commented them out}
+% \item \yl{not sure if the following counts as contributions so I
+%     commented them out}
 % \item Because the empty type is uninhabited, we show that this type system
 %   supports an expressive rule for its elimination. A high-level proof of
 %   the empty type can eliminated to produce low-level results. This rule justifies the
@@ -402,8 +402,6 @@ inductive definitions not found in the core \name system. \sw{Perhaps we
   should replace the False elimination example with \texttt{divides\_to\_Nat}
   from \texttt{impl/pi/Prime.pi}? This only requires natural number induction,
   although it is a lot more complicated of an example.}
-
-
 
 \subsection{Run- and compile-time irrelevance}
 
@@ -2603,6 +2601,7 @@ types~\citep{pujet:ttobs}. As part of our future work, we want to
 extend \name with the elimination of irrelevant equality proofs while
 preserving normalization.
 
+\iffalse
 \begin{itemize}
 \item Talk about why we can't leverage
   the fact that the equality type is a singleton in our level checking rules
@@ -2610,6 +2609,7 @@ preserving normalization.
 \item Talk about alternative non-strict elimination forms (Obs
   Equality, DE, Trellys) and how they interact with decidability
 \end{itemize}
+\fi
 
 \section{Related Work}
 
@@ -3013,17 +3013,12 @@ metalanguage~\citep{adjedj:mltt-coq}, though an impredicative
 $[[Prop]]$ sort is required to model an object language with infinitely
 many universe levels~\citep{anand:corenuprl}.
 
+\iffalse
 \begin{itemize}
   \item \cite{kovacs:2LTT}
   \item degrees of relatedness (internalizing parametricity) % \cite{nuyts:paramdtt}
 \end{itemize}
-
-\begin{itemize}
-  \item application rule with argument level leq pi type parameter level; same with first component of pair
-  \item parametricity
-  \item typed equality
-  \item implementation w/ level inference, decidable/bidirectional type checking
-\end{itemize}
+\fi
 
 \section{Conclusion}
 
