@@ -1326,14 +1326,14 @@ by \citet{takahashi:par}.
   \stack{.~}\footnote{\suppl{theories}{par.v}{Par\_confluent}}
   \label{lem:diamond}
   If $[[a => b0]]$ and $[[a => b1]]$, then
-  there exists some $[[c]]$ such that $[[b0 => c]]$ and $[[b1 => c]]$.
+  there exists $[[c]]$ s.t. $[[b0 => c]]$ and $[[b1 => c]]$.
 \end{lemma}
 
 \begin{lemma}[Confluence]
   \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
   \label{lem:confluence}
   If $[[a =>* b0]]$ and $[[a =>* b1]]$, then
-  there exists some $[[c]]$ such that $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
+  there exists $[[c]]$ s.t. $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
 \end{lemma}
 
 Confluence is required to show that
@@ -1350,7 +1350,7 @@ to reconnect the two sides after reduction.
   then $[[E |- a1 == b1]]$.
 \end{lemma}
 
-Finally, we will need some inversion lemmas for definitional equality on our types
+Finally, we need inversion lemmas for definitional equality
 (\ie injectivity of type constructors).
 
 \begin{lemma}[Injectivity of function types]
@@ -1400,7 +1400,7 @@ which proceeds by induction on the typing derivation.
 \begin{lemma}
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Refl\_Coherent}}
   If $[[G |- refl : l a ~ l0 b]]$,
-  then there exist $[[a']], [[b']]$ such that
+  then there exist $[[a']], [[b']]$ s.t.
   $[[a =>* a']]$, $[[b =>* b']]$,
   and $[[| G | |- a' == b' @ l0]]$.
 \end{lemma}
@@ -1408,9 +1408,8 @@ which proceeds by induction on the typing derivation.
 \begin{theorem}[Type preservation]
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction},\suppl{theories}{preservation.v}{subject\_reduction\_star}}
   \label{thm:preservation}
-  If $[[a => b]]$ and $[[G |- a : l A]]$
-  then $[[G |- b : l A]]$,
-  and similarly for $[[a =>* b]]$.
+  If $[[a => b]]$ (or $[[a =>* b]]$) and $[[G |- a : l A]]$
+  then $[[G |- b : l A]]$.
 \end{theorem}
 
 \section{Semantic Metatheory}
