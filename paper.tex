@@ -1477,7 +1477,7 @@ are free of redexes.
       \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
     \sigspace{[[c]]}{S_A}{[[l0]]}{R}{[[l]]} &\triangleq
       \exists a, b, [[c =>* (l0 a, b)]] \wedge
-      \member{x}{[[l0]]}{S_A} \wedge
+      \member{a}{[[l0]]}{S_A} \wedge
       (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
     \eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} &\triangleq
                                                    [[E |- p : l]] \wedge
@@ -1490,6 +1490,10 @@ are free of redexes.
       [[ne A]]
     }{
       \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Empty}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
     }
     \and
     \infer[\ottdrulename{SWt\_Pi}]{
@@ -1512,10 +1516,6 @@ are free of redexes.
       j < i
     }{
       \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \interpU{[[E]]}{[[j]]}{[[A]]}}}
-    }
-    \and
-    \infer[\ottdrulename{SWt\_Empty}]{~}{
-      \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
     }
     \and
     \infer[\ottdrulename{SWt\_Eq}]{~}{
