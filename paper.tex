@@ -1446,30 +1446,19 @@ type conversion algorithm.
 % and prove some useful lemmas about how they interact with parallel
 % reduction.
 
-\begin{figure}[h]
-  \centering
-  \fbox{$[[ne a]]$} \hfill \textit{(Neutral forms)}
-  \begin{gather*}
-    \drule{Ne-Var} \!\!\!\!
-    \drule[width=0.1\textwidth]{Ne-App} \!\!\!\!
-    \drule{Ne-Absurd} \!\!\!\!
-    \drule[width=0.1\textwidth]{Ne-J} \!\!\!\!
-    \drule{Ne-Let} \!\!\!\!
-    \drule{Ne-Seq}
-  \end{gather*}
-  %\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
-  \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
-  \caption{Neutral and normal forms}
-  \Description{}
-  \label{fig:normalform}
-\end{figure}
-
 To characterize semantically well-behaved terms through the logical predicate,
-we define the notions of neutral forms \judgement{$[[ne a]]$}
-and normal forms \judgement{$[[nf a]]$} in \cref{fig:normalform},
-which characterize sets of terms that are free of redexes.
-This property can be formulated using parallel reduction as follows.
+we use the notions of neutral forms \judgement{$[[ne a]]$}
+and normal forms \judgement{$[[nf a]]$},
+which characterize sets of terms that are free of redexes. Our
+definition of neutral forms excludes terms like $[[:concrete: (\ H x
+. a) L b]]$ that are stuck because of mismatching levels.
+Furthermore, we consider $[[absurd a]]$ as neutral as long as $[[a]]$
+is in normal form since there is no constructors of the $[[Void]]$
+type. The definitions of neutral and normal forms are otherwise
+standard and can be found in \cref{sec:neutrals}.
 
+The following lemma captures the idea that neutral and normal forms
+are free of redexes.
 \begin{lemma}
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
   If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
@@ -1484,6 +1473,7 @@ This property can be formulated using parallel reduction as follows.
   \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
 \end{definition}
 
+
 \begin{figure}[h]
   \centering
   \hfill \textit{(Auxiliary notation)}
@@ -1495,6 +1485,7 @@ This property can be formulated using parallel reduction as follows.
       \member{x}{[[l0]]}{S_A} \wedge
       (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
     \eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} &\triangleq
+                                                   [[E |- p : l]] \wedge
       [[p =>* refl]] \wedge [[E |- a <=> b @ l0]] \\
     \interpU{[[E]]}{[[j]]}{[[A]]} &\triangleq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S}
   \end{align*}
@@ -1533,7 +1524,7 @@ This property can be formulated using parallel reduction as follows.
     }
     \and
     \infer[\ottdrulename{SWt\_Eq}]{~}{
-      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge (\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]])}}
+      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]]}}
     }
     \and
     \infer[\ottdrulename{SWt\_Step}]{
@@ -1549,7 +1540,8 @@ This property can be formulated using parallel reduction as follows.
 \end{figure}
 
 \Cref{fig:logpred} gives the definition of our logical
-predicate.
+predicate. The omitted rules for natural numbers and units can be
+found in \cref{sec:logpredfull}.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate, which takes the form
 \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}, as an inductive relation
@@ -1821,27 +1813,26 @@ which establishes the connection between the inhabitants of
 the logical predicate and terms that weakly normalize to normal or
 neutral forms.
 
-\begin{figure}[h]
-  \begin{gather*}
-    \drule{P-D}
-    \drule{L-D}
-    \drule{I-D}
-    \drule{Ne-D}
-  \end{gather*}
-  \caption{Extended rules for the dummy constant $[[dummy]]$}
-  \Description{}
-  \label{fig:dummy}
-\end{figure}
+% \begin{figure}[h]
+%   \begin{gather*}
+%     \drule{P-D}
+%     \drule{L-D}
+%     \drule{I-D}
+%     \drule{Ne-D}
+%   \end{gather*}
+%   \caption{Extended rules for the dummy constant $[[dummy]]$}
+%   \Description{}
+%   \label{fig:dummy}
+% \end{figure}
 
 Before we state and prove adequacy, we first show some
 useful facts about normal forms. Following \citet{geuvers:cc-sn}, we
 introduce a dummy constant $[[dummy]]$ to the set of
-terms for presentation purposes. The dummy term satisfies the rules
-specified in \cref{fig:dummy}.
+terms for presentation purposes. The constant $[[dummy]]$ is a neutral
+term that level checks under any context and can only parallel reduce to itself.
 
 Reductions and normal forms are preserved when we undo the substitutions
 involving $[[dummy]]$.
-
 \begin{lemma}[Antirenaming for Par]
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{Par\_antirenaming}}
   \label{lem:paranti}
@@ -1884,14 +1875,13 @@ following corollary about weak normalization.
 
 In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
-because we want \rref{I-D,L-D} to hold. When the level context is empty,
-there is no variable we are allowed to pick. Instead, we define
+because of the scoping constraint imposed by level checking. Instead, we define
 $[[dummy]]$ as $[[absurd Void]]$. Note that the term appearing in the body of $\ottkw{absurd}$
 is flexible; all we need is a term in normal form 
-that has no reference to variables so we do not violate the scoping
-restriction. It is easy to verify that this
-definition respects the rules in \cref{fig:dummy} and the antirenaming
-lemmas.
+that has no reference to variables so we do not violate scoping.
+% restriction. % It is easy to verify that this
+% definition respects the rules in \cref{fig:dummy} and the antirenaming
+% lemmas.
 
 Finally, we state and prove the adequacy lemma.
 
@@ -2857,23 +2847,20 @@ Quantitative Type Theory
 $\Gamma \vdash M :^{\sigma} T$ where $\sigma$ ranges over the
 constants $0$ and $1$ from the semiring, reminiscent of \citeauthor{pfenning:modal}'s
 $\div$ and $:$ modalities.
-In QTT, usage annotations are only enforced at the term level, not at the
-type level. In the following QTT formation rule for function
-types, the usage annotation $\pi$ for the variable $x$ is ignored and
-set to $0$ when checking the output type $T$.
-\begin{mathpar}
-  \infer{
-    0 \Gamma \vdash S \\
-    0 \Gamma \vdash x:^0 S \vdash T
-  }{
-    0 \Gamma \vdash (x :^\pi S) \rightarrow T
-  }
-\end{mathpar}
-Like the system by \citet{mcbride:plentyo}, type formation rule in QTT completely discards usage
-information; as seen in the above rule, the context for the type
-formation judgment is always $0
-\Gamma$, which is obtained by resetting usage information in
-$\Gamma$ to $0$.
+% In QTT, usage annotations are only enforced at the term level, not at the
+% type level. In the following QTT formation rule for function
+% types, the usage annotation $\pi$ for the variable $x$ is ignored and
+% set to $0$ when checking the output type $T$.
+% \begin{mathpar}
+%   \infer{
+%     0 \Gamma \vdash S \\
+%     0 \Gamma \vdash x:^0 S \vdash T
+%   }{
+%     0 \Gamma \vdash (x :^\pi S) \rightarrow T
+%   }
+% \end{mathpar}
+Similar to the system by \citet{mcbride:plentyo}, type-level usage
+tracking is disabled.
 
 GraD~\citep{choudhury:grad} later gives a more uniform design where
 type formation rules are presented in the style of a PTS and share the
@@ -3101,6 +3088,10 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \section{Omitted Judgement Rules}
 
+\subsection{Normal and Neutral Forms} \label{sec:neutrals}
+\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
+\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
+
 \subsection{Naturals} \label{sec:naturals}
 
 \drules[Wt]{$[[G |- a : l A]]$}{Type checking}{Nat,Zero,Succ,Ind}
@@ -3125,5 +3116,8 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \subsection{Level checking} \label{sec:levelling}
 
 \drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq}
+
+\subsection{Logical Predicate} \label{sec:logpredfull}
+
 
 \end{document}
