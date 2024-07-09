@@ -376,10 +376,11 @@ results about this well-behaved instance of the system.
 \end{itemize}
 
 All of our results have been developed using the Coq proof
-assistant and our proofs are available as supplementary
-material. Furthermore, we have extended the prototype type checker by
+assistant and our proofs are available in \repo{} under the \texttt{proofs} directory.
+Furthermore, we have extended the prototype type checker by
 \citet{liu:dcoi},
-suitable for exprimenting with the newly introduced features.
+suitable for exprimenting with the newly introduced features,
+which is also available under the \texttt{impl} directory.
 
 \section{Examples} \label{sec:examples}
 
@@ -394,8 +395,8 @@ these examples.  Some level annotations are omitted in the presentation below
 where they can be inferred by the type checker, though many are retained for
 clarity.
 
-The implementation can be found in \repo{} under the \texttt{impl} directory,
-and all examples in this section are in \texttt{impl/pi/Paper.pi}.  For
+All examples in this section are type checked by our prototype type checker
+and can be found in \texttt{impl/pi/Paper.pi}. For
 exposition, our implementation includes a few convenience features not found
 in the core system that we describe in this paper. In particular, we use
 inductive definitions not found in the core \name system. \sw{Perhaps we
@@ -1390,7 +1391,7 @@ which proceeds by induction on the typing derivation.
 
 In this section, we use a logical predicate to show weak
 normalization and consistency for \name.
-Due to \name{}'s flexible treatment of type conversion \emph{and}
+Due to \name{}'s flexible treatment of type conversion
 and its support for large elimination, we cannot directly reuse the
 proofs found in \citet{abel:irrelevance, geuvers:cc-sn} through embedding.
 We structure the section as follows. In \cref{sec:logpred}, we
@@ -1661,7 +1662,7 @@ for equality, function, and empty types.
 \end{proof}
 
 The set of terms that semantically inhabit a type are closed by
-expansion (i.e. backward reduction).
+expansion (\ie backward reduction).
 
 \begin{lemma}[Backward closure]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos}}
