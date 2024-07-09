@@ -46,7 +46,16 @@ Inductive HRed : tm -> tm -> Prop :=
 
 | HR_IndSuc ℓ a b c:
   (* ------------------------ *)
-  HRed (tInd ℓ a b (tSuc c)) b[(tInd ℓ a b c) .: c ..].
+  HRed (tInd ℓ a b (tSuc c)) b[(tInd ℓ a b c) .: c ..]
+
+| HR_Seq ℓ a0 a1 b :
+  HRed a0 a1 ->
+  (* -------------------- *)
+  HRed (tSeq ℓ a0 b) (tSeq ℓ a1 b)
+
+| HR_SeqTT ℓ b :
+  (* -------------------- *)
+  HRed (tSeq ℓ tTT b) b.
 
 (* Non-essential parallel reduction *)
 (* Reduces the parts that are not reduced by weak head reduction *)
@@ -133,7 +142,18 @@ Inductive NPar : tm -> tm -> Prop :=
   b0 ⇒ b1 ->
   NPar c0 c1 ->
   (* ----------- *)
-  NPar (tInd ℓ a0 b0 c0) (tInd ℓ a1 b1 c1).
+  NPar (tInd ℓ a0 b0 c0) (tInd ℓ a1 b1 c1)
+
+| NP_TT :
+  NPar tTT tTT
+
+| NP_Unit :
+  NPar tUnit tUnit
+
+| NP_Seq ℓ a0 a1 b0 b1 :
+  NPar a0 a1 ->
+  b0 ⇒ b1 ->
+  NPar (tSeq ℓ a0 b0) (tSeq ℓ a1 b1).
 
 Module pfacts := par_facts lattice syntax par.
 Import pfacts.
@@ -262,6 +282,15 @@ Proof.
   elim : c0 c1 /h2; hauto lq:on ctrs:starseq, NPar,Par,HRed.
 Qed.
 
+Lemma starseq_seq_cong ℓ a0 a1 b0 b1 :
+  starseq a0 a1 ->
+  b0 ⇒ b1 ->
+  starseq (tSeq ℓ a0 b0) (tSeq ℓ a1 b1).
+Proof.
+  move => h.
+  elim : a0 a1 /h; hauto lq:on ctrs:starseq, NPar,Par,HRed.
+Qed.
+
 Lemma starseq_ρ_par ρ0 ρ1 :
   (forall i : fin, starseq (ρ0 i) (ρ1 i)) ->
   (forall i : fin, Par (ρ0 i) (ρ1 i)).
@@ -357,6 +386,15 @@ Proof.
     sfirstorder use:Par_morphing_lift2, Par_morphing unfold:Par_m.
     case => //=; eauto.
   - hauto l:on.
+  - hauto l:on.
+  - hauto q:on use:starseq_ρ_par, Par_morphing, starseq_seq_cong unfold:Par_m.
+  - move => ℓ b0 b1 hb ihb ρ0 ρ1 hρ /=.
+    eapply S_Step.
+    apply HR_SeqTT.
+    apply P_SeqTT.
+    sfirstorder use:Par_morphing, starseq_ρ_par unfold:Par_m.
+    by eauto.
+  - hauto l:on.
 Qed.
 
 Lemma split t s (h : t ⇒ s) :
@@ -391,6 +429,12 @@ Proof.
     case => //=.
     sfirstorder use:starseq_ind_cong.
     case => //=. move => n. apply S_Refl. apply NP_Var.
+  - eauto using starseq_seq_cong.
+  - move => ℓ b0 b1 hb ihb.
+    apply : S_Step.
+    apply HR_SeqTT.
+    by apply P_SeqTT.
+    exact.
 Qed.
 
 (* Erase the information about one step par from starseq *)
@@ -580,7 +624,19 @@ Inductive LoRed : tm -> tm -> Prop :=
 
 | LoR_Suc a b:
   LoRed a b ->
-  LoRed (tSuc a) (tSuc b).
+  LoRed (tSuc a) (tSuc b)
+
+| LoR_Seq0 ℓ a0 a1 b :
+  LoRed a0 a1 ->
+  LoRed (tSeq ℓ a0 b) (tSeq ℓ a1 b)
+
+| LoR_Seq1 ℓ a b0 b1 :
+  ne a ->
+  LoRed b0 b1 ->
+  LoRed (tSeq ℓ a b0) (tSeq ℓ a b1)
+
+| LoR_SeqTT ℓ b :
+  LoRed (tSeq ℓ tTT b) b.
 
 Module nfact := normalform_fact lattice syntax par normalform.
 Import nfact.
@@ -590,7 +646,7 @@ Lemma NPar_Var_inv a i :
   a = var_tm i.
 Proof.
   move E : (var_tm i) => T h. move : i E.
-  elim: a T/h; hauto lq:on rew:off inv:NPar ctrs:NPar, rtc.
+  elim: a T/h; hauto l:on inv:NPar ctrs:NPar, rtc.
 Qed.
 
 Lemma NPar_Abs_inv a ℓ b :
@@ -641,6 +697,17 @@ Proof.
   - hauto lq:on inv:NPar ctrs:Par, rtc.
 Qed.
 
+Lemma NPar_Seq_inv u ℓ0 a b :
+  rtc NPar u (tSeq ℓ0 a b) ->
+  exists a0 b0, u = tSeq ℓ0 a0 b0 /\ rtc NPar a0 a /\ rtc Par b0 b.
+Proof.
+  move E : (tSeq ℓ0 a b) => T h.
+  move : a b E.
+  elim : u T /h.
+  - hauto lq:on ctrs:rtc inv:NPar.
+  - hauto lq:on inv:NPar ctrs:Par, rtc.
+Qed.
+
 Lemma NPar_Ind_inv u ℓ a b c :
   rtc NPar u (tInd ℓ a b c) ->
   exists a0 b0 c0, u = tInd ℓ a0 b0 c0 /\ rtc NPar c0 c  /\ rtc Par a0 a /\ rtc Par b0 b.
@@ -669,7 +736,7 @@ Lemma NPar_Univ_inv u i :
 Proof.
   move E : (tUniv i) => T h.
   move : i E.
-  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+  elim : u T/h; hauto l:on inv:NPar ctrs:Par, rtc.
 Qed.
 
 Lemma NPar_Void_inv u :
@@ -678,7 +745,7 @@ Lemma NPar_Void_inv u :
 Proof.
   move E : tVoid => T h.
   move : E.
-  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+  elim : u T/h; hauto l:on inv:NPar ctrs:Par, rtc.
 Qed.
 
 Lemma NPar_Nat_inv u :
@@ -687,7 +754,7 @@ Lemma NPar_Nat_inv u :
 Proof.
   move E : tNat => T h.
   move : E.
-  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+  elim : u T/h; hauto l:on inv:NPar ctrs:Par, rtc.
 Qed.
 
 Lemma NPar_Absurd_inv u v:
@@ -788,7 +855,16 @@ Lemma NPar_Refl_inv u :
 Proof.
   move E : tRefl => T h.
   move : E.
-  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+  elim : u T/h; hauto l:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_TT_inv u :
+  rtc NPar u tTT ->
+  u = tTT.
+Proof.
+  move E : tTT => T h.
+  move : E.
+  elim : u T/h; hauto l:on inv:NPar ctrs:Par, rtc.
 Qed.
 
 Lemma NPar_Zero_inv u :
@@ -797,7 +873,16 @@ Lemma NPar_Zero_inv u :
 Proof.
   move E : tZero => T h.
   move : E.
-  elim : u T/h; hauto lq:on inv:NPar ctrs:Par, rtc.
+  elim : u T/h; hauto l:on inv:NPar ctrs:Par, rtc.
+Qed.
+
+Lemma NPar_Unit_inv u :
+  rtc NPar u tUnit ->
+  u = tUnit.
+Proof.
+  move E : tUnit => T h.
+  move : E.
+  elim : u T/h; hauto l:on inv:NPar ctrs:Par, rtc.
 Qed.
 
 Lemma LoRed_App_Cong a0 a1 ℓ b0 b1 :
@@ -923,6 +1008,19 @@ Proof.
   - hauto lq:on ctrs:rtc, LoRed.
 Qed.
 
+Lemma LoRed_Seq_Cong a0 a1 ℓ b0 b1 :
+  rtc LoRed a0 a1 ->
+  ne a1 ->
+  rtc LoRed b0 b1 ->
+  rtc LoRed (tSeq ℓ a0 b0) (tSeq ℓ a1 b1).
+Proof.
+  move => h. move : b0 b1.
+  elim : a0 a1 /h.
+  - move => a b0 b1 h h0.
+    elim : b0 b1 /h0; hauto lq:on ctrs:rtc,LoRed.
+  - hauto lq:on ctrs:rtc, LoRed.
+Qed.
+
 Lemma LoRed_Let_Cong ℓ0 ℓ1 a0 a1 b0 b1 :
   rtc LoRed a0 a1 ->
   ne a1 ->
@@ -1039,9 +1137,13 @@ Proof.
     move /andP => [? ?]. subst.
     apply : rtc_transitive; eauto.
     sfirstorder use:NPars_Pars, ne_nf, LoRed_Ind_Cong.
-  - move => a /factorization.
-    move => [u][/HReds_LoReds hu0].
-    move /NPar_Nat_inv => ? _. by subst.
+  - qauto l:on use:factorization, HReds_LoReds, NPar_Nat_inv.
+  - qauto l:on use:factorization, HReds_LoReds, NPar_TT_inv.
+  - move => ℓ a iha b ihb u /factorization.
+    move => [u0][/HReds_LoReds hu0].
+    move /NPar_Seq_inv.
+    hauto lqb:on use:NPars_Pars, ne_nf, LoRed_Seq_Cong, rtc_transitive.
+  - qauto l:on use:factorization, HReds_LoReds, NPar_Unit_inv.
 Qed.
 
 Fixpoint LoRedOpt a :=
@@ -1152,6 +1254,17 @@ Fixpoint LoRedOpt a :=
                         end
                end
       end
+  | tSeq _ tTT b => Some b
+  | tSeq ℓ a b =>
+      match LoRedOpt a with
+      | Some a0 => Some (tSeq ℓ a0 b)
+      | None => match LoRedOpt b with
+               | Some b0 =>  Some (tSeq ℓ a b0)
+               | None => None
+               end
+      end
+  | tUnit => None
+  | tTT => None
   end.
 
 Lemma nf_no_red a : nf a -> LoRedOpt a = None.
@@ -1212,6 +1325,15 @@ Proof.
     move {q}.
     hauto b:on drew:off inv:tm use:nf_no_red, ne_nf.
   - hauto lq:on.
+  - move => ℓ a0 a1 b h  /[dup] ? ->.
+    have : a0 <> tTT by hauto lq:on. clear.
+    case : a0 => //=.
+  - move => ℓ a b0 b1 ha hb /[dup] h ->.
+    move E : (LoRedOpt a) => T.
+    have : a <> tTT by hauto lq:on.
+    case : T a ha E => //=.
+    hauto l:on use:nf_no_red, ne_nf.
+    hauto lq:on rew:off.
 Qed.
 
 Definition LoRed' a b := LoRedOpt a = Some b.
@@ -1244,12 +1366,12 @@ Proof.
     + move E0 : (LoRedOpt a) => n.
       case : n E0 => //=.
       * move => a0 ? h.
-        have {}h : u = tApp a0 ℓ b by hauto b:on drew:off. subst.
+        have {}h : u = tApp a0 ℓ b by destruct a; hauto  b:on drew:off. subst.
         hauto lq:on ctrs:Par use:Par_refl.
       * move E1 : (LoRedOpt b) => t.
         case : t E1 => //=.
-        ** hauto qb:on drew:off ctrs:Par use:Par_refl.
-        ** hauto qb:on drew:off.
+        ** destruct a; hauto qb:on drew:off ctrs:Par use:Par_refl.
+        ** destruct a; hauto qb:on drew:off.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
@@ -1265,10 +1387,10 @@ Proof.
     + move E0 : (LoRedOpt a) => T.
       case : T E0=> //=.
       * move => a0 ? h.
-        have {}h :u = tLet ℓ0 ℓ1 a0 b by hauto b:on drew:off. subst.
+        have {}h :u = tLet ℓ0 ℓ1 a0 b by destruct a; hauto b:on drew:off. subst.
         hauto lq:on ctrs:Par use:Par_refl.
       * move E0 : (LoRedOpt b) => T.
-        elim : T E0=>//=;
+        elim : T E0=>//=; destruct a;
                  hauto qb:on drew:off ctrs:Par use:Par_refl.
   - hauto q:on ctrs:Par.
   - move => ℓ a iha b ihb c ihc.
@@ -1299,6 +1421,7 @@ Proof.
                have : q = None.
                move : E. clear. subst q. case : c =>//=.
                congruence.
+  - hauto q:on dep:on ctrs:Par inv:tm use:Par_refl.
 Qed.
 
 Lemma LoRed'_Par a b :
@@ -1314,7 +1437,7 @@ Qed.
 Lemma nf_no_lored a : nf a -> LoRedOpt a = None.
 Proof.
   rewrite /LoRed'.
-  elim : a => //=; hauto q:on inv:tm b:on drew:off.
+  elim : a => //=; hauto  inv:tm b:on drew:off.
 Qed.
 
 Lemma LoRed_wn_sn a b :
