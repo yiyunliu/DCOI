@@ -1636,10 +1636,12 @@ for equality, function, and empty types.
   \label{lem:interpinv}\leavevmode
   \begin{enumerate}
   \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
+    \label{lem:interpinveq}
     If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{S}$, then $S =
     \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge
       (\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]])}$.
   \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
+    \label{lem:interpinvfun}
     If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
     exist $S_A$ and $R$ such that following hold:
     \begin{itemize}
@@ -1651,6 +1653,7 @@ for equality, function, and empty types.
       \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}$.
     \end{itemize}
   \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Void\_inv}}
+    \label{lem:interpinvvoid}
     If $\interp{[[E]]}{[[i]]}{[[Void]]}{S}$, then $S =
     \buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}$.
   \end{enumerate}
@@ -2138,6 +2141,16 @@ reduction (\cref{lem:lrpreservation}), and indistinguishability (\cref{lem:lrfun
 \end{corollary}
 \begin{proof}
   Immediate by the \nameref{thm:fundamental} and \cref{lem:vsubst} (\ref{lem:vnil}).
+\end{proof}
+
+\begin{corollary}[Logical consistency]
+  \stack{.~}\footnote{\suppl{theories}{consistency.v}{consistency}}
+  The judgment $[[nil |- a : l Void]]$ is not derivable for any
+  $[[a]]$ or $[[l]]$.
+\end{corollary}
+\begin{proof}
+  Immediate by the \nameref{thm:fundamental}, \cref{lem:vsubst}
+  (\ref{lem:vnil}), and \cref{lem:interpinv} (\ref{lem:interpinvvoid}).
 \end{proof}
 
 % \subsection{Normalization}
