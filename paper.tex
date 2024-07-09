@@ -208,31 +208,45 @@
 \setlength{\jot}{0pt}
 
 \begin{abstract}
-In this work, we present DCOI$^{\omega}$, a consistent instantiation of of the
-Dependent Calculus of Indistinguishability (DCOI), a PTS style system
-that supports dependency tracking, with a countable
-universe hierarchy. %  and more expressive elimination forms,
+We present \name, a logically consistent instance
+of the Dependent Calculus of Indistinguishability (\dcoi)
+instantiated with an infinite universe hierarchy.
+Like \dcoi, it supports dependency tracking to identify irrelevant arguments,
+and uses indistinguishability during type conversion to enable proof irrelevance,
+supporting run-time and compile-time irrelevance with the same uniform mechanism.
+It further enables internal reasoning about indistinguishability
+with a propositional equality type indexed by an observer level.
+However, prior work on \dcoi establishes only its syntactic type safety,
+which is insufficient for justifying its use as a type theory for theorem proving.
+To this end, in this work, we prove logical consistency, normalization,
+and decidability of level-indexed type conversion for \name.
+We use a syntactic logical predicate and prove its fundamental theorem,
+from which consistency and normalization follow as corollaries.
+We then prove the standardization theorem for leftmost-outermost reduction
+and recover a decision procedure for type conversion.
+All of our results are mechanized in the Coq proof assistant.
+
+% \jc{I don't think we should mention the extraction right here in the abstract...}
+
+%  and more expressive elimination forms,
 % including an elimination form for empty types that allows constructing
 % computationally relevant terms from irrelevant proofs
-DCOI's use of
-indistinguishability during type conversion gives in a uniform mechanism
-that supports both proof-irrelevance and run-time erasure of
-irrelevant type indicies, and enables reasoning about
-information flow internally through an observer-level indexed equality.
-However, prior work has only shown syntactic type soundness,
-which is insufficient for justifying the use of DCOI as a program logic.
-In our work, we use a syntactic logical predicate to prove
-normalization and logical consistency for DCOI$^{\omega}$. By proving
-the standardization theorem for the leftmost-outermost reduction strategy, we
-recover a decision procedure for type conversion which can be
-extracted in the form of executable OCaml code. All of our
-results are mechanized in the Coq proof assistant.
+% DCOI's use of
+% indistinguishability during type conversion gives in a uniform mechanism
+% that supports both proof-irrelevance and run-time erasure of
+% irrelevant type indicies, and enables reasoning about
+% information flow internally through an observer-level indexed equality.
+% However, prior work has only shown syntactic type soundness,
+% which is insufficient for justifying the use of DCOI as a program logic.
+% In our work, we use a syntactic logical predicate to prove
+% normalization and logical consistency for DCOI$^{\omega}$. By proving
+% the standardization theorem for the leftmost-outermost reduction strategy, we
+% recover a decision procedure for type conversion which can be
+% extracted in the form of executable OCaml code. All of our
+% results are mechanized in the Coq proof assistant.
 % Semantic properties such as logical consistency and normalization were
 % proposed as conjectures. To justify the use of DCOI 
 % that can be used for
-
-%  with a
-% predicative universe hierarchy and 
 
 % The Dependent Calculus of Indistinguishability (DCOI) extends
 % Barendregt's Pure Type Systems by adding dependency tracking and using
@@ -272,7 +286,7 @@ The \emph{\longname} (\dcoi)~\cite{liu:dcoi} adapts dependency tracking to the
 context of dependently typed programming languages. The primary goal of
 dependency tracking in \dcoi is the identification of \emph{irrelevant
   arguments}.  Such arguments can be erased during compilation to produce
-faster execution and can be ignored during equivalence checks at compile time.
+faster execution and ignored during equivalence checks at compile time.
 
 In \dcoi, the indistinguishability relation verifies that irrelevant arguments
 can be erased during computation. If the low-level observer (the runtime)
