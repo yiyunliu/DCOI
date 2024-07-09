@@ -1538,12 +1538,11 @@ are free of redexes.
 predicate. The omitted rules for natural numbers and units can be
 found in \cref{sec:logpredfull}.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
-we define our logical predicate, which takes the form
-\judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}, as an inductive relation
-recursively defined over the universe level $[[i]]$. The
-metavariable $S$ represents a family of terms indexed by dependency levels. 
-We use \judgement{$\member{a}{[[l]]}{S}$} to indicate that $[[a]]$ is
-a term that belongs to the set in $[[S]]$ that is indexed by $[[l]]$.
+we define our logical predicate \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}
+as an inductive relation recursively defined over the universe level $[[i]]$,
+where $S$ is a family of terms indexed by dependency levels. 
+\judgement{$\member{a}{[[l]]}{S}$} indicates that $[[a]]$ is
+a term belonging to the set in $[[S]]$ indexed by $[[l]]$.
 When constructing indexed sets, we use
 \judgement{$\buildset{[[a]]}{[[l]]}{\ldots}$} to indicate a family of sets
 parameterized by $[[l]]$.
@@ -1553,17 +1552,16 @@ is interpreted as the family of sets $[[S]]$.
 
 Unlike logical relations for simply typed languages, the logical
 predicate for \name cannot be defined as a total function since not
-all terms can be assigned an interpretation. Instead, the logical predicate
-$\interp{[[E]]}{[[i]]}{[[A]]}{S}$ simultaneously specifies the
+all terms can be assigned an interpretation. Instead,
+\mbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} simultaneously specifies the
 semantically well-formed types $[[A]]$ and their interpretation $[[S]]$.
 % A key result we will present later in this section is the functionality of
 % the logical predicate; that is, each term can only correspond to one
 % interpretation $[[S]]$ if there exists one.
 
-For concision, we introduce the notion of semantic inhabitance to
-avoid mentioning the side condition that a type is well-formed when we
-want to talk about whether a term inhabits the set obtained from
-interpreting the type.
+For concision, we introduce semantic inhabitance to
+avoid mentioning the type well-formedness side condition
+when talking about a term inhabiting the set interpretation of a type.
 
 \begin{definition}[Semantic inhabitance]
   Given a context $[[E]]$ and a level $[[l]]$, 
@@ -1575,8 +1573,8 @@ interpreting the type.
 In \rref{SWt-Pi,SWt-Sigma}, the
 metavariable $R$ represents a relation between terms and the
 indexed family of terms $S$. Ignoring the conclusion of the rules, 
-\rref*{SWt-Pi} and \rref*{SWt-Sigma} share the same preconditions,
-which ensure their well-formedness in the following sense:
+\rref*{SWt-Pi} and \rref*{SWt-Sigma} share the same preconditions
+ensuring their well-formedness:
 for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
 level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed.
 % The interpreted sets appearing in the conclusion follows our usual
@@ -1591,7 +1589,7 @@ parameter to ensure that $[[S]]$ only includes terms that level check
 at the indexed level.
 This property is
 formally stated as follows and can be proven by straightforward
-induction over the logical predicate.
+induction on the logical predicate.
 
 \begin{lemma}[Escape]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUniv\_Ok}}
@@ -1603,13 +1601,14 @@ induction over the logical predicate.
 We refer to \cref{lem:escape} as the escape lemma as it is
 reminiscent of the escape lemmas by \citet{abel:irrelevance} and
 \citet{adjedj:mltt-coq}, though instead of escaping from the
-logical predicate to the syntactic typing judgment, we only require
-the much weaker level checking judgment. The level checking
-restriction will be necessary for us to show that indistinguishable
+logical predicate to syntactic typing, we only require
+the much weaker level checking,
+which will be necessary to show that indistinguishable
 types have the same interpretation.
 
 Similar to its syntactic counterpart, the logical predicate satisfies
-the subsumption property.
+the subsumption property,
+proven by straightforward induction and using \rref*{L-sub}.
 
 \begin{lemma}[Subsumption for the logical predicate]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
@@ -1617,10 +1616,6 @@ the subsumption property.
   If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
   then $\member{[[a]]}{[[l1]]}{S}$.
 \end{lemma}
-
-\begin{proof}
-  Immediate by induction over the derivation and \rref{L-sub}.
-\end{proof}
 
 % The relaxation is possible thanks to
 % the untyped conversion rule, which allows us % to derive properties
@@ -1630,11 +1625,9 @@ the subsumption property.
 % required to justify the use of indistinguishability in the type
 % conversion rule.
 
-Next, we show some properties which will be useful in
-\cref{sec:soundness} for the proof of the fundamental
-theorem. We omit some uses of the syntactic lemmas from
-\cref{sec:synmeta} about reduction and indistinguishability
-when presenting the proof sketches.
+Next, we show some properties which will be useful for proving the fundamental theorem.
+We omit some uses of syntactic lemmas about reduction and indistinguishability
+in the proof sketches.
 % The logical predicate is specified as an inductive relation, but we
 % can further show that it is in fact a partial function; that is, given
 % a level context $[[E]]$, every type $[[A]]$ can only correspond to
@@ -1644,10 +1637,9 @@ when presenting the proof sketches.
 % about reduction derived in \cref{sec:synmeta}.
 
 The logical predicate satisfies the following inversion principles. 
-These inversion principles are not immediately obtainable by inverting
+They are not immediately obtainable by inverting
 the derivation because we close our interpretation with parallel
-reduction, a full
-reduction relation, in \rref{SWt-Step}. For brevity, we show only the cases
+reduction in \rref{SWt-Step}. For brevity, we show only the cases
 for equality, function, and empty types.
 
 \begin{lemma}[Inversion of the logical predicate (selected)]
@@ -1678,7 +1670,7 @@ for equality, function, and empty types.
 \end{lemma}
 
 \begin{proof}
-  Immediate by induction over the derivation of the logical
+  Immediate by induction on the derivation of the logical
   predicate.
 \end{proof}
 
@@ -1694,7 +1686,7 @@ expansion (\ie backward reduction).
 \end{lemma}
 
 \begin{proof}
-  By induction over the derivation of the logical predicate. The
+  By induction on the derivation of the logical predicate. The
   \rref*{SWt-Univ} case requires \rref*{SWt-Step}, the backward
   closure property baked into the definition of the logical
   predicate. All other cases are trivial.
@@ -1713,7 +1705,7 @@ interpretation at a higher level.
 
 \begin{proof}
   By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$
-  and the transitivity of $\leq$ for universe levels.
+  and transitivity of $\leq$.
 \end{proof}
 
 \Rref{SWt-Step} closes the interpretation of types under
@@ -1728,12 +1720,12 @@ preserved under forward reduction through the following lemma.
 \end{lemma}
 
 \begin{proof}
-  By induction over the derivation of
+  By induction on the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
-  \Rref{SWt-Step} is the only interesting case, where we
-  leverage the \nameref{lem:diamond} property of
-  parallel reduction to reconcile two potentially distinct reductions
-  from the type $[[A]]$.
+  \Rref{SWt-Step} is the only interesting case,
+  using the \nameref{lem:diamond} property
+  to reconcile two potentially distinct reductions
+  from $[[A]]$.
 \end{proof}
 
 Next, we prove that the logical predicate is functional. That is,
@@ -1748,7 +1740,7 @@ $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
 \end{lemma}
 
 \begin{proof}
-  By induction over the derivation of
+  By induction on the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
   The \rref*{SWt-Step} case is immediate by \cref{lem:lrpreservation}.
   For all other cases, the conclusion
@@ -1774,7 +1766,7 @@ involves both reduction and indistinguishability.
 
 \begin{proof}
   The argument is similar to the one for \cref{lem:lrfunc}.
-  We start by induction over the derivation of
+  We start by induction on the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
   For case \rref*{SWt-Step}, we need both \cref{lem:lrpreservation}
   and \nameref{lem:simulation}.
@@ -1796,9 +1788,7 @@ involves both reduction and indistinguishability.
   indistinguishable.
 
   To prove that $[[B0 {a / x}]]$ and $[[B1 {a / x}]]$ are
-  indistinguishable, we apply
-  the substitution property of indistinguishability
-  (\rref*{I-subst}).
+  indistinguishable, we apply \rref*{I-subst}.
   This requires $[[a]]$ to be checked at level $[[l0]]$,
   which follows from $[[a]]$ semantically inhabiting $[[A0]]$ via \nameref{lem:escape}.
 \end{proof}
@@ -1806,28 +1796,14 @@ involves both reduction and indistinguishability.
 The last main property is adequacy,
 which establishes the connection between the inhabitants of
 the logical predicate and terms that weakly normalize to normal or
-neutral forms.
-
-% \begin{figure}[h]
-%   \begin{gather*}
-%     \drule{P-D}
-%     \drule{L-D}
-%     \drule{I-D}
-%     \drule{Ne-D}
-%   \end{gather*}
-%   \caption{Extended rules for the dummy constant $[[dummy]]$}
-%   \Description{}
-%   \label{fig:dummy}
-% \end{figure}
-
-Before we state and prove adequacy, we first show some
+neutral forms, but we first need some
 useful facts about normal forms. Following \citet{geuvers:cc-sn}, we
 introduce a dummy constant $[[dummy]]$ to the set of
 terms for presentation purposes. The constant $[[dummy]]$ is a neutral
-term that level checks under any context and can only parallel reduce to itself.
-
-Reductions and normal forms are preserved when we undo the substitutions
+term that level checks under any context and parallel reduces only to itself.
+First, reductions and normal forms are preserved when we undo substitutions
 involving $[[dummy]]$.
+
 \begin{lemma}[Antirenaming for Par]
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{Par\_antirenaming}}
   \label{lem:paranti}
@@ -1892,7 +1868,7 @@ Finally, we state and prove the adequacy lemma.
 \end{lemma}
 
 \begin{proof}
-  By induction over the derivation of
+  By induction on the derivation of
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   The only interesting part of the proof is showing normalization for
   well-formed function and pair
@@ -2081,21 +2057,15 @@ imply the well-formedness of the types in $[[G]]$. % The universal
 % for types in $[[G]]$. 
 Instead, the existence of interpretations
 for types in $[[G]]$ is separately provided by the semantic
-context well-formedness judgment \judgement{$\swf{[[G]]}$},
-defined in \cref{fig:swf}.
-
-\begin{figure}[h]
-  \begin{mathpar}
-    \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
-    \infer[\ottdrulename{SWf\_cons}]{
-      \swf{[[G]]} \\
-      \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
-    }
-  \end{mathpar}
-  \caption{Semantic well-formedness of typing contexts}
-  \Description{}
-  \label{fig:swf}
-\end{figure}
+context well-formedness judgment \judgement{$\swf{[[G]]}$}.
+%
+\begin{mathpar}
+  \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
+  \infer[\ottdrulename{SWf\_cons}]{
+    \swf{[[G]]} \\
+    \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
+  }
+\end{mathpar}
 
 The following lemma is useful when working with judgments of the form
 $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
@@ -2126,7 +2096,7 @@ sketches for the interesting cases.
   if $[[|- G]]$ then $\swf{[[G]]}$.
 \end{theorem}
 \begin{proof}
-By mutual induction over syntactic typing and
+By mutual induction on syntactic typing and
 well-formedness. Despite the complex setup of the logical predicate,
 semantic typing, and their properties, the proof of the fundamental
 theorem is straightforward and is similar to the proofs by logical
