@@ -1859,11 +1859,10 @@ Finally, we state and prove the adequacy lemma.
 \begin{lemma}[Adequacy]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{adequacy}}
   \label{lem:adequacy}
-  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then the following hold:
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then $[[wnf A]]$ and the following hold:
   \begin{itemize}
   \item If $\member{a}{[[l]]}{S}$, then $[[wnf a]]$;
-  \item If $[[E |- a : l]]$ and $[[wne a]]$, then $\member{a}{[[l]]}{S}$; and
-  \item $[[wnf A]]$.
+  \item If $[[E |- a : l]]$ and $[[wne a]]$, then $\member{a}{[[l]]}{S}$.
   \end{itemize}
 \end{lemma}
 
@@ -2053,6 +2052,7 @@ context well-formedness judgment \judgement{$\swf{[[G]]}$}.
 The following lemma is useful when working with judgments of the form
 $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
 
+\ifextended
 \begin{lemma}[Semantic type inversion]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
   The following are equivalent:
@@ -2068,6 +2068,7 @@ $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
 \begin{proof}
   Immediate by the inversion lemma for types of the form $[[Univ i]]$ (Lemma~\ref{lem:interpinv}).
 \end{proof}
+\fi
 
 We now specify the fundamental theorem and provide proof
 sketches for the interesting cases.
@@ -2349,6 +2350,7 @@ which we are unable to conclude.
 % we cannot enforce $[[l]]$ to be exactly $[[l0]]$,
 % as it would violate subsumption by fixing the overall level to $[[l0]]$ in \rref{Wt-Eq}.
 
+\ifextended
 \subsection{Scoped logical predicate, non--Kripke-style}
 \label{sec:nokripke}
 
@@ -2383,6 +2385,7 @@ simplifies our definition of the logical predicate significantly; in a
 dependently typed system, a Kripke-style predicate would require us to
 generalize not only functions, but also function and pair types themselves
 since they both involve binders.
+\fi
 
 % However, our non-Kripke style logical relation requires us to be
 % careful not to rely on the following weakening property on the level
