@@ -1914,9 +1914,10 @@ and simultaneous substitutions.
   by a mapping from $[[x]]$ to $[[a]]$,
   and $[[a { rho }]]$~the simultaneous substitution
   of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
+  The singleton substitution map $[[{ a / x }]]$
+  is then defined as $[[(nil ++ { a / x })]]$,
+  the single extension of the identity substitution map.
 \end{definition}
-The singleton substitution map $[[{ a / x }]]$ is then defined as $[[(nil ++ { a / x })]]$,
-the single extension of the identity substitution map.
 
 \begin{definition}[Valid substitutions]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
@@ -1931,12 +1932,11 @@ the single extension of the identity substitution map.
   we have $\member{\rho(x)}{[[l]]}{S}$.
 \end{definition}
 
-By definition, every term $[[rho( x)]]$ in a valid substitution map
+By definition, every term $[[rho(x)]]$ in a valid substitution map
 $[[rho]]$ from $[[G]]$ to $[[D]]$ level checks with respect to the erased context
-$[[|D|]]$. This allows us to derive the following lemma about
-level checking and valid substitutions.
+$[[|D|]]$. Applying the substitution then yields a term that level checks.
 
-\begin{lemma}[Valid substitutions for level-checked terms]
+\begin{lemma}
 \stack{.~}\footnote{\suppl{theories}{soundness.v}{iok\_$\rho$\_ok\_morphing}}
   If $[[|G| |- a : l]]$ and $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |-
   a{rho} : l ]]$.
@@ -1994,8 +1994,7 @@ Valid substitutions satisfy the following admissible structural rules.
 % quantifier. However, \todo{mention how identity rule becomes
 %   impossible to derive unless we go Kripke-style}.
 
-Next, we define semantic typing based on the definitions of valid
-substitutions and the logical predicate.
+Next, we define semantic typing based on valid substitutions and the logical predicate.
 
 \begin{definition}[Semantic well-typedness]
   \label{def:semwt}
@@ -2010,7 +2009,10 @@ substitutions and the logical predicate.
 \end{definition}
 
 Valid substitutions and semantic well-typedness both satisfy weakening
-properties.
+properties,
+which align with the intuition that a
+substitution map for a context $[[G]]$ also closes over any
+prefixes of $[[G]]$.
 
 \begin{lemma}[Weakening for valid substitutions and
   semantic well-typedness]
@@ -2026,28 +2028,9 @@ properties.
 \end{lemma}
 
 \begin{proof}
-  Immediate by unfolding the respective definitions of valid
+  Immediate by the definitions of valid
   substitutions and semantic well-typedness.
 \end{proof}
-The weakening property aligns with the intuitive understanding that a
-substitution map for a context $[[G]]$ also closes over any
-prefixes of $[[G]]$.
-
-% \begin{lemma}[Weakening of valid substitutions]
-%   \label{lem:rhoweak}
-%   If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then $\sws{[[D]]}{\rho}{[[G]]}$
-% \end{lemma}
-% \begin{proof}
-%   Immediate by unfolding the definition of valid substitutions.
-% \end{proof}
-% \begin{corollary}[Weakening of semantic well-typedness]
-%   \label{lem:semweak}
-%   If $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$, then $\swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]}$.
-% \end{corollary}
-% \begin{proof}
-%   Immediate by Lemma~\ref{lem:rhoweak}.
-% \end{proof}
-
 
 Given a valid substitution map $[[rho]]$ from
 $[[G]]$ to $[[D]]$, the validity of $[[rho]]$ does not necessarily
@@ -2100,21 +2083,17 @@ By mutual induction on syntactic typing and
 well-formedness. Despite the complex setup of the logical predicate,
 semantic typing, and their properties, the proof of the fundamental
 theorem is straightforward and is similar to the proofs by logical
-relation for simply typed languages such as the one by
-\citet{abel:poplmark}.
-
+relations for simply typed languages (\eg \citet{abel:poplmark}).
 For example, the \rref*{Wt-App} case more or less proves itself since
 the idea of valid inputs to valid outputs is baked into the
 \rref*{SWt-Pi} case of the logical predicate.
-
 For other cases involving eliminators such as \rref*{Wt-J} and \rref*{Wt-Let}, the
-scrutinee either reduces to a desired normal form (\eg $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
-term. In the former case, the conclusion follows by
+scrutinee either reduces to a normal form (\ie $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
+term. In the former, the conclusion follows by
 \nameref{lem:backclos} and the induction
-hypothesis. In the latter case, we know that the elimination form
+hypothesis. In the latter, we know that the elimination form
 evaluates to a neutral form and thus semantically inhabits the type by
 \nameref{lem:adequacy}.
-
 The \rref*{Wt-Conv} case is justified by
 the preservation of meaning under expansion (\rref*{SWt-Par}),
 reduction (\cref{lem:lrpreservation}), and indistinguishability (\cref{lem:lrfunci}).
@@ -2147,10 +2126,10 @@ reduction (\cref{lem:lrpreservation}), and indistinguishability (\cref{lem:lrfun
 
 \subsection{Decidability of type conversion}
 \label{sec:decconv}
-In this section, we use the normalization theorem
+
+We can use the normalization theorem
 (\cref{cor:wtwn}) to recover a decision procedure for type
 conversion.
-
 Let \judgement{$a \leadsto^{lo} b$} be the
 leftmost-outermost reduction relation for \name.
 
@@ -2165,7 +2144,7 @@ leftmost-outermost reduction relation for \name.
   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{lo}[[b]]$.
 \end{lemma}
 
-Its proof, which we omit in the text,
+Its proof, which we omit here,
 is adapted from the standardization proof for the untyped lambda calculus by \citet{takahashi:par}.
 We first prove Hindley's local postponement property~\citep{accattoli:factorization}
 for the weak head reduction relation, and then obtain the
@@ -2245,12 +2224,10 @@ $[[Void]]$ and $[[Univ i]]$. Instead, we need to conjure a level
 $[[l]]$ that can ignore the most terms possible when comparing
 $[[A]]$ and $[[B]]$. There are sufficient conditions for coming up
 with such a level, such as the existence of a bottom element,
-or the size of the lattice being (possibly infinitely) countable. The
-precise condition is not easily specified.
-
+or the size of the lattice being (possibly infinitely) countable.
 As a result, we prove the decidability of a weaker version of the
 algorithm where the level used to compare $[[A0]]$ and $[[B0]]$ is
-given as an input. We formally state this property as follows.
+given as an input.
 
 \begin{lemma}[Decidability of indexed type conversion]
   \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{iconv\_dec}}
