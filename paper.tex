@@ -1505,34 +1505,30 @@ are free of redexes.
       \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
     }
     \and
-    \infer[\ottdrulename{SWt\_Empty}]{~}{
-      \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
-    }
-    \and
-    \infer[\ottdrulename{SWt\_Pi}]{
-      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
-      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-    }{
-      \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}}}
-    }
-    \and
-    \infer[\ottdrulename{SWt\_Sigma}]{
-      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
-      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\
-      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
-    }{
-      \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace{[[c]]}{S_A}{[[l0]]}{R}{[[l]]} \vee [[wne c]])}}
-    }
-    \and
     \infer[\ottdrulename{SWt\_Univ}]{
       j < i
     }{
       \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \interpU{[[E]]}{[[j]]}{[[A]]}}}
     }
     \and
-    \infer[\ottdrulename{SWt\_Eq}]{~}{
-      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]]}}
+    \infer[\ottdrulename{SWt\_Pi}]{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\\\
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+    }{
+      \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Empty}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Sigma}]{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\\\
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+    }{
+      \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace{[[c]]}{S_A}{[[l0]]}{R}{[[l]]} \vee [[wne c]])}}
     }
     \and
     \infer[\ottdrulename{SWt\_Step}]{
@@ -1540,6 +1536,10 @@ are free of redexes.
       \interp{[[E]]}{[[i]]}{[[B]]}{S}
     }{
       \interp{[[E]]}{[[i]]}{[[A]]}{S}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Eq}]{~}{
+      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]]}}
     }
   \end{mathpar}  
   \caption{Logical predicate}
