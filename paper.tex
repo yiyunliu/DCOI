@@ -2585,12 +2585,11 @@ since the J eliminator no longer gets stuck at a bogus equality proof.
 \citet{werner:proofirrel} attempts to address this problem while still
 allowing the irrelevant treatment of equality proofs. In his system, the
 elimination form for equalities is annotated with the terms appearing
-in the equality. The $\beta$ rule for the eliminator does not examine
-the equality proof. Instead, the reduction happens when the terms on the left hand
-side and the right hand side of the equality are convertible. Werner's
-rule requires that the terms in the equality be relevant, which is
-not always desirable when these terms may be irrelevant type
-indices. % Furthermore, as shown by \citet{abel:failurenorm}, the more
+in the equality. Reduction does not examine the equality proof,
+but instead happens when the terms on both sides of the equality are convertible.
+Werner's rule requires that the terms in the equality be relevant, which is
+not always desirable.
+% Furthermore, as shown by \citet{abel:failurenorm}, the more
 % restrictive reduction rule by \citet{werner:proofirrel} still violates
 % normalization for impredicative systems.
 
@@ -2623,10 +2622,9 @@ run-time irrelevance and proof irrelevance. Both types of irrelevance
 allow the erasure of computationally irrelevant terms, though
 proof irrelevance further allows the erasure to appear during type
 conversion. Here, we use the more liberal notion of relevance tracking
-to refer to both run-time irrelevance and proof irrelevance. % , or
+to refer to both run-time and proof irrelevance. % , or
 % \emph{external erasure} and \emph{internal erasure} following the
 % terminology by \citet{abel:irrelevance}.
-
 
 The Implicit Calculus of Constructions
 (ICC)~\citep{miquel:icc}, its decidable variant ICC*~\citep{barras:icc}, and the
@@ -2655,25 +2653,21 @@ tracking as irrelevant arguments are convertible, but
 \lstinline{Bin n} and \lstinline{Bin m} are different types for
 different numbers \lstinline{m} and \lstinline{n}.
 
-
-\citet{liu:dcoi} design \dcoi by making the observation that the
+\citet{liu:dcoi} design \dcoi by observing that the
 failure of encoding irrelevant type indices is due to a fixed view of
 relevance. They generalize the notion of irrelevance as a relative
 notion indexed by an observer level. A term and its type can have
 different views of irrelevance.  The indistinguishability judgment
 uses the observer level to determine which components of a term can be
-disposed during type conversion. This allows \dcoi, and thus \name, to soundly encode
-\citet{tejiscak:erasure}'s binary number type, while
+discarded during type conversion. This allows \dcoi, and thus \name, to encode
+\lstinline{Bin} while
 still allowing proof irrelevance for arguments that are irrelevant for
 both terms and types.
-
-
 
 % Type parameters marked as
 % irrelevant are allowed to appear in the type signature but are erased
 % before program execution. In those systems, erasure of irrelevant
 % arguments is unsound for type conversion, as 
-
 
 % Systems such as the Implicit Calculus of Constructions (ICC), 
 % both
@@ -2732,8 +2726,6 @@ both terms and types.
 % erasure. Like ICC, EPTS uses untyped $\beta$-equivalence as its
 % definitional equality; relevance levels do not affect type conversion.
 
-
-
 \citet{mishra:erasure} distinguish between extrinsic and intrinsic
 relevance tracking. An extrinsic approach determines relevance purely based on the
 context in which the term is used. All systems we have discussed so
@@ -2749,11 +2741,11 @@ The soundness of erasure during program extraction (referred to as
 \citet{abel:irrelevance}) is ensured by a form of dependency
 tracking. In Coq, for example,
 only singleton types (\eg equality proofs) or empty
-types of the $[[Prop]]$ sort can be destructed to produce run-time
-relevant terms whose types are of the relevant sort $[[Type]]$.
-As we already dicussed in Section~\ref{sec:castirrel},
-Coq's $[[Prop]]$ sort is limited to run-time irrelevance to preserve
-decidable type checking. \citet{werner:proofirrel}'s type theory with
+types in $[[Prop]]$ can be destructed to produce run-time
+relevant terms.
+As dicussed in Section~\ref{sec:castirrel},
+Coq's $[[Prop]]$ sort is limited to run-time irrelevance for
+decidability of type checking. \citet{werner:proofirrel}'s type theory with
 a proof-irrelevant $[[Prop]]$ fails to satisfy normalization when
 $[[Prop]]$ is impredicative, a result later shown by \citet{abel:failurenorm}.
 
@@ -2775,7 +2767,7 @@ $[[Prop]]$ is impredicative, a result later shown by \citet{abel:failurenorm}.
 \citet{gilbert:sprop} introduce the language sMLTT, an extension to
 MLTT with a proof irrelevant sort $[[SProp]]$. Similar to
 Werner's system, inhabitants of a type $A : [[SProp]]$ are
-treated as definitionally equal during type conversion. They
+treated as definitionally equal. They
 introduce an alternative criterion to singleton
 elimination, which characterizes inductive types that can be safely
 eliminated from $[[SProp]]$ into the relevant universe while
@@ -2783,7 +2775,7 @@ preserving decidablility.
 They show the
 consistency of their design for both predicative and impredicative
 variants of $[[SProp]]$ through a syntactic translation to
-Extensional Type Theory. Similar to \name, their formalized system
+Extensional Type Theory. Similar to \name, their system
 allows the empty type to be eliminated from $[[SProp]]$ to the
 relevant universes. % An optional consistent extension to their system allows
 % an equality type that inhabits $[[SProp]]$ to be eliminated
@@ -2798,14 +2790,13 @@ relevant universes. % An optional consistent extension to their system allows
 % retaining decidable type conversion.
 
 Bracket types and squash types~\citep{awodey:propastype,
-  mendler:quotient} introduce the bracket and squash operators that
-remove computional information from types. Two inhabitants of a
-squashed type are definitionally equal. To ensure consistency of the
-system, the elimination rule of a squashed or bracketted type is
-restricted so that computationally-relevant terms cannot access the hidden
-content. Squash types can also be viewed as an intrinsic
-treatment of irrelevance since a squashed type is always irrelevant
-regardless of how it is used.
+  mendler:quotient} introduce bracket and squash operators that
+remove computational information from types. Inhabitants of a
+squashed type are definitionally equal. To ensure consistency,
+elimination is restricted so that computationally-relevant
+terms cannot access the hidden content. Squash types can also be viewed
+as an intrinsic treatment of irrelevance since a squashed type is always
+irrelevant regardless of usage.
 
 Despite the differences between extrinsic and intrinsic irrelevance, 
 they bear a lot of similarities. For example, irrelevant function
@@ -2906,7 +2897,7 @@ usage information for a type expression. % \citet{choudhury:grad}
 % conversion. 
 Unlike QTT, the type soundness of resource tracking in GraD is
 proven using a syntactic approach through heap semantics. As a logic,
-GraD is inconsistent as it admits the \emph{type in type} axiom.
+GraD is inconsistent as it admits the type-in-type axiom.
 
 Graded Modal Dependent Type Theory (GRTT)~\citep{moon:graded} is a
 predicative type theory that tracks
@@ -3074,11 +3065,9 @@ leverages the fact that CC does not have large elimination.
 Terms can be erased from type level computations, and a generalized
 notion of Girard's reducibility candidates~\citep{girard:proofs} is
 used to model the system.
-
 The same shortcut is not applicable to systems with a predicative
-universe and large elimination and thus requires one to resolve the
-mutual dependency between the well-formedness definition of types and the
-interpretation of their meanings.
+universe and large elimination and thus requires resolving the
+mutual dependency between the semantic well-formedness and the interpretations of types.
 
 \citet{abel:dectt} use induction--recursion in Agda to
 define a Kripke-style logical relation for a dependent type theory with
