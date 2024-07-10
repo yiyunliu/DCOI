@@ -69,8 +69,8 @@
 \lstset{
   basicstyle=\ttfamily\small,
   basewidth=0.5em,
-  aboveskip=0pt,
-  belowskip=0pt,
+  aboveskip=3pt,
+  belowskip=3pt,
   basicstyle=\ttfamily,
   columns=fixed,
   mathescape=true,
@@ -421,13 +421,13 @@ realistic, our presentation uses the syntax of our prototype
 implementation, which is based on a bidirectional type system and
 relies on a constraint solver to infer level annotations.  
 
-In these examples, we use the naturals and their usual order as concrete dependency levels. For example, 
+In these examples, we use the naturals as concrete dependency levels. For example, 
 we use level \texttt{0} for run-time relevant code and level \texttt{1} for irrelevant terms. Some level annotations are omitted when they can be inferred by the type checker, though many are retained for
 clarity.
 
 All examples in this section are type checked by our prototype type checker
-and can be found in \texttt{impl/pi/Paper.pi}. For
-exposition, our implementation includes a few convenience features,
+and can be found in \texttt{impl/pi/Paper.pi}.
+Our implementation includes a few convenience features,
 in particular inductive definitions,
 not found in the core \name system that we describe in this paper.
 \sw{Perhaps we
@@ -629,9 +629,10 @@ and which can only be unpackaged by other irrelevant terms.
 The following is a constructor for subset types
 containing a relevant term and an irrelevant proof
 of a predicate satisfied by the term.
+The type constructor itself and its parameters are marked as irrelevant.
 
 \begin{lstlisting}
-  data Subset (A :@1 Type) (B :@1 (@0 A) -> Type) : Type where
+  data Subset (A :@1 Type) (B :@1 (@0 A) -> Type) :@1 Type where
     pack of (x :@0 A) (@1 B x)
   mem :@0 (A : Type) -> (B : A -> Type) -> (@0 Subset A B) -> A
   mem = \A B p. case p of pack x y => x
@@ -693,26 +694,24 @@ we would have the additional proof obligation of showing that
 \subsection{Eliminating empty types}
 
 In general, irrelevant inductives may not be eliminated to relevant terms.
-The exception in \name is an empty type,
+The exception in \name is the empty type,
 whose eliminator may be typed at any level,
-regardless of the level of the proof it eliminates.
+regardless of the level of its scrutinee.
 \begin{lstlisting}
-  data Empty @1 : Type where {}
+  data Empty :@1 Type where {}
 \end{lstlisting}
 \noindent
 %(In \name, there is a single empty type. However, in our implementation, this principle applies to any inductive type that has no constructors.)
 This feature, new to \name, allows us to handle impossible match cases,
 even when the proof of impossibility is irrelevant.
-
-For example, consider taking the head of a nonempty list when 
+For example, consider taking the head of a nonempty list 
 given an irrelevant proof of its nonemptiness. The definitions of the 
-list type and length function are standard.
+list type and its length are standard.
 
 \begin{lstlisting}
-  data List (A :@1 Type) : Type where
+  data List (A :@1 Type) :@1 Type where
     nil
-    cons of (@0 A) (@0 List A)
-  length :@0 (A :@1 Type) -> List A -> Nat
+    cons of (@0 A) (@0 List A)         length :@0 (A :@1 Type) -> List A -> Nat
 \end{lstlisting}
 
 A safe \lstinline{head} function requries a proof
@@ -734,8 +733,7 @@ so we can obtain and eliminate a proof of the empty type.
 
 In this section, we present the grammar and judgements of \name,
 which is an instantiation of the \longname (\dcoi)~\citep{liu:dcoi} with
-the Pure Type System (PTS)~\citep{barendregt:PTS} axioms and rules
-of a predicative universe hierarchy.
+the PTS axioms and rules of a predicative universe hierarchy.
 The grammar is given in \cref{fig:grammar},
 which is parameterized over a meet-semilattice of dependency levels
 (following \citet{abadi:dcc}).
