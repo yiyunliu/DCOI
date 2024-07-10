@@ -3150,14 +3150,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
 \drules[L]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
 \drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
-\begin{center}
-\fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
-  \begin{mathpar}
-    \infer[\ottdrulename{SWt\_Nat}]{~}{
-      \interp{[[E]]}{[[i]]}{[[Nat]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
-          l]] \wedge \exists [[b]], [[wfnat b]] \wedge [[a =>* b]]  } } }
-  \end{mathpar}
-\end{center}
 
 \subsection{Context well-formedness} \label{sec:wf}
 
@@ -3177,6 +3169,17 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
 
-\subsection{Logical Predicate} \label{sec:logpredfull}
+\subsection{Logical Predicate for Unit and Naturals} \label{sec:logpredfull}
+\begin{center}
+\fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
+  \begin{mathpar}
+    \infer[\ottdrulename{SWt\_Nat}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Nat]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
+          l]] \wedge \exists [[b]], [[wfnat b]] \wedge [[a =>* b]]  } } } \\
+    \infer[\ottdrulename{SWt\_Unit}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Unit]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
+          l]] \wedge \exists [[b]], [[a =>* b]] \wedge ([[b]]=[[unit]] \vee [[ne b]])  } } }
+  \end{mathpar}
+\end{center}
 
 \end{document}
