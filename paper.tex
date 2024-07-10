@@ -3149,7 +3149,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[P]{$[[a => b]]$}{Parallel reduction}{IndZero,IndSucc}
 \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
 \drules[L]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
-\drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
 
 \subsection{Context well-formedness} \label{sec:wf}
 
@@ -3170,6 +3169,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
 
 \subsection{Logical Predicate for Unit and Naturals} \label{sec:logpredfull}
+\drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
 \begin{center}
 \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
   \begin{mathpar}
