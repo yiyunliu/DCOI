@@ -671,9 +671,9 @@ G |- (l0 a, b) : l Sig x : l0 A . B
 
 (! G |- A : Univ i !)
 (! G ++ x : l0 A |- B : Univ j !)
+G ++ z : l1 Sig x : l0 A . B |- C : Univ k
 G |- a : l1 Sig x : l0 A . B
 (# G ++ x : l0 A #) ++ y : l1 B |- b : l C { (l0 x, y) / z }
-G ++ z : l1 Sig x : l0 A . B |- C : Univ k
 l1 <= l
 ------------------------------------------------------------ :: Let
 G |- let (l0 x, y) = l1 a in b : l C { a / z }

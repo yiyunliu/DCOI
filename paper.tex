@@ -784,6 +784,8 @@ with type $[[A]]$.
 To reduce clutter,
 we use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
+The typing judgement is defined mutually with the context well-formedness judgement \judgement{$[[|- G]]$},
+which holds if the context's types are well typed by some universe $[[Univ i]]$.
 Premises which may be omitted in admissible variants of rules without them
 are highlighted in grey.
 
@@ -794,7 +796,7 @@ to the sort axioms $([[Univ i]], [[Univ i + 1]])$ for every $[[i]]$
 and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]], [[j]]$.
 
 \begin{figure}[h]
-  \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
+  % \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
   \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
   \caption{Well-formedness and typing rules (universes, empty, functions)}
   \Description{}
@@ -816,8 +818,8 @@ we can branch on a natural and return different types for each branch.
 Our mechanized metatheoretic results all include the naturals.
 However, as their interactions with dependency levels
 are no more interesting than those of the other constructs,
-we omit them from our discussion in the remainder of this paper.
-The interested reader can refer to their rules in \cref{sec:naturals}.
+we omit them from our discussion in the remainder of this paper,
+and only include their rules in \cref{sec:naturals}.
 
 \subsection{Dependency tracking} \label{sec:dep}
 
@@ -844,15 +846,15 @@ As an example, consider the following typing judgement.
   [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ i . H X -> L (H X -> X) -> X)]]
 \end{displaymath}
 
-The entire function itself is typed at level $[[L]]$,
+The entire function is typed at level $[[L]]$,
 while the parameters $[[X]]$ and $[[x]]$ are annotated at level $[[H]]$,
 so the inner function body cannot be $[[x]]$,
 for instance, even if it has the correct type.
 On the other hand, the parameter $[[f]]$ is a function that takes a high-level $[[X]]$
 and returns a low-level $[[X]]$, so $[[f H x]]$ is a valid function body.
-Meanwhile, the type of the entire function itself need only be well-typed at \emph{some} level,
+Meanwhile, the type of the function need only be well-typed at \emph{some} level,
 and in particular is well-typed at $[[H]]$,
-which would allow using the high-level $[[X]]$
+which allows using the high-level $[[X]]$
 in the codomain of the type.
 
 In general, we can prove a regularity lemma stating that the type of a well-typed term
@@ -866,7 +868,7 @@ without it leaking into the term.
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Wff}, \suppl{theories}{preservation.v}{Wt\_regularity}}
   \label{lem:regularity}
   If $[[G |- a : l A]]$, then $[[|- G]]$ holds,
-  and there exist some $[[l0]], [[i]]$
+  and there exist $[[l0]], [[i]]$
   such that $[[G |- A : l0 Univ i]]$.
 \end{lemma}
 
@@ -919,9 +921,21 @@ Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive c
 % where parallel reduction is merely a metatheoretic tool for proving type soundness.
 
 \begin{figure}[h]
-  \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
-  \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability}{Dist,Indist}    
-  \caption{(Guarded) indistinguishability rules (universes, empty, functions)}
+  \fbox{$[[E |- a == b @ l l0]]$} \quad \fbox{$[[E |- a == b @ l]]$} \hfill \textit{((Guarded) Indistinguishability)}
+  \begin{gather*}
+    \drule[width=0.2\textwidth]{GI-Dist}
+    \drule{GI-Indist}
+    \drule[width=0.2\textwidth]{I-Var}
+    \drule{I-Empty}
+    \drule{I-Absurd} \\\\
+    \drule{I-Pi}
+    \drule{I-Abs}
+    \drule{I-App}
+    % \drule{I-Univ}
+  \end{gather*}
+  % \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  % \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability}{Dist,Indist}    
+  \caption{(Guarded) indistinguishability rules (empty, functions)}
   \Description{}
   \label{fig:indist}
 \end{figure}
@@ -1002,16 +1016,16 @@ power that is not present in PTSes.
 
 \begin{figure}[h]
   \begin{gather*}
-    \drule[width=0.5\textwidth]{Wt-Sig}
+    \drule[width=0.4\textwidth]{Wt-Sig}
     \drule[width=0.6\textwidth]{Wt-Pair} \\\\
-    \drule[width=\textwidth]{Wt-Let} \\\\
+    \drule[width=0.7\textwidth]{Wt-Let}
+    \drule[width=0.5\textwidth]{P-LetPair} \\\\
     \drule{Wt-Unit}
     \drule{Wt-TT}
-    \drule[width=0.5\textwidth]{Wt-Seq} \\\\
-    \drule[width=0.5\textwidth]{P-LetPair}
+    \drule[width=0.5\textwidth]{Wt-Seq}
     \drule{P-SeqTT}
   \end{gather*}
-  \caption{Typing and parallel reduction rules (pairs)}
+  \caption{Typing and parallel reduction rules (pairs, unit)}
   \Description{}
   \label{fig:typing:pair}
 \end{figure}
@@ -1040,8 +1054,8 @@ The level of the scrutinee $[[l1]]$ is not exactly $[[l]]$ but bounded above by 
 its justification is a subtle technical issue,
 which we defer to \cref{sec:scrutinee-level}.
 
-The first and second pair projections can be recovered using the eliminator as follows,
-assuming the level of the pair $[[a]]$ to be $[[l1]]$.
+The first and second pair projections of a pair $[[a]]$ at level $[[l1]]$
+can be recovered as follows.
 %
 \begin{align*}
   [[proj1 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in x]] &
@@ -1049,25 +1063,24 @@ assuming the level of the pair $[[a]]$ to be $[[l1]]$.
 \end{align*}
 
 The typing rules for the projections can be stated as admissible rules
-with the same premises as the rules from prior work,
+with the same premises as the rules in \dcoi,
 and are given in \cref{fig:typing:proj} as
 \rref*{Wt-proj1}\footnote{\suppl{theories}{admissible.v}{T\_Proj1}}
 and \rref*{Wt-proj2}\punctstack{.}\footnote{\suppl{theories}{admissible.v}{T\_Proj2}}
 The first projection is well typed only if the first component's level
-is bounded by the level of the whole pair:
+is bounded by the level of the pair:
 we can only project an observable component.
 The second projection is well typed only if the first projection
 is well typed at the first component's level $[[l0]]$.
 This is because the type of the second component
 is dependent on the first component at level $[[l0]]$.
-Equivalently, the first projection well-typedness premise
-can be replaced by the level constraint $[[l0 <= l]]$,
+Equivalently, this premise can be replaced by the level constraint $[[l0 <= l]]$,
 using \rref*{Wt-proj1} to recover well-typedness.
 
 \begin{figure}[h]
   \mprset{fraction={===}}
   \begin{gather*}
-    \drule{Wt-projOne}
+    \drule[width=0.2\textwidth]{Wt-projOne}
     \drule{Wt-projTwo}
     \drule{Wt-projTwoalt}
   \end{gather*}
@@ -1096,10 +1109,10 @@ with reduction given by \rref{P-SeqTT}.
 In \rref{Wt-Seq}, the level constraint on the scrutinee exists
 for the same reason as in the pair eliminator.
 
-The box type $[[T l0 A]]$ from \cref{sec:examples}
-can be seen as a pair with meaningful information only in its first component,
+The box type $[[T l0 A]]$~\citep{abadi:dcc}
+can be seen as a pair with information only in its first component,
 of which we only ever take the first projection,
-and can therefore be encoded as a unary tuple as follows.
+and can be encoded as a unary tuple.
 %
 \begin{align*}
   [[T l0 A]] &\coloneqq [[Sig x : l0 A . Unit]] &
@@ -1134,33 +1147,33 @@ That is, $[[E |- box H a == box H b @ L]]$ ought to hold regardless of $[[a]]$ a
 The idea generalizes to pairs by using guarded indistinguishability
 when comparing first components in \rref{I-Pair},
 similar to how function arguments are compared.
+The remaining indistinguishability rules for pair types, the unit type, and their eliminators
+are given in \cref{fig:conv:pair}.
+The constraints $[[l1 <= l]]$ in \rref{I-Let,I-Seq}
+is required due to their presence in \rref{Wt-Let,Wt-Seq}.
 
 \begin{figure}[h]
   \begin{gather*}
-    \drule[width=0.5\textwidth]{I-Sig}
-    \drule[width=0.5\textwidth]{I-Pair} \\\\
-    \drule[width=\textwidth]{I-Let} \\\\
+    \drule{I-Sig}
+    \drule{I-Pair}
     \drule{I-Unit}
-    \drule{I-TT}
+    \drule{I-TT} \\\\
+    \drule[width=\textwidth]{I-Let}
     \drule[width=\textwidth]{I-Seq}
   \end{gather*}
-  \caption{Indistinguishability rules (pairs)}
+  \caption{Indistinguishability rules (pairs, unit)}
   \Description{}
   \label{fig:conv:pair}
 \end{figure}
-
-The remaining indistinguishability rules for pair types and eliminators
-are given in \cref{fig:conv:pair}.
-The constraint $[[l1 <= l]]$ in \rref{I-Let} is required due to its presence in \rref{Wt-Let}.
 
 \subsection{Propositional equality} \label{sec:eq}
 
 \begin{figure}[h]
   \begin{gather*}
-    \drule{Wt-Eq}
-    \drule{Wt-Refl} \\
-    \drule[width=0.7\textwidth]{Wt-J}
-    \drule{P-JRefl}
+    \drule[width=0.4\textwidth]{Wt-Eq}
+    \drule{Wt-Refl}
+    \drule{P-JRefl} \\
+    \drule[width=\textwidth]{Wt-J}
   \end{gather*}
   \caption{Typing and parallel reduction rules (equality)}
   \Description{}
@@ -1216,13 +1229,13 @@ In particular, it allows us to show the following lemma.
 
 \nameref{lem:downgrade} permits lowering the observer level of an equality proof.
 Here, the motive is $[[a ~ l0 x]]$,
-which otherwise would not have been well typed
+which would not have been well typed
 if the level of $[[x]]$ had to match the observer level $[[l1]]$
 of the equality $[[p]]$ being eliminated.
 Intuitively, this rule internalizes the idea that if two terms are indistinguishable at some higher level,
-then they are also indistinguishable at a lower level,
+then they also are at a lower level,
 since a lower-level indistinguishability is coarser than a higher-level one,
-and treats more things as indistinguishable.
+and treats more terms as indistinguishable.
 
 \begin{figure}[h]
   \begin{gather*}
@@ -3143,6 +3156,10 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
           l]] \wedge \exists [[b]], [[wfnat b]] \wedge [[a =>* b]]  } } }
   \end{mathpar}
 \end{center}
+
+\subsection{Context well-formedness} \label{sec:wf}
+
+\drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
 
 \subsection{Parallel reduction} \label{sec:par}
 
