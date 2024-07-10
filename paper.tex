@@ -1484,8 +1484,9 @@ are free of redexes.
 \begin{definition}[Weakly normalizing terms]
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
   Given a term $[[a]]$, if there exists some term $[[b]]$ such that
-  $[[a =>* b]]$, then we say that $[[a]]$ weakly normalizes to a
-  normal (resp. neutral) form, which we denote in judgment form as
+  $[[a =>* b]]$ and $[[nf b]]$ (resp. $[[ne b]]$),
+  then we say that $[[a]]$ weakly normalizes to a
+  normal (resp. neutral) form, which we denote as
   \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
 \end{definition}
 
@@ -1512,11 +1513,9 @@ are free of redexes.
     }{
       \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
     }
-    \and
-    \infer[\ottdrulename{SWt\_Univ}]{
-      j < i
-    }{
-      \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \interpU{[[E]]}{[[j]]}{[[A]]}}}
+    \qquad
+    \infer[\ottdrulename{SWt\_Eq}]{~}{
+      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]]}}
     }
     \and
     \infer[\ottdrulename{SWt\_Pi}]{
@@ -1546,8 +1545,14 @@ are free of redexes.
       \interp{[[E]]}{[[i]]}{[[A]]}{S}
     }
     \and
-    \infer[\ottdrulename{SWt\_Eq}]{~}{
-      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]]}}
+    \infer[\ottdrulename{SWt\_Unit}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Unit]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
+          l]] \wedge ([[a =>* unit]] \vee [[wne a]])}}}
+    \qquad
+    \infer[\ottdrulename{SWt\_Univ}]{
+      j < i
+    }{
+      \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \interpU{[[E]]}{[[j]]}{[[A]]}}}
     }
   \end{mathpar}  
   \caption{Logical predicate}
@@ -1556,7 +1561,7 @@ are free of redexes.
 \end{figure}
 
 \Cref{fig:logpred} gives the definition of our logical
-predicate. The omitted rules for natural numbers and units can be
+predicate. The omitted rules for the naturals can be
 found in \cref{sec:logpredfull}.
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}
@@ -3169,16 +3174,15 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
 
 \subsection{Logical Predicate for Unit and Naturals} \label{sec:logpredfull}
+
 \drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
+
 \begin{center}
 \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
   \begin{mathpar}
     \infer[\ottdrulename{SWt\_Nat}]{~}{
       \interp{[[E]]}{[[i]]}{[[Nat]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
-          l]] \wedge \exists [[b]], [[wfnat b]] \wedge [[a =>* b]]  } } } \\
-    \infer[\ottdrulename{SWt\_Unit}]{~}{
-      \interp{[[E]]}{[[i]]}{[[Unit]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
-          l]] \wedge \exists [[b]], [[a =>* b]] \wedge ([[b]]=[[unit]] \vee [[ne b]])  } } }
+          l]] \wedge \exists [[b]], [[wfnat b]] \wedge [[a =>* b]]}}}
   \end{mathpar}
 \end{center}
 
