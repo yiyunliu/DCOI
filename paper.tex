@@ -419,13 +419,12 @@ which is also available under the \texttt{impl} directory.
 
 We start with examples that demonstrate \name in action, with emphasis on its
 suport for run-time and compile-time irrevelance.  To make these examples more
-realistic, we present these examples using the syntax of our prototype
-implementation, which is which is based on a bidirectional type system and
-uses constraint solving to infer level annotations.  
+realistic, our presentation uses the syntax of our prototype
+implementation, which is based on a bidirectional type system and
+relies on a constraint solver to infer level annotations.  
 
-We use the naturals and their usual order as concrete dependency levels in
-these examples.  Some level annotations are omitted in the presentation below
-where they can be inferred by the type checker, though many are retained for
+In these examples, we use the naturals and their usual order as concrete dependency levels. For example, 
+we use level \texttt{0} for run-time relevant code and level \texttt{1} for irrelevant terms. Some level annotations are omitted when they can be inferred by the type checker, though many are retained for
 clarity.
 
 All examples in this section are type checked by our prototype type checker
@@ -437,6 +436,7 @@ not found in the core \name system that we describe in this paper.
   should replace the False elimination example with \texttt{divides\_to\_Nat}
   from \texttt{impl/pi/Prime.pi}? This only requires natural number induction,
   although it is a lot more complicated of an example.}
+\sw{I wish we had more space around the code to set it off in this section}
 
 \subsection{Run- and compile-time irrelevance}
 
@@ -448,20 +448,18 @@ Well-typedness of a program ensures that irrelevant arguments
 are never used in a relevant function.
 
 Consider the following polymorphic identity function,
-with arguments and definitions marked as \lstinline{@0} when relevant
-and \lstinline{@1} when irrelevant. For later examples, we sometimes omit the
-relevant annotations for concision.
+with an irrelevant type argument (marked as \lstinline{@1}) and
+and relevant term argument (marked as \lstinline{@1}). This 
+function is defined at level \lstinline{@0}, which is the level of 
+its output.
+% For later examples, we sometimes omit the
+% relevant annotations for concision.
 
 \begin{lstlisting}
   id :@0 (A :@1 Type) -> (@0 A) -> A
   id = \A x. x
 \end{lstlisting}
 
-The type signature tells us that \lstinline{id} is a
-function that takes an irrelevant type parameter \lstinline{A} and a
-relevant term of type \lstinline{A} as inputs, and returns a relevant
-term of type \lstinline{A} as output. 
-% The overall function is relevant and may be used during computation.
 Although the type argument informs the type checker about how the function should be typed,
 it does not appear in the function body and is therefore erasable
 before execution.
@@ -697,22 +695,20 @@ we would have the additional proof obligation of showing that
 \subsection{Eliminating empty types}
 
 In general, irrelevant inductives may not be eliminated to relevant terms.
-The sole exception in \name is the empty type,
+The exception in \name is an empty type,
 whose eliminator may be typed at any level,
 regardless of the level of the proof it eliminates.
-In our implementation, this applies to any inductive type that has no constructors
-and therefore no closed inhabitants.
-
 \begin{lstlisting}
-  data Empty : Type where {}
+  data Empty @1 : Type where {}
 \end{lstlisting}
+\noindent
+%(In \name, there is a single empty type. However, in our implementation, this principle applies to any inductive type that has no constructors.)
+This feature, new to \name, allows us to handle impossible match cases,
+even when the proof of impossibility is irrelevant.
 
-Level-unrestricted elimination of the empty type allows us to handle impossible match cases,
-for instance, even when the proof of impossibility is irrelevant,
-which previously could not be done in \dcoi.
-An example application is taking the head of a nonempty list
-given an irrelevant proof of its nonemptiness.
-We begin with a list type and a length function on lists.
+For example, consider taking the head of a nonempty list when 
+given an irrelevant proof of its nonemptiness. The definitions of the 
+list type and length function are standard.
 
 \begin{lstlisting}
   data List (A :@1 Type) : Type where
@@ -721,8 +717,10 @@ We begin with a list type and a length function on lists.
   length :@0 (A :@1 Type) -> List A -> Nat
 \end{lstlisting}
 
-The \lstinline{head} function then additionally takes an irrelevant proof
-that the length of the given list is not equal to zero.
+A safe \lstinline{head} function requries a proof
+that the length of the given list is not equal to zero, \emph{i.e.} that 
+\lstinline{(@1 (@1 (length Nat l) ~ zero) -> Empty)}. This proof 
+should be irrelevant, so it is marked with \lstinline{@1}.
 In the \lstinline{nil} case, the type of the proof is
 \lstinline{(zero ~ zero) -> Empty},
 so we can obtain and eliminate a proof of the empty type.
