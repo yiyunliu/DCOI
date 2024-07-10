@@ -208,23 +208,22 @@
 \setlength{\jot}{0pt}
 
 \begin{abstract}
-We present \name, a logically consistent instance
-of the Dependent Calculus of Indistinguishability (\dcoi)
-instantiated with an infinite universe hierarchy.
-Like \dcoi, it supports dependency tracking to identify irrelevant arguments,
-and uses indistinguishability during type conversion to enable proof irrelevance,
-supporting run-time and compile-time irrelevance with the same uniform mechanism.
-It further enables internal reasoning about indistinguishability
-with a propositional equality type indexed by an observer level.
-However, prior work on \dcoi establishes only its syntactic type safety,
-which is insufficient for justifying its use as a type theory for theorem proving.
-To this end, in this work, we prove logical consistency, normalization,
-and decidability of level-indexed type conversion for \name.
-We use a syntactic logical predicate and prove its fundamental theorem,
-from which consistency and normalization follow as corollaries.
-We then prove the standardization theorem for leftmost-outermost reduction
-and recover a decision procedure for type conversion.
-All of our results are mechanized in the Coq proof assistant.
+  The Dependent Calculus of Indistinguishability (\dcoi) uses dependency
+  tracking to identify irrelevant arguments and uses indistinguishability
+  during type conversion to enable proof irrelevance, supporting run-time and
+  compile-time irrelevance with the same uniform mechanism. \dcoi also 
+  internalizes reasoning about indistinguishability through the use of a
+  propositional equality type indexed by an observer level.
+
+  As \dcoi is a pure type system, prior work establishes only its syntactic
+  type safety, justifying its use as the basis for a programming language with
+  dependent types.  However, it was not clear whether any instance of this
+  system would be suitable for use as a type theory for theorem proving.
+  Here, we identify a suitable instance \name, which use an infinite
+  predicative universe hierarchy. We show that \name is logically consistent,
+  normalizing and that level-indexed type conversion is decidable. We have
+  mechanized all results using the Coq proof assistant.  \sw{I don't think we
+    need to go into details about our proof technique.}
 
 % \jc{I don't think we should mention the extraction right here in the abstract...}
 
