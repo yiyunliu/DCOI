@@ -1349,49 +1349,61 @@ by \citet{takahashi:par}.
   there exists $[[c]]$ s.t. $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
 \end{lemma}
 
-Confluence is required to show that
-reduction of definitionally equal terms preserves definitional equality,
-since definitional equality is defined in \rref{E-Conv}
-as the indistinguishability of the two terms after parallel reduction.
-The proof relies on the \nameref{lem:simulation} property of indistinguishability
-to reconnect the two sides after reduction.
+Injectivity of type constructors are trivial to prove in our system since
+definitional equality is directly defined in terms of
+indistinguishability and parallel reduction, both of which are
+injective by definition. Extra effort is needed to show
+that the definitional equality is transitive, which requires
+downgrade (\rref*{I-Down}),
+\nameref{lem:confluence}, and \nameref{lem:simulation}.
+% The proof obligation is shifted to show that our definitional equality is
+% transitive, whose proof requires both confluence and simulation.
 
-\begin{lemma}[Preservation of definitional equality]
-  \stack{.~}\footnote{\suppl{theories}{par.v}{iconv\_par2}}
-  Suppose $[[E |- a0 == b0]]$.
-  If $[[a0 => a1]]$ and $[[b0 => b1]]$,
-  then $[[E |- a1 == b1]]$.
+% immediately follow from the injectivity of 
+
+% Confluence is required to show that
+% reduction of definitionally equal terms preserves definitional equality,
+% since definitional equality is defined in \rref{E-Conv}
+% as the indistinguishability of the two terms after parallel reduction.
+% The proof relies on the \nameref{lem:simulation} property of indistinguishability
+% to reconnect the two sides after reduction.
+\begin{lemma}[Transitivity of equality]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  If $[[E |- a == b]]$ and $[[E |- b == c]]$, then $[[E |- a == c]]$.
+  % If $[[a0 => a1]]$ and $[[b0 => b1]]$,
+  % then $[[E |- a1 == b1]]$.
 \end{lemma}
 
-Finally, we need inversion lemmas for definitional equality
-(\ie injectivity of type constructors).
 
-\begin{lemma}[Injectivity of function types]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_pi\_inj}}
-  If $[[E |- Pi x : l0 A0 . B0 == Pi x : l1 A1 . B1]]$
-  then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
-  and $[[E ++ x : l0 |- B0 == B1]]$.
-\end{lemma}
+% Finally, we need inversion lemmas for definitional equality
+% (\ie injectivity of type constructors).
 
-\begin{lemma}[Injectivity of pair types]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_sig\_inj}}
-  If $[[E |- Sig x : l0 A0 . B0 == Sig x : l1 A1 . B1]]$
-  then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
-  and $[[E ++ x : l0 |- B0 == B1]]$.
-\end{lemma}
+% \begin{lemma}[Injectivity of function types]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_pi\_inj}}
+%   If $[[E |- Pi x : l0 A0 . B0 == Pi x : l1 A1 . B1]]$
+%   then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
+%   and $[[E ++ x : l0 |- B0 == B1]]$.
+% \end{lemma}
 
-\begin{lemma}[Injectivity of equality types]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_eq\_inj}}
-  If $[[E |- a0 ~ l0 b0 == a1 ~ l1 b1]]$
-  then $[[l0]] = [[l1]]$,
-  and there exists an $[[l >= l0]]$
-  such that $[[E |- a0 <=> a1 @ l]]$ and $[[E |- b0 <=> b1 @ l]]$.
-\end{lemma}
+% \begin{lemma}[Injectivity of pair types]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_sig\_inj}}
+%   If $[[E |- Sig x : l0 A0 . B0 == Sig x : l1 A1 . B1]]$
+%   then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
+%   and $[[E ++ x : l0 |- B0 == B1]]$.
+% \end{lemma}
 
-\begin{lemma}[Injectivity of universes]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_univ\_inj}}
-  If $[[E |- Univ i == Univ j]]$ then $[[i]] = [[j]]$.
-\end{lemma}
+% \begin{lemma}[Injectivity of equality types]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_eq\_inj}}
+%   If $[[E |- a0 ~ l0 b0 == a1 ~ l1 b1]]$
+%   then $[[l0]] = [[l1]]$,
+%   and there exists an $[[l >= l0]]$
+%   such that $[[E |- a0 <=> a1 @ l]]$ and $[[E |- b0 <=> b1 @ l]]$.
+% \end{lemma}
+
+% \begin{lemma}[Injectivity of universes]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_univ\_inj}}
+%   If $[[E |- Univ i == Univ j]]$ then $[[i]] = [[j]]$.
+% \end{lemma}
 
 \subsection{Type preservation}
 
@@ -1402,7 +1414,7 @@ and subsumption
 as stated in \cref{fig:lemmas}.
 Due to \rref{Wt-Conv},
 deducing the well-typedness of subterms of a well-typed term
-doesn't follow immediately from inversion and requires separate inversion lemmas,
+doesn't follow immediately from inversion and requires separate generation lemmas,
 which are standard and omitted here.
 One notable consequence is that if $[[refl]]$ is a propositional equality
 between $[[a]]$ and $[[b]]$ at some observer level $[[l0]]$,
