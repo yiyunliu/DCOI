@@ -1192,7 +1192,7 @@ By \rref{Wt-Eq}, the endpoints must themselves be well typed at level $[[l0]]$,
 since it only makes sense to talk about the indistinguishability of observable terms,
 just as \rref{I-Var} only holds for observable variables.
 The observer level $[[l0]]$ must also be bounded by the overall level $[[l]]$
-to maintain logical consistency, as explained by \citet{liu:dcoi}.
+to the consistency of the equational theory, as explained by \citet{liu:dcoi}.
 Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
 given by \rref{Wt-Refl}.
 
@@ -1227,7 +1227,7 @@ In particular, it allows us to show the following lemma.
   \label{lem:downgrade}
   Suppose $[[G |- a : l0 A]]$ and $[[G |- b : l0 A]]$.
   If $[[G |- p : l a ~ l1 b]]$ and $[[l0 <= l1]]$,
-  then $[[G |- p : l a ~ l0 b]]$.
+  then $[[G |- J refl l p : l a ~ l0 b]]$.
 \end{lemma}
 
 \nameref{lem:downgrade} permits lowering the observer level of an equality proof.
@@ -1704,7 +1704,7 @@ for equality, function, and empty types.
   predicate.
 \end{proof}
 
-The set of terms that semantically inhabit a type are closed by
+The set of terms that semantically inhabit a type is closed by
 expansion (\ie backward reduction).
 
 \begin{lemma}[Backward closure]
@@ -1911,11 +1911,12 @@ Finally, we state and prove the adequacy lemma.
   is weakly normalizing, it suffices to show that $[[B0]]$ is weakly
   normalizing. 
 
-  Since the induction hypothesis for $[[B0]]$ is universally
-  quantified, we need to find a concrete term to instantiate $[[a]]$
-  with. By the induction hypothesis for $[[A0]]$, we also know that
+  % Since the induction hypothesis for $[[B0]]$ is universally
+  % quantified, we need to find a concrete term to instantiate $[[a]]$
+  % with. 
+  By the induction hypothesis for $[[A0]]$, we also know that
   if $[[E |- a : l]]$ and $[[a]]$ is a neutral term, then $[[a]]$
-  semantically inhabits $[[A0]]$. By \rref{I-D}, we pick $[[dummy]]$
+  semantically inhabits $[[A0]]$. We pick $[[dummy]]$
   for $[[a]]$ and deduce that $[[B0 {dummy / x}]]$ is weakly
   normalizing. By \cref{lem:wnanti}, we conclude that $[[B0]]$ is
   also weakly normalizing.
@@ -2046,6 +2047,7 @@ prefixes of $[[G]]$.
 \begin{lemma}[Weakening for valid substitutions and
   semantic well-typedness]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}, \suppl{theories}{soundness.v}{weakening\_Sem}}
+  \label{lem:semweak}
   \leavevmode
   \begin{itemize}
     \item \stack{~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}}
@@ -2079,10 +2081,9 @@ context well-formedness judgment \judgement{$\swf{[[G]]}$}.
   }
 \end{mathpar}
 
+\ifextended
 The following lemma is useful when working with judgments of the form
 $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
-
-\ifextended
 \begin{lemma}[Semantic type inversion]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
   The following are equivalent:
@@ -2115,7 +2116,7 @@ well-formedness. Despite the complex setup of the logical predicate,
 semantic typing, and their properties, the proof of the fundamental
 theorem is straightforward and is similar to the proofs by logical
 relations for simply typed languages (\eg \citet{abel:poplmark}).
-For example, the \rref*{Wt-App} case more or less proves itself since
+For example, the \rref*{Wt-App} case proves itself since
 the idea of valid inputs to valid outputs is baked into the
 \rref*{SWt-Pi} case of the logical predicate.
 For other cases involving eliminators such as \rref*{Wt-J} and \rref*{Wt-Let}, the
@@ -2127,7 +2128,11 @@ evaluates to a neutral form and thus semantically inhabits the type by
 \nameref{lem:adequacy}.
 The \rref*{Wt-Conv} case is justified by
 the preservation of meaning under expansion (\rref*{SWt-Par}),
-reduction (\cref{lem:lrpreservation}), and indistinguishability (\cref{lem:lrfunci}).
+reduction (\cref{lem:lrpreservation}), and indistinguishability
+(\cref{lem:lrfunci}).
+The \rref*{Wt-Var} case requires weakening for semantic typing
+(\cref{lem:semweak}) to bring the semantically well-formed type to the
+right scope.
 \end{proof}
 
 \begin{corollary}[Weak normalization for well-typed terms]
