@@ -1,8 +1,11 @@
 SYNTAX_FILE=theories/Autosubst2/syntax.v
 COQMAKEFILE=CoqMakefile
 
-theories: $(COQMAKEFILE)
-	$(MAKE) -f $^
+theories: $(COQMAKEFILE) FORCE
+	$(MAKE) -f $(COQMAKEFILE)
+
+validate: $(COQMAKEFILE) FORCE
+	$(MAKE) -f $(COQMAKEFILE) validate
 
 $(COQMAKEFILE) : $(SYNTAX_FILE)
 	$(COQBIN)coq_makefile -f _CoqProject -o $(COQMAKEFILE)
@@ -17,7 +20,10 @@ $(SYNTAX_FILE) : syntax.sig
 	as2-exe -i syntax.sig -p UCoq > $(SYNTAX_FILE)
 	perl gen_syntax.pl
 
-.PHONY: clean
+.PHONY: clean FORCE
+
 clean:
 	test ! -f $(COQMAKEFILE) || ( $(MAKE) -f $(COQMAKEFILE) clean && rm $(COQMAKEFILE) )
 	rm -f $(SYNTAX_FILE)
+
+FORCE:
