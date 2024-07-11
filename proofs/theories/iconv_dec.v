@@ -16,10 +16,9 @@ Module conv_dec_bot
   (Import factorization : factorization_sig lattice syntax par normalform)
   (Import conv : conv_sig lattice syntax par ieq)
   (Import typing : typing_sig lattice syntax par ieq conv)
-  (Import nf : normalform_sig lattice syntax par)
-  (Import lr : lr_sig lattice syntax par nf ieq conv).
+  (Import lr : lr_sig lattice syntax par normalform ieq conv).
 
-  Module soundness := soundness lattice syntax par nf ieq conv typing lr.
+  Module soundness := soundness lattice syntax par normalform ieq conv typing lr.
   Import soundness.
   Module Solver := Solver lattice.
   Import Solver.

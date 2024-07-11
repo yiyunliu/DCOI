@@ -1,7 +1,8 @@
 Require Import conv par geq imports normalform semtyping typing soundness preservation consistency factorization iconv_dec admissible.
 
 Module MkAll
-  (Import lattice : Lattice).
+  (Import lattice : Lattice)
+  (Import bot : LatticeWithBot lattice).
 
   Module syntax <: syntax_sig lattice.
     Include syntax_sig lattice.
@@ -44,6 +45,8 @@ Module MkAll
   Module iconv_dec := iconv_dec lattice syntax par ieq nf factorization conv.
 
   Module admissible := admissible lattice syntax par ieq conv typing.
+
+  Module conv_dec := conv_dec_bot lattice bot syntax par ieq nf factorization conv typing lr.
 End MkAll.
 
 Module nat_lattice <: Lattice.
@@ -90,7 +93,15 @@ Module nat_lattice <: Lattice.
   Qed.
 End nat_lattice.
 
-Module dcoi_with_nat_lattice := MkAll nat_lattice.
+Module nat_lattice_bot <: LatticeWithBot nat_lattice.
+  Definition bot := 0.
+  Lemma bot_prop : forall a, min bot a = bot.
+  Proof.
+    move => a. rewrite /bot. lia.
+  Qed.
+End nat_lattice_bot.
+
+Module dcoi_with_nat_lattice := MkAll nat_lattice nat_lattice_bot.
 
 Check dcoi_with_nat_lattice.consistency.consistency.
 Print Assumptions dcoi_with_nat_lattice.consistency.consistency.
@@ -100,3 +111,5 @@ Check dcoi_with_nat_lattice.soundness.normalization.
 Print Assumptions dcoi_with_nat_lattice.soundness.normalization.
 Check dcoi_with_nat_lattice.iconv_dec.iconv_dec.
 Print Assumptions dcoi_with_nat_lattice.iconv_dec.iconv_dec.
+Check dcoi_with_nat_lattice.conv_dec.conv_dec.
+Print Assumptions dcoi_with_nat_lattice.conv_dec.conv_dec.
