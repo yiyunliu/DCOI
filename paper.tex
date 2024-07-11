@@ -2468,10 +2468,10 @@ since they both involve binders.
 
 \label{sec:typeddefeq}
 Following \citet{liu:dcoi}, we formulate \name as an instantiation of
-Barendregt's Pure Type Systems~\citep{barendregt:PTS} with a predicative
+\citeauthor{barendregt:PTS}'s Pure Type Systems with a predicative
 universe hierarchy.
 
-A variation of PTS, referred to as Pure Type System with Judgmental
+A variation of PTS, referred to as Pure Type Systems with Judgmental
 Equality by \citet{adams:pure}, replaces the untyped conversion rule from PTS
 with a type-directed equality judgment. While untyped conversion rules
 are still used in practice by theorem provers such as Coq,
@@ -2530,7 +2530,7 @@ equality may result in distinguishable types after being substituted
 into the output type.
 
 Rather than patching \rref{I-AppTy} with side conditions until
-syntactic properties such as type correctness is satisfied, a more
+syntactic properties such as type correctness are satisfied, a more
 pressing problem is whether \rref{I-AppTy} is semantically sound.
 The counterexample above for polymorphic identity functions
 shows that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not necessarily
@@ -2583,9 +2583,9 @@ proof can normalize to either $[[refl]]$ or to a neutral term.
 
 However, it is possible to modify the operational semantics of \name
 by adding the rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
-so the that J eliminator is simply erased during evaluation without having
+so that the J eliminator is erased during evaluation without having
 to reduce the equality proof.
-Since the equality proof is discarded during evaluation, it can be ignored by the
+Since the equality proof is discarded during evaluation, it can be ignored by
 indistinguishability, and therefore the simulation property is preserved.
 
 Such a rule violates subject reduction. Given a term $[[a]]$ of type
@@ -2604,7 +2604,7 @@ since the J eliminator no longer gets stuck at a bogus equality proof.
 allowing the irrelevant treatment of equality proofs. In his system, the
 elimination form for equalities is annotated with the terms appearing
 in the equality. Reduction does not examine the equality proof,
-but instead happens when the terms on both sides of the equality are convertible.
+but instead proceeds when the terms on both sides of the equality are convertible.
 Werner's rule requires that the terms in the equality be relevant, which is
 not always desirable.
 % Furthermore, as shown by \citet{abel:failurenorm}, the more
