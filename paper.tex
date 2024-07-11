@@ -221,7 +221,7 @@
   system would be suitable for use as a type theory for theorem proving.
   Here, we identify a suitable instance \name, which has an infinite
   predicative universe hierarchy. We show that \name is logically consistent,
-  normalizing, and that level-indexed type conversion is decidable. We have
+  normalizing, and that type conversion is decidable. We have
   mechanized all results using the Coq proof assistant.  \sw{I don't think we
     need to go into details about our proof technique.}
 
@@ -304,7 +304,7 @@ system and that its definition of indistinguishability supports
 noninterference. However, while syntactic methods are sufficient for these
 purposes, they cannot be used to reason about semantic properties of type
 systems such as logical consistency, normalization, and decidable
-observer-indexed equivalence.
+type conversion.
 
 For flexibility, \dcoi is designed around a \emph{Pure Type System}
 (PTS)~\citep{barendregt:PTS},
@@ -375,7 +375,7 @@ results about this well-behaved instance of the system.
   theorem, which states that every weakly normalizing term can be
   reduced to normal form by the deterministic leftmost-outermost reduction
   strategy. From the standardization theorem and the weak
-  normalization property, we show that indexed type conversion is decidable. 
+  normalization property, we show that type conversion is decidable.
   Furthermore, we can extract from our Coq proof an OCaml function that can 
   be used as a decision procedure.
 
