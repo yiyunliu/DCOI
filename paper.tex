@@ -224,41 +224,6 @@
   normalizing, and that type conversion is decidable. We have
   mechanized all results using the Coq proof assistant.  \sw{I don't think we
     need to go into details about our proof technique.}
-
-% \jc{I don't think we should mention the extraction right here in the abstract...}
-
-%  and more expressive elimination forms,
-% including an elimination form for empty types that allows constructing
-% computationally relevant terms from irrelevant proofs
-% DCOI's use of
-% indistinguishability during type conversion gives in a uniform mechanism
-% that supports both proof-irrelevance and run-time erasure of
-% irrelevant type indicies, and enables reasoning about
-% information flow internally through an observer-level indexed equality.
-% However, prior work has only shown syntactic type soundness,
-% which is insufficient for justifying the use of DCOI as a program logic.
-% In our work, we use a syntactic logical predicate to prove
-% normalization and logical consistency for DCOI$^{\omega}$. By proving
-% the standardization theorem for the leftmost-outermost reduction strategy, we
-% recover a decision procedure for type conversion which can be
-% extracted in the form of executable OCaml code. All of our
-% results are mechanized in the Coq proof assistant.
-% Semantic properties such as logical consistency and normalization were
-% proposed as conjectures. To justify the use of DCOI 
-% that can be used for
-
-% The Dependent Calculus of Indistinguishability (DCOI) extends
-% Barendregt's Pure Type Systems by adding dependency tracking and using
-% indistinguishability as definitional equality. DCOI also
-% provides an observer-level indexed equality type for internalizing
-% indistinguishability, though its syntactic soundness results established in prior work
-% are do not justify the use of DCOI as a program logic. 
-% With a syntactic logical predicate, we prove normalization and logical
-% consistency for DCOI$^{\omega}$. We recover a decision procedure for
-% type conversion by proving the standardization theorem for the
-% leftmost-outermost reduction strategy. All of our results are
-% mechanized in the Coq proof assistant and the decision procedure can
-% be extracted as an executable OCaml program.
 \end{abstract}
 
 \maketitle
@@ -378,32 +343,6 @@ results about this well-behaved instance of the system.
   normalization property, we show that type conversion is decidable.
   Furthermore, we can extract from our Coq proof an OCaml function that can 
   be used as a decision procedure.
-
-% \item \yl{not sure if the following counts as contributions so I
-%     commented them out}
-
-% \item (Weak) normalization means that all \name programs terminate. The
-%   elimination forms for positive types, such as the $\ottkw{J}$ operator for
-%   propositional equality, is strict. Because of this strictness, uses of $\ottkw{J}$
-%   are considered relevant, even though there is only a single thread of
-%   execution. However, termination justifies (external) erasure of all equality
-%   proofs during computation. \sw{Not sure what to say here and maybe this is
-%     an anti-contribution. Does it make sense to have a dependency level that
-%     is ``a run-time argument, but only used to construct equality proofs''
-%     that can be used to track this erasure?}
-
-% \item Decidable type conversion is the key step to showing decidable
-%   typechecking for \name. What remains is merely the selection and propagation
-%   of type annotations: should the source type system for \name be based on
-%   unification, bidirectional type checking, or other forms of type inference?
-%   Because this last step is more of a user-interface question than a semantic
-%   question, we leave it for future work.
-
-% \item Our semantic reasoning replicates the syntactic type soundness result of
-%   prior work. The structure of our proofs show that the prior type system
-%   design is not accidentally sound, and provides new perspective on its
-%   design. In particular, in our experiments with \name, we have encountered
-%   opportunities for
 \end{itemize}
 
 All of our results have been developed using the Coq proof
@@ -450,8 +389,6 @@ with an irrelevant type argument (marked as \lstinline{@1}) and
 and relevant term argument (marked as \lstinline{@1}). This 
 function is defined at level \lstinline{@0}, which is the level of 
 its output.
-% For later examples, we sometimes omit the
-% relevant annotations for concision.
 
 \begin{lstlisting}
   id :@0 (A :@1 Type) -> (@0 A) -> A
@@ -461,9 +398,6 @@ its output.
 Although the type argument informs the type checker about how the function should be typed,
 it does not appear in the function body and is therefore erasable
 before execution.
-% Therefore, first parameter \lstinline{A} is irrelevant, while its second \lstinline{x} is relevant.
-% This identity function, and relevant functions which take an irrelevant argument in general,
-% can be considered as constant in the irrelevant argument.
 
 This is not to say that irrelevant arguments may never appear in function bodies,
 because they can be applied in other irrelevant positions.
@@ -604,12 +538,9 @@ In particular, given two levels $[[l0 <= l1]]$, the
 following internalizes the idea that a finer equality indexed by
 a higher observer level can be downcast to a coarser equality indexed by
 a lower observer level.
-% an equality annotated at level \lstinline{1},
-% we are able to prove the same equality annotated at level \lstinline{0}
-% by the following.
 
 \begin{lstlisting}[escapeinside={(*}{*)}]
-  downcast : (A : Type) -> (x : A) -> (y : A) -> (x ~@(*$[[l1]]$*) y) -> (x ~@(*$[[l0]]$*) y)
+  downcast : (A : Type) -> (x y : A) -> (x ~@(*$[[l1]]$*) y) -> (x ~@(*$[[l0]]$*) y)
   downcast = \A x y p. subst refl by p
 \end{lstlisting}
 
@@ -922,10 +853,6 @@ listed in \cref{fig:conv} and in following subsections,
 along with rules for its reflexive, congruent closure, omitted here.
 Multi-step parallel reduction \judgement{$[[a =>* b]]$} is the transitive closure of parallel reduction.
 
-% This formulation of equality is in contrast to prior work by \citet{liu:dcoi},
-% where indistinguishability a
-% where parallel reduction is merely a metatheoretic tool for proving type soundness.
-
 \begin{figure}[h]
   \fbox{$[[E |- a == b @ l l0]]$} \quad \fbox{$[[E |- a == b @ l]]$} \hfill \textit{((Guarded) Indistinguishability)}
   \begin{gather*}
@@ -945,8 +872,6 @@ Multi-step parallel reduction \judgement{$[[a =>* b]]$} is the transitive closur
   \Description{}
   \label{fig:indist}
 \end{figure}
-
-
 
 Two terms are indistinguishable at at observer level $[[l]]$ if they have the
 same shape and their subterms are also indistinguishable at $[[l]]$.  The only
@@ -1016,11 +941,7 @@ normalization procedure for well-typed terms
 (\cref{sec:decconv}). Finally, we note that if we instantiate
 \name with a singleton lattice, then indistinguishability degenerates
 into $\alpha$-equivalence, and the definitional equality degenerates
-into $\beta$-equivalence. 
-% SCW: I think this sentence doesn't add much, and can be confusing
-% In the presence of multiple levels, the
-% indistinguishability judgment is what unlocks the extra expressive
-% power that is not present in PTSes.
+into $\beta$-equivalence.
 
 \subsection{Dependent pairs and unit} \label{sec:pairs}
 
@@ -1368,24 +1289,11 @@ injective by definition. Extra effort is needed to show
 that the definitional equality is transitive, which requires
 downgrade (\rref*{I-down}),
 \nameref{lem:confluence}, and \nameref{lem:simulation}.
-% The proof obligation is shifted to show that our definitional equality is
-% transitive, whose proof requires both confluence and simulation.
 
-% immediately follow from the injectivity of 
-
-% Confluence is required to show that
-% reduction of definitionally equal terms preserves definitional equality,
-% since definitional equality is defined in \rref{E-Conv}
-% as the indistinguishability of the two terms after parallel reduction.
-% The proof relies on the \nameref{lem:simulation} property of indistinguishability
-% to reconnect the two sides after reduction.
 \begin{lemma}[Transitivity of equality]
   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
   If $[[E |- a == b]]$ and $[[E |- b == c]]$, then $[[E |- a == c]]$.
-  % If $[[a0 => a1]]$ and $[[b0 => b1]]$,
-  % then $[[E |- a1 == b1]]$.
 \end{lemma}
-
 
 % Finally, we need inversion lemmas for definitional equality
 % (\ie injectivity of type constructors).
@@ -1467,14 +1375,6 @@ type conversion algorithm.
 
 \subsection{A logical predicate for \name}
 \label{sec:logpred}
-
-% Before we can define the logical predicate, we need to first define
-% the notion of neutral and normal terms so we can characterize
-% semantically well-behaved terms.
-% Before we can state and prove the adequacy property for the
-% logical predicate, we need to first define normal and neutral forms
-% and prove some useful lemmas about how they interact with parallel
-% reduction.
 
 To characterize semantically well-behaved terms through the logical predicate,
 we use the notions of neutral forms \judgement{$[[ne a]]$}
@@ -1598,9 +1498,6 @@ all terms can be assigned an interpretation. Instead,
 \mbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} simultaneously specifies the
 semantically well-formed types $[[A]]$ and their interpretation $[[S]]$.
 \fi
-% A key result we will present later in this section is the functionality of
-% the logical predicate; that is, each term can only correspond to one
-% interpretation $[[S]]$ if there exists one.
 
 For concision, we introduce \emph{semantic inhabitance} to
 avoid mentioning the type well-formedness side condition
@@ -1620,8 +1517,6 @@ indexed family of terms $S$. Ignoring the conclusion of the rules,
 ensuring their well-formedness:
 for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
 level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed.
-% The interpreted sets appearing in the conclusion follows our usual
-% intuition. 
 In the function case, the definition of $\prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}$
 specifies the semantic inhabitants of a function type as the set of
 terms that maps well-behaved inputs to well-behaved outputs.
@@ -1660,9 +1555,9 @@ proven by straightforward induction using \rref*{L-sub}.
 \end{lemma}
 
 % The relaxation is possible thanks to
-% the untyped conversion rule, which allows us % to derive properties
+% the untyped conversion rule, which allows us to derive properties
 % like $\Pi$-injectivity through the syntactic
-% approaches described in Section~\ref{sec:synmeta} independently of our
+% approaches described in \cref{sec:synmeta} independently of our
 % semantic metatheory. However, the level checking restriction is still
 % required to justify the use of indistinguishability in the type
 % conversion rule.
@@ -1670,13 +1565,6 @@ proven by straightforward induction using \rref*{L-sub}.
 Next, we show some properties which will be useful for proving the fundamental theorem.
 We omit some uses of syntactic lemmas about reduction and indistinguishability
 in the proof sketches.
-% The logical predicate is specified as an inductive relation, but we
-% can further show that it is in fact a partial function; that is, given
-% a level context $[[E]]$, every type $[[A]]$ can only correspond to
-% one unique interpretation $[[S]]$ if there exists one. We establish
-% this fact through the following sequence of lemmas, all of which can
-% be derived by straightforward interpretation and syntactic results
-% about reduction derived in \cref{sec:synmeta}.
 
 The logical predicate satisfies the following inversion principles. 
 They are not immediately obtainable by inverting
@@ -1868,32 +1756,12 @@ following corollary about weak normalization.
   If $[[wnf a {dummy / x}]]$, then $[[wnf a]]$.
 \end{lemma}
 
-% Lemmas~\ref{lem:paranti}, \ref{lem:nfneanti}, and \ref{lem:paranti}
-% would still hold if we replace the $[[dummy]]$ occurrences with
-% arbitrarily chosen variables. However, the constant $[[dummy]]$ is
-% different from variables as it is level checks at all level contexts,
-% whereas variables are subject to scoping restrictions.
-
-% In \citet{geuvers:cc-sn}, the logical predicate does not impose any
-% scoping restrictions on the inhabitants.
-% As a result, the $[[dummy]]$ constant in his proof can be instantiated
-% as any fresh variables.
-
-% For \name, we need to include scoping information into the definition of
-% the logical predicate to justify the generalized functionality
-% property for indistinguishable types (Lemma~\ref{lem:lrfunc}). This
-% causes issues when we want to prove that well-formed types are
-% normalizing since we only know that
-
 In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
 because of the scoping constraint imposed by level checking. Instead, we define
 $[[dummy]]$ as $[[absurd Void]]$. Note that the term appearing in the body of $\ottkw{absurd}$
 is flexible: all we need is a term in normal form 
 that has no reference to variables so we do not violate scoping.
-% restriction. % It is easy to verify that this
-% definition respects the rules in \cref{fig:dummy} and the antirenaming
-% lemmas.
 
 Finally, we state and prove the adequacy lemma.
 
@@ -1924,7 +1792,7 @@ Finally, we state and prove the adequacy lemma.
 
   % Since the induction hypothesis for $[[B0]]$ is universally
   % quantified, we need to find a concrete term to instantiate $[[a]]$
-  % with. 
+  % with.
   By the induction hypothesis for $[[A0]]$, we also know that
   if $[[E |- a : l]]$ and $[[a]]$ is a neutral term, then $[[a]]$
   semantically inhabits $[[A0]]$. We pick $[[dummy]]$
@@ -1932,10 +1800,6 @@ Finally, we state and prove the adequacy lemma.
   normalizing. By \cref{lem:wnanti}, we conclude that $[[B0]]$ is
   also weakly normalizing.
 \end{proof}
-
-% The use of the dummy constant $[[dummy]]$ in the proof \todo{talk
-%   briefly about how the dummy term helps us avoid the complexity of a
-%   Kripke-style model}...
 
 \subsection{Soundness}
 \label{sec:soundness}
@@ -1986,9 +1850,10 @@ $[[|D|]]$. Applying the substitution then yields a term that level checks.
 \begin{proof}
   Immediate by iterating the substitution principle for level checking (\rref*{L-subst}).
 \end{proof}
+
 % The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
 % redundant but is in fact required; we are unable to recover it with
-% Lemma~\ref{lem:escape} since the definition of valid substitution does
+% \nameref{lem:escape} since the definition of valid substitution does
 % not imply the existence of interpretations for types in the context.
 Valid substitutions satisfy the following admissible structural rules.
 
@@ -2027,13 +1892,7 @@ Valid substitutions satisfy the following admissible structural rules.
 % (\ref{lem:escape}). However, we note that this seemingly
 % innocuous change would overcomplicate our proof by forcing us to
 % generalize our logical predicate to a Kripke-style logical predicate.
-% We discuss the details of this issue in Section~\ref{sec:nokripke}.
-
-% Since we
-% know that the logical predicate is functional, the existential variant
-% implies our existing definition with the universal
-% quantifier. However, \todo{mention how identity rule becomes
-%   impossible to derive unless we go Kripke-style}.
+% We discuss the details of this issue in \cref{sec:nokripke}.
 
 Next, we define semantic typing based on valid substitutions and the logical predicate.
 
@@ -2165,12 +2024,6 @@ right scope.
   (\ref{lem:vnil}), and \cref{lem:interpinv} (\ref{lem:interpinvvoid}).
 \end{proof}
 
-% \subsection{Normalization}
-
-% \begin{itemize}
-%   \item level polymorphism of datatypes
-% \end{itemize}
-
 \subsection{Decidability of type conversion}
 \label{sec:decconv}
 
@@ -2204,10 +2057,6 @@ found in \citet{mckinna:some-lambda-formalized}, we prove local
 postponement for weak head reduction instead of head reduction since
 the former admits a simpler specification.
 \fi
-
-%  Our proof makes a notable simplification to
-% her original proof. Interested readers can refer to the
-% \todo{remove?} appendix for details.
 
 \begin{corollary}[Normalization is decidable]
   \stack{.~}\footnote{\suppl{theories}{factorization.v}{LoRed\_normalize}}
@@ -2267,7 +2116,7 @@ use of the lowest possible level $[[l]]$ computed from (\ref{item:min}).
 % The correctness of the algortihm
 % follows from the syntactic properties about reduction,
 % indistinguishability, and normal forms we have established in
-% Sections~\ref{sec:synmeta} and \ref{sec:logpred}. One of the most
+% \cref{sec:synmeta} and \ref{sec:logpred}. One of the most
 % notable properties is the admissible \rref*{I-Down} rule, which says
 % choosing the lowest level is good enough.
 
@@ -2289,13 +2138,6 @@ with a bottom element.
   described in \cref{def:convalg} decides the relation $[[|G| |- A ==
   B]]$ if \name is instantiated with a lattice with a bottom.
 \end{theorem}
-
-
-% There are sufficient conditions for coming up
-% with such a level, such as the existence of a bottom element,
-% or the size of the lattice being (possibly infinitely)
-% countable. 
-
 
 Independent of the underlying lattice structure, the 
 indexed version of definitional equality is always decidable since it
@@ -2493,8 +2335,6 @@ since they both involve binders.
 % universally quantified definition of valid substitutions since the
 % logical predicate is a partial function (\ref{lem:lrfunc}).
 
-% By defining soundness in terms of 
-
 \subsection{Typed definitional equality
   and relational semantic models}
 
@@ -2588,16 +2428,10 @@ a relational model to justify more complex properties.
 % a fact that is no longer admissible in \name, unlike PTS with
 % judgmental equality. However, this simple remedy still does not give a
 % satisfying answer to defining a relational semantic model.
-% \subsection{Towards efficient algorithmic type conversion}
-% The decision procedure for type conversion presented in
-% Section~\ref{sec:decconv} can be categorized as a normalize-and-compare
 
 \subsection{Casting with irrelevant equalities}
 \label{sec:castirrel}
 
-% In Section~\ref{sec:scrutinee-level}, we explain why the scrutinees of
-% pattern matching cannot be treated irrelevantly due to the simulation
-% property. However, the e
 Equality type has the special property that
 there is only one canonical form $[[refl]]$.
 The fundamental theorem guarantees that a closed proof of equality can only evaluate to
@@ -2649,16 +2483,6 @@ elimination rule through annotations~\citep{liu:dependently}, or by exploring
 beyond intensional equality types~\citep{pujet:ttobs}. In future work, we
 would like to explore the extension of \name with these alternative versions
 of propositional equality.
-
-\iffalse
-\begin{itemize}
-\item Talk about why we can't leverage
-  the fact that the equality type is a singleton in our level checking rules
-  because of internal erasure
-\item Talk about alternative non-strict elimination forms (Obs
-  Equality, DE, Trellys) and how they interact with decidability
-\end{itemize}
-\fi
 
 \section{Related Work}
 
@@ -2725,11 +2549,7 @@ both terms and types.
 % Type parameters marked as
 % irrelevant are allowed to appear in the type signature but are erased
 % before program execution. In those systems, erasure of irrelevant
-% arguments is unsound for type conversion, as 
-
-% Systems such as the Implicit Calculus of Constructions (ICC), 
-% both
-% run-time erasability and proof-irrelevance and sometimes refer to .
+% arguments is unsound for type conversion, as
 
 % One specific use case of dependency tracking in dependently typed
 % languages is relevance tracking. 
@@ -2863,7 +2683,7 @@ the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. For t
 other direction, the squash operator can be implemented in the form of
 a weak irrelevant dependent pair~\citep{abel:irrelevance}, similar to
 our encoding of the box type.
- % In \name,
+% In \name,
 % the admissible box type is reminiscent of the squash type,
 % though the information is never truly squashed but only temporarily
 % hidden from low observers. Finally, none of the works mentioned so far
@@ -2888,7 +2708,6 @@ our encoding of the box type.
 % typing, it is possible to erase more aggressively
 % without affecting metatheoretic properties such as decidability or
 % logical consistency.
-
 
 % Unlike in ICC, ICC*, EPTS, and \name, an irrelevant binder in \citet{pfenning:modal,
 %   abel:irrelevance}'s systems must be treated as
@@ -2920,7 +2739,8 @@ information flow, and differential privacy. Using a boolean semiring, quantitati
 type systems can track dependency and perform external erasure.
 
 \citet{mcbride:plentyo} extends a dependently typed system with usage
-tracking for computationally relevant terms. % Usage tracking is disabled in type formation rules and
+tracking for computationally relevant terms.
+% Usage tracking is disabled in type formation rules and
 % therefore allows him to embed his system into a predicative type
 % theory, whose normalization property is given by
 % \citet{abel:normalization}. 
@@ -2998,8 +2818,7 @@ define our semantic model.
 % feature of \dcoi and \name is the ability to reason about dependency
 % from different observer levels that range over a lattice through the
 % internalized indistinguishability judgment.
-% In
-% \citet{abel:irrelevance, gilbert:sprop}, equalities are always based
+% In \citet{abel:irrelevance, gilbert:sprop}, equalities are always based
 % on an observer who can only access relevant information.
 
 The design of \dcoi~\citep{liu:dcoi} and its instantiation \name is
@@ -3035,7 +2854,6 @@ $C$. \citet{liu:dcoi} show that the combination of the two mechanisms
 makes it difficult to generalize DDC's conversion rule to support
 indistinguishability at different levels, which is necessary for
 allowing the elimination of indexed equality types.
-
 
 % The restrictive conversion rule makes it difficult to define the
 % elimination form for an indexed equality type since levels below $C$
@@ -3144,13 +2962,6 @@ metalanguage~\citep{adjedj:mltt-coq}, though an impredicative
 $[[Prop]]$ sort is required to model an object language with infinitely
 many universe levels~\citep{anand:corenuprl}.
 
-\iffalse
-\begin{itemize}
-  \item \cite{kovacs:2LTT}
-  \item degrees of relatedness (internalizing parametricity) % \cite{nuyts:paramdtt}
-\end{itemize}
-\fi
-
 \section{Conclusion}
 
 In this work, we define \name, an instantiation of \dcoi with a
@@ -3170,11 +2981,9 @@ In future work, we plan to further explore the use of \name as the foundation fo
 decidable type checking in the style of a bidirectional system
 \citet{dunfield-krishnaswami:bidirection,adjedj:mltt-coq}. In this context we can then explore various extensions of the system, including dependency level inference, dependency level quantification, and subtyping. We also plan to investigate applications of dependency tracking beyond irrelevance, such as safe interoperability, information flow and staged computation. \sw{Also mention inductive datatypes? Prop sort? type-directed equality? }
 
-
 % We complete the semantic side of the story by
 % proving logical consistency, normalization, and decidable type
 % conversion, thus making \name suitable as the core language of theorem provers.
-
 
 \begin{acks} 
 The authors would like to thank the anonymous reviewers for their comments and suggestions.
