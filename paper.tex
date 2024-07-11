@@ -69,8 +69,8 @@
 \lstset{
   basicstyle=\ttfamily\small,
   basewidth=0.5em,
-  aboveskip=3pt,
-  belowskip=3pt,
+  aboveskip=0pt,
+  belowskip=0pt,
   basicstyle=\ttfamily,
   columns=fixed,
   mathescape=true,
@@ -2094,8 +2094,7 @@ the former admits a simpler specification.
 \begin{corollary}[Normalization is decidable]
   \stack{.~}\footnote{\suppl{theories}{factorization.v}{LoRed\_normalize}}
   \label{lem:nomdec}
-  If $[[wnf a]]$, then there exists an algorithm that computes its
-  normal form.
+  If $[[wnf a]]$, then its normal form can be computed.
 \end{corollary}
 \begin{proof}
   By \nameref{lem:standardization} and the fact that
@@ -2377,10 +2376,10 @@ Following \citet{liu:dcoi}, we formulate \name as an instantiation of
 universe hierarchy.
 A variation of PTS, referred to as Pure Type Systems with Judgmental
 Equality by \citet{adams:pure}, replaces the untyped conversion rule from PTS
-with a type-directed equality judgment. While untyped conversion rules
-are still used in practice by theorem provers such as Coq,
-judgmental equality enables more expressive $\eta$ laws that cannot be
-expressed without type annotations.
+with a typed equality judgment. While untyped conversion
+is used in practice by theorem provers such as Coq,
+typed equality enables more expressive $\eta$ laws
+that otherwise cannot be expressed.
 
 \citet{siles:PTS} proves the equivalence between typed and untyped
 Pure Type Systems in the absence of $\eta$ laws.
@@ -2522,12 +2521,12 @@ of propositional equality.
 \paragraph{Dependent types and irrelevance}
 \label{sec:discuss-irrel}
 
-Many dependent type systems include a notion of irrelevence, although the term
+Many dependent type systems include a notion of irrelevance, although the term
 has been used inconsistently and refers to either run-time irrelevance or
-compile-time irrelevance. The former refers to the erasure of computationally
-irrelevant terms during compilation, in order to optimize code. The latter
-erases or ignores irrelevant terms during type conversion, in order to accept
-more programs.  Here, we liberally use relevance tracking to refer to both
+compile-time irrelevance. The former refers to the erasure of
+computationally-irrelevant terms during compilation to optimize code.
+The latter erases or ignores irrelevant terms during type conversion to accept
+more programs. Here, we liberally use relevance tracking to refer to both
 concepts.
 
 The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc}, its decidable
