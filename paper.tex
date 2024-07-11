@@ -1569,7 +1569,7 @@ Similar to \citet{abel:irrelevance}'s semantic interpretation of types,
 we define our logical predicate \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}
 as an inductive relation recursively defined over the universe level $[[i]]$,
 where $S$ is a family of terms indexed by dependency levels. 
-\judgement{$\member{a}{[[l]]}{S}$} indicates that $[[a]]$ is
+The judgment \judgement{$\member{a}{[[l]]}{S}$} indicates that $[[a]]$ is
 a term belonging to the set in $[[S]]$ indexed by $[[l]]$.
 When constructing indexed sets, we use
 \judgement{$\buildset{[[a]]}{[[l]]}{\ldots}$} to indicate a family of sets
@@ -1611,8 +1611,7 @@ level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed.
 % intuition. 
 In the function case, the definition of $\prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}$
 specifies the semantic inhabitants of a function type as the set of
-terms that maps well-behaved terms from the input type to a well-behaved
-output type.
+terms that maps well-behaved inputs to well-behaved outputs.
 
 The logical predicate takes in a level context $[[E]]$ as a
 parameter to ensure that $[[S]]$ only includes terms that level check
