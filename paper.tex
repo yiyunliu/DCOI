@@ -7,7 +7,7 @@
 \commentstrue         %% toggle comments here
 \extendedfalse
 
-\submissiontrue       %% at most one of these must be true (neither for draft version)
+\submissionfalse       %% at most one of these must be true (neither for draft version)
 \publicfalse          %% but if you want to see comments, these should both be off
 
 % If we are going to make a version public, i.e. on arXiv, we should 
@@ -2520,12 +2520,36 @@ to refer to both run-time and compile-time irrelevance. % , or
 The Implicit Calculus of Constructions
 (ICC)~\citep{miquel:icc}, its decidable variant ICC*~\citep{barras:icc}, and the
 Erasure Pure Type Systems (EPTS)~\citep{mishra:erasure} are 
-systems that support run-time irrelevance. Irrelevant arguments to
-functions can be erased during program extraction, but not type
-conversion. Since irrelevant type parameters may appear relevantly in
-the type signature, erasing those parameters would allow one to
-convert between distinct types. Therefore, those systems do not
-support compile-time irrelevance.
+systems that support run-time irrelevance. To track dependencies, ICC
+and ICC* ensure that irrelevant variables do not syntactically appear
+in relevant computations, whereas EPTS uses a design based on
+\citet{pfenning:modal} to prevent variables marked with the irrelevant
+modality from being used relevantly.
+Despite the different mechanisms, these languages are similar in
+expressiveness. Irrelevant type parameters are allowed to relevantly
+appear in types. In EPTS, for example, a binder is always introduced
+with the relevant modality in type formation rules. This design allows
+irrelevant type parameters to appear relevantly in types, but also
+prevents one from expressing that the output type of a function type
+does not depend on its input. % In \dcoi and \name, modalities are used 
+\yl{We can point out that Abel et al. go to the other extreme and it
+  can't express run-time irrlevant, compile-time relevant. Neither
+  support strong irrelevant projection.
+  DCOI allows relevance/irrelevance to be
+  treated independently at term and type level so it's more general
+  than both. }
+ICC and ICC* both allow compile-time irrelevance by ignoring 
+irrelevant arguments that appear in a type-level
+computation. \citet{mishra:erasure} discuss a variant of their
+conversion rule that would allow compile-time irrelevance in EPTS, a
+design that is later employed by \citet{weirich:systemd, choudhury:ddc}.
+
+% allow irrelevant arguments to
+% functions can be erased during program extraction, but not type
+% conversion. Since irrelevant type parameters may appear relevantly in
+% the type signature, erasing those parameters would allow one to
+% convert between distinct types. Therefore, those systems do not
+% support compile-time irrelevance.
 \sw{This is not true. ICC* employs erasure during conversion and ICC works only with erased terms. EPTS does not do erasure during conversion, but it could. We need to rewrite this paragraph.}
 \sw{The distinction that we need to make is that the mode of the argument in a Pi-type 
 changes between the abstraction and the type. In EPTC, the Pi-bound variable is always 
