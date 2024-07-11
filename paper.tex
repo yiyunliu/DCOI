@@ -2662,12 +2662,12 @@ of propositional equality.
 \subsection{Dependent types and irrelevance}
 \label{sec:discuss-irrel}
 
-In this section, we discuss dependently typed systems with relevance
+In this section, we discuss the relation between \name and other dependently typed systems with relevance
 tracking. The notion of irrelevance is
 used inconsistently in the literature and can refer to either 
-run-time irrelevance and proof irrelevance. Both types of irrelevance
+run-time irrelevance or compile-time irrelevance (also called definitional proof irrelevance). Both types of irrelevance
 allow the erasure of computationally irrelevant terms, though
-proof irrelevance further allows the erasure to appear during type
+proof irrelevance further allows erasure to appear during type
 conversion. Here, we use the more liberal notion of relevance tracking
 to refer to both run-time and proof irrelevance. % , or
 % \emph{external erasure} and \emph{internal erasure} following the
@@ -2682,15 +2682,23 @@ conversion. Since irrelevant type parameters may appear relevantly in
 the type signature, erasing those parameters would allow one to
 convert between distinct types. Therefore, those systems do not
 support proof irrelevance.
+\sw{This is not true. ICC* employs erasure during conversion and ICC works only with erased terms. EPTS does not do erasure during conversion, but it could. We need to rewrite this paragraph.}
+\sw{The distinction that we need to make is that the mode of the argument in a Pi-type 
+changes between the abstraction and the type. In EPTC, the Pi-bound variable is always 
+relevant, no matter whether the function it describes has a relevant or irrelevant parameter. }
 
 Pfenning's modal type system~\citep{pfenning:modal} and its extension
 by \citet{abel:irrelevance} impose more restrictions on the arrow
-type. In particular, \citet{abel:irrelevance}'s system forbids the
-irrelevant arguments from appearing in either the term or its type so
-they can be erased for both program extraction and type
-conversion. However, as pointed out by
+type. In particular, \citet{abel:irrelevance}'s system forbids
+irrelevant arguments from appearing in either the term or its type.
+% so they can be erased for both program extraction and type
+% conversion. 
+%% The focus of Pfenning and Abel's systems is conversion only. They 
+%% don't talk about runtime erasure very much, and Agda uses a complete
+%% separate mechanism.
+However, as pointed out by
 \citet{tejiscak:erasure}, Pfenning's style of relevance tracking is limiting
-as it prevents one from defining type families indexed by an run-time
+as it prevents one from defining type families indexed by a run-time
 irrelevant argument. One such example is the binary type
 \lstinline{Bin n}, whose index \lstinline{n} keeps track of the
 natural number it corresponds to. To avoid exponential overhead during
@@ -2846,7 +2854,7 @@ as an intrinsic treatment of irrelevance since a squashed type is always
 irrelevant regardless of usage.
 
 Despite the differences between extrinsic and intrinsic irrelevance, 
-they bear a lot of similarities. For example, irrelevant function
+they bear many similarities. For example, irrelevant function
 types can be implemented as regular function types with a squashed input type in
 the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. For the
 other direction, the squash operator can be implemented in the form of
@@ -2902,11 +2910,11 @@ our encoding of the box type.
 
 \subsection{Dependent types and counting}
 
-Counting is a type of fine-grained static analysis that tracks the
-number of times a resource can be used. Unlike systems that track
-dependency, usage information is represented in the form of a semiring
-rather than a lattice. With a boolean semiring, one can also use the counting
-mechanism to track dependency and perform external erasure.
+Quantitative type systems provide a type of fine-grained static analysis that counts the
+number of times a computation uses each of its inputs. For flexibility, counts are 
+recorded using an abstract semiring, generalizing type systems for bounded linearity, 
+information flow and differential privacy. By using a boolean semiring, quantitative 
+type systems can track dependency and perform external erasure.
 
 \citet{mcbride:plentyo} extends a dependently typed system with usage
 tracking for computationally relevant terms. % Usage tracking is disabled in type formation rules and
@@ -2943,8 +2951,8 @@ usage information for a type expression. % \citet{choudhury:grad}
 % point out the possibility of leveraging usage information for type
 % conversion. 
 Unlike QTT, the type soundness of resource tracking in GraD is
-proven using a syntactic approach through heap semantics. As a logic,
-GraD is inconsistent as it admits the type-in-type axiom.
+proven using a syntactic approach through heap semantics. No instances
+of GraD have been proven consistent as a logic.
 
 Graded Modal Dependent Type Theory (GRTT)~\citep{moon:graded} is a
 predicative type theory that tracks
@@ -2994,11 +3002,11 @@ define our semantic model.
 The design of \dcoi~\citep{liu:dcoi} and its instantiation \name is
 directly inspired by the Dependent Dependency Calculus
 (DDC)~\citep{choudhury:ddc}. Similar to \dcoi,
-DDC supports both run-time and proof irrelevance. However, it achieves
-that by combining two different mechanisms.
+DDC supports both run-time and compile-time irrelevance. However, it achieves
+this goal by combining two different mechanisms.
 For run-time irrelevance, DDC uses a mechanism similar to
 EPTS~\citep{mishra:erasure} to allow erasable irrelevant type indices.
-For proof-time irrlevance, it uses the resurrection mechanism found in
+For proof-time irrelevance, it uses the resurrection mechanism found in
 \citet{pfenning:modal, abel:irrelevance}.
 % mechanism for run-time dependency tracking is based on 
 % the same mechanism found in simply typed languages such as the Sealing
@@ -3057,12 +3065,11 @@ allowing the elimination of indexed equality types.
 % mechanism found in dependently typed languages \citet{pfenning:modal}. 
 
 % and then \citet{liu:dcoi} \todo{complete the discussion about DDC and DCOI}
-Another work worth mentioning is Type-theory with color (TTC)~\citep{bernardy:color}.
-TTC extends the
+Type-theory with color (TTC)~\citep{bernardy:color} extends the
 Calculus of Constructions with the notion of colors to support erasure
 and internalize
 parametricity. While \name does not internalize parametricity, there
-are a lot of similarites between TTC and \name when both are viewed purely as systems
+similarites between TTC and \name when both are viewed purely as systems
 that track dependencies.
 % Taints are sets of colors, which represent the
 % resources that a computation may depend on. 
@@ -3073,7 +3080,7 @@ The typing judgment in TTC takes the form $\Gamma
 taints, a set of colors. The taint $\theta$ determines the variables that the term $a$ is
 allowed to access. The dependency tracking in TTC
 is more precise than \name. Variables can only be used if their
-taint exactly matches the taint from typing. Functions keep track of a
+taint \emph{exactly} matches the taint from typing. Functions keep track of a
 set of anti-taints, colors that the argument is oblivious to, in
 addition to a set of taints, colors that the argument depends on.
 The erasure operator $\lfloor a
@@ -3102,7 +3109,7 @@ projections and irrelevant type parameters.
 
 Compared to simply-typed and type-polymorphic languages, mechanizing a
 logical relation for a dependently typed language with large
-elimination is difficult as it requires one to specify the set of
+eliminations is difficult as it requires one to specify the set of
 semantically well-formed types while simultaneously interpreting those
 types as sets of terms.
 
