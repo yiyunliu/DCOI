@@ -1070,8 +1070,11 @@ The second projection is well typed only if the first projection
 is well typed at the first component's level $[[l0]]$.
 This is because the type of the second component
 is dependent on the first component at level $[[l0]]$.
-Equivalently, this premise can be replaced by the level constraint $[[l0 <= l]]$,
-using \rref*{Wt-proj1} to recover well-typedness.
+\Rref{Wt-Proj1} tells us that the $[[proj1 l0 a]]$ is at level
+$[[l]]$, but we need the extra side condition that $[[proj1 l0 a]]$ is
+typed at level $[[l0]]$ for $[[B {proj1 l0 a / x}]]$ to be
+well-formed.
+
 
 \begin{figure}[h]
   \mprset{fraction={===}}
