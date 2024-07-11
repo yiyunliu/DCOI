@@ -734,9 +734,7 @@ so we can obtain and eliminate a proof of the empty type.
 In this section, we present the grammar and judgements of \name,
 which is an instantiation of the \longname (\dcoi)~\citep{liu:dcoi} with
 the PTS axioms and rules of a predicative universe hierarchy.
-The grammar is given in \cref{fig:grammar},
-which is parameterized over a meet-semilattice of dependency levels
-(following \citet{abadi:dcc}).
+The grammar is given in \cref{fig:grammar}.
 
 \begin{figure}[h]
 \begin{alignat*}{2}
@@ -756,34 +754,33 @@ which is parameterized over a meet-semilattice of dependency levels
 \label{fig:grammar}
 \end{figure}
 
-We use the metavariable $[[l]]$ for dependency levels,
-and $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$.
-We use low $[[L]]$ and high $[[H]]$ levels in our examples,
-with $[[L < H]]$.
-Similarly, we use the metavariables $[[i]], [[j]], [[k]]$ for universe levels,
-which we take to be meta-level naturals,
-and $[[max i j]]$ for the maximum of $[[i]]$ and $[[j]]$.
-Although our mechanization uses de Bruijn indices for representing binding
-and simultaneous substitutions,
-for clarity we use named variables and single substitutions for our presentation.
-We use the metavariables $[[x]], [[y]], [[z]]$ for variables
-and $[[a { b / x }]]$ for the substitution of a term $[[b]]$ in place of the variable $[[x]]$
-inside the term $[[a]]$.
-Similarly to \cref{sec:examples},
-we use $[[l A -> B]]$ as shorthand for nondependent functions $[[Pi x : l A . B]]$
-where $[[x]]$ does not appear in $[[B]]$.
+Following \citet{abadi:dcc}, \name is parameterized over a meet-semilattice of dependency levels, $[[l]]$.
+We use $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$. In the following examples, 
+we use concrete levels low $[[L]]$ and high $[[H]]$, where $[[L < H]]$.
 
-The main judgement is the typing judgement,
+Universe levels ($[[i]], [[j]], [[k]]$) are (meta-level) naturals 
+and $[[max i j]]$ computes the maximum of $[[i]]$ and $[[j]]$.
+
+Function types, abstractions, pair types, matching and induction are all
+binding forms.  Although our mechanization uses de Bruijn indices for
+representing binding and simultaneous substitutions, for clarity we use named
+variables and single substitutions here.  We use the metavariables
+$[[x]], [[y]], [[z]]$ for variables and $[[a { b / x }]]$ for the substitution
+of a term $[[b]]$ in place of the variable $[[x]]$ inside the term $[[a]]$.
+As in \cref{sec:examples}, we use $[[l A -> B]]$ for $[[Pi x : l A . B]]$ when
+$[[x]]$ does not appear in $[[B]]$.
+
+The main judgement is the typing relation,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
 that is well type under context $[[G]]$ at observer level $[[l]]$
 with type $[[A]]$.
 To reduce clutter,
-we use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
+we also use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
 The typing judgement is defined mutually with the context well-formedness judgement \judgement{$[[|- G]]$},
 which holds if the context's types are well typed by some universe $[[Univ i]]$.
 Premises which may be omitted in admissible variants of rules without them
-are highlighted in grey.
+are highlighted in grey. \sw{save this sentence until the first figure with highlights?}
 
 The typing rules are defined mutually with the context well-formedness rules,
 both given in \cref{fig:typing:dep}.
@@ -799,29 +796,26 @@ and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]]
   \label{fig:typing:dep}
 \end{figure}
 
-Deferring our discussion of using levels for dependency tracking to \cref{sec:dep},
-the remaining rules for variables, function abstractions, function applications,
-the empty type, and its eliminator are standard for dependent type theory.
-To change the type of a term to an equivalent one,
-typing uses a definitional equality that is defined in terms of indistinguishability (\cref{sec:indist}).
+Except for the use of levels for dependency tracking, typing rules of \name
+are standard for dependent type theory. In the rest of this section, we 
+discuss how dependency levels interact with the remaining rules of \cref{fig:typing:dep}
+in \cref{sec:dep}. We discus how the conversion rule, which changes the type of a term to an equivalent one,
+uses a definitional equality that is defined in terms of indistinguishability in \cref{sec:indist}.
 We then look at the rules for dependent pair types and the unit type (\cref{sec:pairs}),
 and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
 
-\name also includes the naturals and their induction principle.
-Notably, the induction principle permits large elimination:
-we can branch on a natural and return different types for each branch.
-Our mechanized metatheoretic results all include the naturals.
-However, as their interactions with dependency levels
-are no more interesting than those of the other constructs,
-we omit them from our discussion in the remainder of this paper,
-and only include their rules in \cref{sec:naturals}.
+\name also includes the naturals and their induction principle.  Notably, the
+induction principle permits large eliminations: we can branch on a natural and
+return different types for each branch.  However, as their interactions with
+dependency levels are similar to those of the other constructs, we omit them
+from our discussion and only list their rules in \cref{sec:naturals}.
 
 \subsection{Dependency tracking} \label{sec:dep}
 
 The observer level $[[l]]$ of a typing judgement $[[G |- a : l A]]$
-tracks what level variables $[[a]]$ may use, as well as the level at which $[[a]]$ may be used.
-The former is enforced by the level constraint premise in \rref{Wt-Var},
+tracks what level variables $[[a]]$ may use, as well as the level at which $[[a]]$ itself may be used in later computation.
+The former is enforced by the constraint in \rref{Wt-Var},
 which permits a variable to be used only if the observer level is at least as high as that of the variable.
 Informally, higher-level information cannot leak into a lower-level term.
 
@@ -856,7 +850,7 @@ in the codomain of the type.
 In general, we can prove a regularity lemma stating that the type of a well-typed term
 is itself well typed at a level not necessarily related to that of the term,
 and may even be higher, as is the case for the example above.
-Intuitively, this is permitted because there is no way to retrieve the type of a term at run time,
+Intuitively, this is permitted because there is no way for a term to depend on its type at run time,
 so the type of a lower-level term can safely use higher-level information
 without it leaking into the term.
 
@@ -895,9 +889,9 @@ using a higher-level proof of its impossibility.
 The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
 which allows converting the type of a well-typed term to a definitionally equal type.
 Our definitional equality is untyped, but eventually relies on the levels of variables,
-so its judgement form \judgement{$[[E |- a == b]]$} requires a level context $[[E]]$.
-In \rref{Wt-Conv}, this is provided by the erasure operation \judgement{$[[| G |]]$},
-which denotes dropping all type annotations to convert a typing context into a level context.
+so its judgement form \judgement{$[[E |- a == b]]$} requires a level context $[[E]]$ that maps variables to levels (only).
+In \rref{Wt-Conv}, this level context is produced by erasing the typing context, 
+denoted \judgement{$[[| G |]]$}, and dropping all type annotations.
 
 Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv},
 which separately incorporates parallel reduction and indistinguishability.
