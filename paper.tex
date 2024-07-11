@@ -893,9 +893,10 @@ so its judgement form \judgement{$[[E |- a == b]]$} requires a level context $[[
 In \rref{Wt-Conv}, this level context is produced by erasing the typing context, 
 denoted \judgement{$[[| G |]]$}, and dropping all type annotations.
 
-Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv},
-which separately incorporates parallel reduction and indistinguishability.
-For convenience, we define the shorthand \judgement{$[[E |- a <=> b @ l]]$}
+Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv}, which 
+states that terms are equal when they reduce to terms that are 
+\emph{indistinguishable} by some observer $[[l]]$, defined in \cref{fig:indist} and described below.
+To make this level visible in the judgement, we also define \judgement{$[[E |- a <=> b @ l]]$}
 as a level-annotated form of definitional equality:
 it holds iff $[[a =>* c0]]$, $[[b =>* c1]]$, and $[[E |- c0 == c1 @ l]]$.
 Consequently, $[[E |- a == b]]$ holds iff there exists some level $[[l]]$
@@ -903,8 +904,8 @@ such that $[[E |- a <=> b @ l]]$ holds.
 
 Parallel reduction \judgement{$[[a => b]]$} consists of the $\beta$-reduction rules for our elimination forms,
 listed in \cref{fig:conv} and in following subsections,
-along with rules for the reflexive, congruent closure, omitted here.
-Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive closure of parallel reduction.
+along with rules for its reflexive, congruent closure, omitted here.
+Multi-step parallel reduction \judgement{$[[a =>* b]]$} is the transitive closure of parallel reduction.
 
 % This formulation of equality is in contrast to prior work by \citet{liu:dcoi},
 % where indistinguishability a
@@ -930,20 +931,22 @@ Multi-step parallel reduction \judgement{$[[a =>* b]]$} is then the transitive c
   \label{fig:indist}
 \end{figure}
 
-Indistinguishability is mutually defined with guarded indistinguishability,
-given in \cref{fig:indist}.
-Guarded indistinguishability is used in \rref{I-App};
-otherwise, two terms are indistinguishable at observer level $[[l]]$
-if they have the same shape and their subterms are also indistinguishable at $[[l]]$.
 
-We say that indistinguishability is \emph{coarser} than mere $\alpha$-equivalence
+
+Two terms are indistinguishable at at observer level $[[l]]$ if they have the
+same shape and their subterms are also indistinguishable at $[[l]]$.  The only
+exception is \rref{I-App} that uses \emph{guarded indistinguishability},
+\judgement{$[[E |- a == b @ l]]$}, which is 
+mutually defined with indistinguishability in \cref{fig:indist}.
+
+Indistinguishability is \emph{coarser} than mere $\alpha$-equivalence
 (and hence $[[E |- a == b]]$ is coarser than mere $\beta$-equivalence of $[[a]]$ and $[[b]]$)
-because more terms may be indistinguishable while not necessarily being $\alpha$-equivalent.
-This is because the use of guarded indistinguishability when comparing arguments in \rref{I-App},
-which are labelled at $[[l0]]$, but observed at $[[l]]$.
+because guarded indistinguishability sometimes identifies terms that are not 
+$\alpha$-equivalent. In \rref{I-App}, if the arguments are labelled at at $[[l0]]$, but observed at $[[l]]$, 
+guardeed indistinguishability compares the arguments based on the relationship between $[[l0]]$ and $[[l]]$.
 If $[[l0 <= l]]$, meaning that the observer can fully see the arguments,
-then \rref{GI-Dist} applies, and the applications are indistinguishable
-if both the functions and the arguments are indistinguishable at $[[l]]$ respectively.
+then \rref{GI-Dist} applies, and the arguments must themseleves be
+indistinguishable at $[[l]]$.
 Otherwise, if $[[not (l0 <= l)]]$, then \rref{GI-Indist} applies,
 and the arguments are too high to be observed at $[[l]]$,
 so indistinguishability of the applications does not consider the arguments.
@@ -988,19 +991,21 @@ Compared to prior work by
 \citet{liu:dcoi}, where indistinguishability is defined as an
 undecidable relation
 that incorporates both $\beta$-reduction and conversion of irrelevant components,
-our formulation of type conversion is more structured as it breaks
+our formulation of type conversion is more structured and breaks
 down type conversion into two separate steps: reduction and
-indistinguishability check. 
-Our more syntactic notion of indistinguishability is easily
-decidable, and therefore allows us to reduce the problem of proving
+checking indistinguishability. 
+This algorithmic version of indistinguishability 
+allows us to reduce the problem of proving
 decidabilitiy of type conversion to the problem of finding a
 normalization procedure for well-typed terms
 (Section~\ref{sec:decconv}). Finally, we note that if we instantiate
 \name with a singleton lattice, then indistinguishability degenerates
 into $\alpha$-equivalence, and the definitional equality degenerates
-into $\beta$-equivalence. In the presence of multiple levels, the
-indistinguishability judgment is what unlocks the extra expressive
-power that is not present in PTSes.
+into $\beta$-equivalence. 
+% SCW: I think this sentence doesn't add much, and can be confusing
+% In the presence of multiple levels, the
+% indistinguishability judgment is what unlocks the extra expressive
+% power that is not present in PTSes.
 
 \subsection{Dependent pairs and unit} \label{sec:pairs}
 
@@ -1028,16 +1033,16 @@ While the first component of the pair constructor has a fixed level,
 the level of the second component is the level of the overall pair.
 
 In contrast to prior work by \citet{liu:dcoi},
-rather than having pair projections,
 pairs are eliminated using a pattern-matching expression
-for greater expressivity.
+instead of projections, which turns out to be more 
+expressive in this context.\sw{Forward reference here to where we explain how this is more expressive?}
 The eliminator is typed according to \rref{Wt-Let},
 and its reduction behaviour is given by \rref{P-LetPair}.
 It scrutinizes a pair $[[a]]$ annotated at level $[[l1]]$,
 binding its first and second components
 as variables $[[x]]$ at level $[[l0]]$
 and $[[y]]$ at level $[[l1]]$ respectively in the body $[[b]]$,
-which is typed at the same level $[[l]]$ as the overall eliminator.
+which must be typed at the same level $[[l]]$ as the overall eliminator.
 The overall type of the eliminator is specified by the motive $[[C]]$,
 which is abstracted over the scrutinee $[[z]]$.
 The level of the scrutinee $[[l1]]$ is not exactly $[[l]]$ but bounded above by it;
@@ -1134,16 +1139,16 @@ and intuitively says that the only values that can be unboxed are observable one
   \label{fig:typing:box}
 \end{figure}
 
+The indistinguishability rules for pair types, the unit type, and their eliminators
+are given in \cref{fig:conv:pair}.
 The primary use case of the box type is to be able to enclose higher-level terms
 and to treat them as indistinguishable from one another by a lower-level observer.
 That is, $[[E |- box H a == box H b @ L]]$ ought to hold regardless of $[[a]]$ and $[[b]]$.
-The idea generalizes to pairs by using guarded indistinguishability
+This idea generalizes to pairs by using guarded indistinguishability
 when comparing first components in \rref{I-Pair},
 similar to how function arguments are compared.
-The remaining indistinguishability rules for pair types, the unit type, and their eliminators
-are given in \cref{fig:conv:pair}.
-The constraints $[[l1 <= l]]$ in \rref{I-Let,I-Seq}
-is required due to their presence in \rref{Wt-Let,Wt-Seq}.
+In \rref{I-Let,I-Seq}, the constraints $[[l1 <= l]]$
+are required due to their presence in \rref{Wt-Let,Wt-Seq}.
 
 \begin{figure}[h]
   \begin{gather*}
