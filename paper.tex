@@ -1013,7 +1013,7 @@ This algorithmic version of indistinguishability
 allows us to reduce the problem of proving
 decidabilitiy of type conversion to the problem of finding a
 normalization procedure for well-typed terms
-(Section~\ref{sec:decconv}). Finally, we note that if we instantiate
+(\cref{sec:decconv}). Finally, we note that if we instantiate
 \name with a singleton lattice, then indistinguishability degenerates
 into $\alpha$-equivalence, and the definitional equality degenerates
 into $\beta$-equivalence. 
@@ -2108,7 +2108,7 @@ $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
   \end{itemize}
 \end{lemma}
 \begin{proof}
-  Immediate by the inversion lemma for types of the form $[[Univ i]]$ (Lemma~\ref{lem:interpinv}).
+  Immediate by the inversion lemma for types of the form $[[Univ i]]$ (\cref{lem:interpinv}).
 \end{proof}
 \fi
 
@@ -2432,7 +2432,7 @@ which we are unable to conclude.
 % parameterize our logical predicate by the level context $[[E]]$ and
 % decorate its definition with additional level checking constraints.
 
-The level-checking judgments in Figure~\ref{fig:logpred} introduces scoping information to our
+The level-checking judgments in \cref{fig:logpred} introduces scoping information to our
 logical predicate. As observed by \citet{abel:normalization}, to
 derive the adequacy property for a scoped logical relation, the
 interpretation for functions must be generalized to account for
@@ -2617,7 +2617,7 @@ by adding the rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
 \sw{Maybe we should write this rule as a rule and give it name, if we have space.}
 so that the J eliminator is erased during evaluation without having
 to reduce $[[p]]$.
-\sw{Should we add this rule or update \rref{P-JRelf} to be this rule?}
+\sw{Should we add this rule or update \rref{P-JRefl} to be this rule?}
 In a system with this rule, because the equality proof is discarded during evaluation, it can be ignored by
 indistinguishability and still validate the simulation property.
 
@@ -2672,7 +2672,7 @@ run-time irrelevance or compile-time irrelevance (also called definitional proof
 allow the erasure of computationally irrelevant terms, though
 proof irrelevance further allows erasure to appear during type
 conversion. Here, we use the more liberal notion of relevance tracking
-to refer to both run-time and proof irrelevance. % , or
+to refer to both run-time and compile-time irrelevance. % , or
 % \emph{external erasure} and \emph{internal erasure} following the
 % terminology by \citet{abel:irrelevance}.
 
@@ -2684,7 +2684,7 @@ functions can be erased during program extraction, but not type
 conversion. Since irrelevant type parameters may appear relevantly in
 the type signature, erasing those parameters would allow one to
 convert between distinct types. Therefore, those systems do not
-support proof irrelevance.
+support compile-time irrelevance.
 \sw{This is not true. ICC* employs erasure during conversion and ICC works only with erased terms. EPTS does not do erasure during conversion, but it could. We need to rewrite this paragraph.}
 \sw{The distinction that we need to make is that the mode of the argument in a Pi-type 
 changes between the abstraction and the type. In EPTC, the Pi-bound variable is always 
@@ -2719,7 +2719,7 @@ different views of irrelevance.  The indistinguishability judgment
 uses the observer level to determine which components of a term can be
 discarded during type conversion. This allows \dcoi, and thus \name, to encode
 \lstinline{Bin} while
-still allowing proof irrelevance for arguments that are irrelevant for
+still allowing compile-time irrelevance for arguments that are irrelevant for
 both terms and types.
 
 % Type parameters marked as
@@ -2801,7 +2801,7 @@ tracking. In Coq, for example,
 only singleton types (\eg equality proofs) or empty
 types in $[[Prop]]$ can be destructed to produce run-time
 relevant terms.
-As dicussed in Section~\ref{sec:castirrel},
+As dicussed in \cref{sec:castirrel},
 Coq's $[[Prop]]$ sort is limited to run-time irrelevance for
 decidability of type checking. \citet{werner:proofirrel}'s type theory with
 a proof-irrelevant $[[Prop]]$ fails to satisfy normalization when
@@ -2823,7 +2823,7 @@ $[[Prop]]$ is impredicative, a result later shown by \citet{abel:failurenorm}.
 % erasure is refuted by \citet{abel:failurenorm}.
 
 \citet{gilbert:sprop} introduce the language sMLTT, an extension to
-MLTT with a proof irrelevant sort $[[SProp]]$. Similar to
+MLTT with a proof-irrelevant sort $[[SProp]]$. Similar to
 Werner's system, inhabitants of a type $A : [[SProp]]$ are
 treated as definitionally equal. They
 introduce an alternative criterion to singleton
@@ -2914,9 +2914,9 @@ our encoding of the box type.
 \subsection{Dependent types and counting}
 
 Quantitative type systems provide a type of fine-grained static analysis that counts the
-number of times a computation uses each of its inputs. For flexibility, counts are 
-recorded using an abstract semiring, generalizing type systems for bounded linearity, 
-information flow and differential privacy. By using a boolean semiring, quantitative 
+number of times a computation uses each of its inputs. For flexibility, counting
+uses an abstract semiring, generalizing type systems for bounded linearity, 
+information flow, and differential privacy. Using a boolean semiring, quantitative 
 type systems can track dependency and perform external erasure.
 
 \citet{mcbride:plentyo} extends a dependently typed system with usage
@@ -2970,7 +2970,7 @@ through their prototype implementation. % For example,
 % $x$ has $0$ usage in $B$, then the substitution $[[B {t / x}]]$
 % can be ignored.
 However, this optimization, while reminiscent of the proof irrelevance
-feature discussed in Section~\ref{sec:discuss-irrel}, is not
+feature discussed in \cref{sec:discuss-irrel}, is not
 formalized. Type conversion in GRTT is oblivious of the usage
 information. The lack of interaction between modalities and type
 conversion allows them to recover strong normalization by adapting
@@ -3009,7 +3009,7 @@ DDC supports both run-time and compile-time irrelevance. However, it achieves
 this goal by combining two different mechanisms.
 For run-time irrelevance, DDC uses a mechanism similar to
 EPTS~\citep{mishra:erasure} to allow erasable irrelevant type indices.
-For proof-time irrelevance, it uses the resurrection mechanism found in
+For compile-time irrelevance, it uses the resurrection mechanism found by
 \citet{pfenning:modal, abel:irrelevance}.
 % mechanism for run-time dependency tracking is based on 
 % the same mechanism found in simply typed languages such as the Sealing
@@ -3029,7 +3029,7 @@ For proof-time irrelevance, it uses the resurrection mechanism found in
 % resurrection mechanism is used to resurrect the context to the level
 % $C$.
 While their system includes a indistinguishability relation
-similar to the one we present in Section~\ref{sec:indist}, the type
+similar to ours, the type
 conversion rule only performs conversion at some fixed level
 $C$. \citet{liu:dcoi} show that the combination of the two mechanisms
 makes it difficult to generalize DDC's conversion rule to support
