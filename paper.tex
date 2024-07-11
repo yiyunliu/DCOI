@@ -3151,20 +3151,21 @@ many universe levels~\citep{anand:corenuprl}.
 \section{Conclusion}
 
 In this work, we define \name, an instantiation of \dcoi with a
-predicative universe hierarchy extended with more expressive
+predicative universe hierarchy, and extended with more expressive
 elimination forms. We use a syntactic logical predicate to show that
 \name satisfies normalization, logical consistency, and decidable type
-conversion in addition to the syntactic soundness results established
-by \citet{liu:dcoi}; these results are all mechanized in Coq.
+conversion in addition to the syntactic soundness results previously established; these results are all mechanized in Coq.
 Logical consistency makes \name suitable for both
-programming and internalized reasoning about information flow.
+programming and internalized verification.
 \jc{I don't think logical consistency says anything about programming
 and we probably shouldn't mention information flow
 if all of our examples have been about irrelevance?}
-As future work, we plan to build on top of our decidable type conversion
-result and extend our system to support full
-decidable type checking in the style of the bidirectional system
-by \citet{adjedj:mltt-coq}.
+\sw{I removed information flow, but I'd like to get a hint of trellys
+style termination modalities here...}
+
+In future work, we plan to further explore the use of \name as the foundation for a practical system. First, we will show that the annotations employed by our prototype implementation support full
+decidable type checking in the style of a bidirectional system
+\citet{dunfield-krishnaswami:bidirection,adjedj:mltt-coq}. In this context we can then explore various extensions of the system, including dependency level inference, dependency level quantification, and subtyping. We also plan to investigate applications of dependency tracking beyond irrelevance, such as safe interoperability, information flow and staged computation. \sw{Also mention inductive datatypes? Prop sort? type-directed equality? }
 
 
 % We complete the semantic side of the story by
