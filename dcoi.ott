@@ -600,7 +600,7 @@ G ++ x : l0 A |- B : l Univ j
 G |- Pi x : l0 A . B : l Univ (# max i j #)
 
 G ++ x : l0 A |- b : l B
-G |- Pi x : l0 A . B : Univ i
+(! G |- Pi x : l0 A . B : Univ i !)
 ----------------------------------- :: Abs
 G |- \ l0 x . b : l Pi x : l0 A . B
 

@@ -725,6 +725,8 @@ we also use the judgment \judgement{$[[G |- a : A]]$} to mean that there exists 
 such that $[[G |- a : l A]]$ holds.
 The typing judgment is defined mutually with the context well-formedness judgment \judgement{$[[|- G]]$},
 which holds if the context's types are well typed by some universe $[[Univ i]]$.
+Premises which may be omitted in admissible variants of rules without them
+are highlighted in \colorbox{lightgray}{grey}.
 
 Our syntax is designed to highlight the parts of terms which play a role in evaluation.
 Therefore, type annotations are omitted,
@@ -974,8 +976,6 @@ into $\beta$-equivalence.
 
 Dependent pairs are annotated with a fixed level in their first component,
 given by $[[l0]]$ in \rref{Wt-Sig,Wt-Pair} of \cref{fig:typing:pair}.
-Premises which may be omitted in admissible variants of rules without them
-are highlighted in \colorbox{lightgray}{grey}.
 Like for function types, the levels of pair types are not necessarily related
 to that annotated level.
 While the first component of the pair constructor has a fixed level,
