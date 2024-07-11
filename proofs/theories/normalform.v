@@ -449,4 +449,10 @@ Proof.
       case => //=.
 Qed.
 
+Lemma confluent_nf a b v (h : a ⇒* b) (h0 : a ⇒* v) (h1 : nf v) :
+  b ⇒* v.
+Proof.
+  have  : exists v' , b ⇒* v' /\ v ⇒* v' by sfirstorder use:Pars_confluent unfold:confluent.
+  hauto l:on use:nf_refl_star.
+Qed.
 End normalform_fact.

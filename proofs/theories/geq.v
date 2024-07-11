@@ -580,7 +580,7 @@ Module geq_facts
   Qed.
 
   Lemma iok_ieq_downgrade : forall Ξ ℓ ℓ0 a b, ℓ0 ⊆ ℓ ->
-    IOk Ξ ℓ0 a -> IOk Ξ ℓ0 b -> IEq Ξ ℓ a b -> IEq Ξ ℓ0 a b.
+    IOk Ξ ℓ0 a -> IEq Ξ ℓ a b -> IEq Ξ ℓ0 a b.
   Proof. hauto lq:on use:ieq_downgrade_leq, iok_ieq, meet_idempotent. Qed.
 
   Lemma ieq_gieq Ξ ℓ ℓ0 a b (h : forall ℓ0, ℓ ⊆ ℓ0 -> IEq Ξ ℓ0 a b) :
