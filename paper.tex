@@ -731,7 +731,7 @@ so we can obtain and eliminate a proof of the empty type.
 
 \section{\name}
 
-In this section, we present the grammar and judgements of \name,
+In this section, we present the grammar and judgments of \name,
 which is an instantiation of the \longname (\dcoi)~\citep{liu:dcoi} with
 the PTS axioms and rules of a predicative universe hierarchy.
 The grammar is given in \cref{fig:grammar}.
@@ -778,26 +778,26 @@ $[[x]]$ does not appear in $[[B]]$.
   \label{fig:typing:dep}
 \end{figure}
 
-The main judgement is the typing relation,
+The main judgment is the typing relation,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
 that is well type under context $[[G]]$ at observer level $[[l]]$
 with type $[[A]]$.
 Its rules are given in \cref{fig:typing:dep}.
 To reduce clutter,
-we also use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
+we also use the judgment \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
-The typing judgement is defined mutually with the context well-formedness judgement \judgement{$[[|- G]]$},
+The typing judgment is defined mutually with the context well-formedness judgment \judgement{$[[|- G]]$},
 which holds if the context's types are well typed by some universe $[[Univ i]]$.
 Premises which may be omitted in admissible variants of rules without them
 are highlighted in grey. \sw{save this sentence until the first figure with highlights?}
 
 Our syntax is designed to highlight the parts of terms which play a role in evaluation.
 Therefore, type annotations are omitted,
-and consequently the typing judgement is not decidable.
+and consequently the typing judgment is not decidable.
 This minimalist design lends flexibility in which annotations
 an type checker implementation may choose to add to the syntax.
 
-\sw{We need to say up front that this typing judgement is not designed to be decidable as the 
+\sw{We need to say up front that this typing judgment is not designed to be decidable as the 
   syntax does not include enough annotations. We design it this way to highlight the relevant parts of 
 the terms. We also have flexibility in where we add annotations, none or relevant so we can add as many or as few as we need depending on how sophisticated we would like the type checking algorithm to be.}
 
@@ -824,7 +824,7 @@ from our discussion and only list their rules in \cref{sec:naturals}.
 
 \subsection{Dependency tracking} \label{sec:dep}
 
-The observer level $[[l]]$ of a typing judgement $[[G |- a : l A]]$
+The observer level $[[l]]$ of a typing judgment $[[G |- a : l A]]$
 tracks what variables $[[a]]$ may use, as well as the level at which $[[a]]$ itself may be used in later computation.
 The former is enforced by the constraint in \rref{Wt-Var},
 which permits a variable to be used only if the observer level is at least as high as that of the variable.
@@ -841,7 +841,7 @@ which is typed at an arbitrary level independent of the function itself
 in the second premise of \rref{Wt-Abs}.
 By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codomain types either
 (as long as they match).
-As an example, consider the following typing judgement.
+As an example, consider the following typing judgment.
 %
 {
 \setlength{\abovedisplayskip}{0pt}
@@ -904,14 +904,14 @@ using a higher-level proof of its impossibility.
 The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
 which allows converting the type of a well-typed term to a definitionally equal type.
 Our definitional equality is untyped, but eventually relies on the levels of variables,
-so its judgement form \judgement{$[[E |- a == b]]$} requires a level context $[[E]]$ that maps variables to levels (only).
+so its judgment form \judgement{$[[E |- a == b]]$} requires a level context $[[E]]$ that maps variables to levels (only).
 In \rref{Wt-Conv}, this level context is produced by erasing the typing context, 
 denoted \judgement{$[[| G |]]$}, and dropping all type annotations.
 
 Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv}, which 
 states that terms are equal when they reduce to terms that are 
 \emph{indistinguishable} by some observer $[[l]]$, defined in \cref{fig:indist} and described below.
-To make this level visible in the judgement, we also define \judgement{$[[E |- a <=> b @ l]]$}
+To make this level visible in the judgment, we also define \judgement{$[[E |- a <=> b @ l]]$}
 as a level-annotated form of definitional equality:
 it holds iff $[[a =>* c0]]$, $[[b =>* c1]]$, and $[[E |- c0 == c1 @ l]]$.
 Consequently, $[[E |- a == b]]$ holds iff there exists some level $[[l]]$
@@ -1199,7 +1199,7 @@ are required due to their presence in \rref{Wt-Let,Wt-Seq}.
   \label{fig:typing:eq}
 \end{figure}
 
-The propositional equality type internalizes the indistinguishability judgement,
+The propositional equality type internalizes the indistinguishability judgment,
 enabling reasoning about indistinguishability within \name itself.
 The typing rules for constructs related to the equality type are given in \cref{fig:typing:eq}.
 The type $[[a ~ l0 b]]$ represents the proposition that $[[a]]$ and $[[b]]$
@@ -1290,19 +1290,19 @@ and the development can be found in \repo{} under the \texttt{proofs/theories} d
 
 Definitions, lemmas, and theorems given here are annotated with a footnote
 to the corresponding file and top-level name in the development.
-Some lemmas are presented as admissible derivation rules of the corresponding judgement,
+Some lemmas are presented as admissible derivation rules of the corresponding judgment,
 which are written with a double horizontal bar instead of a single bar.
 Their corresponding mechanizations are annotated where mentioned in the prose.
 
 \subsection{Preliminaries}
 
 As indistinguishability and definitional equality involve a level context,
-we require a level checking judgement \judgement{$[[E |- a : l]]$}
+we require a level checking judgment \judgement{$[[E |- a : l]]$}
 on terms to be able to prove some substitution lemmas.
-The judgement specifies the dependency level that a term may be assigned.
+The judgment specifies the dependency level that a term may be assigned.
 In later sections, we will see that semantic typing and the logical relation
 are defined over level checked terms.
-The rules for the judgement correspond exactly to stripping out
+The rules for the judgment correspond exactly to stripping out
 all typing information from the typing rules, leaving only the levels.
 We omit them here, but they are listed in \cref{sec:levelling}.
 
@@ -1322,7 +1322,7 @@ We omit them here, but they are listed in \cref{sec:levelling}.
   \label{fig:lemmas}
 \end{figure}
 
-The level checking and indistinguishability judgements
+The level checking and indistinguishability judgments
 satisfy some standard properties,
 listed as admissible rules in \cref{fig:lemmas}.
 \Rref*{L-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
@@ -2392,7 +2392,7 @@ which we are unable to conclude.
 % Once again, the indistinguishability rule would need to be modified
 % so that the endpoints are compared using guarded indistinguishability
 % to handle the situation where $[[l0]]$ is higher
-% than the observer level $[[l]]$ of the indistinguishability judgement.
+% than the observer level $[[l]]$ of the indistinguishability judgment.
 % The modified premises are highlighed in yellow below.
 % %
 % \begin{mathpar}
@@ -2405,7 +2405,7 @@ which we are unable to conclude.
 %   }
 % \end{mathpar}
 
-% By \rref{I-Eq-Bad}, it would be possible to derive the judgement
+% By \rref{I-Eq-Bad}, it would be possible to derive the judgment
 % $[[nil |- Unit ~ H Unit == Unit ~ H Void @ L]]$
 % via \rref{GI-Indist} for both premises since $[[not (H <= L)]]$.
 % The left-hand size is inhabited by $[[refl]]$,
@@ -2432,7 +2432,7 @@ which we are unable to conclude.
 % parameterize our logical predicate by the level context $[[E]]$ and
 % decorate its definition with additional level checking constraints.
 
-The level-checking judgements in Figure~\ref{fig:logpred} introduces scoping information to our
+The level-checking judgments in Figure~\ref{fig:logpred} introduces scoping information to our
 logical predicate. As observed by \citet{abel:normalization}, to
 derive the adequacy property for a scoped logical relation, the
 interpretation for functions must be generalized to account for
@@ -3186,7 +3186,7 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 
 \appendix
 
-\section{Omitted Judgement Rules}
+\section{Omitted Judgment Rules}
 
 \subsection{Naturals} \label{sec:naturals}
 
