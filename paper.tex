@@ -2085,8 +2085,8 @@ for types in $[[G]]$ is separately provided by the semantic
 context well-formedness judgment \judgement{$\swf{[[G]]}$}.
 %
 \begin{mathpar}
-  \infer[\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
-  \infer[\ottdrulename{SWf\_cons}]{
+  \inferrule*[Right=\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
+  \inferrule*[Right=\ottdrulename{SWf\_cons}]{
     \swf{[[G]]} \\
     \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
   }
@@ -2245,21 +2245,24 @@ the former admits a simpler specification.
   Given a level context $[[E]]$ and two well-formed types $[[A]]$
   and $[[B]]$, the algorithm deciding their equality is as follows.
   \begin{enumerate}
-  \item Run the algorithm from \cref{lem:nomdec} on $[[A]]$ and
+  \item \label{item:nf}
+    Run the algorithm from \cref{lem:nomdec} on $[[A]]$ and
     $[[B]]$ to obtain normal forms $[[A0]]$ and $[[B0]]$.
-  \item Compute the minimal level $[[l]]$
+  \item \label{item:min}
+    Compute the minimal level $[[l]]$
     at which $[[A0]]$ and $[[B0]]$ can be level checked.
-  \item Return the result of the decision procedure from
+  \item \label{item:decide}
+    Return the result of the decision procedure from
     \cref{lem:indistdec} on the relation
     $[[E |- A0 == B0 @ l]]$.
   \end{enumerate}
 \end{definition}
 
-In step (3), \nameref{lem:simulation} justifies the use of
+In (\ref{item:decide}), \nameref{lem:simulation} justifies the use of
 normal forms $[[A0]]$ and $[[B0]]$
 before we check indistinguishability, while downgrade
 (\rref*{I-down}) justifies the
-use of the lowest possible level $[[l]]$ computed from step (2).
+use of the lowest possible level $[[l]]$ computed from (\ref{item:min}).
 
 % The correctness of the algortihm
 % follows from the syntactic properties about reduction,
@@ -2269,7 +2272,7 @@ use of the lowest possible level $[[l]]$ computed from step (2).
 % choosing the lowest level is good enough.
 
 The only missing piece is the decidability of the algorithm for
-computing levels in step (2).
+computing levels in (\ref{item:min}).
 While conceptually simple, the algorithm depends
 on the structure of the lattice. For bottomless
 lattices, there is no minimal level we can return for values such as
@@ -2364,16 +2367,17 @@ whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
 Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
 ignoring $[[b]]$ in \rref{I-Absurd} will not violate simulation.
 
-It may seem desirable, then, to simplify things and enforce the scrutinee's level
+If we try to enforce the scrutinee's level
 to be exactly the overall level $[[l]]$,
-but this prevents us from proving subsumption (\rref*{Wt-sub}),
+we would not be able to prove subsumption (\rref*{Wt-sub}),
 since the level of the scrutinee appears in the context.
 In both \rref{Wt-J,Wt-Let}, this occurs when type checking the motive $[[C]]$,
 which abstracts over the scrutinee.
 Supposing that both the level of the scrutinee and the overall level are $[[l]]$,
 subsumption states that given a derivation at level $[[l]]$,
 we need to construct a derivation at a higher level $[[l']]$.
-In the case of these eliminators, we are given a derivation concluding something of the shape
+For $\ottkw{J}$ and $\ottkw{let}$,
+we are given a derivation concluding something of the shape
 $[[G ++ x : l poltergeist |- C : l0 Univ i]]$,
 but we require one of the shape
 $[[G ++ x : l' poltergeist |- C : l0 Univ i]]$,
@@ -2498,7 +2502,6 @@ since they both involve binders.
 Following \citet{liu:dcoi}, we formulate \name as an instantiation of
 \citeauthor{barendregt:PTS}'s Pure Type Systems with a predicative
 universe hierarchy.
-
 A variation of PTS, referred to as Pure Type Systems with Judgmental
 Equality by \citet{adams:pure}, replaces the untyped conversion rule from PTS
 with a type-directed equality judgment. While untyped conversion rules
