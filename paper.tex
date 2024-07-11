@@ -2591,7 +2591,7 @@ to reduce the equality proof.
 Since the equality proof is discarded during evaluation, it can be ignored by
 indistinguishability, and therefore the simulation property is preserved.
 
-Such a rule violates subject reduction. Given a term $[[a]]$ of type
+Such a rule violates preservation. Given a term $[[a]]$ of type
 $[[Nat]]$ and a bogus assumption $x$ of type $[[Nat ~ l Void]]$, we
 have $[[J a l x => a]]$ where the former is of type $[[Void]]$ but the
 latter is of type $[[Nat]]$. Even so, the addition of this rule
