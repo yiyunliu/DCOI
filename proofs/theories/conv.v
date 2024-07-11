@@ -412,5 +412,21 @@ Proof. hauto lq:on use:iconv_renaming unfold:conv. Qed.
 Lemma iconv_conv Ξ ℓ a b : iconv Ξ ℓ a b -> conv Ξ a b.
 Proof. sfirstorder unfold:conv. Qed.
 
+Lemma iconv_par_star Ξ ℓ a b a0  :
+  iconv Ξ ℓ a b -> a ⇒* a0 -> iconv Ξ ℓ a0 b.
+Proof.
+  move => h h0.
+  move : Ξ b h.
+  induction h0;
+    hauto lq:on use:iconv_par unfold:conv.
+Qed.
+
+Lemma iconv_par_star2 Ξ ℓ a b a0 b0 :
+  iconv Ξ ℓ a b -> a ⇒* a0 -> b ⇒* b0 -> iconv Ξ ℓ a0 b0.
+Proof. hauto lq:on use:iconv_par_star, iconv_sym. Qed.
+
+Lemma conv_par_star2 Ξ a b a0 b0 :
+  conv Ξ a b -> a ⇒* a0 -> b ⇒* b0 -> conv Ξ a0 b0.
+Proof. hauto lq:on use:iconv_par_star2, iconv_conv. Qed.
 
 End conv_facts.

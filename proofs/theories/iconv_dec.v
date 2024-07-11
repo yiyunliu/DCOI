@@ -25,6 +25,7 @@ Module conv_dec_bot
   Import Solver.
   Module preservation := preservation lattice syntax par ieq conv typing.
   Import preservation.
+  Import cfacts.
 
   Fixpoint compute_level (Ξ : econtext) a : T :=
     match a with
@@ -98,19 +99,6 @@ Module conv_dec_bot
     eauto using IEqb_IEq.
   Qed.
 
-  Lemma conv_par_star Ξ a b a0  :
-    conv Ξ a b -> a ⇒* a0 -> conv Ξ a0 b.
-  Proof.
-    move => h h0.
-    move : Ξ b h.
-    induction h0;
-      hauto lq:on use:cfacts.conv_par unfold:conv.
-  Qed.
-
-  Lemma conv_par_star2 Ξ a b a0 b0 :
-    conv Ξ a b -> a ⇒* a0 -> b ⇒* b0 -> conv Ξ a0 b0.
-  Proof. hauto lq:on use:conv_par_star, cfacts.conv_sym. Qed.
-
   Lemma conv_convb {ℓ ℓ0 i a} Γ A B (h0 : Γ ⊢ a ; ℓ ∈ A) (h1 : Γ ⊢ B ; ℓ0 ∈ tUniv i) :
     conv (c2e Γ) A B -> convb Γ A B h0 h1.
   Proof.
@@ -122,7 +110,6 @@ Module conv_dec_bot
     rewrite /conv /iconv in h.
     move : h => [ℓ'][x][y][?][?]h.
     have [? ?] : x = vA' /\ y = vB' by sfirstorder use:nfact.nf_refl_star. subst.
-
     have [? ?] : exists ℓA, IOk (c2e Γ) ℓA vA' by
         apply Wt_regularity in h0; hauto lq:on use:tcfacts.typing_iok, cfacts.iok_preservation_star.
     have ? : IOk (c2e Γ) ℓ0 vB' by hauto lq:on use:tcfacts.typing_iok, cfacts.iok_preservation_star.
@@ -163,22 +150,14 @@ Module iconv_dec
 
   Lemma iconv_iconvb Ξ ℓ a b (h0 : wn a) (h1 : wn b) : iconv Ξ ℓ a b -> iconvb Ξ ℓ a b h0 h1.
   Proof.
-    rewrite /iconv.
-    move => [a0][b0][ha][hb]hab.
+    move => h.
     rewrite /iconvb.
-    set a' := LoRed_normalize a h0.
-    set b' := LoRed_normalize b h1.
-    case : a' => va [nfva hva] /=.
-    case : b' => vb [nfvb hvb] /=.
-    have [] : a0 ⇒* va /\ b0 ⇒* vb by sfirstorder use:confluent_nf.
-    move :  hab.
-    move /simulation_star => /[apply].
-    move => [b1][hb0]hb0'.
-    have : b1 ⇒* vb by qauto l:on use:rtc_transitive, confluent_nf.
-    move /ifacts.ieq_sym /simulation_star : hb0' => /[apply].
-    move => [b'][?]h.
-    have ? : b' = va by sfirstorder use:nf_refl_star. subst => _.
-    move : h. sfirstorder use:ifacts.IEq_IEqb, ifacts.ieq_sym.
+    case : LoRed_normalize =>//= va [hva0 hva1].
+    case : LoRed_normalize =>//= vb [hvb0 hvb1].
+    have {}h : iconv Ξ ℓ va vb by hauto lq:on use:iconv_par_star2.
+    move : h => [va'][vb']?.
+    have [? ?] : va' = va /\ vb' = vb by sfirstorder use:nf_refl_star. subst.
+    apply ifacts.IEq_IEqb. tauto.
   Qed.
 
   Lemma iconvb_iconv Ξ ℓ a b (h0 : wn a) (h1 : wn b) : iconvb Ξ ℓ a b h0 h1 -> iconv Ξ ℓ a b.
