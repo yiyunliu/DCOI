@@ -53,7 +53,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{natbib}
 \usepackage{mathpartir,mathtools,stmaryrd}
-\usepackage{todonotes,listings,xspace,color,doi}
+\usepackage{todonotes,listings,xspace,color,tcolorbox,doi}
 \usepackage[flushmargin,multiple,para]{footmisc}
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
@@ -2321,21 +2321,19 @@ Suppose that scrutinees could instead be typed at any level.
 First, the indistinguishability rules would need to be updated
 so that scrutinees are indistinguishable if their level is higher
 than that of the overall eliminator, just like in \rref{I-App}.
-The modified premises are highlighted in \hlcolor{} below.
-\sw{Do we need to worry about people reading the paper in BW and interpreting 
-these premises as admissible?}
+The modified premises are boxed below.
 %
 \begin{mathpar}
-  \setlength{\fboxsep}{1.5pt}
+  \tcbset{left=1pt,right=1pt,top=1pt,bottom=1pt,boxsep=0pt,boxrule=1pt,hbox,tcbox raise base}
   \infer[\ottdrulename{I\_J\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l2]]} \\
+    \tcbox{$[[E |- p0 == p1 @ l l2]]$}
     [[E |- c0 == c1 @ l]]
   }{
     [[E |- J c0 l2 p0 == J c1 l2 p1 @ l]]
   }
   \and
   \infer[\ottdrulename{I\_Let\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l1]]} \\
+    \tcbox{$[[E |- a0 == a1 @ l l1]]$} \\
     [[(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l]]
   }{
     [[E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l]]
