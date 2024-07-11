@@ -782,6 +782,10 @@ which holds if the context's types are well typed by some universe $[[Univ i]]$.
 Premises which may be omitted in admissible variants of rules without them
 are highlighted in grey. \sw{save this sentence until the first figure with highlights?}
 
+\sw{We need to say up front that this typing judgement is not designed to be decidable as the 
+  syntax does not include enough annotations. We design it this way to highlight the relevant parts of 
+the terms. We also have flexibility in where we add annotations, none or relevant so we can add as many or as few as we need depending on how sophisticated we would like the type checking algorithm to be.}
+
 The typing rules are defined mutually with the context well-formedness rules,
 both given in \cref{fig:typing:dep}.
 When viewed as a PTS, the \rref{Wt-Univ,Wt-Pi} correspond
@@ -1181,13 +1185,13 @@ are required due to their presence in \rref{Wt-Let,Wt-Seq}.
 The propositional equality type internalizes the indistinguishability judgement,
 enabling reasoning about indistinguishability within \name itself.
 The typing rules for constructs related to the equality type are given in \cref{fig:typing:eq}.
-An equality type $[[a ~ l0 b]]$ represents the proposition that $[[a]]$ and $[[b]]$
+The type $[[a ~ l0 b]]$ represents the proposition that $[[a]]$ and $[[b]]$
 are indistinguishable by observers at level $[[l0]]$.
 By \rref{Wt-Eq}, the endpoints must themselves be well typed at level $[[l0]]$,
 since it only makes sense to talk about the indistinguishability of observable terms,
 just as \rref{I-Var} only holds for observable variables.
 The observer level $[[l0]]$ must also be bounded by the overall level $[[l]]$
-to the consistency of the equational theory, as explained by \citet{liu:dcoi}.
+to ensure the consistency of the equational theory, as explained by \citet{liu:dcoi}.
 Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
 given by \rref{Wt-Refl}.
 
@@ -1209,6 +1213,10 @@ the level of the body must match the level $[[l]]$ of the overall eliminator.
 The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
 its justification is a subtle technical issue,
 which we defer to \cref{sec:scrutinee-level}.
+
+\sw{Maybe we should say here that eliminating an equality proof always counts as an 
+observation even though no branching happens. As a result we have decidable type checking 
+and we don't have axiom K. }
 
 The other level constraint in \rref{Wt-J},
 which allows the equality endpoints to be typed at a level $[[l1]]$
