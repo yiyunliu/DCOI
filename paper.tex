@@ -770,10 +770,19 @@ of a term $[[b]]$ in place of the variable $[[x]]$ inside the term $[[a]]$.
 As in \cref{sec:examples}, we use $[[l A -> B]]$ for $[[Pi x : l A . B]]$ when
 $[[x]]$ does not appear in $[[B]]$.
 
+\begin{figure}[h]
+  % \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
+  \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  \caption{Typing rules (universes, empty, functions)}
+  \Description{}
+  \label{fig:typing:dep}
+\end{figure}
+
 The main judgement is the typing relation,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
 that is well type under context $[[G]]$ at observer level $[[l]]$
 with type $[[A]]$.
+Its rules are given in \cref{fig:typing:dep}.
 To reduce clutter,
 we also use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
@@ -782,29 +791,27 @@ which holds if the context's types are well typed by some universe $[[Univ i]]$.
 Premises which may be omitted in admissible variants of rules without them
 are highlighted in grey. \sw{save this sentence until the first figure with highlights?}
 
+Our syntax is designed to highlight the parts of terms which play a role in evaluation.
+Therefore, type annotations are omitted,
+and consequently the typing judgement is not decidable.
+This minimalist design lends flexibility in which annotations
+an type checker implementation may choose to add to the syntax.
+
 \sw{We need to say up front that this typing judgement is not designed to be decidable as the 
   syntax does not include enough annotations. We design it this way to highlight the relevant parts of 
 the terms. We also have flexibility in where we add annotations, none or relevant so we can add as many or as few as we need depending on how sophisticated we would like the type checking algorithm to be.}
 
 The typing rules are defined mutually with the context well-formedness rules,
-both given in \cref{fig:typing:dep}.
+omitted here, which assert the well-sortedness of its types.
 When viewed as a PTS, the \rref{Wt-Univ,Wt-Pi} correspond
 to the sort axioms $([[Univ i]], [[Univ i + 1]])$ for every $[[i]]$
 and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]], [[j]]$.
 
-\begin{figure}[h]
-  % \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
-  \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
-  \caption{Well-formedness and typing rules (universes, empty, functions)}
-  \Description{}
-  \label{fig:typing:dep}
-\end{figure}
-
 Except for the use of levels for dependency tracking, typing rules of \name
 are standard for dependent type theory. In the rest of this section, we 
-discuss how dependency levels interact with the remaining rules of \cref{fig:typing:dep}
-in \cref{sec:dep}. We discus how the conversion rule, which changes the type of a term to an equivalent one,
-uses a definitional equality that is defined in terms of indistinguishability in \cref{sec:indist}.
+discuss how dependency levels interact with the rules of \cref{fig:typing:dep}
+in \cref{sec:dep}. We discuss how the conversion rule, which changes the type of a term to an equivalent one,
+uses a definitional equality defined in terms of indistinguishability in \cref{sec:indist}.
 We then look at the rules for dependent pair types and the unit type (\cref{sec:pairs}),
 and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
