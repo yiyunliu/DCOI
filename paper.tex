@@ -2322,6 +2322,8 @@ First, the indistinguishability rules would need to be updated
 so that scrutinees are indistinguishable if their level is higher
 than that of the overall eliminator, just like in \rref{I-App}.
 The modified premises are highlighted in \hlcolor{} below.
+\sw{Do we need to worry about people reading the paper in BW and interpreting 
+these premises as admissible?}
 %
 \begin{mathpar}
   \setlength{\fboxsep}{1.5pt}
@@ -2487,7 +2489,7 @@ since they both involve binders.
 
 % By defining soundness in terms of 
 
-\subsection{Towards typed definitional equality
+\subsection{Typed definitional equality
   and relational semantic models}
 
 \label{sec:typeddefeq}
@@ -2598,7 +2600,7 @@ there is only one canonical form $[[refl]]$.
 The fundamental theorem guarantees that a closed proof of equality can only evaluate to
 $[[refl]]$. As a result, the J eliminator
 is erasable since no information is gained from
-matching against a singleton type.
+matching against a singleton type. \sw{should define what erasable means}
 
 Despite the erasability of equality proofs at runtime,
 \dcoi does not allow casting a relevant term using an irrelevant proof.
@@ -2606,26 +2608,29 @@ In \cref{sec:scrutinee-level}, we see that this restriction is
 necessary for the simulation property to hold since an open equality
 proof can normalize to either $[[refl]]$ or to a neutral term.
 
-However, it is possible to modify the operational semantics of \name
+Do we need to evaluate equality proofs? Suppose that we 
+modify the operational semantics of \name
 by adding the rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
+\sw{Maybe we should write this rule as a rule and give it name, if we have space.}
 so that the J eliminator is erased during evaluation without having
 to reduce the equality proof.
-Since the equality proof is discarded during evaluation, it can be ignored by
-indistinguishability, and therefore the simulation property is preserved.
+\sw{Should we add this rule or update \rref{P-JRelf} to be this rule?}
+In a system with this rule, because the equality proof is discarded during evaluation, it can be ignored by
+indistinguishability and still validate the simulation property.
 
-Such a rule violates preservation. Given a term $[[a]]$ of type
-$[[Nat]]$ and a bogus assumption $x$ of type $[[Nat ~ l Void]]$, we
-have $[[J a l x => a]]$ where the former is of type $[[Void]]$ but the
-latter is of type $[[Nat]]$. Even so, the addition of this rule
-still gives us a consistent equational
-theory. In fact, it is even possible to recover logical consistency,
-though we lose decidable type conversion.
+The addition of this rule does not invalidate logical consistency or the fact that 
+our equational theory is consistent. However, in the presence of this rule, 
+we lose decidable type conversion.
 With a proof of $A = A \rightarrow A$ in the context,
 one can define a well-typed term that reduces to the diverging
 term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$,
 since the J eliminator no longer gets stuck at a bogus equality proof.
+Furthermore, this rule also violates type preservation. Given a term $[[a]]$ of type
+$[[Nat]]$ and a bogus assumption $x$ of type $[[Nat ~ l Void]]$, we
+have $[[J a l x => a]]$ where the former is of type $[[Void]]$ but the
+latter is of type $[[Nat]]$.
 
-\citet{werner:proofirrel} attempts to address this problem while still
+\citet{werner:proofirrel} attempts to address these problems while still
 allowing the irrelevant treatment of equality proofs. In his system, the
 elimination form for equalities is annotated with the terms appearing
 in the equality. Reduction does not examine the equality proof,
@@ -2637,11 +2642,10 @@ not always desirable.
 % normalization for impredicative systems.
 
 It is possible to recover decidable type conversion for a non-strict
-elimination rule through annotations~\citep{liu:dependently}, or by
-exploring beyond intensional equality
-types~\citep{pujet:ttobs}. As part of our future work, we want to 
-extend \name with the elimination of irrelevant equality proofs while
-preserving normalization.
+elimination rule through annotations~\citep{liu:dependently}, or by exploring
+beyond intensional equality types~\citep{pujet:ttobs}. In future work, we
+would like to explore the extension of \name with these alternative versions
+of propositional equality.
 
 \iffalse
 \begin{itemize}
