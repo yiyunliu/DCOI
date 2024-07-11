@@ -4,10 +4,10 @@
 \newif\ifsubmission   %% prepare the submitted version
 \newif\ifpublic       %% version available for posting / final version
 
-\commentstrue         %% toggle comments here
+\commentsfalse         %% toggle comments here
 \extendedfalse
 
-\submissionfalse       %% at most one of these must be true (neither for draft version)
+\submissiontrue       %% at most one of these must be true (neither for draft version)
 \publicfalse          %% but if you want to see comments, these should both be off
 
 % If we are going to make a version public, i.e. on arXiv, we should 
@@ -2503,74 +2503,54 @@ of propositional equality.
 
 \section{Related Work}
 
-\paragraph{Dependent types and irrelevance}
+\subsection{Dependent types and irrelevance}
 \label{sec:discuss-irrel}
 
-In this section, we discuss the relation between \name and other dependently typed systems with relevance
-tracking. The notion of irrelevance is
-used inconsistently in the literature and can refer to either 
-run-time irrelevance or compile-time irrelevance (also called definitional proof irrelevance). Both types of irrelevance
-allow the erasure of computationally irrelevant terms, though
-proof irrelevance further allows erasure to appear during type
-conversion. Here, we use the more liberal notion of relevance tracking
-to refer to both run-time and compile-time irrelevance. % , or
-% \emph{external erasure} and \emph{internal erasure} following the
-% terminology by \citet{abel:irrelevance}.
+Many dependent type systems include a notion of irrelevence, although the term
+has been used inconsistently and refers to either run-time irrelevance or
+compile-time irrelevance. The former refers to the erasure of computationally
+irrelevant terms during compilation, in order to optimize code. The latter
+erases or ignores irrelevant terms during type conversion, in order to accept
+more programs.  Here, we liberally use relevance tracking to refer to both
+concepts.
 
-The Implicit Calculus of Constructions
-(ICC)~\citep{miquel:icc}, its decidable variant ICC*~\citep{barras:icc}, and the
-Erasure Pure Type Systems (EPTS)~\citep{mishra:erasure} are 
-systems that support run-time irrelevance. To track dependencies, ICC
-and ICC* ensure that irrelevant variables do not syntactically appear
-in relevant computations, whereas EPTS uses a design based on
+The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc}, its decidable
+variant ICC*~\citep{barras:icc}, and the Erasure Pure Type System
+(EPTS)~\citep{mishra:erasure} support irrelevance by including two abstraction
+forms, distinguishing functions that do and do not use their arguments.  ICC
+and ICC* ensure that irrelevant variables do not syntactically appear in
+relevant computations, whereas EPTS uses a design based on
 \citet{pfenning:modal} to prevent variables marked with the irrelevant
-modality from being used relevantly.
-Despite the different mechanisms, these languages are similar in
-expressiveness. Irrelevant type parameters are allowed to relevantly
-appear in types. In EPTS, for example, a binder is always introduced
-with the relevant modality in type formation rules. This design allows
-irrelevant type parameters to appear relevantly in types, but also
-prevents one from expressing that the output type of a function type
-does not depend on its input. % In \dcoi and \name, modalities are used 
-\yl{We can point out that Abel et al. go to the other extreme and it
-  can't express run-time irrlevant, compile-time relevant. Neither
-  support strong irrelevant projection.
-  DCOI allows relevance/irrelevance to be
-  treated independently at term and type level so it's more general
-  than both. }
-ICC and ICC* both allow compile-time irrelevance by ignoring 
-irrelevant arguments that appear in a type-level
-computation. \citet{mishra:erasure} discuss a variant of their
-conversion rule that would allow compile-time irrelevance in EPTS, a
-design that is later employed by \citet{weirich:systemd, choudhury:ddc}.
+modality from being used relevantly.  Despite the difference in mechanisms,
+the languages are similar in expressiveness. In the type of an irrelevant
+abstraction, $\forall x\!\!:\!\!A.B$, the parameter $x$ may relevantly
+appear in $B$. Thus, there is no way to express that the output \emph{type}
+of a function does not depend on its input.  ICC and ICC* allow
+compile-time irrelevance by erasing irrelevant components before
+conversion. But, these systems cannot support irrelevent projections 
+as erasure would allow conversion between distinct types.
+%% SW: I don't know what you mean by this part?
+% \citet{mishra:erasure} discusses a variant of their
+% conversion rule that would allow compile-time irrelevance in EPTS, a
+% design that is later employed by \citet{weirich:systemd, choudhury:ddc}.
 
-% allow irrelevant arguments to
-% functions can be erased during program extraction, but not type
-% conversion. Since irrelevant type parameters may appear relevantly in
-% the type signature, erasing those parameters would allow one to
-% convert between distinct types. Therefore, those systems do not
-% support compile-time irrelevance.
-\sw{This is not true. ICC* employs erasure during conversion and ICC works only with erased terms. EPTS does not do erasure during conversion, but it could. We need to rewrite this paragraph.}
-\sw{The distinction that we need to make is that the mode of the argument in a Pi-type 
-changes between the abstraction and the type. In EPTC, the Pi-bound variable is always 
-relevant, no matter whether the function it describes has a relevant or irrelevant parameter. }
-
-Pfenning's modal type system~\citep{pfenning:modal} and its extension
-by \citet{abel:irrelevance} impose more restrictions on the arrow
-type. In particular, \citet{abel:irrelevance}'s system forbids
-irrelevant arguments from appearing in either the term or its type.
+In contrast, Pfenning's modal type system~\citep{pfenning:modal} and its
+extension by \citet{abel:irrelevance} forbids irrelevant parameters from
+appearing in both the body of an abstraction \emph{and} its result type.
+As a result, irrelevent function types cannot model type polymorphism,
+and the system does not include large eliminations or irrelevant projections.
 % so they can be erased for both program extraction and type
 % conversion. 
 %% The focus of Pfenning and Abel's systems is conversion only. They 
 %% don't talk about runtime erasure very much, and Agda uses a complete
 %% separate mechanism.
-However, as pointed out by
-\citet{tejiscak:erasure}, Pfenning's style of relevance tracking is limiting
-as it prevents one from defining type families indexed by a run-time
+Furthermore, as pointed out by
+\citet{tejiscak:erasure}, Pfenning's style of relevance tracking 
+prevents the definition of type families indexed by an
 irrelevant argument. One such example is the binary type
 \lstinline{Bin n}, whose index \lstinline{n} keeps track of the
 natural number it corresponds to. To avoid exponential overhead during
-execution, the index \lstinline{n} needs to be marked as irrelevant. 
+execution, the index \lstinline{n} should be marked as irrelevant. 
 However, this is impossible with Pfenning's system
 as irrelevant arguments are convertible, but
 \lstinline{Bin n} and \lstinline{Bin m} are different types for
@@ -2646,10 +2626,9 @@ both terms and types.
 % definitional equality; relevance levels do not affect type conversion.
 
 \citet{mishra:erasure} distinguish between extrinsic and intrinsic
-relevance tracking. An extrinsic approach determines relevance purely based on the
-context in which the term is used. All systems we have discussed so
-far, including \dcoi and \name, can be viewed as systems that treat relevance
-extrinsically.
+relevance tracking. The former determines relevance purely based purely on 
+how terms are used. All systems we have discussed so
+far, including \dcoi and \name, are extrinsic systems.
 
 An example of the intrinsic approach is
 the $[[Prop]]$ sort, introduced by \citet{paulin-mohring:coc},
@@ -2771,7 +2750,7 @@ our encoding of the box type.
 % the Coq proof assistant to ensure that proofs do not appear in
 % extracted programs.
 
-\paragraph{Dependent types and counting}
+\subsection{Dependent types and counting}
 
 Quantitative type systems provide a type of fine-grained static analysis that counts the
 number of times a computation uses each of its inputs. For flexibility, counting
