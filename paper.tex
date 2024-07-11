@@ -720,8 +720,6 @@ we also use the judgment \judgement{$[[G |- a : A]]$} to mean that there exists 
 such that $[[G |- a : l A]]$ holds.
 The typing judgment is defined mutually with the context well-formedness judgment \judgement{$[[|- G]]$},
 which holds if the context's types are well typed by some universe $[[Univ i]]$.
-Premises which may be omitted in admissible variants of rules without them
-are highlighted in grey. \sw{save this sentence until the first figure with highlights?}
 
 Our syntax is designed to highlight the parts of terms which play a role in evaluation.
 Therefore, type annotations are omitted,
@@ -964,6 +962,8 @@ into $\beta$-equivalence.
 
 Dependent pairs are annotated with a fixed level in their first component,
 given by $[[l0]]$ in \rref{Wt-Sig,Wt-Pair} of \cref{fig:typing:pair}.
+Premises which may be omitted in admissible variants of rules without them
+are highlighted in \colorbox{lightgray}{grey}.
 Like for function types, the levels of pair types are not necessarily related
 to that annotated level.
 While the first component of the pair constructor has a fixed level,
@@ -1147,14 +1147,25 @@ The type of the body is the motive instantiated with $[[a]]$ and $[[refl]]$,
 while the type of the fully-applied eliminator is the motive instantiated with $[[b]]$ and $[[p]]$.
 The levels of $[[x]]$ and $[[y]]$ must therefore match the levels of $[[b]]$ and $[[p]]$, respectively.
 Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the body,
-the level of the body must match the level $[[l]]$ of the overall eliminator.
-The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
-this is a subtle technical issue,
-which we defer to \cref{sec:scrutinee-level}.
+the level of the body must match the level $[[l]]$ of the overall
+eliminator.
+The level of the scrutinee $[[l2]]$ is bounded above by the observer
+level $[[l]]$, and thus
+eliminating an equality proof always counts as an observation even
+though no branching happens. We treat the equality proof as observable
+to retain decidable type conversion (\cref{sec:castirrel}).
+The non-exact match between $[[l2]]$ and $[[l]]$ makes the
+rule more flexible than a rule that simply requires them to be
+equal. The necessity of the flexibility is discussed in
+\cref{sec:scrutinee-level}.
 
-\sw{Maybe we should say here that eliminating an equality proof always counts as an 
-observation even though no branching happens. As a result we have decidable type checking 
-and we don't have axiom K. }
+% The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
+% this is a subtle technical issue,
+% which we defer to \cref{sec:scrutinee-level}.
+
+% \sw{Maybe we should say here that eliminating an equality proof always counts as an 
+% observation even though no branching happens. As a result we have decidable type checking 
+% and we don't have axiom K. }
 
 The other level constraint in \rref{Wt-J},
 which allows the equality endpoints to be typed at a level $[[l1]]$
