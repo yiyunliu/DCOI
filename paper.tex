@@ -2227,16 +2227,18 @@ the former admits a simpler specification.
 \end{proof}
 
 \begin{definition}[Algorithm for type conversion]
+  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{convb}}
+  \label{def:convalg}
   Given a level context $[[E]]$ and two well-formed types $[[A]]$
   and $[[B]]$, the algorithm deciding their equality is as follows.
   \begin{enumerate}
   \item Run the algorithm from \cref{lem:nomdec} on $[[A]]$ and
     $[[B]]$ to obtain normal forms $[[A0]]$ and $[[B0]]$.
-  \item Compute the minimal levels $[[l0]]$ and $[[l1]]$
-    at which $[[A0]]$ and $[[B0]]$ can be level checked respectively.
+  \item Compute the minimal level $[[l]]$
+    at which $[[A0]]$ and $[[B0]]$ can be level checked.
   \item Return the result of the decision procedure from
     \cref{lem:indistdec} on the relation
-    $[[E |- A0 == A1 @ l0 \/ l1]]$.
+    $[[E |- A0 == B0 @ l]]$.
   \end{enumerate}
 \end{definition}
 
@@ -2244,7 +2246,7 @@ In step (3), \nameref{lem:simulation} justifies the use of
 normal forms $[[A0]]$ and $[[B0]]$
 before we check indistinguishability, while downgrade
 (\rref*{I-down}) justifies the
-use of the lowest possible level $[[l0 \/ l1]]$.
+use of the lowest possible level $[[l]]$ computed from step (2).
 
 % The correctness of the algortihm
 % follows from the syntactic properties about reduction,
@@ -2260,26 +2262,35 @@ on the structure of the lattice. For bottomless
 lattices, there is no minimal level we can return for values such as
 $[[Void]]$ and $[[Univ i]]$. Instead, we need to conjure up a level
 $[[l]]$ that can ignore the most terms possible when comparing
-$[[A]]$ and $[[B]]$. There are sufficient conditions for coming up
-with such a level, such as the existence of a bottom element,
-or the size of the lattice being (possibly infinitely) countable.
-As a result, we prove the decidability of a weaker version of the
-algorithm where the level used to compare $[[A0]]$ and $[[B0]]$ is
-given as an input.
+$[[A]]$ and $[[B]]$. While there are other sufficient conditions for
+inferring the level $[[l]]$, such as the size of the lattice being
+countable, we focus on the correctness of the algorithm for a lattice
+with a bottom element.
+\begin{theorem}[Decidability of type conversion with bottom]
+  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{conv\_dec}}
+  \label{lem:decconv}
+  Given $[[G |- a : l A]]$ and $[[G |- B : Univ i]]$, the algorithm
+  described in \cref{def:convalg} decides the relation $[[|G| |- A ==
+  B]]$ if \name is instantiated with a lattice with a bottom.
+\end{theorem}
 
-\begin{lemma}[Decidability of indexed type conversion]
+
+% There are sufficient conditions for coming up
+% with such a level, such as the existence of a bottom element,
+% or the size of the lattice being (possibly infinitely)
+% countable. 
+
+
+Independent of the underlying lattice structure, the 
+indexed version of definitional equality is always decidable since it
+allows us to skip the level inference from step (2).
+\begin{theorem}[Decidability of indexed type conversion]
   \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{iconv\_dec}}
   \label{lem:deciconv}
   Given a context $[[E]]$, syntactically well-formed types $[[A]]$ and
   $[[B]]$, and a level $[[l]]$, $[[E |- A0 <=> B0 @ l]]$ is decidable.
-\end{lemma}
-
-Note that $[[E |- A0 <=> B0 @ l]]$ corresponds
-exactly to the preconditions of \rref{E-Conv}. The type conversion rule
-\rref*{Wt-Conv} is decidable as long as the lattice has a suitable
-structure for computing some minimal level $[[l0]]$
-for deciding indistinguishability of the normalized types.
-
+\end{theorem}
+Note that $[[E |- A0 <=> B0 @ l]]$ is equivalent to the preconditions of \rref{E-Conv}.
 For finite or countable lattices, the decision procedure from
 \cref{lem:deciconv} can be iterated to recover the decidability
 of conversion in \rref{Wt-Conv}.
