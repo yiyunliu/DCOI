@@ -258,9 +258,9 @@ irrelevant arguments at run time, then such arguments may
 be replaced by trivial values.
 
 Furthermore, the \dcoi type system also uses indistinguishability in its
-conversion rule. If two types cannot be distingiushed by some observer, then
+conversion rule. If two types cannot be distinguished by some observer, then
 it is sound to replace one with another at compile time. Thus, \dcoi supports
-compile-time irrelevance, and may ignore irrevelant arguments when checking
+compile-time irrelevance, and may ignore irrelevant arguments when checking
 for type equality. \dcoi also internalizes indistinguishability as a type, 
 with a level-indexed elimination form.
 
@@ -349,13 +349,13 @@ All of our results have been developed using the Coq proof
 assistant and our proofs are available in \repo{} under the \texttt{proofs} directory.
 Furthermore, we have extended the prototype type checker by
 \citet{liu:dcoi},
-suitable for exprimenting with the newly introduced features,
+suitable for experimenting with the newly introduced features,
 which is also available under the \texttt{impl} directory.
 
 \section{Examples} \label{sec:examples}
 
 We start with examples that demonstrate \name in action, with emphasis on its
-suport for run-time and compile-time irrevelance.  To make these examples more
+support for run-time and compile-time irrelevance.  To make these examples more
 realistic, our presentation uses the syntax of our prototype
 implementation, which is based on a bidirectional type system and
 relies on a constraint solver to infer level annotations.  
@@ -385,7 +385,7 @@ Well-typedness of a program ensures that irrelevant arguments
 are never used in a relevant function.
 
 Consider the following polymorphic identity function,
-with an irrelevant type argument (marked as \lstinline{@1}) and
+with an irrelevant type argument (marked as \lstinline{@1})
 and relevant term argument (marked as \lstinline{@1}). This 
 function is defined at level \lstinline{@0}, which is the level of 
 its output.
@@ -443,7 +443,7 @@ is irrelevant in the function body but makes a relevant appearance in
 the type signature. Our system allows \lstinline{A} to appear as both
 relevant and irrelevant by generalizing irrelevance as a notion that
 is relative to an observer level. The level \lstinline{1} variable \lstinline{A}
-is irrelevant with respect to the a level \lstinline{0} observer, the body of the
+is irrelevant with respect to the level \lstinline{0} observer, the body of the
 identity function. The well-formedness of the \lstinline{id}'s type
 signature can be independently checked at observer level \lstinline{1}.
 
@@ -468,7 +468,7 @@ constant predicate, and that is only the case if we instantiate \lstinline{?}
 with level \lstinline{0}.
 
 Although \lstinline{b} is at level \lstinline{1} and thus
-is irrlevant to \lstinline{irr}, it may still be used relevantly by
+is irrelevant to \lstinline{irr}, it may still be used relevantly by
 \lstinline{P} if \lstinline{?} is instantiated to level \lstinline{1} or
 higher; our type system correctly rejects \lstinline{irr}
 in those scenarios.
@@ -646,7 +646,7 @@ list type and its length are standard.
     cons of (@0 A) (@0 List A)         length :@0 (A :@1 Type) -> List A -> Nat
 \end{lstlisting}
 
-A safe \lstinline{head} function requries a proof
+A safe \lstinline{head} function requires a proof
 that the length of the given list is not equal to zero, \emph{i.e.} that 
 \lstinline{(@1 (@1 (length Nat l) ~ zero) -> Empty)}. This proof 
 should be irrelevant, so it is marked with \lstinline{@1}.
@@ -725,7 +725,7 @@ Our syntax is designed to highlight the parts of terms which play a role in eval
 Therefore, type annotations are omitted,
 and consequently the typing judgment is not decidable.
 This minimalist design lends flexibility in which annotations
-an type checker implementation may choose to add to the syntax.
+a type checker implementation may choose to add to the syntax.
 
 \sw{We need to say up front that this typing judgment is not designed to be decidable as the 
   syntax does not include enough annotations. We design it this way to highlight the relevant parts of 
@@ -872,7 +872,7 @@ Multi-step parallel reduction \judgement{$[[a =>* b]]$} is the transitive closur
   \label{fig:indist}
 \end{figure}
 
-Two terms are indistinguishable at at observer level $[[l]]$ if they have the
+Two terms are indistinguishable at observer level $[[l]]$ if they have the
 same shape and their subterms are also indistinguishable at $[[l]]$.  The only
 exception is \rref{I-App} that uses \emph{guarded indistinguishability},
 \judgement{$[[E |- a == b @ l]]$}, which is 
@@ -881,10 +881,10 @@ mutually defined with indistinguishability in \cref{fig:indist}.
 Indistinguishability is \emph{coarser} than mere $\alpha$-equivalence
 (and hence $[[E |- a == b]]$ is coarser than mere $\beta$-equivalence of $[[a]]$ and $[[b]]$)
 because guarded indistinguishability sometimes identifies terms that are not 
-$\alpha$-equivalent. In \rref{I-App}, if the arguments are labelled at at $[[l0]]$, but observed at $[[l]]$, 
-guardeed indistinguishability compares the arguments based on the relationship between $[[l0]]$ and $[[l]]$.
+$\alpha$-equivalent. In \rref{I-App}, if the arguments are labelled at $[[l0]]$, but observed at $[[l]]$, 
+guarded indistinguishability compares the arguments based on the relationship between $[[l0]]$ and $[[l]]$.
 If $[[l0 <= l]]$, meaning that the observer can fully see the arguments,
-then \rref{GI-Dist} applies, and the arguments must themseleves be
+then \rref{GI-Dist} applies, and the arguments must themselves be
 indistinguishable at $[[l]]$.
 Otherwise, if $[[not (l0 <= l)]]$, then \rref{GI-Indist} applies,
 and the arguments are too high to be observed at $[[l]]$,
@@ -935,7 +935,7 @@ down type conversion into two separate steps: reduction and
 checking indistinguishability. 
 This algorithmic version of indistinguishability 
 allows us to reduce the problem of proving
-decidabilitiy of type conversion to the problem of finding a
+decidability of type conversion to the problem of finding a
 normalization procedure for well-typed terms
 (\cref{sec:decconv}). Finally, we note that if we instantiate
 \name with a singleton lattice, then indistinguishability degenerates
@@ -973,7 +973,7 @@ In contrast to prior work by \citet{liu:dcoi},
 pairs are eliminated using a pattern-matching expression
 instead of projections.
 The eliminator is typed according to \rref{Wt-Let},
-and its reduction behaviour is given by \rref{P-LetPair}.
+and its reduction behavior is given by \rref{P-LetPair}.
 It scrutinizes a pair $[[a]]$ annotated at level $[[l1]]$,
 binding its first and second components
 as variables $[[x]]$ at level $[[l0]]$
@@ -1030,7 +1030,7 @@ However, this is not the only way we can ensure the well-typedness of the second
 The alternate admissible \rref{Wt-proj2alt} only requires well-typedness of the pair
 and not of the first projection.
 Here, the type of the second projection matches on the pair
-and then subsitutes in the first component inside of $[[B]]$,
+and then substitutes in the first component inside of $[[B]]$,
 rather than matching on the pair within the substitution in $[[B]]$.
 The second projection is therefore well typed regardless
 of the well-typedness of the first projection.
@@ -1773,7 +1773,7 @@ syntactic sugar for a fresh variable. However, this is not possible in \name
 because of the scoping constraint imposed by level checking. Instead, we define
 $[[dummy]]$ as $[[absurd Void]]$. Note that the term appearing in the body of $\ottkw{absurd}$
 is flexible: all we need is a term in normal form 
-that has no reference to variables so we do not violate scoping.
+that has no reference to variables, so we do not violate scoping.
 
 Finally, we state and prove the adequacy lemma.
 
@@ -2380,7 +2380,7 @@ type correctness property, which states that $[[G |- a == b @ l : A]]$
 implies $[[G |- a : l A]]$ and $[[G |- b : l A]]$.
 
 When $[[not (l0 <= l)]]$, the function
-arguments are not observable and therefore we do not need to check the
+arguments are not observable, so we do not need to check the
 equality between $[[a0]]$ and $[[a1]]$ other than their respective
 well-typedness. However, \name does not prohibit the type $[[B]]$ from
 depending on the variable $[[x]]$ as the type $[[Pi x : l0 A . B]]$
@@ -2633,7 +2633,7 @@ tracking. In Coq, for example,
 only singleton types (\eg equality proofs) or empty
 types in $[[Prop]]$ can be destructed to produce run-time
 relevant terms.
-As dicussed in \cref{sec:castirrel},
+As discussed in \cref{sec:castirrel},
 Coq's $[[Prop]]$ sort is limited to run-time irrelevance for
 decidability of type checking. \citet{werner:proofirrel}'s type theory with
 a proof-irrelevant $[[Prop]]$ fails to satisfy normalization when
@@ -2661,7 +2661,7 @@ treated as definitionally equal. They
 introduce an alternative criterion to singleton
 elimination, which characterizes inductive types that can be safely
 eliminated from $[[SProp]]$ into the relevant universe while
-preserving decidablility.
+preserving decidability.
 They show the
 consistency of their design for both predicative and impredicative
 variants of $[[SProp]]$ through a syntactic translation to
@@ -2902,7 +2902,7 @@ Type-theory with color (TTC)~\citep{bernardy:color} extends the
 Calculus of Constructions with the notion of colors to support erasure
 and internalize
 parametricity. While \name does not internalize parametricity, there
-similarites between TTC and \name when both are viewed purely as systems
+similarities between TTC and \name when both are viewed purely as systems
 that track dependencies.
 % Taints are sets of colors, which represent the
 % resources that a computation may depend on. 
