@@ -2503,7 +2503,7 @@ of propositional equality.
 
 \section{Related Work}
 
-\subsection{Dependent types and irrelevance}
+\paragraph{Dependent types and irrelevance}
 \label{sec:discuss-irrel}
 
 Many dependent type systems include a notion of irrelevence, although the term
@@ -2750,7 +2750,7 @@ our encoding of the box type.
 % the Coq proof assistant to ensure that proofs do not appear in
 % extracted programs.
 
-\subsection{Dependent types and counting}
+\paragraph{Dependent types and counting}
 
 Quantitative type systems provide a type of fine-grained static analysis that counts the
 number of times a computation uses each of its inputs. For flexibility, counting
@@ -2831,7 +2831,7 @@ judgment and their semantics is refined to account for usage. In
 properties about dependency tracking must be developed before we
 define our semantic model.
 
-\subsection{Dependent types and indistinguishability}
+\paragraph{Dependent types and indistinguishability}
 
 % Compared to the languages that track
 % relevance (Section~\ref{sec:discuss-irrel}), the most notable
@@ -2906,24 +2906,22 @@ allowing the elimination of indexed equality types.
 % mechanism found in dependently typed languages \citet{pfenning:modal}. 
 
 % and then \citet{liu:dcoi} \todo{complete the discussion about DDC and DCOI}
-Type-theory with color (TTC)~\citep{bernardy:color} extends the
-Calculus of Constructions with the notion of colors to support erasure
+Type-theory in color (TTC)~\citep{bernardy:color} indexes the judgements of the
+Calculus of Constructions with colors to support erasure
 and internalize
-parametricity. While \name does not internalize parametricity, there
-similarities between TTC and \name when both are viewed purely as systems
-that track dependencies.
+parametricity. While \name does not internalize parametricity, TTC tracks 
+dependency in way that is similar to \name.
 % Taints are sets of colors, which represent the
 % resources that a computation may depend on. 
 % Taints can be viewed as a lattice with set intersection and union as
 % meet and join. 
 The typing judgment in TTC takes the form $\Gamma
 \vdash a :_\theta A$ where $\theta$ is a metavariable representing
-taints, a set of colors. The taint $\theta$ determines the variables that the term $a$ is
-allowed to access. The dependency tracking in TTC
-is more precise than \name. Variables can only be used if their
-taint \emph{exactly} matches the taint from typing. Functions keep track of a
+taints, a set of colors. The taint determines the variables that the term $a$ may
+access. However, in TTC variables can be used only if their
+taint \emph{exactly} matches the current taint. Functions keep track of a
 set of anti-taints, colors that the argument is oblivious to, in
-addition to a set of taints, colors that the argument depends on.
+addition to the set of colors that the argument depends on.
 The erasure operator $\lfloor a
 \rfloor_i$ erases all components dependent on the color $i$ from the
 term $a$ and also serves the purpose of interpreting types as
@@ -2931,13 +2929,11 @@ predicates. The ability to shift the view by choosing which color to erase is re
 of the observer level from the indistinguishability
 judgment of \name. The internalized reasoning about
 erasure is achieved by adding a parametricity rule to the type
-system. TTC's type conversion rule still relies on untyped $\beta$
-equivalence. Furthermore, similar to \citet{pfenning:modal,
+system. However, TTC does not include compile-time irrelevence.
+Furthermore, like \citet{pfenning:modal,
 abel:irrelevance} and unlike \name, in TTC, the same taint is used for
 checking a term and the well-formedness of its type. In \name, the
-observer level between terms and types are decoupled from each other
-(\ref{lem:regularity}) to be able to type check irrelevant strong
-projections and irrelevant type parameters.
+observer level between terms and types are decoupled.
 
 % The set of taints form a lattice with set
 % intersection and union as meet and join. 
@@ -2946,7 +2942,7 @@ projections and irrelevant type parameters.
 % the set union and intersection operations and thus is highly related
 % to the dependency tracking mechanism found in \name. 
 
-\subsection{Dependent types and mechanized logical relations}
+\paragraph{Dependent types and mechanized logical relations}
 
 Compared to simply-typed and type-polymorphic languages, mechanizing a
 logical relation for a dependently typed language with large
