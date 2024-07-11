@@ -1472,14 +1472,7 @@ Furthermore, we consider $[[absurd a]]$ as neutral as long as $[[a]]$
 is in normal form since there is no constructors of the $[[Void]]$
 type. The definitions of neutral and normal forms are otherwise
 standard and can be found in \cref{sec:neutrals}.
-
-The following lemma captures the idea that neutral and normal forms
-are free of redexes.
-\begin{lemma}
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
-  If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
-  b]]$, we have $[[a]] = [[b]]$.
-\end{lemma}
+Weakly normalizing terms are then terms which reduce to a normal form.
 
 \begin{definition}[Weakly normalizing terms]
   \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
@@ -1490,6 +1483,14 @@ are free of redexes.
   \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
 \end{definition}
 
+The following lemma captures the idea that neutral and normal forms
+are free of redexes.
+
+\begin{lemma}
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
+  If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
+  b]]$, we have $[[a]] = [[b]]$.
+\end{lemma}
 
 \begin{figure}[h]
   \centering
@@ -1587,7 +1588,7 @@ semantically well-formed types $[[A]]$ and their interpretation $[[S]]$.
 % the logical predicate; that is, each term can only correspond to one
 % interpretation $[[S]]$ if there exists one.
 
-For concision, we introduce semantic inhabitance to
+For concision, we introduce \emph{semantic inhabitance} to
 avoid mentioning the type well-formedness side condition
 when talking about a term inhabiting the set interpretation of a type.
 
@@ -1636,7 +1637,7 @@ types have the same interpretation.
 
 Similar to its syntactic counterpart, the logical predicate satisfies
 the subsumption property,
-proven by straightforward induction and using \rref*{L-sub}.
+proven by straightforward induction using \rref*{L-sub}.
 
 \begin{lemma}[Subsumption for the logical predicate]
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
@@ -1814,7 +1815,6 @@ involves both reduction and indistinguishability.
   premise that $[[Pi x : l0 A0 . B0]]$ and $[[Pi x : l0 A1 . B1]]$ are
   indistinguishable, we already know that $[[B0]]$ and $[[B1]]$ are
   indistinguishable.
-
   To prove that $[[B0 {a / x}]]$ and $[[B1 {a / x}]]$ are
   indistinguishable, we apply \rref*{I-subst}.
   This requires $[[a]]$ to be checked at level $[[l0]]$,
@@ -1876,7 +1876,7 @@ In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
 because of the scoping constraint imposed by level checking. Instead, we define
 $[[dummy]]$ as $[[absurd Void]]$. Note that the term appearing in the body of $\ottkw{absurd}$
-is flexible; all we need is a term in normal form 
+is flexible: all we need is a term in normal form 
 that has no reference to variables so we do not violate scoping.
 % restriction. % It is easy to verify that this
 % definition respects the rules in \cref{fig:dummy} and the antirenaming
@@ -2258,7 +2258,7 @@ computing levels in step (2).
 While conceptually simple, the algorithm depends
 on the structure of the lattice. For bottomless
 lattices, there is no minimal level we can return for values such as
-$[[Void]]$ and $[[Univ i]]$. Instead, we need to conjure a level
+$[[Void]]$ and $[[Univ i]]$. Instead, we need to conjure up a level
 $[[l]]$ that can ignore the most terms possible when comparing
 $[[A]]$ and $[[B]]$. There are sufficient conditions for coming up
 with such a level, such as the existence of a bottom element,
