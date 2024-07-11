@@ -354,7 +354,7 @@ which is also available under the \texttt{impl} directory.
 \ifsubmission
 Finally, for reasons of space, not all rules specifying \name can be included 
 in this document. The remaining rules can be found in our reference appendix 
-bundled with our supplementory material.
+bundled with our supplementary material.
 \fi
 
 \section{Examples} \label{sec:examples}
@@ -755,7 +755,10 @@ which internalize indistinguishability.
 induction principle permits large eliminations: we can branch on a natural and
 return different types for each branch.  However, as their interactions with
 dependency levels are similar to those of the other constructs, we omit them
-from our discussion and only list their rules in \cref{app:naturals}.
+from our discussion and only list their rules in
+\ifsubmission the supplementary appendix.
+\else \cref{app:naturals}.
+\fi
 
 \subsection{Dependency tracking} \label{sec:dep}
 
@@ -1242,7 +1245,10 @@ In later sections, we will see that semantic typing and the logical relation
 are defined over level checked terms.
 The rules for the judgment correspond exactly to stripping out
 all typing information from the typing rules, leaving only the levels.
-We omit them here, but they are listed in \cref{app:levelling}.
+We omit them here, but they are listed in
+\ifsubmission the supplementary appendix.
+\else \cref{app:levelling}.
+\fi
 
 \begin{figure}[h]
   \mprset{fraction={===}}
@@ -1402,7 +1408,10 @@ definition of neutral forms excludes terms like $[[:concrete: (\ H x
 Furthermore, we consider $[[absurd a]]$ as neutral as long as $[[a]]$
 is in normal form since there are no constructors of the $[[Void]]$
 type. The definitions of neutral and normal forms are otherwise
-standard and can be found in \cref{app:neutrals}.
+standard and can be found in
+\ifsubmission the supplementary appendix.
+\else \cref{app:neutrals}.
+\fi
 Weakly normalizing terms are then terms which reduce to a normal form.
 
 \begin{definition}[Weakly normalizing terms]
@@ -1494,7 +1503,10 @@ are free of redexes.
 
 \Cref{fig:logpred} gives the definition of our logical
 predicate. The omitted rules for the naturals can be
-found in \cref{app:logpredfull}.
+found in
+\ifsubmission the supplementary appendix.
+\else \cref{app:logpredfull}.
+\fi
 Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
 we define our logical predicate \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}
 as an inductive relation recursively defined over the universe level $[[i]]$,
