@@ -1279,8 +1279,8 @@ In this section, we develop the syntactic metatheory of \name,
 ultimately culminating in subjection reduction,
 \ie type preservation of typing with respect to parallel reduction.
 Because the syntactic metatheory has already been established for \dcoi by \citet{liu:dcoi},
-here we only state without proof the most important lemmas
-that may also be used in the next section for the semantic metatheory.
+here we only state without proof the most important lemmas,
+some of which are used in the next section for the semantic metatheory.
 Nevertheless, everything has been mechanized in Coq,
 and the development can be found in \repo{} under the \texttt{proofs/theories} directory.
 
@@ -2307,6 +2307,10 @@ of conversion in \rref{Wt-Conv}.
 \section{Discussion and Future Work}
 
 \subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
+\sw{I wish this section talked a little more about strictness. If we had a CBV application,
+then I guess we would need to have a scrutinee constraint in application. OTOH, if we have
+a lazy let term, we would not need this constraint.}
+
 The level of eliminator scrutinees must be bounded by the level of the overall eliminator.
 In particular, in \rref{Wt-J}, the level $[[l2]]$ of an equality proof $[[p]]$
 must be bounded by that of its elimination $[[J c l2 p]]$,
@@ -2504,7 +2508,7 @@ One may wonder if a
 similar equivalence holds between \name and a variant with typed
 equality.
 However, it turns out that even defining judgmental equality for \name
-poses enough of a challenge. Consider the following
+is challenging. Consider the following
 typed congruence rule for functions obtained by na\"ively adding type
 annotations to \rref{I-App}.
 
@@ -2558,17 +2562,18 @@ shows that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not necessarily
 semantically, two instantiated identity functions with different type
 annotations do not behave differently at run time.
 
-In fact, we find it difficult, if not impossible, to construct a
-counterexample where $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not behave
+In fact, we believe it is impossible to construct an
+example where $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not behave
 like terms from both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$.
-To be more adversarial, we want to use large elimination so $[[B
+To be more adversarial, suppose that $[[B]]$ contains a large elimination so that $[[B
 {a0 /x}]]$ and $[[B {a1 / x}]]$ are incompatible types. If $[[b0 l0
-a0]]$ and $[[b1 l0 a1]]$ evaluate to different head forms, then we can
-break semantic soundness. However, knowing that $[[b0 l0 a0]]$ and
-$[[b1 l0 a1]]$ are indistinguishable at $[[l]]$ already rules out the
-case where they have different head forms.
+a0]]$ and $[[b1 l0 a1]]$ evaluate to different head forms, then 
+break semantic soundness would fail. However, knowing that $[[b0 l0 a0]]$ and
+$[[b1 l0 a1]]$ are indistinguishable at $[[l]]$ \emph{already} rules out the
+case where they have different head forms. Therefore, such a counterexample
+cannot be derived.
 
-Therefore, despite the technical issues demonstrated in this section,
+As a result, despite the technical issues demonstrated in this section,
 we are optimistic that our logical predicate can be further extended to
 a relational model to justify more complex properties. 
 
