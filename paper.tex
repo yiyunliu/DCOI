@@ -2452,9 +2452,10 @@ a relational model to justify more complex properties.
 Equality type has the special property that
 there is only one canonical form $[[refl]]$.
 The fundamental theorem guarantees that a closed proof of equality can only evaluate to
-$[[refl]]$. As a result, the J eliminator
-is erasable since no information is gained from
-matching against a singleton type. \sw{should define what erasable means}
+$[[refl]]$. As a result, the elimination form $[[J c l p]]$ can be
+erased to contain only the body $[[c]]$
+since no information is gained from
+matching against a singleton type.
 
 Despite the erasability of equality proofs at runtime,
 \dcoi does not allow casting a relevant term using an irrelevant proof.
@@ -2464,11 +2465,10 @@ proof can normalize to either $[[refl]]$ or to a neutral term.
 
 Do we need to evaluate equality proofs? Suppose that we 
 modify the operational semantics of \name
-by adding the rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
+by replacing \rref*{P-JRefl} and the congruence rule with the single rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
 \sw{Maybe we should write this rule as a rule and give it name, if we have space.}
 so that the J eliminator is erased during evaluation without having
 to reduce $[[p]]$.
-\sw{Should we add this rule or update \rref{P-JRefl} to be this rule?}
 In a system with this rule, because the equality proof is discarded during evaluation, it can be ignored by
 indistinguishability and still validate the simulation property.
 
