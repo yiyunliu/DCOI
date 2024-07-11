@@ -4,5 +4,6 @@ git archive --prefix='artifact/' --format=tar HEAD proofs | tar -xf - --exclude=
 cd system-dcr/pi-forall
 git archive --prefix='artifact/impl/' --format=tar HEAD | tar -xf - --exclude=.github --exclude=LICENSE  -C ../../
 cd ../..
+cp reference-appendix.pdf artifact/
 tar cf artifact.tar artifact
 rm -r artifact
