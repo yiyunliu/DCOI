@@ -53,7 +53,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{natbib}
 \usepackage{mathpartir,mathtools,stmaryrd}
-\usepackage{todonotes,listings,xspace,color,doi}
+\usepackage{todonotes,listings,xspace,color,tcolorbox,doi}
 \usepackage[flushmargin,multiple,para]{footmisc}
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
@@ -770,10 +770,19 @@ of a term $[[b]]$ in place of the variable $[[x]]$ inside the term $[[a]]$.
 As in \cref{sec:examples}, we use $[[l A -> B]]$ for $[[Pi x : l A . B]]$ when
 $[[x]]$ does not appear in $[[B]]$.
 
+\begin{figure}[h]
+  % \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
+  \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  \caption{Typing rules (universes, empty, functions)}
+  \Description{}
+  \label{fig:typing:dep}
+\end{figure}
+
 The main judgement is the typing relation,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
 that is well type under context $[[G]]$ at observer level $[[l]]$
 with type $[[A]]$.
+Its rules are given in \cref{fig:typing:dep}.
 To reduce clutter,
 we also use the judgement \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
 such that $[[G |- a : l A]]$ holds.
@@ -782,29 +791,27 @@ which holds if the context's types are well typed by some universe $[[Univ i]]$.
 Premises which may be omitted in admissible variants of rules without them
 are highlighted in grey. \sw{save this sentence until the first figure with highlights?}
 
+Our syntax is designed to highlight the parts of terms which play a role in evaluation.
+Therefore, type annotations are omitted,
+and consequently the typing judgement is not decidable.
+This minimalist design lends flexibility in which annotations
+an type checker implementation may choose to add to the syntax.
+
 \sw{We need to say up front that this typing judgement is not designed to be decidable as the 
   syntax does not include enough annotations. We design it this way to highlight the relevant parts of 
 the terms. We also have flexibility in where we add annotations, none or relevant so we can add as many or as few as we need depending on how sophisticated we would like the type checking algorithm to be.}
 
 The typing rules are defined mutually with the context well-formedness rules,
-both given in \cref{fig:typing:dep}.
+omitted here, which assert the well-sortedness of its types.
 When viewed as a PTS, the \rref{Wt-Univ,Wt-Pi} correspond
 to the sort axioms $([[Univ i]], [[Univ i + 1]])$ for every $[[i]]$
 and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]], [[j]]$.
 
-\begin{figure}[h]
-  % \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
-  \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
-  \caption{Well-formedness and typing rules (universes, empty, functions)}
-  \Description{}
-  \label{fig:typing:dep}
-\end{figure}
-
 Except for the use of levels for dependency tracking, typing rules of \name
 are standard for dependent type theory. In the rest of this section, we 
-discuss how dependency levels interact with the remaining rules of \cref{fig:typing:dep}
-in \cref{sec:dep}. We discus how the conversion rule, which changes the type of a term to an equivalent one,
-uses a definitional equality that is defined in terms of indistinguishability in \cref{sec:indist}.
+discuss how dependency levels interact with the rules of \cref{fig:typing:dep}
+in \cref{sec:dep}. We discuss how the conversion rule, which changes the type of a term to an equivalent one,
+uses a definitional equality defined in terms of indistinguishability in \cref{sec:indist}.
 We then look at the rules for dependent pair types and the unit type (\cref{sec:pairs}),
 and finally for propositional equality types (\cref{sec:eq}),
 which internalize indistinguishability.
@@ -818,7 +825,7 @@ from our discussion and only list their rules in \cref{sec:naturals}.
 \subsection{Dependency tracking} \label{sec:dep}
 
 The observer level $[[l]]$ of a typing judgement $[[G |- a : l A]]$
-tracks what level variables $[[a]]$ may use, as well as the level at which $[[a]]$ itself may be used in later computation.
+tracks what variables $[[a]]$ may use, as well as the level at which $[[a]]$ itself may be used in later computation.
 The former is enforced by the constraint in \rref{Wt-Var},
 which permits a variable to be used only if the observer level is at least as high as that of the variable.
 Informally, higher-level information cannot leak into a lower-level term.
@@ -836,9 +843,13 @@ By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codom
 (as long as they match).
 As an example, consider the following typing judgement.
 %
+{
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
 \begin{displaymath}
   [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ i . H X -> L (H X -> X) -> X)]]
 \end{displaymath}
+}
 
 The entire function is typed at level $[[L]]$,
 while the parameters $[[X]]$ and $[[x]]$ are annotated at level $[[H]]$,
@@ -1038,8 +1049,7 @@ the level of the second component is the level of the overall pair.
 
 In contrast to prior work by \citet{liu:dcoi},
 pairs are eliminated using a pattern-matching expression
-instead of projections, which turns out to be more 
-expressive in this context.\sw{Forward reference here to where we explain how this is more expressive?}
+instead of projections.
 The eliminator is typed according to \rref{Wt-Let},
 and its reduction behaviour is given by \rref{P-LetPair}.
 It scrutinizes a pair $[[a]]$ annotated at level $[[l1]]$,
@@ -1050,16 +1060,20 @@ which must be typed at the same level $[[l]]$ as the overall eliminator.
 The overall type of the eliminator is specified by the motive $[[C]]$,
 which is abstracted over the scrutinee $[[z]]$.
 The level of the scrutinee $[[l1]]$ is not exactly $[[l]]$ but bounded above by it;
-its justification is a subtle technical issue,
+this is a subtle technical issue,
 which we defer to \cref{sec:scrutinee-level}.
 
 The first and second pair projections of a pair $[[a]]$ at level $[[l1]]$
 can be recovered as follows.
 %
+{
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
 \begin{align*}
   [[proj1 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in x]] &
   [[proj2 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in y]]
 \end{align*}
+}
 
 The typing rules for the projections can be stated as admissible rules
 with the same premises as the rules in \dcoi,
@@ -1077,7 +1091,6 @@ is dependent on the first component at level $[[l0]]$.
 $[[l]]$, but we need the extra side condition that $[[proj1 l0 a]]$ is
 typed at level $[[l0]]$ for $[[B {proj1 l0 a / x}]]$ to be
 well-formed.
-
 
 \begin{figure}[h]
   \mprset{fraction={===}}
@@ -1116,11 +1129,15 @@ can be seen as a pair with information only in its first component,
 of which we only ever take the first projection,
 and can be encoded as a unary tuple.
 %
+{
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
 \begin{align*}
   [[T l0 A]] &\coloneqq [[Sig x : l0 A . Unit]] &
   [[box l0 a]] &\coloneqq [[(l0 a, unit)]] &
   [[unbox l0 a]] &\coloneqq [[proj1 l0 a]]
 \end{align*}
+}
 
 By these encodings and the typing rules for pairs,
 we obtain the admissible typing rules for box types
@@ -1192,8 +1209,7 @@ since it only makes sense to talk about the indistinguishability of observable t
 just as \rref{I-Var} only holds for observable variables.
 The observer level $[[l0]]$ must also be bounded by the overall level $[[l]]$
 to ensure the consistency of the equational theory, as explained by \citet{liu:dcoi}.
-Its constructor is the usual reflexivity proof $[[refl]]$ for well-typed terms,
-given by \rref{Wt-Refl}.
+Its constructor is the usual reflexivity proof $[[refl]]$, given by \rref{Wt-Refl}.
 
 In \rref{Wt-J}, the eliminator $\ottkw{J}$ takes as scrutinee
 an equality proof $[[p]]$ annotated at level $[[l2]]$,
@@ -1211,7 +1227,7 @@ The levels of $[[x]]$ and $[[y]]$ must therefore match the levels of $[[b]]$ and
 Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the body,
 the level of the body must match the level $[[l]]$ of the overall eliminator.
 The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
-its justification is a subtle technical issue,
+this is a subtle technical issue,
 which we defer to \cref{sec:scrutinee-level}.
 
 \sw{Maybe we should say here that eliminating an equality proof always counts as an 
@@ -1258,20 +1274,8 @@ The shape of the indistinguishability rules
 for the propositional equality constructs in \cref{fig:conv:eq} are unsurprising:
 \rref{I-Eq,I-Refl,I-J} assert indistinguishability of the terms
 given indistinguishability of each pair of subterms.
-% In particular, we have admissible \rref{I-Refl-alt}
-% via \rref{I-Eq,Wt-Conv}.
-% It states that if two terms are indistinguishable by some observer,
-% then $[[refl]]$ is a proof of their propositional equality at that observer level,
-% which is why we say that propositional equality internalizes indistinguishability.
-%
-What is trickier are the level constraints that appear in these rules.
-The constraint $[[l2 <= l]]$ in \rref{I-J} is required due to its presence in \rref{Wt-J}.
-\sw{Doesn't the constraint $[[l0 <= l]]$ also come from \rref{Wt-Eq}, where we already
-refer to the previous paper? Do we need the last sentence?}
-The constraint $[[l0 <= l]]$ in \rref{I-Eq} is yet another subtle yet orthogonal
-technical issue and its necessity is explained by \citet{liu:dcoi};
-without the $[[l0 <= l]]$ constraint, substitution for equalities is
-no longer admissible.
+The constraints $[[l0 <= l]]$ in \rref{I-Eq} and $[[l2 <= l]]$ in \rref{I-J}
+are required due to their presence in \rref{Wt-Eq,Wt-J} respectively.
 
 \section{Syntactic Metatheory} \label{sec:synmeta}
 
@@ -2321,21 +2325,19 @@ Suppose that scrutinees could instead be typed at any level.
 First, the indistinguishability rules would need to be updated
 so that scrutinees are indistinguishable if their level is higher
 than that of the overall eliminator, just like in \rref{I-App}.
-The modified premises are highlighted in \hlcolor{} below.
-\sw{Do we need to worry about people reading the paper in BW and interpreting 
-these premises as admissible?}
+The modified premises are boxed below.
 %
 \begin{mathpar}
-  \setlength{\fboxsep}{1.5pt}
+  \tcbset{left=1pt,right=1pt,top=1pt,bottom=1pt,boxsep=0pt,boxrule=1pt,hbox,tcbox raise base}
   \infer[\ottdrulename{I\_J\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- p0 == p1 @ l l2]]} \\
+    \tcbox{$[[E |- p0 == p1 @ l l2]]$}
     [[E |- c0 == c1 @ l]]
   }{
     [[E |- J c0 l2 p0 == J c1 l2 p1 @ l]]
   }
   \and
   \infer[\ottdrulename{I\_Let\_bad}]{
-    \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l1]]} \\
+    \tcbox{$[[E |- a0 == a1 @ l l1]]$} \\
     [[(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l]]
   }{
     [[E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l]]
@@ -2506,17 +2508,15 @@ expressed without type annotations.
 
 \citet{siles:PTS} proves the equivalence between typed and untyped
 Pure Type Systems in the absence of $\eta$ laws.
-One may wonder if a
-similar equivalence holds between \name and a variant with typed
-equality.
-However, it turns out that even defining judgmental equality for \name
+Would a similar equivalence hold between \name and a variant with typed equality?
+It turns out that even defining judgmental equality for \name
 is challenging. Consider the following
-typed congruence rule for functions obtained by na\"ively adding type
+typed congruence rule for application, which na\"ively adds type
 annotations to \rref{I-App}.
 
-\begin{center}
-  \drule[width=\textwidth]{I-AppTy}
-\end{center}
+{\centering
+\drule[width=\textwidth]{I-AppTy}\par
+}
 
 Ignoring the levels, \rref{I-AppTy} is exactly how the application
 equivalence rule is defined for a PTS with judgmental equality. However,
@@ -2613,7 +2613,7 @@ modify the operational semantics of \name
 by adding the rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
 \sw{Maybe we should write this rule as a rule and give it name, if we have space.}
 so that the J eliminator is erased during evaluation without having
-to reduce the equality proof.
+to reduce $[[p]]$.
 \sw{Should we add this rule or update \rref{P-JRelf} to be this rule?}
 In a system with this rule, because the equality proof is discarded during evaluation, it can be ignored by
 indistinguishability and still validate the simulation property.
@@ -2625,7 +2625,7 @@ With a proof of $A = A \rightarrow A$ in the context,
 one can define a well-typed term that reduces to the diverging
 term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$,
 since the J eliminator no longer gets stuck at a bogus equality proof.
-Furthermore, this rule also violates type preservation. Given a term $[[a]]$ of type
+This rule also violates type preservation: given a term $[[a]]$ of type
 $[[Nat]]$ and a bogus assumption $x$ of type $[[Nat ~ l Void]]$, we
 have $[[J a l x => a]]$ where the former is of type $[[Void]]$ but the
 latter is of type $[[Nat]]$.
@@ -2703,10 +2703,10 @@ irrelevant argument. One such example is the binary type
 \lstinline{Bin n}, whose index \lstinline{n} keeps track of the
 natural number it corresponds to. To avoid exponential overhead during
 execution, the index \lstinline{n} needs to be marked as irrelevant. 
-However, this is impossible with Pfenning's style of relevance
-tracking as irrelevant arguments are convertible, but
+However, this is impossible with Pfenning's system
+as irrelevant arguments are convertible, but
 \lstinline{Bin n} and \lstinline{Bin m} are different types for
-different numbers \lstinline{m} and \lstinline{n}.
+different \lstinline{m} and \lstinline{n}.
 
 \citet{liu:dcoi} design \dcoi by observing that the
 failure of encoding irrelevant type indices is due to a fixed view of
