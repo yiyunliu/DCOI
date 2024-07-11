@@ -1424,9 +1424,7 @@ which proceeds by induction on the typing derivation.
 \begin{lemma}
   \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Refl\_Coherent}}
   If $[[G |- refl : l a ~ l0 b]]$,
-  then there exist $[[a']], [[b']]$ s.t.
-  $[[a =>* a']]$, $[[b =>* b']]$,
-  and $[[| G | |- a' == b' @ l0]]$.
+  then $[[| G | |- a <=> b @ l0]]$.
 \end{lemma}
 
 \begin{theorem}[Type preservation]
