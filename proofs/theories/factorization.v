@@ -1351,15 +1351,51 @@ Proof.
   sfirstorder use:LoReds_LoReds', standardization.
 Qed.
 
+Polymorphic Inductive IsAbs {A : Type} (a : tm) (b1 : A) (F : T -> tm -> A) : A -> tm -> Prop :=
+| IsAbsTrue a0 ℓ :  IsAbs a b1 F (F ℓ a0) (tAbs ℓ a0)
+| isAbsFalse  : IsAbs a b1 F b1 a.
+
+Polymorphic Lemma IsAbsP {A : Type} a (b1 : A) F :
+  let e := match a with
+           | tAbs ℓ a => F ℓ a
+           | _ => b1
+           end in
+  IsAbs a b1 F e a.
+Proof. hauto lq:on ctrs:IsAbs inv:tm. Qed.
+
+Polymorphic Inductive IsPack {A : Type} (a : tm) (b1 : A) (F : T -> tm -> tm -> A) : A -> tm -> Prop :=
+| IsPackTrue a0 a1 ℓ :  IsPack a b1 F (F ℓ a0 a1) (tPack ℓ a0 a1)
+| isPackFalse  : IsPack a b1 F b1 a.
+
+Polymorphic Lemma IsPackP {A : Type} a (b1 : A) F :
+  let e := match a with
+           | tPack ℓ a0 a1 => F ℓ a0 a1
+           | _ => b1
+           end in
+  IsPack a b1 F e a.
+Proof. hauto lq:on ctrs:IsPack inv:tm. Qed.
+
+Polymorphic Inductive IsNum {A : Type} (a : tm) (b1 : A) (F : tm -> A) (b2 : A) : A -> tm -> Prop :=
+| IsZero :  IsNum a b1 F b2 b1 tZero
+| IsSuc a0  : IsNum a b1 F b2 (F a0) (tSuc a0)
+| IsNumFalse : IsNum a b1 F b2 b2 a.
+
+Polymorphic Lemma IsNumP {A : Type} a (b1 : A) F b2  :
+  IsNum a b1 F b2 (match a with
+                   | tZero => b1
+                   | tSuc a0 => F a0
+                   | _ => b2
+                   end) a.
+Proof. hauto lq:on ctrs:IsNum inv:tm. Qed.
+
 Lemma LoRedOpt_Par a b :
   LoRedOpt a = Some b -> a ⇒ b.
 Proof.
   elim : a b => //=.
   - hauto q:on ctrs:Par.
   - move => a iha ℓ b ihb u.
-    case E : (isAbs a).
-    + have {}h : exists ℓ a0, a = tAbs ℓ a0 by hauto drew:off b:on inv:tm.
-      move : h => [ℓ0][a0]?{E}. subst.
+    case : IsAbsP.
+    + move => a0 ℓ0.
       case : T_eqdec => // ?. subst.
       move => [?]. subst.
       hauto lq:on ctrs:Par use:Par_refl.
@@ -1370,8 +1406,7 @@ Proof.
         hauto lq:on ctrs:Par use:Par_refl.
       * move E1 : (LoRedOpt b) => t.
         case : t E1 => //=.
-        ** destruct a; hauto qb:on drew:off ctrs:Par use:Par_refl.
-        ** destruct a; hauto qb:on drew:off.
+        destruct a; hauto qb:on drew:off ctrs:Par use:Par_refl.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
@@ -1379,9 +1414,8 @@ Proof.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
   - hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
   - move => ℓ0 ℓ1 a iha b ihb u.
-    case E : (isPack a) => //=.
-    + have : exists ℓ0 a0 b0, a = tPack ℓ0 a0 b0 by destruct a; eauto.
-      move => [ℓ2][a0][b0]?{E}. subst.
+    case : IsPackP.
+    + move => a0 a1 ℓ.
       case : T_eqdec => // ?. subst.
       hauto lq:on use:Par_refl ctrs:Par.
     + move E0 : (LoRedOpt a) => T.
@@ -1393,34 +1427,21 @@ Proof.
         elim : T E0=>//=; destruct a;
                  hauto qb:on drew:off ctrs:Par use:Par_refl.
   - hauto q:on ctrs:Par.
-  - move => ℓ a iha b ihb c ihc.
-    case E : (isNum c) => //=.
-    + have [] : c = tZero \/ exists c0, c = tSuc c0 by move : E; clear; hauto q:on inv:tm.
-      move => ?. subst. hauto q:on ctrs:Par use:Par_refl.
-      move => [c0]?. subst.
-      move => b0 [?]. subst.
-      hauto q:on ctrs:Par use:Par_refl.
-    + move => b0.
-      move E0 : (LoRedOpt c) => T.
+  - move => ℓ a iha b ihb c ihc b0.
+    case : IsNumP => //=.
+    + hauto q:on ctrs:Par use:Par_refl.
+    + move => a0 [?]. subst.
+      hauto lq:on ctrs:Par use:Par_refl.
+    + move E0 : (LoRedOpt c) => T.
       case : T E0 => //=.
-      * move => a0 h.
-        set q := (X in X = _).
-        have : q = Some (tInd ℓ a b a0).
-        move : E. clear. subst q. case : c =>//=.
-        move ->.  move =>[?]. subst.
-        hauto lq:on rew:off ctrs:Par use:Par_refl.
+      * hauto lq:on ctrs:Par use:Par_refl.
       * move E0 : (LoRedOpt a) => T.
         case : T E0 => //=.
         ** move => a0 ? h.
            hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
         ** move E0 : (LoRedOpt b) => T.
            case : T E0 => //=.
-           *** hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
-           *** move => ? ? E0.
-               set q := (X in X = _).
-               have : q = None.
-               move : E. clear. subst q. case : c =>//=.
-               congruence.
+           hauto lq:on rew:off inv:tm ctrs:Par use:Par_refl.
   - hauto q:on dep:on ctrs:Par inv:tm use:Par_refl.
 Qed.
 
