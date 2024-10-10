@@ -1,9 +1,11 @@
 MAIN := paper
 RULES := dcoi-rules
+DIFF := diff
 
 LATEX_FLAGS := -jobname=$(MAIN) -shell-escape
 LATEX := pdflatex $(LATEX_FLAGS)
 LATEXRUN := ./latexrun --latex-args "$(LATEX_FLAGS)"
+LATEXDIFF := latexdiff
 BIBTEX := bibtex
 OTT := ott -tex_wrap false -tex_show_meta false -picky_multiple_parses false -merge true
 
@@ -24,6 +26,12 @@ $(MAIN)-output.tex: $(MAKEDEPS) $(OTTDEPS) $(MAIN).tex $(RULES).tex
 .PHONY: FORCE
 $(MAIN).pdf : FORCE $(MAKEDEPS) $(MAIN)-output.tex
 	$(LATEXRUN) $(MAIN)-output.tex
+
+$(DIFF).pdf : $(MAKEDEPS) $(OTTDEPS) $(RULES).tex
+	$(LATEXDIFF) old.tex $(MAIN).tex > $(DIFF).tex
+	$(OTT) -tex_filter $(DIFF).tex $(DIFF)-output.tex $(OTTDEPS)
+	$(LATEXRUN) -o $(DIFF).pdf $(DIFF)-output.tex
+	rm $(DIFF)-output.tex
 
 $(RULES).tex : $(MAKEDEPS) $(OTTDEPS)
 	$(OTT) -o $(RULES).tex $(OTTDEPS)
