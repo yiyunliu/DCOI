@@ -153,7 +153,7 @@
 
 \inputott{dcoi-rules}
 
-\title{Indistinguishability in Predicative Type Theory}
+\title{Consistency of a Dependent Calculus of Indistinguishability}
 
 \author{Yiyun Liu}
 \orcid{0009-0006-8717-2498}
@@ -253,7 +253,7 @@ dependency tracking in \dcoi is the identification of \emph{irrelevant
 faster execution and ignored during equivalence checks at compile time.
 
 In \dcoi, the indistinguishability relation verifies that irrelevant arguments
-can be erased during computation. If a program produces the same value for all
+can be erased when executed. If a program produces the same value for all
 irrelevant arguments at run time, then such arguments may
 be replaced by trivial values.
 
@@ -366,7 +366,7 @@ implementation, which is based on a bidirectional type system and
 relies on a constraint solver to infer level annotations.  
 
 In these examples, we use the naturals as concrete dependency levels. For example, 
-we use level \texttt{0} for run-time relevant code and level \texttt{1} for irrelevant terms. Some level annotations are omitted when they can be inferred by the type checker, though many are retained for
+we use level \texttt{L} for run-time relevant code and level \texttt{H} for irrelevant terms. Some level annotations are omitted when they can be inferred by the type checker, though many are retained for
 clarity.
 
 All examples in this section are type checked by our prototype type checker
@@ -390,13 +390,13 @@ Well-typedness of a program ensures that irrelevant arguments
 are never used in a relevant function.
 
 Consider the following polymorphic identity function,
-with an irrelevant type argument (marked as \lstinline{@1})
-and relevant term argument (marked as \lstinline{@1}). This 
-function is defined at level \lstinline{@0}, which is the level of 
+with an irrelevant type argument (\lstinline{@H})
+and relevant term argument (\lstinline{@L}). This 
+function is defined at level \lstinline{@L}, which is the level of 
 its output.
 
 \begin{lstlisting}
-  id :@0 (A :@1 Type) -> (@0 A) -> A
+  id :@L (A :@H Type) -> (@L A) -> A
   id = \A x. x
 \end{lstlisting}
 
@@ -410,7 +410,7 @@ Consider the following function,
 which takes an irrelevant argument and a constant function.
 
 \begin{lstlisting}
-  app :@0 (@1 Bool) -> (@0 (@1 Bool) -> Bool) -> Bool
+  app :@L (@H Bool) -> (@L (@H Bool) -> Bool) -> Bool
   app = \x f. f x
 \end{lstlisting}
 
@@ -422,24 +422,24 @@ We can talk about the idea of constantness within the language itself
 using a level-aware propositional equality type, as in the following proof.
 
 \begin{lstlisting}
-  cong :@0 (f :@0 (@1 Bool) -> Bool) -> (x y :@1 Bool) -> (f x ~@0 f y)
+  cong :@L (f :@L (@H Bool) -> Bool) -> (x y :@H Bool) -> (f x ~@L f y)
   cong = \f x y. refl
 \end{lstlisting}
 
 This proof asserts that a relevant function taking an irrelevant argument
 is indeed constant in that argument.
-The equality type \lstinline{f x ~@0 f y} is annotated with \lstinline{0}
+The equality type \lstinline{f x ~@L f y} is annotated with \lstinline{L}
 to indicate that it holds only for relevant terms.
 It holds by reflexivity, since \lstinline{f x} and \lstinline{f y}
-considered definitionally equal by the type checker.
+are considered definitionally equal by the type checker.
 Definitional equality will check that the two terms are
-\emph{indistinguishable} at level \lstinline{0},
+\emph{indistinguishable} at level \lstinline{L},
 which ignores the higher-level arguments \lstinline{x} and \lstinline{y},
 making them \emph{compile-time irrelevant}.
 Finally, the \lstinline{refl}
-proof in the body of \lstinline{isConst} does not refer to any of the
-function arguments, allowing us to type \lstinline{isConst} at level
-\lstinline{0} to indicate that it is a constant function itself.
+proof in the body of \lstinline{cong} does not refer to any of the
+function arguments, allowing us to type \lstinline{cong} at level
+\lstinline{L} to indicate that it is a constant function itself.
 
 \subsection{Irrelevance is relative}
 
@@ -447,12 +447,12 @@ In the polymorphic identity function, the type parameter \lstinline{A}
 is irrelevant in the function body but makes a relevant appearance in
 the type signature. Our system allows \lstinline{A} to appear as both
 relevant and irrelevant by generalizing irrelevance as a notion that
-is relative to an observer level. The level \lstinline{1} variable \lstinline{A}
-is irrelevant with respect to the level \lstinline{0} observer, the body of the
+is relative to an observer level. The level \lstinline{H} variable \lstinline{A}
+is irrelevant with respect to the level \lstinline{L} observer, the body of the
 identity function. The well-formedness of the \lstinline{id}'s type
-signature can be independently checked at observer level \lstinline{1}.
+signature can be independently checked at observer level \lstinline{H}.
 
-Therefore, a variable \lstinline{x} with \lstinline{@1} annotation
+Therefore, a variable \lstinline{x} with \lstinline{@H} annotation
 is not intrinsically irrelevant. Rather, its
 relevance is dependent on the observer level in which \lstinline{x}
 appears. The equational theory of \name is indexed by an observer
@@ -461,7 +461,7 @@ Consider the following example, whose well-typedness depends on how we
 instantiate the level, which we mark as \lstinline{?}.
 
 \begin{lstlisting}
-  irr :@0 (P :@? (@1 Bool) -> Type) -> (b :@1 Bool) -> (@0 P b) -> (P true)
+  irr :@L (P :@? (@H Bool) -> Type) -> (b :@H Bool) -> (@L P b) -> (P true)
   irr = \f b x. x
 \end{lstlisting}
 
@@ -470,11 +470,11 @@ type of \lstinline{x} from \lstinline{P b} to
 \lstinline{P true}. Since there is nothing we know about \lstinline{b},
 the predicate \lstinline{P} must behave like a
 constant predicate, and that is only the case if we instantiate \lstinline{?}
-with level \lstinline{0}.
+with level \lstinline{L}.
 
-Although \lstinline{b} is at level \lstinline{1} and thus
+Although \lstinline{b} is at level \lstinline{H} and thus
 is irrelevant to \lstinline{irr}, it may still be used relevantly by
-\lstinline{P} if \lstinline{?} is instantiated to level \lstinline{1} or
+\lstinline{P} if \lstinline{?} is instantiated to level \lstinline{H} or
 higher; our type system correctly rejects \lstinline{irr}
 in those scenarios.
 
@@ -535,7 +535,7 @@ in those scenarios.
 
 This shows that as the observer level increases,
 more terms can be distinguished by definitional equality
-since there is less than can be ignored,
+since there are fewer terms that can be ignored,
 and the equality is \emph{finer}.
 As equality types internalize the notion of indistinguishability at a level,
 we can internalize the ability to lower the level.
@@ -569,11 +569,11 @@ of a predicate satisfied by the term.
 The type constructor itself and its parameters are marked as irrelevant.
 
 \begin{lstlisting}
-  data Subset (A :@1 Type) (B :@1 (@0 A) -> Type) :@1 Type where
-    pack of (x :@0 A) (@1 B x)
-  mem :@0 (A : Type) -> (B : A -> Type) -> (@0 Subset A B) -> A
+  data Subset (A :@H Type) (B :@H (@L A) -> Type) :@H Type where
+    pack of (x :@L A) (@H B x)
+  mem :@L (A : Type) -> (B : A -> Type) -> (@L Subset A B) -> A
   mem = \A B p. case p of pack x y => x
-  prf :@1 (A : Type) -> (B : A -> Type) -> (p :@0 Subset A B) -> B (mem A B p)
+  prf :@H (A : Type) -> (B : A -> Type) -> (p :@L Subset A B) -> B (mem A B p)
   prf = \A B p. case p of pack x y => y
 \end{lstlisting}
 
@@ -584,9 +584,9 @@ two members of a subset type merely when the relevant terms are equal,
 proven as follows.
 
 \begin{lstlisting}
-  pcong :@1 (A :@1 Type) -> (B :@1 A -> Type) -> (x y : A)
-            (bx :@1 B x) -> (by :@1 B y) -> (@1 x ~@0 y) ->
-            (pack x bx ~@0 pack y by : Subset A B)
+  pcong :@H (A :@H Type) -> (B :@H A -> Type) -> (x y : A)
+            (bx :@H B x) -> (by :@H B y) -> (@H x ~@L y) ->
+            (pack x bx ~@L pack y by : Subset A B)
   pcong = \A B x y bx by p. subst refl by p
 \end{lstlisting}
 
@@ -599,8 +599,8 @@ and a proof that the sum of two even numbers is even.
 The following are the types of the latter two definitions.
 
 \begin{lstlisting}
-  comm :@1 (n m : Nat) -> (n + m ~@0 m + n)
-  esum :@1 (n m : Nat) -> (@1 isEven n) -> (@1 isEven m) -> isEven (n + m)
+  comm :@H (n m : Nat) -> (n + m ~@L m + n)
+  esum :@H (n m : Nat) -> (@H isEven n) -> (@H isEven m) -> isEven (n + m)
 \end{lstlisting}
 
 An even number \lstinline{Even} can be represented
@@ -608,7 +608,7 @@ as a subset type of even naturals \lstinline{Subset Nat isEven},
 and correspondingly we can define their addition.
 
 \begin{lstlisting}
-  eadd :@0 Even -> Even -> Even
+  eadd :@L Even -> Even -> Even
   eadd = \en em. case en of pack n en' =>
                  case em of pack m em' => pack (n + m) (esum n m en' em')
 \end{lstlisting}
@@ -616,7 +616,7 @@ and correspondingly we can define their addition.
 We can then prove that addition of even numbers is also commutative using \lstinline{pcong}.
 
 \begin{lstlisting}
-  ecomm :@1 (en em : Even) -> (eadd en em ~@0 eadd em en)
+  ecomm :@H (en em : Even) -> (eadd en em ~@L eadd em en)
   ecomm = \en em. case en of pack n en' =>
                   case em of pack m em' =>
                     pcong Nat isEven (n + m) (m + n)
@@ -635,7 +635,7 @@ The exception in \name is the empty type,
 whose eliminator may be typed at any level,
 regardless of the level of its scrutinee.
 \begin{lstlisting}
-  data Empty :@1 Type where {}
+  data Empty :@H Type where {}
 \end{lstlisting}
 \noindent
 %(In \name, there is a single empty type. However, in our implementation, this principle applies to any inductive type that has no constructors.)
@@ -646,21 +646,22 @@ given an irrelevant proof of its nonemptiness. The definitions of the
 list type and its length are standard.
 
 \begin{lstlisting}
-  data List (A :@1 Type) :@1 Type where
+  data List (A :@H Type) :@H Type where
     nil
-    cons of (@0 A) (@0 List A)         length :@0 (A :@1 Type) -> List A -> Nat
+    cons of (@L A) (@L List A)
+  length :@L (A :@H Type) -> List A -> Nat
 \end{lstlisting}
 
 A safe \lstinline{head} function requires a proof
 that the length of the given list is not equal to zero, \emph{i.e.} that 
-\lstinline{(@1 (@1 (length Nat l) ~ zero) -> Empty)}. This proof 
-should be irrelevant, so it is marked with \lstinline{@1}.
+\lstinline{(@H (@H (length Nat l) ~ zero) -> Empty)}. This proof 
+should be irrelevant, so it is marked with \lstinline{@H}.
 In the \lstinline{nil} case, the type of the proof is
 \lstinline{(zero ~ zero) -> Empty},
 so we can obtain and eliminate a proof of the empty type.
 
 \begin{lstlisting}
-  head :@0 (l : List Nat) -> (@1 (@1 (length Nat l) ~ zero) -> Empty) -> Nat
+  head :@L (l : List Nat) -> (@H (@H (length Nat l) ~ zero) -> Empty) -> Nat
   head = \l. case l of
                nil      => \f. case (f Refl) of {}
                cons x _ => \_. x
@@ -717,7 +718,7 @@ $[[x]]$ does not appear in $[[B]]$.
 
 The main judgment is the typing relation,
 which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
-that is well type under context $[[G]]$ at observer level $[[l]]$
+that is well typed under context $[[G]]$ at observer level $[[l]]$
 with type $[[A]]$.
 Its rules are given in \cref{fig:typing:dep}.
 To reduce clutter,
@@ -904,7 +905,7 @@ Otherwise, if $[[not (l0 <= l)]]$, then \rref{GI-Indist} applies,
 and the arguments are too high to be observed at $[[l]]$,
 so indistinguishability of the applications does not consider the arguments.
 As a simple example,
-$[[:concrete: (# (# f : L ++ x : H #) ++ y : H #) ++ f : L |- f H x == f H y @ L]]$
+$[[:concrete: (# f : L ++ x : H #) ++ y : H |- f H x == f H y @ L]]$
 holds even though $[[x]]$ and $[[y]]$ could be anything,
 because the observer level is $[[L]]$,
 while the arguments' levels are $[[H]]$ and therefore unobservable.
@@ -1151,7 +1152,7 @@ along with a body $[[c]]$.
 The scrutinee must be well typed as an equality between $[[a]]$ and $[[b]]$
 of type $[[A]]$, observed at level $[[l0]]$.
 The observer, so to speak, is the motive $[[C]]$,
-abstracted over the right-hand size of the equality $[[x]]$
+abstracted over the right-hand side of the equality $[[x]]$
 (the left-hand side being fixed at $[[a]]$)
 and the equality proof itself $[[y]]$.
 As the observer, the motive must be well typed at level $[[l0]]$.
@@ -1679,7 +1680,7 @@ preserved under forward reduction through the following lemma.
   \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation}}
 \label{lem:lrpreservation}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[A => B]]$, then
-  $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  $\interp{[[E]]}{[[i]]}{[[B]]}{S}$.
 \end{lemma}
 
 \begin{proof}
@@ -2445,7 +2446,7 @@ like terms from both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$.
 To be more adversarial, suppose that $[[B]]$ contains a large elimination so that $[[B
 {a0 /x}]]$ and $[[B {a1 / x}]]$ are incompatible types. If $[[b0 l0
 a0]]$ and $[[b1 l0 a1]]$ evaluate to different head forms, then 
-break semantic soundness would fail. However, knowing that $[[b0 l0 a0]]$ and
+semantic soundness would fail. However, knowing that $[[b0 l0 a0]]$ and
 $[[b1 l0 a1]]$ are indistinguishable at $[[l]]$ \emph{already} rules out the
 case where they have different head forms. Therefore, such a counterexample
 cannot be derived.
@@ -2641,7 +2642,7 @@ both terms and types.
 % definitional equality; relevance levels do not affect type conversion.
 
 \citet{mishra:erasure} distinguish between extrinsic and intrinsic
-relevance tracking. The former determines relevance purely based purely on 
+relevance tracking. The former determines relevance purely based on 
 how terms are used. All systems we have discussed so
 far, including \dcoi and \name, are extrinsic systems.
 
