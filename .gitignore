@@ -10,5 +10,6 @@ spec.tex
 spec.pdf
 paper.pdf
 paper-output.*
+diff.pdf
 auto/*
 .vscode/

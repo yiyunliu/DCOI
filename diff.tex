@@ -1,0 +1,3308 @@
+\newif\ifcomments     %% include author discussion
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL old.tex     Thu Oct 10 13:42:43 2024
+%DIF ADD paper.tex   Thu Oct 10 14:04:27 2024
+\newif\ifanonymous    %% include author identities
+\newif\ifextended     %% include appendix
+\newif\ifsubmission   %% prepare the submitted version
+\newif\ifpublic       %% version available for posting / final version
+
+\commentsfalse         %% toggle comments here
+\extendedfalse
+
+\submissiontrue       %% at most one of these must be true (neither for draft version)
+\publicfalse          %% but if you want to see comments, these should both be off
+
+% If we are going to make a version public, i.e. on arXiv, we should
+% make sure that there are no comments and our names are on it.
+\ifpublic
+\submissionfalse
+\commentsfalse
+\anonymousfalse
+\fi
+
+%% If we are submission, make sure there are no comments and our names
+%% are NOT on it.
+\ifsubmission
+\publicfalse
+\commentsfalse
+\anonymoustrue
+\fi
+
+\documentclass[acmsmall, screen=true, nonacm=true,
+  review=\ifpublic false\else true\fi,
+  anonymous=\ifanonymous true\else false\fi
+]{acmart}
+
+% \setcopyright{rightsretained}
+% \acmDOI{}
+% \acmYear{2025}
+% \copyrightyear{2025}
+% \acmSubmissionID{}
+% \acmJournal{PACMPL}
+% \acmVolume{}
+% \acmNumber{POPL}
+% \acmArticle{}
+% \acmMonth{}
+% \received{}
+% \received[accepted]{}
+
+\let\Bbbk\relax
+\usepackage{draft} % local
+\usepackage[supertabular]{ottalt} % local
+\let\newlist\relax
+\let\renewlist\relax
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{natbib}
+\usepackage{mathpartir,mathtools,stmaryrd}
+\usepackage{todonotes,listings,xspace,color,tcolorbox,doi}
+\usepackage[flushmargin,multiple,para]{footmisc}
+\usepackage[noend]{algpseudocode}
+\usepackage[capitalize,noabbrev,nameinlink]{cleveref}
+
+\citestyle{acmauthoryear}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=blue,
+  citecolor=violet
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  basewidth=0.5em,
+  aboveskip=0pt,
+  belowskip=0pt,
+  basicstyle=\ttfamily,
+  columns=fixed,
+  mathescape=true,
+  breaklines=false,
+  morekeywords={data,where,case,of},
+  morecomment=[l][\color{gray}]--,
+  literate=
+    {->}{{$\mathrel{\rightarrow}$}}2
+    {\\}{{$\lambda$}}1
+    {=>}{{$\mathrel{\Rightarrow}$}}2
+    {~}{{=}}1
+}
+
+\ifcomments
+\newnote{sw}{blue} % Stephanie Weirich
+\newnote{yl}{purple} % Yiyun Liu
+\newnote{jc}{olive} % Jonathan Chan
+\else
+\newcommand{\sw}[1]{}
+\newcommand{\yl}[1]{}
+\newcommand{\jc}[1]{}
+\fi
+
+\DeclarePairedDelimiter{\bracks}{\llbracket}{\rrbracket}
+\DeclarePairedDelimiter{\braces}{\lbrace}{\rbrace}
+
+\newcommand{\suppress}[1]{}
+\newcommand{\dcoi}{DCOI\@\xspace}
+\newcommand{\name}{\texorpdfstring{DCOI$^{\omega}$\@\xspace}{DCOI-omega}}
+\newcommand{\longname}{Dependent Calculus of Indistinguishability\@\xspace}
+\newcommand{\ie}{\textit{i.e.}\@\xspace}
+\newcommand{\eg}{\textit{e.g.}\@\xspace}
+\newcommand{\apriori}{\textit{a priori}\@\xspace}
+\newcommand{\aposteriori}{\textit{a posteriori}\@\xspace}
+\newcommand{\suppl}[3]{{\scriptsize\texttt{#2:#3}}}
+\newcommand{\judgement}[1]{{\setlength{\fboxsep}{1.5pt}\fbox{#1}}}
+\newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
+\newcommand{\hlcolor}{yellow}
+\newcommand{\repo}{%
+  \ifpublic our public repository at \jc{TODO: replace with repo URL}%
+  \else the supplementary materials%
+  \fi
+}
+
+\newcommand{\interp}[4]{\bracks{#1 \vDash_{#2} #3} \searrow #4}
+\newcommand{\interpU}[3]{\bracks{#1 \vDash_{#2} #3}}
+\newcommand{\buildset}[3]{#2 . \braces{#1 \mid #3}}
+\newcommand{\member}[3]{#1 \in #3(#2)}
+\newcommand{\dom}{\mathop{\mathsf{dom}}}
+\newcommand{\sws}[3]{#1 \vDash #2 : #3}
+\newcommand{\swt}[4]{#1 \vDash #2 :^{#3} #4}
+\newcommand{\swf}[1]{\vDash #1}
+\newcommand{\prodspace}[5]{#1 \in \hat{\Pi}(#2^{#3}, #4^{#5})}
+\newcommand{\sigspace}[5]{#1 \in \hat{\Sigma}(#2^{#3}, #4^{#5})}
+\newcommand{\univspace}[1]{\hat{\mathcal{U}}_{#1}}
+\newcommand{\eqspace}[5]{#1 \in (#2 \vdash #3 \mathrel{\hat{=}}^{#5} #4)}
+
+\newlength{\punctwidth}
+% \punctstack{<punct>} treats <punct> as having no width,
+% so that footnotes after it can stack on top
+\newcommand{\punctstack}[1]{#1%
+  \settowidth{\punctwidth}{#1}%
+  \hspace*{-\the\punctwidth}%
+}
+% \stack{<punct>} is a negative space the size of <punct>
+% to manually stack existing punctuation and footnotes
+% atop one another; essentially \punctstack without the punct
+\newcommand{\stack}[1]{%
+  \settowidth{\punctwidth}{#1}%
+  \hspace*{-\the\punctwidth}%
+}
+
+% reduce spacing surrounding captions
+\setlength\abovecaptionskip{1pt plus 1pt minus 1pt}
+\setlength\belowcaptionskip{1pt plus 1pt minus 1pt}
+
+% reduce spacing surrounding figures
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+
+\inputott{dcoi-rules}
+
+%DIF 156c156
+%DIF < \title{Indistinguishability in Predicative Type Theory}
+%DIF -------
+\title{Consistency of a Dependent Calculus of Indistinguishability} %DIF > 
+%DIF -------
+
+\author{Yiyun Liu}
+\orcid{0009-0006-8717-2498}
+\affiliation{%
+  \institution{University of Pennsylvania}
+  \city{Philadelphia}
+  \country{USA}
+}
+\email{liuyiyun@seas.upenn.edu}
+
+\author{Jonathan Chan}
+\orcid{0000-0003-0830-3180}
+\affiliation{%
+  \institution{University of Pennsylvania}
+  \city{Philadelphia}
+  \country{USA}
+}
+\email{jcxz@seas.upenn.edu}
+
+\author{Stephanie Weirich}
+\orcid{0000-0002-6756-9168}
+\affiliation{%
+  \institution{University of Pennsylvania}
+  \city{Philadelphia}
+  \country{USA}
+}
+\email{sweirich@seas.upenn.edu}
+
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+% \renewcommand{\shortauthors}{Liu et al.}
+
+\begin{CCSXML}
+<ccs2012>
+  <concept>
+    <concept_id>10003752.10003790.10011740</concept_id>
+    <concept_desc>Theory of computation~Type theory</concept_desc>
+    <concept_significance>500</concept_significance>
+  </concept>
+</ccs2012>
+\end{CCSXML}
+\ccsdesc[500]{Theory of computation~Type theory}
+\keywords{Modes, Dependent Types, Coq, Formalization}
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF COLORLISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+
+% squish lines in align environments
+% inexplicably this has to be inside the document
+\setlength{\jot}{0pt}
+
+\begin{abstract}
+  The Dependent Calculus of Indistinguishability (\dcoi) uses dependency
+  tracking to identify irrelevant arguments and uses indistinguishability
+  during type conversion to enable proof irrelevance, supporting run-time and
+  compile-time irrelevance with the same uniform mechanism. \dcoi also
+  internalizes reasoning about indistinguishability through the use of a
+  propositional equality type indexed by an observer level.
+
+  As \dcoi is a pure type system, prior work establishes only its syntactic
+  type safety, justifying its use as the basis for a programming language with
+  dependent types.  However, it was not clear whether any instance of this
+  system would be suitable for use as a type theory for theorem proving.
+  Here, we identify a suitable instance \name, which has an infinite
+  predicative universe hierarchy. We show that \name is logically consistent,
+  normalizing, and that type conversion is decidable. We have
+  mechanized all results using the Coq proof assistant.  \sw{I don't think we
+    need to go into details about our proof technique.}
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+Dependency-tracking type systems govern when functions are allowed to depend
+on their inputs. More specifically, they classify inputs using various
+dependency levels ($\ell$) and assign a level to the result of a
+computation. The key idea is that the type system prevents the flow of
+information from high-level sources to low-level results. In other words,
+low-level results may not \emph{depend} on high-level input.
+
+A key ingredient of dependency-tracking systems is the
+\emph{indistinguishability} relation: a definition of program equivalence that
+takes an observer level into account. This relation identifies more terms
+than standard definitions of program equivalence because a particular
+observer may be prevented from making a distinction between program values
+classified above a certain level. When used for information flow
+control~\cite{abadi:dcc}, indistinguishability at low observer levels means
+that high-level secrets are not revealed.
+
+The \emph{\longname} (\dcoi)~\cite{liu:dcoi} adapts dependency tracking to the
+context of dependently typed programming languages. The primary goal of
+dependency tracking in \dcoi is the identification of \emph{irrelevant
+  arguments}.  Such arguments can be erased during compilation to produce
+faster execution and ignored during equivalence checks at compile time.
+
+In \dcoi, the indistinguishability relation verifies that irrelevant arguments
+can be erased \DIFdelbegin \DIFdel{during computation}\DIFdelend \DIFaddbegin \DIFadd{when executed}\DIFaddend . If a program produces the same value for all
+irrelevant arguments at run time, then such arguments may
+be replaced by trivial values.
+
+Furthermore, the \dcoi type system also uses indistinguishability in its
+conversion rule. If two types cannot be distinguished by some observer, then
+it is sound to replace one with another at compile time. Thus, \dcoi supports
+compile-time irrelevance, and may ignore irrelevant arguments when checking
+for type equality. \dcoi also internalizes indistinguishability as a type,
+with a level-indexed elimination form.
+
+\citet{liu:dcoi} use syntactic methods to show the soundness of \dcoi's type
+system and that its definition of indistinguishability supports
+noninterference. However, while syntactic methods are sufficient for these
+purposes, they cannot be used to reason about semantic properties of type
+systems such as logical consistency, normalization, and decidable
+type conversion.
+
+For flexibility, \dcoi is designed around a \emph{Pure Type System}
+(PTS)~\citep{barendregt:PTS},
+where various instances of sorts, rules, and axioms determine the versions of
+quantification that is allowed in the language. All instances of \dcoi are
+type safe, but only some can be used as the basis of a consistent logic. For
+example, including the $[[U]] : [[U]]$ axiom produces a language that allows
+nontermination while others (such as those that include a predicative universe
+hierarchy, or a single impredicative sort) are conjectured to only
+include normalizing terms.
+
+We would like to explore the use of dependency tracking in the context of a
+logically consistent dependent type theory.  Therefore, in this paper, we
+define the language \name: a dependent type theory with dependency tracking
+featuring a predicative universe hierarchy and large eliminations.  This
+calculus is based on an instance of \dcoi and includes many of its features,
+such as level-indexed dependent function types ($[[Pi x : l A . B]]$),
+level-indexed dependent pairs ($[[Sig x : l A. B]]$), and level-indexed
+propositional equality ($[[a ~l b]]$), the internalized indistinguishability
+relation. However, the needs of logical reasoning in a dependent type theory
+means that we must refine these features and enhance their expressiveness.
+
+Logical consistency means that programmers can use \name to reason internally
+about their code. Like Coq ~\citep{coq}, Agda~\citep{agda}, and
+Lean~\citep{lean}, \name supports programming and program verification in the
+same framework. Unlike these systems, programmers may also internally reason
+about irrelevance, information flow, or any other application of dependency
+tracking.
+
+More generally, the contributions of this paper are twofold: new extensions
+that increase the expressiveness of the system, and stronger semantics-based
+results about this well-behaved instance of the system.
+
+\begin{itemize}[leftmargin=\parindent]
+\item We extend the language with an empty type $[[Void]]$ with an elimination
+  form that allows programmers to apply the principle of explosion.
+  Importantly, eliminating high-level proofs of the empty
+  type can refute impossible execution paths at any execution level. This
+  feature means that proofs can exist at an erasable dependency level while
+  being useful for programming. The consistency of \name means that there is
+  no closed term of the empty type.
+
+\item We develop the theory of the observer-indexed propositional equality
+  type in \name by enhancing the expressiveness of its elimination form, a
+  label-aware variant of the $\ottkw{J}$ operator. We demonstrate that this
+  form is more expressive than prior work by using it to derive the reasoning
+  principle which states that equalities indistinguishable by a high observer
+  are also indistinguishable by a low observer.
+
+\item We provide a weak elimination form for level-indexed dependent pairs,
+  from which we recover strong projections. We show that the weak elimination
+  form for level-indexed pairs is more general than \citeauthor{liu:dcoi}'s
+  treatment of strong projections as primitives; our admissible second
+  projection rule does not require a well-formedness check when a high-level
+  observer projects the second component of a low-level pair.
+
+\item We show that \name is logically consistent (\ie there is no inhabitant of
+  the empty type) and weakly normalizing (\ie every term can be reduced to a normal
+  form). Due to its expressive conversion rule, support for large eliminations,
+  and infinite universe hierarchy, we cannot reuse
+  proofs by \citet{geuvers:cc-sn, abel:irrelevance}
+  by embedding \name into their systems. Instead, we define a
+  syntactic logical predicate to directly show the
+  metatheoretic results as corollaries of the fundamental theorem.
+
+\item Following \citet{takahashi:par} and
+  \citet{accattoli:factorization}, we prove the standardization
+  theorem, which states that every weakly normalizing term can be
+  reduced to normal form by the deterministic leftmost-outermost reduction
+  strategy. From the standardization theorem and the weak
+  normalization property, we show that type conversion is decidable.
+  Furthermore, we can extract from our Coq proof an OCaml function that can
+  be used as a decision procedure.
+\end{itemize}
+
+All of our results have been developed using the Coq proof
+assistant and our proofs are available in \repo{} under the \texttt{proofs} directory.
+Furthermore, we have extended the prototype type checker by
+\citet{liu:dcoi},
+suitable for experimenting with the newly introduced features,
+which is also available under the \texttt{impl} directory.
+\ifsubmission
+Finally, for reasons of space, not all rules specifying \name can be included
+in this document. The remaining rules can be found in the reference appendix
+bundled in our supplementary material.
+\fi
+
+\section{Examples} \label{sec:examples}
+
+We start with examples that demonstrate \name in action, with emphasis on its
+support for run-time and compile-time irrelevance.  To make these examples more
+realistic, our presentation uses the syntax of our prototype
+implementation, which is based on a bidirectional type system and
+relies on a constraint solver to infer level annotations.
+
+In these examples, we use the naturals as concrete dependency levels. For example,
+we use level \texttt{\DIFdelbegin \DIFdel{0}\DIFdelend \DIFaddbegin \DIFadd{L}\DIFaddend } for run-time relevant code and level \texttt{\DIFdelbegin \DIFdel{1}\DIFdelend \DIFaddbegin \DIFadd{H}\DIFaddend } for irrelevant terms. Some level annotations are omitted when they can be inferred by the type checker, though many are retained for
+clarity.
+
+All examples in this section are type checked by our prototype type checker
+and can be found in \texttt{impl/pi/Paper.pi}.
+Our implementation includes a few convenience features,
+in particular inductive definitions,
+not found in the core \name system that we describe in this paper.
+\sw{Perhaps we
+  should replace the False elimination example with \texttt{divides\_to\_Nat}
+  from \texttt{impl/pi/Prime.pi}? This only requires natural number induction,
+  although it is a lot more complicated of an example.}
+\sw{I wish we had more space around the code to set it off in this section}
+
+\subsection{Run- and compile-time irrelevance}
+
+Parts of programs that are not meaningfully used during computation
+can be considered \emph{run-time irrelevant}.
+An optimizing compiler can then erase run-time irrelevant parts,
+and irrelevance annotations tell the compiler what can be erased.
+Well-typedness of a program ensures that irrelevant arguments
+are never used in a relevant function.
+
+Consider the following polymorphic identity function,
+with an irrelevant type argument (\DIFdelbegin \DIFdel{marked as }%
+{\color{red}%DIFAUXCMD
+\lstinline{@1}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{@1}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{@H}%
+}%DIFAUXCMD
+\DIFaddend )
+and relevant term argument (\DIFdelbegin \DIFdel{marked as }%
+{\color{red}%DIFAUXCMD
+\lstinline{@1}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{@1}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{@L}%
+}%DIFAUXCMD
+\DIFaddend ). This
+function is defined at level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{@0}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{@0}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{@L}%
+}%DIFAUXCMD
+\DIFaddend , which is the level of
+its output.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   id :@0 (A :@1 Type) -> (@0 A) -> A
+%DIF >   id :@L (A :@H Type) -> (@L A) -> A
+  id = \A x. x
+\end{lstlisting}
+\DIFmodend
+
+Although the type argument informs the type checker about how the function should be typed,
+it does not appear in the function body and is therefore erasable
+before execution.
+
+This is not to say that irrelevant arguments may never appear in function bodies,
+because they can be applied in other irrelevant positions.
+Consider the following function,
+which takes an irrelevant argument and a constant function.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   app :@0 (@1 Bool) -> (@0 (@1 Bool) -> Bool) -> Bool
+%DIF >   app :@L (@H Bool) -> (@L (@H Bool) -> Bool) -> Bool
+  app = \x f. f x
+\end{lstlisting}
+\DIFmodend
+
+The irrelevant parameter \lstinline{x} is permitted to be used in the body
+because it is only ever passed as an argument to the constant function \lstinline{f},
+itself a relevant function.
+
+We can talk about the idea of constantness within the language itself
+using a level-aware propositional equality type, as in the following proof.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   cong :@0 (f :@0 (@1 Bool) -> Bool) -> (x y :@1 Bool) -> (f x ~@0 f y)
+%DIF >   cong :@L (f :@L (@H Bool) -> Bool) -> (x y :@H Bool) -> (f x ~@L f y)
+  cong = \f x y. refl
+\end{lstlisting}
+\DIFmodend
+
+This proof asserts that a relevant function taking an irrelevant argument
+is indeed constant in that argument.
+The equality type \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{f x ~@0 f y} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{f x ~@0 f y} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{f x ~@L f y} %
+}%DIFAUXCMD
+\DIFaddend is annotated with \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{0}
+%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{0}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{L}
+%
+}%DIFAUXCMD
+\DIFaddend to indicate that it holds only for relevant terms.
+It holds by reflexivity, since \lstinline{f x} and \lstinline{f y}
+\DIFaddbegin \DIFadd{are }\DIFaddend considered definitionally equal by the type checker.
+Definitional equality will check that the two terms are
+\emph{indistinguishable} at level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{0}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{0}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{L}%
+}%DIFAUXCMD
+\DIFaddend ,
+which ignores the higher-level arguments \lstinline{x} and \lstinline{y},
+making them \emph{compile-time irrelevant}.
+Finally, the \lstinline{refl}
+proof in the body of \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{isConst} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{isConst} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{cong} %
+}%DIFAUXCMD
+\DIFaddend does not refer to any of the
+function arguments, allowing us to type \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{isConst} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{isConst} %%%
+\DIFdel{at level
+}%
+{\color{red}%DIFAUXCMD
+\lstinline{0} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{0} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{cong} %
+}%DIFAUXCMD
+\DIFadd{at level
+}{\color{blue}%DIFAUXCMD
+\lstinline{L} %
+}%DIFAUXCMD
+\DIFaddend to indicate that it is a constant function itself.
+
+\subsection{Irrelevance is relative}
+
+In the polymorphic identity function, the type parameter \lstinline{A}
+is irrelevant in the function body but makes a relevant appearance in
+the type signature. Our system allows \lstinline{A} to appear as both
+relevant and irrelevant by generalizing irrelevance as a notion that
+is relative to an observer level. The level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{1} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{1} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{H} %
+}%DIFAUXCMD
+\DIFaddend variable \lstinline{A}
+is irrelevant with respect to the level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{0} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{0} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{L} %
+}%DIFAUXCMD
+\DIFaddend observer, the body of the
+identity function. The well-formedness of the \lstinline{id}'s type
+signature can be independently checked at observer level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{1}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{1}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{H}%
+}%DIFAUXCMD
+\DIFaddend .
+
+Therefore, a variable \lstinline{x} with \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{@1} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{@1} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{@H} %
+}%DIFAUXCMD
+\DIFaddend annotation
+is not intrinsically irrelevant. Rather, its
+relevance is dependent on the observer level in which \lstinline{x}
+appears. The equational theory of \name is indexed by an observer
+level and only treats computations at higher levels as irrelevant.
+Consider the following example, whose well-typedness depends on how we
+instantiate the level, which we mark as \lstinline{?}.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   irr :@0 (P :@? (@1 Bool) -> Type) -> (b :@1 Bool) -> (@0 P b) -> (P true)
+%DIF >   irr :@L (P :@? (@H Bool) -> Type) -> (b :@H Bool) -> (@L P b) -> (P true)
+  irr = \f b x. x
+\end{lstlisting}
+\DIFmodend
+
+Whether \lstinline{irr} type checks depends on whether we can convert the
+type of \lstinline{x} from \lstinline{P b} to
+\lstinline{P true}. Since there is nothing we know about \lstinline{b},
+the predicate \lstinline{P} must behave like a
+constant predicate, and that is only the case if we instantiate \lstinline{?}
+with level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{0}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{0}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{L}%
+}%DIFAUXCMD
+\DIFaddend .
+
+Although \lstinline{b} is at level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{1} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{1} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{H} %
+}%DIFAUXCMD
+\DIFaddend and thus
+is irrelevant to \lstinline{irr}, it may still be used relevantly by
+\lstinline{P} if \lstinline{?} is instantiated to level \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{1} %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{1} %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{H} %
+}%DIFAUXCMD
+\DIFaddend or
+higher; our type system correctly rejects \lstinline{irr}
+in those scenarios.
+
+% If we instantiate \lstinline{?} by \lstinline{0}, then the function
+% \lstinline{f}, whose body is a level \lstinline{0} observer, cannot
+% dependent on the boolean input. The types \lstinline{f True} and
+% \lstinline{f False} are convertible and therefore \lstinline{irr} is
+% well-typed.
+% On the other hand, if we instantiate \lstinline{?} by \lstinline{1},
+% then
+
+% If we treat the \lstinline{@1} annotation on \lstinline{A} as being
+% always irrelevant, then we are at trouble since the type
+% \lstinline{A @ 0 -> A @ 0} would be ill-formed.
+
+% Existing systems either disallow irrelevant type
+% parameters~\citep{abel:irrelevance} or disable tracking on type
+% expressions completely~\citep{mcbride:plentyo, atkey:qtt}.
+
+% For instance, a term at level \lstinline{1} is irrelevant to one at level \lstinline{0},
+% and a term at level \lstinline{2} is irrelevant to terms at both level \lstinline{0} and \lstinline{1}.
+% The following example demonstrates this with irrelevant proofs.
+
+% \begin{lstlisting}
+%   irr : (A : Type)@1 -> (B : A@0 -> Type)@1 ->
+%         (C : (x : A)@0 -> (B x)@2 -> Type)@1
+%         (x : A) -> (b1 : B x)@2 -> (b2 : B x)@2 ->
+%         C x b1 -> C x b2 @ 0
+%   irr = \A B C x b1 b2 c. c
+% \end{lstlisting}
+
+% This function takes a type \lstinline{A} of a relevant term \lstinline{x},
+% a predicate \lstinline{B} whose proofs \lstinline{b1} and \lstinline{b2} are irrelevant,
+% and another predicate \lstinline{C}.
+% Given a term \lstinline{c} of type \lstinline{C x b1},
+% the goal is to produce a term of type \lstinline{C y b2}.
+% As the type \lstinline{C} is at level \lstinline{1}
+% while \lstinline{bx} and \lstinline{by} are at level \lstinline{2},
+% they appear irrelevant to \lstinline{C},
+% so \lstinline{c} itself fulfills the goal.
+
+% allows us to go beyond the two-point lattice used for run-time
+% erasure and reason about level indexed equalities for arbitrary lattice
+% structures.
+% The two levels of irrelevance are thus necessary if we want to consider
+% the compile-time irrelevance of proofs within run-time irrelevant types.
+% If \lstinline{b1} and \lstinline{b2} were merely level \lstinline{1},
+% while they are still erasable within the level \lstinline{0} function,
+% they would not be definitionally equal when comparing
+% \lstinline{C x b1} and \lstinline{C x b2} at level \lstinline{1}.
+% In general, if two terms are irrelevant at a given level,
+% then they are also irrelevant at a lower level, but not necessarily a higher one.
+% In the example above,
+% knowing that \lstinline{b1} and \lstinline{b2} are irrelevant at level \lstinline{1}
+% allows us to reason that they are also irrelevant at level \lstinline{0},
+% but they are not irrelevant at level \lstinline{2},
+% since they are variables declared at and therefore useable at level \lstinline{2}.
+
+This shows that as the observer level increases,
+more terms can be distinguished by definitional equality
+since there \DIFdelbegin \DIFdel{is less than }\DIFdelend \DIFaddbegin \DIFadd{are fewer terms that }\DIFaddend can be ignored,
+and the equality is \emph{finer}.
+As equality types internalize the notion of indistinguishability at a level,
+we can internalize the ability to lower the level.
+In particular, given two levels $[[l0 <= l1]]$, the
+following internalizes the idea that a finer equality indexed by
+a higher observer level can be downcast to a coarser equality indexed by
+a lower observer level.
+
+\begin{lstlisting}[escapeinside={(*}{*)}]
+  downcast : (A : Type) -> (x y : A) -> (x ~@(*$[[l1]]$*) y) -> (x ~@(*$[[l0]]$*) y)
+  downcast = \A x y p. subst refl by p
+\end{lstlisting}
+
+In \dcoi from prior work,
+the specification of the eliminator for equalities was not general enough
+for \lstinline{downcast} above to be provable.
+
+% Finally, we note that treating relevance as a relative concept is a powerful mechanism
+% that allows us to generalize the two-point lattice used for
+% erasure to an arbitrary lattice structure.
+
+\subsection{Irrelevant constructor components}
+
+We now introduce inductive types
+that package up irrelevant terms
+and which can only be unpackaged by other irrelevant terms.
+The following is a constructor for subset types~\citep{constable:nuprl},
+which are refinement types whose elements
+contain a relevant term and an explicit irrelevant proof
+of a predicate satisfied by the term.
+The type constructor itself and its parameters are marked as irrelevant.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   data Subset (A :@1 Type) (B :@1 (@0 A) -> Type) :@1 Type where
+%DIF <     pack of (x :@0 A) (@1 B x)
+%DIF <   mem :@0 (A : Type) -> (B : A -> Type) -> (@0 Subset A B) -> A
+%DIF >   data Subset (A :@H Type) (B :@H (@L A) -> Type) :@H Type where
+%DIF >     pack of (x :@L A) (@H B x)
+%DIF >   mem :@L (A : Type) -> (B : A -> Type) -> (@L Subset A B) -> A
+  mem = \A B p. case p of pack x y => x
+%DIF <   prf :@1 (A : Type) -> (B : A -> Type) -> (p :@0 Subset A B) -> B (mem A B p)
+%DIF >   prf :@H (A : Type) -> (B : A -> Type) -> (p :@L Subset A B) -> B (mem A B p)
+  prf = \A B p. case p of pack x y => y
+\end{lstlisting}
+\DIFmodend
+
+We can project out both the relevant term and the proof,
+but the projection of the proof must be irrelevant.
+Irrelevance of the proof also means that we may equate
+two members of a subset type merely when the relevant terms are equal,
+proven as follows.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   pcong :@1 (A :@1 Type) -> (B :@1 A -> Type) -> (x y : A)
+%DIF <             (bx :@1 B x) -> (by :@1 B y) -> (@1 x ~@0 y) ->
+%DIF <             (pack x bx ~@0 pack y by : Subset A B)
+%DIF >   pcong :@H (A :@H Type) -> (B :@H A -> Type) -> (x y : A)
+%DIF >             (bx :@H B x) -> (by :@H B y) -> (@H x ~@L y) ->
+%DIF >             (pack x bx ~@L pack y by : Subset A B)
+  pcong = \A B x y bx by p. subst refl by p
+\end{lstlisting}
+\DIFmodend
+
+Thus compile-time irrelevance of proofs helps us write fewer proofs.
+As a concrete example, suppose we define the naturals \lstinline{Nat},
+their addition operator \lstinline{+},
+a predicate \lstinline{isEven} on naturals asserting their evenness,
+a proof that addition is commutative,
+and a proof that the sum of two even numbers is even.
+The following are the types of the latter two definitions.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   comm :@1 (n m : Nat) -> (n + m ~@0 m + n)
+%DIF <   esum :@1 (n m : Nat) -> (@1 isEven n) -> (@1 isEven m) -> isEven (n + m)
+%DIF >   comm :@H (n m : Nat) -> (n + m ~@L m + n)
+%DIF >   esum :@H (n m : Nat) -> (@H isEven n) -> (@H isEven m) -> isEven (n + m)
+\end{lstlisting}
+\DIFmodend
+
+An even number \lstinline{Even} can be represented
+as a subset type of even naturals \lstinline{Subset Nat isEven},
+and correspondingly we can define their addition.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   eadd :@0 Even -> Even -> Even
+%DIF >   eadd :@L Even -> Even -> Even
+  eadd = \en em. case en of pack n en' =>
+                 case em of pack m em' => pack (n + m) (esum n m en' em')
+\end{lstlisting}
+\DIFmodend
+
+We can then prove that addition of even numbers is also commutative using \lstinline{pcong}.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   ecomm :@1 (en em : Even) -> (eadd en em ~@0 eadd em en)
+%DIF >   ecomm :@H (en em : Even) -> (eadd en em ~@L eadd em en)
+  ecomm = \en em. case en of pack n en' =>
+                  case em of pack m em' =>
+                    pcong Nat isEven (n + m) (m + n)
+                          (esum n m en' em') (esum m n em' en') (comm n m)
+\end{lstlisting}
+\DIFmodend
+
+If the proof in the subset type were not irrelevant,
+we would have the additional proof obligation of showing that
+\lstinline{(esum n m en' em')} and
+\lstinline{(esum m n em' en')} are equal.
+
+\subsection{Eliminating empty types}
+
+In general, irrelevant inductives may not be eliminated to relevant terms.
+The exception in \name is the empty type,
+whose eliminator may be typed at any level,
+regardless of the level of its scrutinee.
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   data Empty :@1 Type where {}
+%DIF >   data Empty :@H Type where {}
+\end{lstlisting}
+\DIFmodend
+\noindent
+%(In \name, there is a single empty type. However, in our implementation, this principle applies to any inductive type that has no constructors.)
+This feature, new to \name, allows us to handle impossible match cases,
+even when the proof of impossibility is irrelevant.
+For example, consider taking the head of a nonempty list
+given an irrelevant proof of its nonemptiness. The definitions of the
+list type and its length are standard.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   data List (A :@1 Type) :@1 Type where
+%DIF >   data List (A :@H Type) :@H Type where
+    nil
+%DIF <     cons of (@0 A) (@0 List A)         length :@0 (A :@1 Type) -> List A -> Nat
+%DIF >     cons of (@L A) (@L List A)
+%DIF >   length :@L (A :@H Type) -> List A -> Nat
+\end{lstlisting}
+\DIFmodend
+
+A safe \lstinline{head} function requires a proof
+that the length of the given list is not equal to zero, \emph{i.e.} that
+\DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{(@1 (@1 (length Nat l) ~ zero) -> Empty)}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{(@1 (@1 (length Nat l) ~ zero) -> Empty)}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{(@H (@H (length Nat l) ~ zero) -> Empty)}%
+}%DIFAUXCMD
+\DIFaddend . This proof
+should be irrelevant, so it is marked with \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\lstinline{@1}%DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \lstinline{@1}%%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\lstinline{@H}%
+}%DIFAUXCMD
+\DIFaddend .
+In the \lstinline{nil} case, the type of the proof is
+\lstinline{(zero ~ zero) -> Empty},
+so we can obtain and eliminate a proof of the empty type.
+
+\DIFmodbegin
+\begin{lstlisting}[alsolanguage=DIFcode]
+%DIF <   head :@0 (l : List Nat) -> (@1 (@1 (length Nat l) ~ zero) -> Empty) -> Nat
+%DIF >   head :@L (l : List Nat) -> (@H (@H (length Nat l) ~ zero) -> Empty) -> Nat
+  head = \l. case l of
+               nil      => \f. case (f Refl) of {}
+               cons x _ => \_. x
+\end{lstlisting}
+\DIFmodend
+
+\section{\name}
+
+In this section, we present the grammar and judgments of \name,
+which is an instantiation of the \longname (\dcoi)~\citep{liu:dcoi} with
+the PTS axioms and rules of a predicative universe hierarchy.
+The grammar is given in \cref{fig:grammar}.
+
+\begin{figure}[h]
+\begin{alignat*}{2}
+  [[G]], [[D]] & \Coloneqq [[nil]] \mid [[G ++ x : l A]] & \quad & \text{Typing contexts} \\
+  [[E]], [[F]] & \Coloneqq [[nil]] \mid [[E ++ x : l]] & \quad & \text{Level contexts} \\
+  [[A]], [[B]], [[C]], &&& \\
+  [[a]], [[b]], [[c]], [[p]] & \Coloneqq & \quad & \text{Terms} \\
+  & \mid [[x]] \mid [[Univ i]] \mid [[Void]] \mid [[absurd b]] & \quad & \textit{variables, type universes, empty type, absurd} \\
+  & \mid [[Pi x : l A . B]] \mid [[\ l x . b]] \mid [[b l a]] & \quad & \textit{function types, abstractions, applications} \\
+  & \mid [[Sig x : l A . B]] \mid [[(l a, b)]] \mid [[let (l0 x, y) = l a in b]] & \quad & \textit{pair types, pairs, matching} \\
+  & \mid [[Unit]] \mid [[unit]] \mid [[let unit = l a in b]] & \quad & \textit{unit type, unit value, eliminator} \\
+  & \mid [[a ~ l b]] \mid [[refl]] \mid [[J c l p]] & \quad & \textit{equality types, reflexivity, J eliminator} \\
+  & \mid [[Nat]] \mid [[zero]] \mid [[succ a]] \mid [[ind l a b0 (\x y. b1)]] & \quad & \textit{naturals, zero, successor, induction}
+\end{alignat*}
+\caption{Grammar of contexts and terms}
+\Description{}
+\label{fig:grammar}
+\end{figure}
+
+Following \citet{abadi:dcc}, \name is parameterized over a meet-semilattice of dependency levels, $[[l]]$.
+We use $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$. In the following examples,
+we use concrete levels low $[[L]]$ and high $[[H]]$, where $[[L < H]]$.
+
+Universe levels ($[[i]], [[j]], [[k]]$) are (meta-level) naturals
+and $[[max i j]]$ computes the maximum of $[[i]]$ and $[[j]]$.
+
+Function types, abstractions, pair types, matching and induction are all
+binding forms.  Although our mechanization uses de Bruijn indices for
+representing binding and simultaneous substitutions, for clarity we use named
+variables and single substitutions here.  We use the metavariables
+$[[x]], [[y]], [[z]]$ for variables and $[[a { b / x }]]$ for the substitution
+of a term $[[b]]$ in place of the variable $[[x]]$ inside the term $[[a]]$.
+As in \cref{sec:examples}, we use $[[l A -> B]]$ for $[[Pi x : l A . B]]$ when
+$[[x]]$ does not appear in $[[B]]$.
+
+\begin{figure}[h]
+  % \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
+  \drules[Wt]{$[[G |- a : l A]]$}{Well-typedness}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  \caption{Typing rules (universes, empty, functions)}
+  \Description{}
+  \label{fig:typing:dep}
+\end{figure}
+
+The main judgment is the typing relation,
+which has the form \judgement{$[[G |- a : l A]]$} for a term $[[a]]$
+that is well \DIFdelbegin \DIFdel{type }\DIFdelend \DIFaddbegin \DIFadd{typed }\DIFaddend under context $[[G]]$ at observer level $[[l]]$
+with type $[[A]]$.
+Its rules are given in \cref{fig:typing:dep}.
+To reduce clutter,
+we also use the judgment \judgement{$[[G |- a : A]]$} to mean that there exists some level $[[l]]$
+such that $[[G |- a : l A]]$ holds.
+The typing judgment is defined mutually with the context well-formedness judgment \judgement{$[[|- G]]$},
+which holds if the context's types are well typed by some universe $[[Univ i]]$.
+Premises which may be omitted in admissible variants of rules without them
+are highlighted in \colorbox{lightgray}{grey}.
+
+Our syntax is designed to highlight the parts of terms which play a role in evaluation.
+Therefore, type annotations are omitted,
+and consequently the typing judgment is not decidable.
+This minimalist design lends flexibility in which annotations
+a type checker implementation may choose to add to the syntax.
+
+\sw{We need to say up front that this typing judgment is not designed to be decidable as the
+  syntax does not include enough annotations. We design it this way to highlight the relevant parts of
+the terms. We also have flexibility in where we add annotations, none or relevant so we can add as many or as few as we need depending on how sophisticated we would like the type checking algorithm to be.}
+
+The typing rules are defined mutually with the context well-formedness rules,
+omitted here, which assert the well-sortedness of its types.
+When viewed as a PTS, the \rref{Wt-Univ,Wt-Pi} correspond
+to the sort axioms $([[Univ i]], [[Univ i + 1]])$ for every $[[i]]$
+and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]], [[j]]$.
+
+Except for the use of levels for dependency tracking, typing rules of \name
+are standard for dependent type theory. In the rest of this section, we
+discuss how dependency levels interact with the rules of \cref{fig:typing:dep}
+in \cref{sec:dep}. We discuss how the conversion rule, which changes the type of a term to an equivalent one,
+uses a definitional equality defined in terms of indistinguishability in \cref{sec:indist}.
+We then look at the rules for dependent pair types and the unit type (\cref{sec:pairs}),
+and finally for propositional equality types (\cref{sec:eq}),
+which internalize indistinguishability.
+
+\name also includes the naturals and their induction principle.  Notably, the
+induction principle permits large eliminations: we can branch on a natural and
+return different types for each branch.  However, as their interactions with
+dependency levels are similar to those of the other constructs, we omit them
+from our discussion and only list their rules in
+\ifsubmission the supplementary appendix A.1.
+\else \cref{app:naturals}.
+\fi
+
+\subsection{Dependency tracking} \label{sec:dep}
+
+The observer level $[[l]]$ of a typing judgment $[[G |- a : l A]]$
+tracks what variables $[[a]]$ may use, as well as the level at which $[[a]]$ itself may be used in later computation.
+The former is enforced by the constraint in \rref{Wt-Var},
+which permits a variable to be used only if the observer level is at least as high as that of the variable.
+Informally, higher-level information cannot leak into a lower-level term.
+
+In \rref{Wt-Abs}, the function parameter is annotated with a fixed level,
+thus restricting its uses to observers at least that high.
+Even so, there is no restriction on that level,
+and a function may be applied to an argument of a higher level,
+as long as the annotated level of the function parameter
+matches the annotated level of the application in \rref{Wt-App}.
+Allowing a higher-level parameter is useful because it may be used in the function's \emph{type},
+which is typed at an arbitrary level independent of the function itself
+in the second premise of \rref{Wt-Abs}.
+By \rref{Wt-Pi}, there are no restrictions on the levels of the domain and codomain types either
+(as long as they match).
+As an example, consider the following typing judgment.
+%
+{
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\begin{displaymath}
+  [[:concrete: nil |- (\ H X . \ H x . \ L f . f H x) : L (Pi X : H Univ i . H X -> L (H X -> X) -> X)]]
+\end{displaymath}
+}
+
+The entire function is typed at level $[[L]]$,
+while the parameters $[[X]]$ and $[[x]]$ are annotated at level $[[H]]$,
+so the inner function body cannot be $[[x]]$,
+for instance, even if it has the correct type.
+On the other hand, the parameter $[[f]]$ is a function that takes a high-level $[[X]]$
+and returns a low-level $[[X]]$, so $[[f H x]]$ is a valid function body.
+Meanwhile, the type of the function need only be well-typed at \emph{some} level,
+and in particular is well-typed at $[[H]]$,
+which allows using the high-level $[[X]]$
+in the codomain of the type.
+
+In general, we can prove a regularity lemma stating that the type of a well-typed term
+is itself well typed at a level not necessarily related to that of the term,
+and may even be higher, as is the case for the example above.
+Intuitively, this is permitted because there is no way for a term to depend on its type at run time,
+so the type of a lower-level term can safely use higher-level information
+without it leaking into the term.
+
+\begin{lemma}[Regularity]
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Wff}, \suppl{theories}{preservation.v}{Wt\_regularity}}
+  \label{lem:regularity}
+  If $[[G |- a : l A]]$, then $[[|- G]]$ holds,
+  and there exist $[[l0]], [[i]]$
+  such that $[[G |- A : l0 Univ i]]$.
+\end{lemma}
+
+While generally a lower-level term may not meaningfully use higher-level information,
+a proof of the empty type $[[Void]]$ at \emph{any} level
+may be eliminated to \emph{any other} level via \rref{Wt-Absurd}.
+By logical consistency, which we prove in \cref{sec:semmeta},
+there is no closed term of type $[[Void]]$,
+and so it cannot contain any meaningful information,
+and furthermore represents a dead execution path.
+From a type-theoretic perspective,
+the unconstrained elimination level allows us to handle impossible cases of a lower-level term
+using a higher-level proof of its impossibility.
+
+\subsection{Definitional equality and indistinguishability} \label{sec:indist}
+
+\begin{figure}[h]
+  \begin{gather*}
+    \drule{Wt-Conv}
+    \drule{E-Conv}
+    \drule{P-AppAbs}
+  \end{gather*}
+  \caption{Conversion, definitional equality, and parallel reduction ($\beta$ only) rules}
+  \Description{}
+  \label{fig:conv}
+\end{figure}
+
+The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
+which allows converting the type of a well-typed term to a definitionally equal type.
+Our definitional equality is untyped, but eventually relies on the levels of variables,
+so its judgment form \judgement{$[[E |- a == b]]$} requires a level context $[[E]]$ that maps variables to levels (only).
+In \rref{Wt-Conv}, this level context is produced by erasing the typing context,
+denoted \judgement{$[[| G |]]$}, and dropping all type annotations.
+
+Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv}, which
+states that terms are equal when they reduce to terms that are
+\emph{indistinguishable} by some observer $[[l]]$, defined in \cref{fig:indist} and described below.
+To make this level visible in the judgment, we also define \judgement{$[[E |- a <=> b @ l]]$}
+as a level-annotated form of definitional equality:
+it holds iff $[[a =>* c0]]$, $[[b =>* c1]]$, and $[[E |- c0 == c1 @ l]]$.
+Consequently, $[[E |- a == b]]$ holds iff there exists some level $[[l]]$
+such that $[[E |- a <=> b @ l]]$ holds.
+
+Parallel reduction \judgement{$[[a => b]]$} consists of the $\beta$-reduction rules for our elimination forms,
+listed in \cref{fig:conv} and in following subsections,
+along with rules for its reflexive, congruent closure,
+which are omitted here and can be found in
+\ifsubmission the supplementary appendix A.3.
+\else \cref{app:par}.
+\fi
+Multi-step parallel reduction \judgement{$[[a =>* b]]$} is the transitive closure of parallel reduction.
+
+\begin{figure}[h]
+  \fbox{$[[E |- a == b @ l l0]]$} \quad \fbox{$[[E |- a == b @ l]]$} \hfill \textit{((Guarded) Indistinguishability)}
+  \begin{gather*}
+    \drule[width=0.2\textwidth]{GI-Dist}
+    \drule{GI-Indist}
+    \drule[width=0.2\textwidth]{I-Var}
+    \drule{I-Empty}
+    \drule{I-Absurd} \\\\
+    \drule{I-Pi}
+    \drule{I-Abs}
+    \drule{I-App}
+    % \drule{I-Univ}
+  \end{gather*}
+  % \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
+  % \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability}{Dist,Indist}
+  \caption{(Guarded) indistinguishability rules (empty, functions)}
+  \Description{}
+  \label{fig:indist}
+\end{figure}
+
+Two terms are indistinguishable at observer level $[[l]]$ if they have the
+same shape and their subterms are also indistinguishable at $[[l]]$.  The only
+exception is \rref{I-App} that uses \emph{guarded indistinguishability},
+\judgement{$[[E |- a == b @ l]]$}, which is
+mutually defined with indistinguishability in \cref{fig:indist}.
+
+Indistinguishability is \emph{coarser} than mere $\alpha$-equivalence
+(and hence $[[E |- a == b]]$ is coarser than mere $\beta$-equivalence of $[[a]]$ and $[[b]]$)
+because guarded indistinguishability sometimes identifies terms that are not
+$\alpha$-equivalent. In \rref{I-App}, if the arguments are labeled at $[[l0]]$, but observed at $[[l]]$,
+guarded indistinguishability compares the arguments based on the relationship between $[[l0]]$ and $[[l]]$.
+If $[[l0 <= l]]$, meaning that the observer can fully see the arguments,
+then \rref{GI-Dist} applies, and the arguments must themselves be
+indistinguishable at $[[l]]$.
+Otherwise, if $[[not (l0 <= l)]]$, then \rref{GI-Indist} applies,
+and the arguments are too high to be observed at $[[l]]$,
+so indistinguishability of the applications does not consider the arguments.
+As a simple example,
+\DIFdelbegin \DIFdel{$[[:concrete: (# (# f : L ++ x : H #) ++ y : H #) ++ f : L |- f H x == f H y @ L]]$
+}\DIFdelend \DIFaddbegin \DIFadd{$[[:concrete: (# f : L ++ x : H #) ++ y : H |- f H x == f H y @ L]]$
+}\DIFaddend holds even though $[[x]]$ and $[[y]]$ could be anything,
+because the observer level is $[[L]]$,
+while the arguments' levels are $[[H]]$ and therefore unobservable.
+Indistinguishability of unobservable arguments articulates the intuition that
+functions may safely ignore these arguments that they cannot meaningfully use.
+
+Indistinguishability is a partial equivalence relation. The source of
+partiality is due to the
+level comparison that occurs in \rref{I-Var},
+where a variable may only be indistinguishable from itself
+if the observer level is high enough to observe it.
+This prevents equating arbitrary terms via function applications, such as
+$[[:concrete: x : H ++ y : H |- (\ H z . z) H x == (\ H z . z) H y]]$,
+since the bodies of the functions are not indistinguishable.
+Without this level comparison,
+we have via \rref{E-Conv} the equalities $[[nil |- Unit == (\ H z . z) H Unit]]$,
+$[[nil |- (\ H z . z) H Unit == (\ H z . z) H Void]]$,
+and $[[nil |- (\ H z . z) H Void == Void]]$,
+which would permit a closed term of $[[Void]]$ via repeated applications of \rref{Wt-Conv}.
+
+An important property of indistinguishability is the simulation property,
+which enforces that indistinguishable terms must reduce in lockstep.
+This is crucial for proving further syntactic and semantic lemmas in
+\cref{sec:synmeta,sec:semmeta},
+such as the preservation of definitional equality between two terms as
+they reduce and the preservation of meaning for indistinguishable types.
+
+\begin{lemma}[Simulation]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation\_star}}
+  \label{lem:simulation}
+  If $[[E |- a0 == b0 @ l]]$ and $[[a0 =>* a1]]$,
+  then there exists some $[[b1]]$ such that $[[b0 =>* b1]]$
+  and $[[E |- a1 == b1 @ l]]$.
+\end{lemma}
+
+Compared to prior work by
+\citet{liu:dcoi}, where indistinguishability is defined as an
+undecidable relation
+that incorporates both $\beta$-reduction and conversion of irrelevant components,
+our formulation of type conversion is more structured and breaks
+down type conversion into two separate steps: reduction and
+checking indistinguishability.
+This algorithmic version of indistinguishability
+allows us to reduce the problem of proving
+decidability of type conversion to the problem of finding a
+normalization procedure for well-typed terms
+(\cref{sec:decconv}). Finally, we note that if we instantiate
+\name with a singleton lattice, then indistinguishability degenerates
+into $\alpha$-equivalence, and the definitional equality degenerates
+into $\beta$-equivalence.
+
+\subsection{Dependent pairs and unit} \label{sec:pairs}
+
+\begin{figure}[h]
+  \begin{gather*}
+    \drule[width=0.4\textwidth]{Wt-Sig}
+    \drule[width=0.6\textwidth]{Wt-Pair} \\\\
+    \drule[width=0.7\textwidth]{Wt-Let}
+    \drule[width=0.5\textwidth]{P-LetPair} \\\\
+    \drule{Wt-Unit}
+    \drule{Wt-TT}
+    \drule[width=0.5\textwidth]{Wt-Seq}
+    \drule{P-SeqTT}
+  \end{gather*}
+  \caption{Typing and parallel reduction rules (pairs, unit)}
+  \Description{}
+  \label{fig:typing:pair}
+\end{figure}
+
+Dependent pairs are annotated with a fixed level in their first component,
+given by $[[l0]]$ in \rref{Wt-Sig,Wt-Pair} of \cref{fig:typing:pair}.
+Like for function types, the levels of pair types are not necessarily related
+to that annotated level.
+While the first component of the pair constructor has a fixed level,
+the level of the second component is the level of the overall pair.
+
+In contrast to prior work by \citet{liu:dcoi},
+pairs are eliminated using a pattern-matching expression
+instead of projections.
+The eliminator is typed according to \rref{Wt-Let},
+and its reduction behavior is given by \rref{P-LetPair}.
+It scrutinizes a pair $[[a]]$ annotated at level $[[l1]]$,
+binding its first and second components
+as variables $[[x]]$ at level $[[l0]]$
+and $[[y]]$ at level $[[l1]]$ respectively in the body $[[b]]$,
+which must be typed at the same level $[[l]]$ as the overall eliminator.
+The overall type of the eliminator is specified by the motive $[[C]]$,
+which is abstracted over the scrutinee $[[z]]$.
+The level of the scrutinee $[[l1]]$ is not exactly $[[l]]$ but bounded above by it;
+this is a subtle technical issue,
+which we defer to \cref{sec:scrutinee-level}.
+
+The first and second pair projections of a pair $[[a]]$ at level $[[l1]]$
+can be recovered as follows.
+%
+{
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\begin{align*}
+  [[proj1 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in x]] &
+  [[proj2 l0 a]] &\coloneqq [[let (l0 x, y) = l1 a in y]]
+\end{align*}
+}
+
+The typing rules for the projections can be stated as admissible rules
+with the same premises as the rules in \dcoi,
+and are given in \cref{fig:typing:proj} as
+\rref*{Wt-proj1}\footnote{\suppl{theories}{admissible.v}{T\_Proj1}}
+and \rref*{Wt-proj2}\punctstack{.}\footnote{\suppl{theories}{admissible.v}{T\_Proj2}}
+The first projection is well typed only if the first component's level
+is bounded by the level of the pair:
+we can only project an observable component.
+The second projection is well typed only if the first projection
+is well typed at the first component's level $[[l0]]$.
+This is because the type of the second component
+is dependent on the first component at level $[[l0]]$.
+\Rref{Wt-Proj1} tells us that the $[[proj1 l0 a]]$ is at level
+$[[l]]$, but we need the extra side condition that $[[proj1 l0 a]]$ is
+typed at level $[[l0]]$ for $[[B {proj1 l0 a / x}]]$ to be
+well-formed.
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \begin{gather*}
+    \drule[width=0.2\textwidth]{Wt-projOne}
+    \drule{Wt-projTwo}
+    \drule{Wt-projTwoalt}
+  \end{gather*}
+  \caption{Admissible typing rules for pair projections}
+  \Description{}
+  \label{fig:typing:proj}
+\end{figure}
+
+However, this is not the only way we can ensure the well-typedness of the second projection.
+The alternate admissible \rref{Wt-proj2alt} only requires well-typedness of the pair
+and not of the first projection.
+Here, the type of the second projection matches on the pair
+and then substitutes in the first component inside of $[[B]]$,
+rather than matching on the pair within the substitution in $[[B]]$.
+The second projection is therefore well typed regardless
+of the well-typedness of the first projection.
+In particular, we can take the second projection of a higher-level pair
+even if it contains a lower-level first component.
+This was not possible when pair projections were the primitive operators on a pair
+and not the eliminator we have, which is strictly more expressive.
+
+The typing rules for the unit type (\rref{Wt-Unit}),
+its sole inhabitant (\rref{Wt-TT}),
+and the dependent eliminator (\rref{Wt-Seq}) are standard,
+with reduction given by \rref{P-SeqTT}.
+In \rref{Wt-Seq}, the level constraint on the scrutinee exists
+for the same reason as in the pair eliminator.
+
+The box type $[[T l0 A]]$~\citep{abadi:dcc}
+can be seen as a pair with information only in its first component,
+of which we only ever take the first projection,
+and can be encoded as a unary tuple.
+%
+{
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\begin{align*}
+  [[T l0 A]] &\coloneqq [[Sig x : l0 A . Unit]] &
+  [[box l0 a]] &\coloneqq [[(l0 a, unit)]] &
+  [[unbox l0 a]] &\coloneqq [[proj1 l0 a]]
+\end{align*}
+}
+
+By these encodings and the typing rules for pairs,
+we obtain the admissible typing rules for box types
+(\rref*{Wt-T}\footnote{\suppl{theories}{admissible.v}{T\_T}}),
+boxes (\rref*{Wt-Box}\footnote{\suppl{theories}{admissible.v}{T\_Box}}),
+and unboxing (\rref*{Wt-Unbox}\footnote{\suppl{theories}{admissible.v}{T\_Unbox}})
+in \cref{fig:typing:box}.
+The level constraint in \rref*{Wt-Unbox} comes from the corresponding constraint in \rref{Wt-Let},
+and intuitively says that the only values that can be unboxed are observable ones.
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \begin{gather*}
+    \drule{Wt-T}
+    \drule{Wt-Box}
+    \drule{Wt-Unbox}
+  \end{gather*}
+  \caption{Admissible typing rules for box types}
+  \Description{}
+  \label{fig:typing:box}
+\end{figure}
+
+The indistinguishability rules for pair types, the unit type, and their eliminators
+are given in \cref{fig:conv:pair}.
+The primary use case of the box type is to be able to enclose higher-level terms
+and to treat them as indistinguishable from one another by a lower-level observer.
+That is, $[[E |- box H a == box H b @ L]]$ ought to hold regardless of $[[a]]$ and $[[b]]$.
+This idea generalizes to pairs by using guarded indistinguishability
+when comparing first components in \rref{I-Pair},
+similar to how function arguments are compared.
+In \rref{I-Let,I-Seq}, the constraints $[[l1 <= l]]$
+are required due to their presence in \rref{Wt-Let,Wt-Seq}.
+
+\begin{figure}[h]
+  \begin{gather*}
+    \drule{I-Sig}
+    \drule{I-Pair}
+    \drule{I-Unit}
+    \drule{I-TT} \\\\
+    \drule[width=\textwidth]{I-Let}
+    \drule[width=\textwidth]{I-Seq}
+  \end{gather*}
+  \caption{Indistinguishability rules (pairs, unit)}
+  \Description{}
+  \label{fig:conv:pair}
+\end{figure}
+
+\subsection{Propositional equality} \label{sec:eq}
+
+\begin{figure}[h]
+  \begin{gather*}
+    \drule[width=0.4\textwidth]{Wt-Eq}
+    \drule{Wt-Refl}
+    \drule{P-JRefl} \\
+    \drule[width=\textwidth]{Wt-J}
+  \end{gather*}
+  \caption{Typing and parallel reduction rules (equality)}
+  \Description{}
+  \label{fig:typing:eq}
+\end{figure}
+
+The propositional equality type internalizes the indistinguishability judgment,
+enabling reasoning about indistinguishability within \name itself.
+The typing rules for constructs related to the equality type are given in \cref{fig:typing:eq}.
+The type $[[a ~ l0 b]]$ represents the proposition that $[[a]]$ and $[[b]]$
+are indistinguishable by observers at level $[[l0]]$.
+By \rref{Wt-Eq}, the endpoints must themselves be well typed at level $[[l0]]$,
+since it only makes sense to talk about the indistinguishability of observable terms,
+just as \rref{I-Var} only holds for observable variables.
+The observer level $[[l0]]$ must also be bounded by the overall level $[[l]]$
+to ensure the consistency of the equational theory, as explained by \citet{liu:dcoi}.
+Its constructor is the usual reflexivity proof $[[refl]]$, given by \rref{Wt-Refl}.
+
+In \rref{Wt-J}, the eliminator $\ottkw{J}$ takes as scrutinee
+an equality proof $[[p]]$ annotated at level $[[l2]]$,
+along with a body $[[c]]$.
+The scrutinee must be well typed as an equality between $[[a]]$ and $[[b]]$
+of type $[[A]]$, observed at level $[[l0]]$.
+The observer, so to speak, is the motive $[[C]]$,
+abstracted over the right-hand \DIFdelbegin \DIFdel{size }\DIFdelend \DIFaddbegin \DIFadd{side }\DIFaddend of the equality $[[x]]$
+(the left-hand side being fixed at $[[a]]$)
+and the equality proof itself $[[y]]$.
+As the observer, the motive must be well typed at level $[[l0]]$.
+The type of the body is the motive instantiated with $[[a]]$ and $[[refl]]$,
+while the type of the fully-applied eliminator is the motive instantiated with $[[b]]$ and $[[p]]$.
+The levels of $[[x]]$ and $[[y]]$ must therefore match the levels of $[[b]]$ and $[[p]]$, respectively.
+Because by \rref{P-JRefl} the eliminator reduces on $[[refl]]$ to the body,
+the level of the body must match the level $[[l]]$ of the overall
+eliminator.
+The level of the scrutinee $[[l2]]$ is bounded above by the observer
+level $[[l]]$, and thus
+eliminating an equality proof always counts as an observation even
+though no branching happens. We treat the equality proof as observable
+to retain decidable type conversion (\cref{sec:castirrel}).
+The non-exact match between $[[l2]]$ and $[[l]]$ makes the
+rule more flexible than a rule that simply requires them to be
+equal. The necessity of the flexibility is discussed in
+\cref{sec:scrutinee-level}.
+
+% The level of the scrutinee $[[l2]]$ is not exactly $[[l]]$ but is bounded above by it;
+% this is a subtle technical issue,
+% which we defer to \cref{sec:scrutinee-level}.
+
+% \sw{Maybe we should say here that eliminating an equality proof always counts as an
+% observation even though no branching happens. As a result we have decidable type checking
+% and we don't have axiom K. }
+
+The other level constraint in \rref{Wt-J},
+which allows the equality endpoints to be typed at a level $[[l1]]$
+possibly lower than the equality observer level $[[l0]]$,
+increases the expressivity of the eliminator,
+since the motive $[[C]]$ is able to abstract over $[[x]]$ at the lower level $[[l1]]$.
+In particular, it allows us to show the following lemma.
+
+\begin{lemma}[Downgrade]
+  \stack{.~}\footnote{\suppl{theories}{admissible.v}{T\_Down\_Alt}}
+  \label{lem:downgrade}
+  Suppose $[[G |- a : l0 A]]$ and $[[G |- b : l0 A]]$.
+  If $[[G |- p : l a ~ l1 b]]$ and $[[l0 <= l1]]$,
+  then $[[G |- J refl l p : l a ~ l0 b]]$.
+\end{lemma}
+
+\nameref{lem:downgrade} permits lowering the observer level of an equality proof.
+Here, the motive is $[[a ~ l0 x]]$,
+which would not have been well typed
+if the level of $[[x]]$ had to match the observer level $[[l1]]$
+of the equality $[[p]]$ being eliminated.
+Intuitively, this rule internalizes the idea that if two terms are indistinguishable at some higher level,
+then they also are at a lower level,
+since a lower-level indistinguishability is coarser than a higher-level one,
+and treats more terms as indistinguishable.
+
+\begin{figure}[h]
+  \begin{gather*}
+    \drule[width=0.3\textwidth]{I-Eq}
+    \drule{I-Refl}
+    \drule[width=0.3\textwidth]{I-J}
+  \end{gather*}
+  \caption{Indistinguishability rules (equality)}
+  \Description{}
+  \label{fig:conv:eq}
+\end{figure}
+
+The shape of the indistinguishability rules
+for the propositional equality constructs in \cref{fig:conv:eq} are unsurprising:
+\rref{I-Eq,I-Refl,I-J} assert indistinguishability of the terms
+given indistinguishability of each pair of subterms.
+The constraints $[[l0 <= l]]$ in \rref{I-Eq} and $[[l2 <= l]]$ in \rref{I-J}
+are required due to their presence in \rref{Wt-Eq,Wt-J} respectively.
+
+\section{Syntactic Metatheory} \label{sec:synmeta}
+
+In this section, we develop the syntactic metatheory of \name,
+ultimately culminating in subjection reduction,
+\ie type preservation of typing with respect to parallel reduction.
+Because the syntactic metatheory has already been established for \dcoi by \citet{liu:dcoi},
+here we only state without proof the most important lemmas,
+some of which are used in the next section for the semantic metatheory.
+Nevertheless, everything has been mechanized in Coq,
+and the development can be found in \repo{} under the \texttt{proofs/theories} directory.
+
+Definitions, lemmas, and theorems given here are annotated with a footnote
+to the corresponding file and top-level name in the development.
+Some lemmas are presented as admissible derivation rules of the corresponding judgment,
+which are written with a double horizontal bar instead of a single bar.
+Their corresponding mechanizations are annotated where mentioned in the prose.
+
+\subsection{Preliminaries}
+
+As indistinguishability and definitional equality involve a level context,
+we require a level checking judgment \judgement{$[[E |- a : l]]$}
+on terms to be able to prove some substitution lemmas.
+The judgment specifies the dependency level that a term may be assigned.
+In later sections, we will see that semantic typing and the logical relation
+are defined over level checked terms.
+The rules for the judgment correspond exactly to stripping out
+all typing information from the typing rules, leaving only the levels.
+We omit them here, but they are listed in
+\ifsubmission the supplementary appendix A.4.
+\else \cref{app:levelling}.
+\fi
+
+\begin{figure}[h]
+  \mprset{fraction={===}}
+  \begin{gather*}
+    \drule[width=0.25\textwidth]{L-subst}
+    \drule[width=0.2\textwidth]{L-sub}
+    \drule{I-subst}
+    \drule{I-cong} \\\\
+    \drule{I-down}
+    \drule{Wt-subst}
+    \drule{Wt-sub}
+  \end{gather*}
+  \caption{Admissible rules for level checking, indistinguishability, and type checking}
+  \Description{}
+  \label{fig:lemmas}
+\end{figure}
+
+The level checking and indistinguishability judgments
+satisfy some standard properties,
+listed as admissible rules in \cref{fig:lemmas}.
+\Rref*{L-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
+\rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
+permit substituting in a level-checked term of the appropriate level
+in place of a variable of that level in the context.
+Indistinguishability also satisfies a congruence property
+\rref*{I-cong}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}},
+where indistinguishable terms may be substituted into a level-checked term.
+Level checking is subsumptive
+(\rref*{L-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
+the level of a level-checked term may be raised.
+Indistinguishability satisfies a downgrade property
+(\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
+where knowing that a term is indistinguishable from another at two different levels
+permits concluding that it is also indistinguishable at the meet of the levels.
+
+The key lemmas of parallel reduction are the diamond property and confluence,
+which state that if a term reduces to two different terms,
+those two terms themselves must converge back to the same term.
+The proof uses the notion of complete development%
+\footnote{\suppl{theories}{par.v}{tstar}}
+by \citet{takahashi:par}.
+
+\begin{lemma}[Diamond]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Par\_confluent}}
+  \label{lem:diamond}
+  If $[[a => b0]]$ and $[[a => b1]]$, then
+  there exists $[[c]]$ s.t. $[[b0 => c]]$ and $[[b1 => c]]$.
+\end{lemma}
+
+\begin{lemma}[Confluence]
+  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
+  \label{lem:confluence}
+  If $[[a =>* b0]]$ and $[[a =>* b1]]$, then
+  there exists $[[c]]$ s.t. $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
+\end{lemma}
+
+Injectivity of type constructors are trivial to prove in our system since
+definitional equality is directly defined in terms of
+indistinguishability and parallel reduction, both of which are
+injective by definition. Extra effort is needed to show
+that the definitional equality is transitive, which requires
+downgrade (\rref*{I-down}),
+\nameref{lem:confluence}, and \nameref{lem:simulation}.
+
+\begin{lemma}[Transitivity of equality]
+  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
+  If $[[E |- a == b]]$ and $[[E |- b == c]]$, then $[[E |- a == c]]$.
+\end{lemma}
+
+% Finally, we need inversion lemmas for definitional equality
+% (\ie injectivity of type constructors).
+
+% \begin{lemma}[Injectivity of function types]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_pi\_inj}}
+%   If $[[E |- Pi x : l0 A0 . B0 == Pi x : l1 A1 . B1]]$
+%   then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
+%   and $[[E ++ x : l0 |- B0 == B1]]$.
+% \end{lemma}
+
+% \begin{lemma}[Injectivity of pair types]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_sig\_inj}}
+%   If $[[E |- Sig x : l0 A0 . B0 == Sig x : l1 A1 . B1]]$
+%   then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
+%   and $[[E ++ x : l0 |- B0 == B1]]$.
+% \end{lemma}
+
+% \begin{lemma}[Injectivity of equality types]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_eq\_inj}}
+%   If $[[E |- a0 ~ l0 b0 == a1 ~ l1 b1]]$
+%   then $[[l0]] = [[l1]]$,
+%   and there exists an $[[l >= l0]]$
+%   such that $[[E |- a0 <=> a1 @ l]]$ and $[[E |- b0 <=> b1 @ l]]$.
+% \end{lemma}
+
+% \begin{lemma}[Injectivity of universes]
+%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_univ\_inj}}
+%   If $[[E |- Univ i == Univ j]]$ then $[[i]] = [[j]]$.
+% \end{lemma}
+
+\subsection{Type preservation}
+
+Like level checking, type checking admits substitution
+(\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}})
+and subsumption
+(\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
+as stated in \cref{fig:lemmas}.
+Due to \rref{Wt-Conv},
+deducing the well-typedness of subterms of a well-typed term
+doesn't follow immediately from inversion and requires separate generation lemmas,
+which are standard and omitted here.
+One notable consequence is that if $[[refl]]$ is a propositional equality
+between $[[a]]$ and $[[b]]$ at some observer level $[[l0]]$,
+then they are definitionally equal at that level.
+Finally, we are able to prove type preservation,
+which proceeds by induction on the typing derivation.
+
+\begin{lemma}
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Refl\_Coherent}}
+  If $[[G |- refl : l a ~ l0 b]]$,
+  then $[[| G | |- a <=> b @ l0]]$.
+\end{lemma}
+
+\begin{theorem}[Type preservation]
+  \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction},\suppl{theories}{preservation.v}{subject\_reduction\_star}}
+  \label{thm:preservation}
+  If $[[a => b]]$ (or $[[a =>* b]]$) and $[[G |- a : l A]]$
+  then $[[G |- b : l A]]$.
+\end{theorem}
+
+\section{Semantic Metatheory}
+\label{sec:semmeta}
+
+In this section, we use a logical predicate to show weak
+normalization and consistency for \name.
+Due to \name{}'s flexible treatment of type conversion
+and its support for large elimination, we cannot directly reuse the
+proofs found in \citet{abel:irrelevance, geuvers:cc-sn} through embedding.
+We structure the section as follows. In \cref{sec:logpred}, we
+present the definition of the logical predicate and its properties. In
+\cref{sec:soundness}, we define valid substitutions and
+semantic typing judgments based on the logical predicate and then
+prove the fundamental theorem, which states that all syntactically
+well-typed terms must be semantically well-typed, from which we derive
+weak normalization and consistency. In \cref{sec:decconv}, we combine
+weak normalization and the standardization theorem to recover a decidable
+type conversion algorithm.
+
+\subsection{A logical predicate for \name}
+\label{sec:logpred}
+
+To characterize semantically well-behaved terms through the logical predicate,
+we use the notions of neutral forms \judgement{$[[ne a]]$}
+and normal forms \judgement{$[[nf a]]$},
+which characterize sets of terms that are free of redexes. Our
+definition of neutral forms excludes terms like $[[:concrete: (\ H x
+. a) L b]]$ that are stuck because of mismatching levels.
+Furthermore, we consider $[[absurd a]]$ as neutral as long as $[[a]]$
+is in normal form since there are no constructors of the $[[Void]]$
+type. The definitions of neutral and normal forms are otherwise
+standard and can be found in
+\ifsubmission the supplementary appendix A.5.
+\else \cref{app:neutrals}.
+\fi
+Weakly normalizing terms are then terms which reduce to a normal form.
+
+\begin{definition}[Weakly normalizing terms]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
+  Given a term $[[a]]$, if there exists some term $[[b]]$ such that
+  $[[a =>* b]]$ and $[[nf b]]$ (resp. $[[ne b]]$),
+  then we say that $[[a]]$ weakly normalizes to a
+  normal (resp. neutral) form, which we denote as
+  \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
+\end{definition}
+
+The following lemma captures the idea that neutral and normal forms
+are free of redexes.
+
+\begin{lemma}
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
+  If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
+  b]]$, we have $[[a]] = [[b]]$.
+\end{lemma}
+
+\begin{figure}[h]
+  \centering
+  \hfill \textit{(Auxiliary notation)}
+  \begin{align*}
+    \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]} &\triangleq
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \member{[[b l0 a]]}{[[l]]}{[[S_B]]} \\
+    \sigspace{[[c]]}{S_A}{[[l0]]}{R}{[[l]]} &\triangleq
+      \exists a, b, [[c =>* (l0 a, b)]] \wedge
+      \member{a}{[[l0]]}{S_A} \wedge
+      (\forall S_B, R(a, S_B) \to \member{b}{[[l]]}{S_B}) \\
+    \eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} &\triangleq
+                                                   [[E |- p : l]] \wedge
+      [[p =>* refl]] \wedge [[E |- a <=> b @ l0]] \\
+    \interpU{[[E]]}{[[j]]}{[[A]]} &\triangleq \exists S, \interp{[[E]]}{[[j]]}{[[A]]}{S}
+  \end{align*}
+  \fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
+  \begin{mathpar}
+    \infer[\ottdrulename{SWt\_Ne}]{
+      [[ne A]]
+    }{
+      \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+    }
+    \qquad
+    \infer[\ottdrulename{SWt\_Eq}]{~}{
+      \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]]}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Pi}]{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\\\
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+    }{
+      \interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{\buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Empty}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Void]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Sigma}]{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S_A} \\
+      \forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a, S_B) \\\\
+      \forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}
+    }{
+      \interp{[[E]]}{[[i]]}{[[Sig x : l0 A . B]]}{\buildset{[[c]]}{[[l]]}{[[E |- c : l]] \wedge (\sigspace{[[c]]}{S_A}{[[l0]]}{R}{[[l]]} \vee [[wne c]])}}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Step}]{
+      [[A => B]] \\
+      \interp{[[E]]}{[[i]]}{[[B]]}{S}
+    }{
+      \interp{[[E]]}{[[i]]}{[[A]]}{S}
+    }
+    \and
+    \infer[\ottdrulename{SWt\_Unit}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Unit]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
+          l]] \wedge ([[a =>* unit]] \vee [[wne a]])}}}
+    \qquad
+    \infer[\ottdrulename{SWt\_Univ}]{
+      j < i
+    }{
+      \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \interpU{[[E]]}{[[j]]}{[[A]]}}}
+    }
+  \end{mathpar}
+  \caption{Logical predicate}
+  \Description{}
+  \label{fig:logpred}
+\end{figure}
+
+\Cref{fig:logpred} gives the definition of our logical
+predicate. The omitted rules for the naturals can be
+found in
+\ifsubmission the supplementary appendix A.6.
+\else \cref{app:logpredfull}.
+\fi
+Similar to \citet{abel:irrelevance}'s semantic interpretation of types,
+we define our logical predicate \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}
+as an inductive relation recursively defined over the universe level $[[i]]$,
+where $S$ is a family of terms indexed by dependency levels.
+The judgment \judgement{$\member{a}{[[l]]}{S}$} indicates that $[[a]]$ is
+a term belonging to the set in $[[S]]$ indexed by $[[l]]$.
+When constructing indexed sets, we use
+\judgement{$\buildset{[[a]]}{[[l]]}{\ldots}$} to indicate a family of sets
+parameterized by $[[l]]$.
+The judgment $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ states that under
+level context $[[E]]$ and universe level $[[i]]$, the type $[[A]]$
+is interpreted as the family of sets $[[S]]$.
+
+\ifextended
+Unlike logical relations for simply typed languages, the logical
+predicate for \name cannot be defined as a total function since not
+all terms can be assigned an interpretation. Instead,
+\mbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} simultaneously specifies the
+semantically well-formed types $[[A]]$ and their interpretation $[[S]]$.
+\fi
+
+For concision, we introduce \emph{semantic inhabitance} to
+avoid mentioning the type well-formedness side condition
+when talking about a term inhabiting the set interpretation of a type.
+
+\begin{definition}[Semantic inhabitance]
+  Given a context $[[E]]$ and a level $[[l]]$,
+  we say that $[[a]]$ \emph{semantically inhabits} the type $[[A]]$
+  at level $[[l]]$ if there exists some $[[i]]$ and $[[S]]$ such that
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{a}{[[l]]}{S}$.
+\end{definition}
+
+In \rref{SWt-Pi,SWt-Sigma}, the
+metavariable $R$ represents a relation between terms and the
+indexed family of terms $S$. Ignoring the conclusion of the rules,
+\rref*{SWt-Pi} and \rref*{SWt-Sigma} share the same preconditions
+ensuring their well-formedness:
+for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
+level $[[l0]]$, the type $[[B {a / x}]]$ is well-formed.
+In the function case, the definition of $\prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}$
+specifies the semantic inhabitants of a function type as the set of
+terms that maps well-behaved inputs to well-behaved outputs.
+
+The logical predicate takes in a level context $[[E]]$ as a
+parameter to ensure that $[[S]]$ only includes terms that level check
+at the indexed level.
+This property is
+formally stated as follows and can be proven by straightforward
+induction on the logical predicate.
+
+\begin{lemma}[Escape]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUniv\_Ok}}
+  \label{lem:escape}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{[[a]]}{[[l]]}{S}$,
+  then $[[E |- a : l]]$.
+\end{lemma}
+
+We refer to \cref{lem:escape} as the escape lemma as it is
+reminiscent of the escape lemmas by \citet{abel:irrelevance} and
+\citet{adjedj:mltt-coq}, though instead of escaping from the
+logical predicate to syntactic typing, we only require
+the much weaker level checking,
+which will be necessary to show that indistinguishable
+types have the same interpretation.
+
+Similar to its syntactic counterpart, the logical predicate satisfies
+the subsumption property,
+proven by straightforward induction using \rref*{L-sub}.
+
+\begin{lemma}[Subsumption for the logical predicate]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
+  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
+  then $\member{[[a]]}{[[l1]]}{S}$.
+\end{lemma}
+
+% The relaxation is possible thanks to
+% the untyped conversion rule, which allows us to derive properties
+% like $\Pi$-injectivity through the syntactic
+% approaches described in \cref{sec:synmeta} independently of our
+% semantic metatheory. However, the level checking restriction is still
+% required to justify the use of indistinguishability in the type
+% conversion rule.
+
+Next, we show some properties which will be useful for proving the fundamental theorem.
+We omit some uses of syntactic lemmas about reduction and indistinguishability
+in the proof sketches.
+
+The logical predicate satisfies the following inversion principles.
+They are not immediately obtainable by inverting
+the derivation because we close our interpretation with parallel
+reduction in \rref{SWt-Step}. For brevity, we show only the cases
+for equality, function, and empty types.
+
+\begin{lemma}[Inversion of the logical predicate (selected)]
+  \label{lem:interpinv}\leavevmode
+  \begin{enumerate}
+  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
+    \label{lem:interpinveq}
+    If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{S}$, then $S =
+    \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge
+      (\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]])}$.
+  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
+    \label{lem:interpinvfun}
+    If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
+    exist $S_A$ and $R$ such that following hold:
+    \begin{itemize}
+    \item $S = \buildset{[[b]]}{[[l]]}{[[E |- b : l]] \wedge \prodspace{[[b]]}{S_A}{[[l0]]}{R}{[[l]]}}$;
+    \item $\interp{[[E]]}{[[i]]}{[[A]]}{S_A}$;
+    \item $\forall a, \member{a}{[[l0]]}{S_A} \to \exists S_B, R(a,
+      S_B)$; and
+    \item $\forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to
+      \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}$.
+    \end{itemize}
+  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Void\_inv}}
+    \label{lem:interpinvvoid}
+    If $\interp{[[E]]}{[[i]]}{[[Void]]}{S}$, then $S =
+    \buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}$.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+  Immediate by induction on the derivation of the logical
+  predicate.
+\end{proof}
+
+The set of terms that semantically inhabit a type is closed by
+expansion (\ie backward reduction).
+
+\begin{lemma}[Backward closure]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos}}
+  \label{lem:backclos}
+  Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[E |- a : l]]$.
+  If $[[a => b]]$ and $\member{[[b]]}{[[l]]}{S}$,
+  then $\member{[[a]]}{[[l]]}{S}$.
+\end{lemma}
+
+\begin{proof}
+  By induction on the derivation of the logical predicate. The
+  \rref*{SWt-Univ} case requires \rref*{SWt-Step}, the backward
+  closure property baked into the definition of the logical
+  predicate. All other cases are trivial.
+\end{proof}
+
+The logical predicate satisfies cumulativity: if a type has an
+interpretation at a lower level, then it must also have the same
+interpretation at a higher level.
+
+\begin{lemma}[Cumulativity]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_cumulative}}
+  \label{lem:cumulativity}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[i]] \leq [[j]]$, then
+  $\interp{[[E]]}{[[j]]}{[[A]]}{S}$.
+\end{lemma}
+
+\begin{proof}
+  By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$
+  and transitivity of $\leq$.
+\end{proof}
+
+\Rref{SWt-Step} closes the interpretation of types under
+expansion. We can also show that the interpretation of types is
+preserved under forward reduction through the following lemma.
+
+\begin{lemma}[Reduction preserves interpretation]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation}}
+\label{lem:lrpreservation}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[A => B]]$, then
+  \DIFdelbegin \DIFdel{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}\DIFdelend \DIFaddbegin \DIFadd{$\interp{[[E]]}{[[i]]}{[[B]]}{S}$}\DIFaddend .
+\end{lemma}
+
+\begin{proof}
+  By induction on the derivation of
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  \Rref{SWt-Step} is the only interesting case,
+  using the \nameref{lem:diamond} property
+  to reconcile two potentially distinct reductions
+  from $[[A]]$.
+\end{proof}
+
+Next, we prove that the logical predicate is functional. That is,
+given a context $[[E]]$ and a universe level $[[i]]$, a type $[[A]]$
+can correspond to at most one interpretation $[[S]]$.
+
+\begin{lemma}[Functionality]
+\stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_deterministic}}
+\label{lem:lrfunc}
+If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$ and
+$\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
+\end{lemma}
+
+\begin{proof}
+  By induction on the derivation of
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
+  The \rref*{SWt-Step} case is immediate by \cref{lem:lrpreservation}.
+  For all other cases, the conclusion
+  follows by applying the inversion
+  properties (\cref{lem:interpinv}) on
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$.
+\end{proof}
+
+The logical predicate is functional not only for types that are
+syntactically equal, but also for types that are
+indistinguishable. This property is needed to fully justify the
+soundness of the type conversion rule, since the type conversion
+involves both reduction and indistinguishability.
+
+\begin{lemma}[Functionality for indistinguishable types]
+  \label{lem:lrfunci}
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
+  $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
+  $[[E |- A == B @ l ]]$ for some $[[l]]$,
+  then $S_0 = S_1$.
+\end{lemma}
+
+\begin{proof}
+  The argument is similar to the one for \cref{lem:lrfunc}.
+  We start by induction on the derivation of
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$.
+  For case \rref*{SWt-Step}, we need both \cref{lem:lrpreservation}
+  and \nameref{lem:simulation}.
+  For other cases, we apply the inversion properties on
+  $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$.
+
+  The cases for function and pair types both require one extra step to complete the
+  proof. Consider the case where $[[A]] = [[Pi x : l0 A0 . B0]]$ and
+  $[[B]] = [[Pi x : l0 A1 . B1]]$. The
+  induction hypothesis says that for every term $[[a]]$ that
+  semantically inhabits $[[A0]]$, if a type $[[C]]$ is
+  indistinguishable from $[[B0 {a / x}]]$, then $[[C]]$ and $[[B0 {a /
+  x}]]$ have the same meaning. To complete the proof, we use
+  the induction hypothesis and instantiate the variable
+  $[[C]]$ with the type $[[B1 { a / x}]]$ and prove that $[[B0 {a /
+    x}]]$ is indistinguishable from $[[B1 {a / x}]]$.  From the
+  premise that $[[Pi x : l0 A0 . B0]]$ and $[[Pi x : l0 A1 . B1]]$ are
+  indistinguishable, we already know that $[[B0]]$ and $[[B1]]$ are
+  indistinguishable.
+  To prove that $[[B0 {a / x}]]$ and $[[B1 {a / x}]]$ are
+  indistinguishable, we apply \rref*{I-subst}.
+  This requires $[[a]]$ to be checked at level $[[l0]]$,
+  which follows from $[[a]]$ semantically inhabiting $[[A0]]$ via \nameref{lem:escape}.
+\end{proof}
+
+The last main property is adequacy,
+which establishes the connection between the inhabitants of
+the logical predicate and terms that weakly normalize to normal or
+neutral forms, but we first need some
+useful facts about normal forms. Following \citet{geuvers:cc-sn}, we
+introduce a dummy constant $[[dummy]]$ to the set of
+terms for presentation purposes. The constant $[[dummy]]$ is a neutral
+term that level checks under any context and parallel reduces only to itself.
+First, reductions and normal forms are preserved when we undo substitutions
+involving $[[dummy]]$.
+
+\begin{lemma}[Antirenaming for Par]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{Par\_antirenaming}}
+  \label{lem:paranti}
+  If $[[a {dummy / x} => b]]$, then there exists some term $[[b0]]$
+  such that $[[b]] = [[b0 {dummy / x}]]$ and $[[a => b0]]$.
+\end{lemma}
+
+\begin{lemma}[Antirenaming for normal and neutral forms]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{ne\_nf\_renaming\_with\_d}}
+  \label{lem:nfneanti}
+  If $[[nf a {dummy / x}]]$ (resp. $[[ne a {dummy / x}]]$), then $[[nf
+  a]]$ (resp. $[[ne a]]$).
+\end{lemma}
+
+From \cref{lem:paranti,lem:nfneanti}, we derive the
+following corollary about weak normalization.
+
+\begin{lemma}[Antirenaming for weak normalization]
+  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn\_antirenaming}}
+  \label{lem:wnanti}
+  If $[[wnf a {dummy / x}]]$, then $[[wnf a]]$.
+\end{lemma}
+
+In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
+syntactic sugar for a fresh variable. However, this is not possible in \name
+because of the scoping constraint imposed by level checking. Instead, we define
+$[[dummy]]$ as $[[absurd Void]]$. Note that the term appearing in the body of $\ottkw{absurd}$
+is flexible: all we need is a term in normal form
+that has no reference to variables, so we do not violate scoping.
+
+Finally, we state and prove the adequacy lemma.
+
+\begin{lemma}[Adequacy]
+  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{adequacy}}
+  \label{lem:adequacy}
+  If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then $[[wnf A]]$ and the following hold:
+  \begin{itemize}
+  \item If $\member{a}{[[l]]}{S}$, then $[[wnf a]]$;
+  \item If $[[E |- a : l]]$ and $[[wne a]]$, then $\member{a}{[[l]]}{S}$.
+  \end{itemize}
+\end{lemma}
+
+\begin{proof}
+  By induction on the derivation of
+  $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
+  The only interesting part of the proof is showing normalization for
+  well-formed function and pair
+  types. We focus on function types, and the proof for pair types is
+  almost identical.
+
+  In the function case, we have $[[A]] = [[Pi x : l0 A0 . B0]]$. By
+  the induction hypothesis, we already know $[[wnf A0]]$ and for all
+  terms $[[a]]$ that semantically inhabit $[[A0]]$, the term $[[B0 {a
+    / x}]]$ is weakly normalizing. To show that $[[Pi x : l0 A0. B0]]$
+  is weakly normalizing, it suffices to show that $[[B0]]$ is weakly
+  normalizing.
+
+  % Since the induction hypothesis for $[[B0]]$ is universally
+  % quantified, we need to find a concrete term to instantiate $[[a]]$
+  % with.
+  By the induction hypothesis for $[[A0]]$, we also know that
+  if $[[E |- a : l]]$ and $[[a]]$ is a neutral term, then $[[a]]$
+  semantically inhabits $[[A0]]$. We pick $[[dummy]]$
+  for $[[a]]$ and deduce that $[[B0 {dummy / x}]]$ is weakly
+  normalizing. By \cref{lem:wnanti}, we conclude that $[[B0]]$ is
+  also weakly normalizing.
+\end{proof}
+
+\subsection{Soundness}
+\label{sec:soundness}
+To define semantic well-typedness, we need to first define the notion
+of valid substitutions, also referred to as valuations.
+While we continue to use named variables rather than de Bruijn indices,
+in this section we frame substitution in terms of \emph{substitution maps}
+(or simply \emph{substitutions} for short)
+and simultaneous substitutions.
+
+\begin{definition}[Substitution maps]
+  A substitution map $\rho$ is a mapping from variables to terms.
+  We use $\dom(\rho)$~to denote the variables in the domain of $\rho$,
+  $\rho(x)$~the term to which $\rho$ maps $[[x]]$,
+  $[[nil]]$~the identity substitution map,
+  $[[(rho ++ { a / x })]]$~the extension of $[[rho]]$
+  by a mapping from $[[x]]$ to $[[a]]$,
+  and $[[a { rho }]]$~the simultaneous substitution
+  of the variables $x \in \dom(\rho)$ in $[[a]]$ by $\rho(x)$.
+  The singleton substitution map $[[{ a / x }]]$
+  is then defined as $[[(nil ++ { a / x })]]$,
+  the single extension of the identity substitution map.
+\end{definition}
+
+\begin{definition}[Valid substitutions]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
+  \label{def:semwf}
+  A substitution map is a valid substitution
+  from $[[G]]$ to $[[D]]$,
+  written \judgement{$\sws{[[D]]}{\rho}{[[G]]}$},
+  if for every $[[x : l A in G]]$,
+  $[[| D | |- rho(x) : l]]$ holds,
+  and for all $i$, $S$ such that
+  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$,
+  we have $\member{\rho(x)}{[[l]]}{S}$.
+\end{definition}
+
+By definition, every term $[[rho(x)]]$ in a valid substitution map
+$[[rho]]$ from $[[G]]$ to $[[D]]$ level checks with respect to the erased context
+$[[|D|]]$. Applying the substitution then yields a term that level checks.
+
+\begin{lemma}
+\stack{.~}\footnote{\suppl{theories}{soundness.v}{iok\_$\rho$\_ok\_morphing}}
+  If $[[|G| |- a : l]]$ and $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |-
+  a{rho} : l ]]$.
+\end{lemma}
+
+\begin{proof}
+  Immediate by iterating the substitution principle for level checking (\rref*{L-subst}).
+\end{proof}
+
+% The $[[| D | |- rho(x) : l]]$ requirement in the definition may appear
+% redundant but is in fact required; we are unable to recover it with
+% \nameref{lem:escape} since the definition of valid substitution does
+% not imply the existence of interpretations for types in the context.
+Valid substitutions satisfy the following admissible structural rules.
+
+\begin{lemma}[Structural rules for valid substitutions]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_id}, \suppl{theories}{soundness.v}{$\rho$\_ok\_cons}}
+  \label{lem:vsubst}
+  \leavevmode
+  \begin{enumerate}
+    \item \label{lem:vnil} For every $[[G]]$, $\sws{[[G]]}{[[nil]]}{[[G]]}$ holds; and
+    \item \label{lem:vcons} Given $\sws{[[D]]}{[[rho]]}{[[G]]}$,
+      if $[[a]]$ semantically inhabits $[[A { rho }]]$
+      at level $[[l0]]$ under level context $[[| D |]]$,
+      then $\sws{[[D]]}{[[rho ++ {a / x} ]]}{[[G ++ x : l0 A ]]}$ holds.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+  (\ref{lem:vnil}) is easily justified by the part of the adequacy lemma
+  that states level-checked neutral terms (variables in $[[G]]$ in
+  this case) semantically inhabit any well-formed types.
+
+  (\ref{lem:vcons}) requires \nameref{lem:lrfunc} and
+  \nameref{lem:cumulativity} to convert the fact that
+  $\member{[[a]]}{[[l0]]}{S}$ for the specific $S$ from the
+  semantic inhabitance to the universal statement that
+  $\member{[[a]]}{[[l0]]}{S_0}$ for arbitrary $j$ and $S_0$ such that
+  $\interp{[[|D|]]}{[[j]]}{[[A { rho }]]}{S_0}$, as needed by the
+  definition of valid substitutions.
+\end{proof}
+
+% The dependency on the functionality property in the proof of \rref{V-cons} makes
+% it tempting to simply replace the universal quantifier in the definition
+% of valid substitutions with an existential quantifier. This change
+% would allow us to omit the well-gradedness side condition for each
+% $[[rho(x)]]$ since we can now derive it from the escape lemma
+% (\ref{lem:escape}). However, we note that this seemingly
+% innocuous change would overcomplicate our proof by forcing us to
+% generalize our logical predicate to a Kripke-style logical predicate.
+% We discuss the details of this issue in \cref{sec:nokripke}.
+
+Next, we define semantic typing based on valid substitutions and the logical predicate.
+
+\begin{definition}[Semantic well-typedness]
+  \label{def:semwt}
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
+  A term $[[a]]$ is semantically well typed with type $[[A]]$
+  at level $[[l]]$ under context $[[G]]$,
+  written \judgement{$\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$},
+  if for every $\rho$, $[[D]]$,
+  given $\sws{[[D]]}{\rho}{[[G]]}$,
+  the term $[[a {rho}]]$ semantically inhabits the type $[[A {rho}]]$
+  under the level context $[[|D|]]$.
+\end{definition}
+
+Valid substitutions and semantic well-typedness both satisfy weakening
+properties,
+which align with the intuition that a
+substitution map for a context $[[G]]$ also closes over any
+prefixes of $[[G]]$.
+
+\begin{lemma}[Weakening for valid substitutions and
+  semantic well-typedness]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}, \suppl{theories}{soundness.v}{weakening\_Sem}}
+  \label{lem:semweak}
+  \leavevmode
+  \begin{itemize}
+    \item \stack{~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}}
+      If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then $\sws{[[D]]}{\rho}{[[G]]}$.
+    \item \stack{~}\footnote{\suppl{theories}{soundness.v}{weakening\_Sem}}
+      If $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$,
+      then $\swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]}$.
+  \end{itemize}
+\end{lemma}
+
+\begin{proof}
+  Immediate by the definitions of valid
+  substitutions and semantic well-typedness.
+\end{proof}
+
+Given a valid substitution map $[[rho]]$ from
+$[[G]]$ to $[[D]]$, the validity of $[[rho]]$ does not necessarily
+imply the well-formedness of the types in $[[G]]$. % The universal
+% quantifier in the definition of $\sws{[[D]]}{\rho}{[[G]]}$ does not
+% imply that there always exists an interpretation
+% for types in $[[G]]$.
+Instead, the existence of interpretations
+for types in $[[G]]$ is separately provided by the semantic
+context well-formedness judgment \judgement{$\swf{[[G]]}$}.
+%
+\begin{mathpar}
+  \inferrule*[Right=\ottdrulename{SWf\_nil}]{~}{\swf{[[nil]]}} \and
+  \inferrule*[Right=\ottdrulename{SWf\_cons}]{
+    \swf{[[G]]} \\
+    \swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]} }{ \swf{[[G ++ x : l A]]}
+  }
+\end{mathpar}
+
+\ifextended
+The following lemma is useful when working with judgments of the form
+$\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
+\begin{lemma}[Semantic type inversion]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
+  The following are equivalent:
+  \begin{itemize}
+    \item $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$;
+    \item For every $\rho$, $[[D]]$ such that $\sws{[[D]]}{\rho}{[[G]]}$ holds,
+      \begin{itemize}
+        \item $[[| D | |- A { rho } : l]]$ holds; and
+        \item There exists an interpretation $S$ such that $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$.
+      \end{itemize}
+  \end{itemize}
+\end{lemma}
+\begin{proof}
+  Immediate by the inversion lemma for types of the form $[[Univ i]]$ (\cref{lem:interpinv}).
+\end{proof}
+\fi
+
+We now specify the fundamental theorem and provide proof
+sketches for the interesting cases.
+
+\begin{theorem}[Fundamental theorem]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{soundness}}
+  \label{thm:fundamental}
+  If $[[G |- a : l A]]$ then $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$;
+  if $[[|- G]]$ then $\swf{[[G]]}$.
+\end{theorem}
+\begin{proof}
+By mutual induction on syntactic typing and
+well-formedness. Despite the complex setup of the logical predicate,
+semantic typing, and their properties, the proof of the fundamental
+theorem is straightforward and is similar to the proofs by logical
+relations for simply typed languages (\eg \citet{abel:poplmark}).
+For example, the \rref*{Wt-App} case proves itself since
+the idea of valid inputs to valid outputs is baked into the
+\rref*{SWt-Pi} case of the logical predicate.
+For other cases involving eliminators such as \rref*{Wt-J} and \rref*{Wt-Let}, the
+scrutinee either reduces to a normal form (\ie $[[refl]]$ or $[[(l0 a, b)]]$) or a neutral
+term. In the former, the conclusion follows by
+\nameref{lem:backclos} and the induction
+hypothesis. In the latter, we know that the elimination form
+evaluates to a neutral form and thus semantically inhabits the type by
+\nameref{lem:adequacy}.
+The \rref*{Wt-Conv} case is justified by
+the preservation of meaning under expansion (\rref*{SWt-Par}),
+reduction (\cref{lem:lrpreservation}), and indistinguishability
+(\cref{lem:lrfunci}).
+The \rref*{Wt-Var} case requires weakening for semantic typing
+(\cref{lem:semweak}) to bring the semantically well-formed type to the
+right scope.
+\end{proof}
+
+\begin{corollary}[Weak normalization for well-typed terms]
+  \stack{.~}\footnote{\suppl{theories}{soundness.v}{normalization}}
+  \label{cor:wtwn}
+  If $[[G |- a : A]]$, then $[[wnf a]]$.
+\end{corollary}
+\begin{proof}
+  Immediate by the \nameref{thm:fundamental} and \cref{lem:vsubst} (\ref{lem:vnil}).
+\end{proof}
+
+\begin{corollary}[Logical consistency]
+  \stack{.~}\footnote{\suppl{theories}{consistency.v}{consistency}}
+  The judgment $[[nil |- a : l Void]]$ is not derivable for any
+  $[[a]]$ or $[[l]]$.
+\end{corollary}
+\begin{proof}
+  Immediate by the \nameref{thm:fundamental}, \cref{lem:vsubst}
+  (\ref{lem:vnil}), and \cref{lem:interpinv} (\ref{lem:interpinvvoid}).
+\end{proof}
+
+\subsection{Decidability of type conversion}
+\label{sec:decconv}
+
+We can use the normalization theorem
+(\cref{cor:wtwn}) to recover a decision procedure for type
+conversion.
+Let \judgement{$a \leadsto^{lo} b$} be the
+leftmost-outermost reduction relation for \name.
+
+% \begin{lemma}[Weak head factorization]
+%   \label{lem:factorization}
+%   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{h}[[b]]$.
+% \end{lemma}
+
+\begin{lemma}[Standardization]
+  \stack{.~}\footnote{\suppl{theories}{factorization.v}{standardization}}
+  \label{lem:standardization}
+  If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{lo}[[b]]$.
+\end{lemma}
+
+Its proof, which we omit here,
+is adapted from the standardization proof for the untyped lambda
+calculus by \citet{takahashi:par} and \citet{accattoli:factorization}.
+
+\ifextended
+We first prove Hindley's local postponement property~\citep{accattoli:factorization}
+for the weak head reduction relation, and then obtain the
+standardization theorem for leftmost-outermost reduction by iterating
+weak head reduction. Similar to the mechanized standardization proof
+found in \citet{mckinna:some-lambda-formalized}, we prove local
+postponement for weak head reduction instead of head reduction since
+the former admits a simpler specification.
+\fi
+
+\begin{corollary}[Normalization is decidable]
+  \stack{.~}\footnote{\suppl{theories}{factorization.v}{LoRed\_normalize}}
+  \label{lem:nomdec}
+  If $[[wnf a]]$, then its normal form can be computed.
+\end{corollary}
+\begin{proof}
+  By \nameref{lem:standardization} and the fact that
+  leftmost-outermost reduction is deterministic, we can repeatedly
+  apply leftmost-outermost reduction to find the normal form for $[[a]]$.
+\end{proof}
+
+\begin{lemma}[Indistinguishability is decidable]
+  \stack{.~}\footnote{\suppl{theories}{geq.v}{IEq\_dec}}
+  \label{lem:indistdec}
+  If the lattice admits a decidable comparison operator, then indistinguishability
+  is decidable. That is, given a level context $[[E]]$, terms
+  $[[A]]$ and $[[B]]$, and a level $[[l]]$, there is an algorithm that
+  terminates with \texttt{true} or \texttt{false} depending on whether
+  $[[E |- A == B @ l]]$.
+\end{lemma}
+
+\begin{proof}
+  The algorithm, whose definition we omit, simply recurs over the
+  structure of $[[A]]$.
+  The correctness proof mirrors the definition of the algorithm and
+  proceeds by induction on $[[A]]$. The variable case requires that the
+  comparison $[[l0 <= l]]$ be decidable.
+\end{proof}
+
+\begin{definition}[Algorithm for type conversion]
+  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{convb}}
+  \label{def:convalg}
+  Given a level context $[[E]]$ and two well-formed types $[[A]]$
+  and $[[B]]$, the algorithm deciding their equality is as follows.
+  \begin{enumerate}
+  \item \label{item:nf}
+    Run the algorithm from \cref{lem:nomdec} on $[[A]]$ and
+    $[[B]]$ to obtain normal forms $[[A0]]$ and $[[B0]]$.
+  \item \label{item:min}
+    Compute the minimal level $[[l]]$
+    at which $[[A0]]$ and $[[B0]]$ can be level checked.
+  \item \label{item:decide}
+    Return the result of the decision procedure from
+    \cref{lem:indistdec} on the relation
+    $[[E |- A0 == B0 @ l]]$.
+  \end{enumerate}
+\end{definition}
+
+In (\ref{item:decide}), \nameref{lem:simulation} justifies the use of
+normal forms $[[A0]]$ and $[[B0]]$
+before we check indistinguishability, while downgrade
+(\rref*{I-down}) justifies the
+use of the lowest possible level $[[l]]$ computed from (\ref{item:min}).
+
+% The correctness of the algortihm
+% follows from the syntactic properties about reduction,
+% indistinguishability, and normal forms we have established in
+% \cref{sec:synmeta} and \ref{sec:logpred}. One of the most
+% notable properties is the admissible \rref*{I-Down} rule, which says
+% choosing the lowest level is good enough.
+
+The only missing piece is the decidability of the algorithm for
+computing levels in (\ref{item:min}).
+While conceptually simple, the algorithm depends
+on the structure of the lattice. For bottomless
+lattices, there is no minimal level we can return for values such as
+$[[Void]]$ and $[[Univ i]]$. Instead, we need to conjure up a level
+$[[l]]$ that can ignore the most terms possible when comparing
+$[[A]]$ and $[[B]]$. While there are other sufficient conditions for
+inferring the level $[[l]]$, such as the size of the lattice being
+countable, we focus on the correctness of the algorithm for a lattice
+with a bottom element.
+\begin{theorem}[Decidability of type conversion with bottom]
+  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{conv\_dec}}
+  \label{lem:decconv}
+  Given $[[G |- a : l A]]$ and $[[G |- B : Univ i]]$, the algorithm
+  described in \cref{def:convalg} decides the relation $[[|G| |- A ==
+  B]]$ if \name is instantiated with a lattice with a bottom.
+\end{theorem}
+
+Independent of the underlying lattice structure, the
+indexed version of definitional equality is always decidable since it
+allows us to skip the level inference from step (\ref{item:min}).
+\begin{theorem}[Decidability of indexed type conversion]
+  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{iconv\_dec}}
+  \label{lem:deciconv}
+  Given a context $[[E]]$, syntactically well-formed types $[[A]]$ and
+  $[[B]]$, and a level $[[l]]$, $[[E |- A0 <=> B0 @ l]]$ is decidable.
+\end{theorem}
+Note that $[[E |- A0 <=> B0 @ l]]$ is equivalent to the preconditions of \rref{E-Conv}.
+For finite or countable lattices, the decision procedure from
+\cref{lem:deciconv} can be iterated to recover the decidability
+of conversion in \rref{Wt-Conv}.
+
+\section{Discussion and Future Work}
+
+\subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
+\sw{I wish this section talked a little more about strictness. If we had a CBV application,
+then I guess we would need to have a scrutinee constraint in application. OTOH, if we have
+a lazy let term, we would not need this constraint.}
+
+The level of eliminator scrutinees must be bounded by the level of the overall eliminator.
+In particular, in \rref{Wt-J}, the level $[[l2]]$ of an equality proof $[[p]]$
+must be bounded by that of its elimination $[[J c l2 p]]$,
+and in \rref{Wt-Let}, the level $[[l1]]$ of a pair $[[a]]$
+must be bounded by that of its elimination $[[let (l0 x, y) = l1 a in b]]$.
+The bound is required to prove the \nameref{lem:simulation} property.
+Suppose that scrutinees could instead be typed at any level.
+First, the indistinguishability rules would need to be updated
+so that scrutinees are indistinguishable if their level is higher
+than that of the overall eliminator, just like in \rref{I-App}.
+The modified premises are boxed below.
+%
+\begin{mathpar}
+  \tcbset{left=1pt,right=1pt,top=1pt,bottom=1pt,boxsep=0pt,boxrule=1pt,hbox,tcbox raise base}
+  \infer[\ottdrulename{I\_J\_bad}]{
+    \tcbox{$[[E |- p0 == p1 @ l l2]]$}
+    [[E |- c0 == c1 @ l]]
+  }{
+    [[E |- J c0 l2 p0 == J c1 l2 p1 @ l]]
+  }
+  \and
+  \infer[\ottdrulename{I\_Let\_bad}]{
+    \tcbox{$[[E |- a0 == a1 @ l l1]]$} \\
+    [[(# E ++ x : l0 #) ++ y : l1 |- b0 == b1 @ l]]
+  }{
+    [[E |- let (l0 x, y) = l1 a0 in b0 == let (l0 x, y) = l1 a1 in b1 @ l]]
+  }
+\end{mathpar}
+
+As concrete examples, by \rref{I-J-bad},
+supposing $[[J c H p]]$ were well typed in context $[[G]]$
+at level $[[L]]$ with $[[G |- p : H a ~ L a]]$,
+we can conclude that $[[| G | |- J c H refl == J c H p @ L]]$.
+The problem is that the left-hand side reduces to $[[c]]$,
+while the right-hand side does not necessarily reduce to something indistinguishable from $[[c]]$,
+thereby violating simulation.
+The same issue arises with pairs, where we may be able to conclude by \rref{I-Let-bad} that
+$[[| G | |- let (H x, y) = H (H a, b) in c == let (H x, y) = H d in c @ L]]$,
+and the left-hand side reduces to $[[c {a / x, b / y}]]$,
+while the right-hand side again does not necessarily reduce to something indistinguishable from it.
+Even if the context were empty, simulation still cannot be proven
+without knowing \apriori that a closed proof of equality $[[p]]$ normalizes to $[[refl]]$,
+or that a closed term of a pair type normalizes to a pair.
+
+The one exception is the eliminator for the empty type,
+whose scrutinee may be well typed at any arbitrary level in \rref{Wt-Absurd}.
+Since $[[absurd b]]$ has no reduction rules beyond the congruence \rref{P-Absurd},
+ignoring $[[b]]$ in \rref{I-Absurd} will not violate simulation.
+
+If we try to enforce the scrutinee's level
+to be exactly the overall level $[[l]]$,
+we would not be able to prove subsumption (\rref*{Wt-sub}),
+since the level of the scrutinee appears in the context.
+In both \rref{Wt-J,Wt-Let}, this occurs when type checking the motive $[[C]]$,
+which abstracts over the scrutinee.
+Supposing that both the level of the scrutinee and the overall level are $[[l]]$,
+subsumption states that given a derivation at level $[[l]]$,
+we need to construct a derivation at a higher level $[[l']]$.
+For $\ottkw{J}$ and $\ottkw{let}$,
+we are given a derivation concluding something of the shape
+$[[G ++ x : l poltergeist |- C : l0 Univ i]]$,
+but we require one of the shape
+$[[G ++ x : l' poltergeist |- C : l0 Univ i]]$,
+which we are unable to conclude.
+
+% \subsection{Equality type level constraints} \label{sec:eq-level}
+
+% In \rref{Wt-Eq}, the observer level $[[l0]]$ of the equality type $[[a ~ l0 b]]$
+% must be bounded by the level $[[l]]$ of the overall equality type.
+% Otherwise, \name would be inconsistent.
+% Suppose that $[[l0]]$ did not have to be bounded by $[[l]]$.
+% Once again, the indistinguishability rule would need to be modified
+% so that the endpoints are compared using guarded indistinguishability
+% to handle the situation where $[[l0]]$ is higher
+% than the observer level $[[l]]$ of the indistinguishability judgment.
+% The modified premises are highlighed in yellow below.
+% %
+% \begin{mathpar}
+%   \setlength{\fboxsep}{1.5pt}
+%   \infer[\ottdrulename{I\_Eq\_bad}]{
+%     \mathcolorbox{\hlcolor}{[[E |- a0 == a1 @ l l0]]} \\
+%     \mathcolorbox{\hlcolor}{[[E |- b0 == b1 @ l l0]]}
+%   }{
+%     [[E |- a0 ~ l0 b0 == a1 ~ l0 b1 @ l]]
+%   }
+% \end{mathpar}
+
+% By \rref{I-Eq-Bad}, it would be possible to derive the judgment
+% $[[nil |- Unit ~ H Unit == Unit ~ H Void @ L]]$
+% via \rref{GI-Indist} for both premises since $[[not (H <= L)]]$.
+% The left-hand size is inhabited by $[[refl]]$,
+% which would then also be a proof of the right-hand side via \rref{Wt-Conv},
+% a contradiction.
+% \nameref{thm:preservation} is also violated,
+% since by the contradiction $[[J (\ H x . x) L refl]]$ would be an inhabitant of $[[Void]]$,
+% while it reduces to $[[(\ H x . x)]]$, which is not.
+
+% Because the observer level $[[l0]]$ is explicitly annotated in the equality type,
+% we cannot enforce $[[l]]$ to be exactly $[[l0]]$,
+% as it would violate subsumption by fixing the overall level to $[[l0]]$ in \rref{Wt-Eq}.
+
+\ifextended
+\subsection{Scoped logical predicate, non--Kripke-style}
+\label{sec:nokripke}
+
+% To justify the type conversion rule (\rref*{Wt-Conv}) semantically, we
+% need to prove that indistinguishable types have the same meaning
+% (\cref{lem:lrfunci}), which in turn requires us to show that only
+% level checked terms can inhabit the logical predicate
+% (\nameref{lem:escape}).
+% To derive \cref{lem:escape}, the escape property, we need to
+% parameterize our logical predicate by the level context $[[E]]$ and
+% decorate its definition with additional level checking constraints.
+
+The level-checking judgments in \cref{fig:logpred} introduces scoping information to our
+logical predicate. As observed by \citet{abel:normalization}, to
+derive the adequacy property for a scoped logical relation, the
+interpretation for functions must be generalized to account for
+weakened contexts. Logical relations augmented with this
+generalization are referred to as Kripke-style logical relations
+\citep{abel:poplmark, abel:irrelevance, adjedj:mltt-coq, harper:equivalence}.
+
+However, the logical predicate for \name is different in that the
+scoping information is not the full-fledged typing judgment, unlike
+the aforementioned works, but the weaker level checking judgment. This
+allows us to introduce in \cref{sec:logpred} an ill-typed but
+level-checkable constant $[[dummy]]$, which has a reduction behavior similar
+to free variables, but is not subject to scoping constraints.
+
+When deriving the normalization of functions, we use the antirenaming
+property formulated in terms of $[[dummy]]$ to avoid weakening the level
+context with a Kripke-style logical predicate. This proof technique
+simplifies our definition of the logical predicate significantly; in a
+dependently typed system, a Kripke-style predicate would require us to
+generalize not only functions, but also function and pair types themselves
+since they both involve binders.
+\fi
+
+% However, our non-Kripke style logical relation requires us to be
+% careful not to rely on the following weakening property on the level
+% context, which does not hold with our existing definition of the
+% logical predicate.
+% \begin{proposition}[Context weakening for the logical predicate (does
+%   not hold!)]
+%   \label{prop:badweak}
+%   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then $\interp{[[E ++ x : l0]]}{[[i]]}{[[A]]}{S}$.
+% \end{proposition}
+% \cref{prop:badweak} should not be confused with the weakening property
+% for semantic well-typedness (\ref{lem:semweak}), the latter of which
+% is derivable without unfolding the definition of the logical predicate.
+% An attempt at proving \cref{prop:badweak} would fail at the function case
+% due to the contravariance of the function argument and therefore
+% requires the type of generalization to weakened contexts found in
+% Kripke-style logical relations.
+
+% Dependency on \cref{prop:badweak} can be accidentally introduced when
+% defining valid substitutions. Consider the following alternative
+% definition of valid substitutions, which replaces the universal
+% quantifier for $i$ and $S$ from \cref{def:semwf} with an existential
+% quantifier.
+% \begin{definition}[Valid Substitutions (Existential)]
+%   \label{def:semwfex}
+%   A substitution map is a valid substitution
+%   from $[[G]]$ to $[[D]]$,
+%   written $\sws{[[D]]}{\rho}{[[G]]}$,
+%   if for every $[[x : l A in G]]$,
+%   $[[| D | |- rho(x) : l]]$ holds,
+%   and there exists $i$, $S$ such that
+%   $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$ and
+%    $\member{\rho(x)}{[[l]]}{S}$.
+% \end{definition}
+% The existential variant of valid substitutions implies our existing
+% universally quantified definition of valid substitutions since the
+% logical predicate is a partial function (\ref{lem:lrfunc}).
+
+\subsection{Typed definitional equality
+  and relational semantic models}
+
+\label{sec:typeddefeq}
+Following \citet{liu:dcoi}, we formulate \name as an instantiation of
+\citeauthor{barendregt:PTS}'s Pure Type Systems with a predicative
+universe hierarchy.
+A variation of PTS, referred to as Pure Type Systems with Judgmental
+Equality by \citet{adams:pure}, replaces the untyped conversion rule from PTS
+with a typed equality judgment. While untyped conversion
+is used in practice by theorem provers such as Coq,
+typed equality enables more expressive $\eta$ laws
+that otherwise cannot be expressed.
+
+\citet{siles:PTS} proves the equivalence between typed and untyped
+Pure Type Systems in the absence of $\eta$ laws.
+Would a similar equivalence hold between \name and a variant with typed equality?
+It turns out that even defining judgmental equality for \name
+is challenging. Consider the following
+typed congruence rule for application, which na\"ively adds type
+annotations to \rref{I-App}.
+
+{\centering
+\drule[width=\textwidth]{I-AppTy}\par
+}
+
+Ignoring the levels, \rref{I-AppTy} is exactly how the application
+equivalence rule is defined for a PTS with judgmental equality. However,
+\rref{I-AppTy} breaks the
+type correctness property, which states that $[[G |- a == b @ l : A]]$
+implies $[[G |- a : l A]]$ and $[[G |- b : l A]]$.
+
+When $[[not (l0 <= l)]]$, the function
+arguments are not observable, so we do not need to check the
+equality between $[[a0]]$ and $[[a1]]$ other than their respective
+well-typedness. However, \name does not prohibit the type $[[B]]$ from
+depending on the variable $[[x]]$ as the type $[[Pi x : l0 A . B]]$
+can be well formed at a level unrelated to the observer level $[[l]]$
+by \nameref{lem:regularity}.
+As a result, there is no guarantee that $[[B {a0 / x}]]$ and $[[B {a1
+  / x}]]$ are indistinguishable types.
+
+As a simple counterexample, we can pick $[[b0]]$ and $[[b1]]$ to be
+level $[[L]]$ polymorphic identity functions with a level $[[H]]$
+(thus irrelevant)
+type parameter. Instantiating $[[a0]]$ and $[[a1]]$ with distinct
+types, we end up with two distinct function types $[[B {a0 / x}]] = [[L
+a0 -> a0]]$ and $[[B {a1 / x}]] = [[L a1 -> a1]]$. Type correctness
+breaks as soon as we add input type annotations to
+functions. \citet{abel:irrelevance} observed a similar issue in the
+design of their type-directed conversion algorithm. Their workaround is
+to simply reject programs whose types depend on irrelevant arguments.
+
+The problem of extending \name with judgmental equality also
+directly relates to the problem of defining a relational model for justifying properties
+such as extensionality, or a generalized semantic notion of noninterference
+that goes beyond our syntactic \nameref{lem:simulation} property.
+Since logical relations are indexed by types,
+when defining the interpretation for functions, we run into the same
+issue where run-time irrelevant arguments that are vacuously related by guarded
+equality may result in distinguishable types after being substituted
+into the output type.
+
+Rather than patching \rref{I-AppTy} with side conditions until
+syntactic properties such as type correctness are satisfied, a more
+pressing problem is whether \rref{I-AppTy} is semantically sound.
+The counterexample above for polymorphic identity functions
+shows that $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not necessarily
+\emph{syntactically} inhabit both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$. However,
+semantically, two instantiated identity functions with different type
+annotations do not behave differently at run time.
+
+In fact, we believe it is impossible to construct an
+example where $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not behave
+like terms from both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$.
+To be more adversarial, suppose that $[[B]]$ contains a large elimination so that $[[B
+{a0 /x}]]$ and $[[B {a1 / x}]]$ are incompatible types. If $[[b0 l0
+a0]]$ and $[[b1 l0 a1]]$ evaluate to different head forms, then
+\DIFdelbegin \DIFdel{break }\DIFdelend semantic soundness would fail. However, knowing that $[[b0 l0 a0]]$ and
+$[[b1 l0 a1]]$ are indistinguishable at $[[l]]$ \emph{already} rules out the
+case where they have different head forms. Therefore, such a counterexample
+cannot be derived.
+
+As a result, despite the technical issues demonstrated in this section,
+we are optimistic that our logical predicate can be further extended to
+a relational model to justify more complex properties.
+
+% To solve the problem on the syntactic side, it is tempting to add a side
+% condition to \rref{I-AppTy} to ensure the
+% the indistinguishability between $[[B {a0 / x}]]$ and $[[B{a1 / x}]]$,
+% a fact that is no longer admissible in \name, unlike PTS with
+% judgmental equality. However, this simple remedy still does not give a
+% satisfying answer to defining a relational semantic model.
+
+\subsection{Casting with irrelevant equalities}
+\label{sec:castirrel}
+
+Equality type has the special property that
+there is only one canonical form $[[refl]]$.
+The fundamental theorem guarantees that a closed proof of equality can only evaluate to
+$[[refl]]$. As a result, the elimination form $[[J c l p]]$ can be
+erased to contain only the body $[[c]]$
+since no information is gained from
+matching against a singleton type.
+
+Despite the erasability of equality proofs at runtime,
+\dcoi does not allow casting a relevant term using an irrelevant proof.
+In \cref{sec:scrutinee-level}, we see that this restriction is
+necessary for the simulation property to hold since an open equality
+proof can normalize to either $[[refl]]$ or to a neutral term.
+
+Do we need to evaluate equality proofs? Suppose that we
+modify the operational semantics of \name
+by replacing \rref*{P-JRefl} and the congruence rule with the single rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
+\sw{Maybe we should write this rule as a rule and give it name, if we have space.}
+so that the J eliminator is erased during evaluation without having
+to reduce $[[p]]$.
+In a system with this rule, because the equality proof is discarded during evaluation, it can be ignored by
+indistinguishability and still validate the simulation property.
+
+The addition of this rule does not invalidate logical consistency or the fact that
+our equational theory is consistent. However, in the presence of this rule,
+we lose decidable type conversion.
+With a proof of $A = A \rightarrow A$ in the context,
+one can define a well-typed term that reduces to the diverging
+term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$,
+since the J eliminator no longer gets stuck at a bogus equality proof.
+This rule also violates type preservation: given a term $[[a]]$ of type
+$[[Nat]]$ and a bogus assumption $x$ of type $[[Nat ~ l Void]]$, we
+have $[[J a l x => a]]$ where the former is of type $[[Void]]$ but the
+latter is of type $[[Nat]]$.
+
+\citet{werner:proofirrel} attempts to address these problems while still
+allowing the irrelevant treatment of equality proofs. In his system, the
+elimination form for equalities is annotated with the terms appearing
+in the equality. Reduction does not examine the equality proof,
+but instead proceeds when the terms on both sides of the equality are convertible.
+Werner's rule requires that the terms in the equality be relevant, which is
+not always desirable.
+% Furthermore, as shown by \citet{abel:failurenorm}, the more
+% restrictive reduction rule by \citet{werner:proofirrel} still violates
+% normalization for impredicative systems.
+
+It is possible to recover decidable type conversion for a non-strict
+elimination rule through annotations~\citep{liu:dependently}, or by exploring
+beyond intensional equality types~\citep{pujet:ttobs}. In future work, we
+would like to explore the extension of \name with these alternative versions
+of propositional equality.
+
+\section{Related Work}
+
+\paragraph{Dependent types and irrelevance}
+\label{sec:discuss-irrel}
+
+Many dependent type systems include a notion of irrelevance, although the term
+has been used inconsistently and refers to either run-time irrelevance or
+compile-time irrelevance. The former refers to the erasure of
+computationally-irrelevant terms during compilation to optimize code.
+The latter erases or ignores irrelevant terms during type conversion to accept
+more programs. Here, we liberally use relevance tracking to refer to both
+concepts.
+
+The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc}, its decidable
+variant ICC*~\citep{barras:icc}, and the Erasure Pure Type System
+(EPTS)~\citep{mishra:erasure} support irrelevance by including two abstraction
+forms, distinguishing functions that do and do not use their arguments.  ICC
+and ICC* ensure that irrelevant variables do not syntactically appear in
+relevant computations, whereas EPTS uses a design based on
+\citet{pfenning:modal} to prevent variables marked with the irrelevant
+modality from being used relevantly.  Despite the difference in mechanisms,
+the languages are similar in expressiveness. In the type of an irrelevant
+abstraction, $\forall x\!\!:\!\!A.B$, the parameter $x$ may relevantly
+appear in $B$. Thus, there is no way to express that the output \emph{type}
+of a function does not depend on its input.  ICC and ICC* allow
+compile-time irrelevance by erasing irrelevant components before
+conversion. But, these systems cannot support irrelevent projections
+as erasure would allow conversion between distinct types.
+%% SW: I don't know what you mean by this part?
+% \citet{mishra:erasure} discusses a variant of their
+% conversion rule that would allow compile-time irrelevance in EPTS, a
+% design that is later employed by \citet{weirich:systemd, choudhury:ddc}.
+
+In contrast, Pfenning's modal type system~\citep{pfenning:modal} and its
+extension by \citet{abel:irrelevance} forbids irrelevant parameters from
+appearing in both the body of an abstraction \emph{and} its result type.
+As a result, irrelevent function types cannot model type polymorphism,
+and the system does not include irrelevant projections.
+% so they can be erased for both program extraction and type
+% conversion.
+%% The focus of Pfenning and Abel's systems is conversion only. They
+%% don't talk about runtime erasure very much, and Agda uses a complete
+%% separate mechanism.
+Furthermore, as pointed out by
+\citet{tejiscak:erasure}, Pfenning's style of relevance tracking
+prevents the definition of type families indexed by an
+irrelevant argument. One such example is the binary type
+\lstinline{Bin n}, whose index \lstinline{n} keeps track of the
+natural number it corresponds to. To avoid exponential overhead during
+execution, the index \lstinline{n} should be marked as irrelevant.
+However, this is impossible with Pfenning's system
+as irrelevant arguments are convertible, but
+\lstinline{Bin n} and \lstinline{Bin m} are different types for
+different \lstinline{m} and \lstinline{n}.
+
+\citet{liu:dcoi} design \dcoi by observing that the
+failure of encoding irrelevant type indices is due to a fixed view of
+relevance. They generalize the notion of irrelevance as a relative
+notion indexed by an observer level. A term and its type can have
+different views of irrelevance.  The indistinguishability judgment
+uses the observer level to determine which components of a term can be
+discarded during type conversion. This allows \dcoi, and thus \name, to encode
+\lstinline{Bin} while
+still allowing compile-time irrelevance for arguments that are irrelevant for
+both terms and types.
+
+% Type parameters marked as
+% irrelevant are allowed to appear in the type signature but are erased
+% before program execution. In those systems, erasure of irrelevant
+% arguments is unsound for type conversion, as
+
+% One specific use case of dependency tracking in dependently typed
+% languages is relevance tracking.
+
+% The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc} and
+% its decidable variant ICC*~\citep{barras:icc} extend the Extended
+% Calculus
+% of Constructions~\citep{luo1990:extended} with an implicit quantifier that
+% is intended for irrelevant function arguments. A syntactic check is
+% performed to ensure that an irrelevant binder is free in the function
+% body after erasure. The type formation rules in both ICC and
+% ICC* permit the function's codomain type to treat an irrelevant binder
+% as relevant. This permissive design allows them to treat type
+% variables appearing in parametric polymorphism as irrelevant while
+% still ensuring the well-formedness of types, which may depend on
+% those type variables. In \name, the same flexibility is achieved by
+% decoupling the observer level used to type check terms and types (\nameref{lem:regularity}):
+% a type variable can be irrelevant relative to a term's observer level
+% while still being relevant relative to its type's observer level.
+% Both ICC and ICC* use untyped $\beta$-equivalence as definitional equality
+% and therefore do not leverage erasure during type conversion.
+
+% \citet{pfenning:modal} introduces a modal type theory where function types
+% and typing contexts are annotated with relevance levels. In his system,
+% there are separate judgment forms $\Gamma \vdash a : A $ and
+% $\Gamma \vdash a \div A$, which represent typing for \textit{terms}
+% and \textit{proofs} respectively. Pfenning's type system is
+% not parameterized by levels and only relevant variables can be used.
+% The judgment for proofs (\ie irrelevant terms) $\Gamma \vdash a \div A$
+% is defined as a synonym for $\Gamma^\oplus \vdash a : A $, where
+% $\Gamma^\oplus$ is obtained by changing all relevance
+% annotations in $\Gamma$ to be relevant. The operation that resets the
+% relevance levels in the context is referred to as \emph{resurrection} and
+% allows terms in irrelevant positions to use variables that are
+% formerly marked as irrelevant.
+
+% \citet{abel:irrelevance} extend Pfenning's system with a predicative
+% universe hierarchy. They prove the consistency and decidability of a
+% type-directed conversion algorithm for their extended system through a
+% Kripke-style logical relation. Similar to \citet{pfenning:modal}, the
+% system by Abel and Scherer satisfies soundness of \emph{internal erasure},
+% meaning that erasure of irrelevant terms can be carried out for open terms
+% without sacrificing consistency or decidability.
+% \name also enjoys the internal erasure
+% property. In fact, the consistency of \name relies on the soundness of
+% internal erasure since type conversion is defined using the
+% indistinguishability judgment.
+
+% While \citet{abel:irrelevance} use Pfenning's resurrection mechanism
+% for internal erasure, the Erasure Pure Type Systems (EPTS) by
+% \citet{mishra:erasure} use the mechanism only for run-time
+% erasure. Like ICC, EPTS uses untyped $\beta$-equivalence as its
+% definitional equality; relevance levels do not affect type conversion.
+
+\citet{mishra:erasure} distinguish between extrinsic and intrinsic
+relevance tracking. The former determines relevance purely based \DIFdelbegin \DIFdel{purely }\DIFdelend on
+how terms are used. All systems we have discussed so
+far, including \dcoi and \name, are extrinsic systems.
+
+An example of the intrinsic approach is
+the $[[Prop]]$ sort, introduced by \citet{paulin-mohring:coc},
+which identifies computationally irrelevant terms that
+should be erased during program extraction.
+The soundness of erasure during program extraction (referred to as
+\emph{external} or \emph{post-mortem erasure} by
+\citet{abel:irrelevance}) is ensured by a form of dependency
+tracking. In Coq, for example,
+only singleton types (\eg equality proofs) or empty
+types in $[[Prop]]$ can be destructed to produce run-time
+relevant terms.
+As discussed in \cref{sec:castirrel},
+Coq's $[[Prop]]$ sort is limited to run-time irrelevance for
+decidability of type checking. \citet{werner:proofirrel}'s type theory with
+a proof-irrelevant $[[Prop]]$ fails to satisfy normalization when
+$[[Prop]]$ is impredicative, a result later shown by \citet{abel:failurenorm}.
+
+% the $[[Prop]]$ sort in Coq does not affect type conversion. Erasing
+% terms with sort $[[Prop]]$ during type conversion could cause type
+% conversion to diverge.
+% With a variable of type $A = A \rightarrow A$
+% in the context, it is possible to construct a term that erases to the
+% diverging lambda term $(\lambda x \mathpunct{.} x \, x) \, (\lambda x \mathpunct{.} x \, x)$.
+% \citet{werner:proofirrel} describes a proof-irrelevant type theory
+% where the reduction relation, used in type conversion, erases
+% terms of sort $[[Prop]]$. Werner attempts to address the
+% decidability issue of erasing equality proofs by guarding the
+% $\beta$-reduction rule for equalities with the precondition that both sides
+% of the equality are convertible. However, his conjecture of normalization
+% of the system in the presence of equality
+% erasure is refuted by \citet{abel:failurenorm}.
+
+\citet{gilbert:sprop} introduce the language sMLTT, an extension to
+MLTT with a proof-irrelevant sort $[[SProp]]$. Similar to
+Werner's system, inhabitants of a type $A : [[SProp]]$ are
+treated as definitionally equal. They
+introduce an alternative criterion to singleton
+elimination, which characterizes inductive types that can be safely
+eliminated from $[[SProp]]$ into the relevant universe while
+preserving decidability.
+They show the
+consistency of their design for both predicative and impredicative
+variants of $[[SProp]]$ through a syntactic translation to
+Extensional Type Theory. Similar to \name, their system
+allows the empty type to be eliminated from $[[SProp]]$ to the
+relevant universes. % An optional consistent extension to their system allows
+% an equality type that inhabits $[[SProp]]$ to be eliminated
+% to produce a relevant expression. However, their decidability proof,
+% based on \citet{abel:irrelevance}, does not cover the equality
+% extension.
+% In the Agda and Coq implementations of $[[SProp]]$,
+% neither support elimination from non-empty strict propositions to the
+% relevant sort.
+% \citet{pujet:ttobs, pujet:ccobs} allow the irrelevant proofs of
+% observational equalities to cast the type of relevant terms while
+% retaining decidable type conversion.
+
+Bracket types and squash types~\citep{awodey:propastype,
+  mendler:quotient} introduce bracket and squash operators that
+remove computational information from types. Inhabitants of a
+squashed type are definitionally equal. To ensure consistency,
+elimination is restricted so that computationally-relevant
+terms cannot access the hidden content. Squash types can also be viewed
+as an intrinsic treatment of irrelevance since a squashed type is always
+irrelevant regardless of usage.
+
+Despite the differences between extrinsic and intrinsic irrelevance,
+they bear many similarities. For example, irrelevant function
+types can be implemented as regular function types with a squashed input type in
+the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. For the
+other direction, the squash operator can be implemented in the form of
+a weak irrelevant dependent pair~\citep{abel:irrelevance}, similar to
+our encoding of the box type.
+% In \name,
+% the admissible box type is reminiscent of the squash type,
+% though the information is never truly squashed but only temporarily
+% hidden from low observers. Finally, none of the works mentioned so far
+% explores the interaction between extrinsic irrelevance and universe
+% levels. On the other hand, an impredicative $[[Prop]]$ sort
+% increases the logical strength of the type system and can be proven consistent
+% through a proof-irrelevant model~\citep{miquel:proof-irrel-model, timany:pcuic-consistency}.
+
+% \citet{mishra:erasure} argue that the extrinsic approach should be
+% preferred as it avoids the need to duplicate data type and function
+% definitions for both relevant and irrelevant sorts. This idea is
+% further advocated by \citet{tejiscak:erasure}, who
+% also points out that the proof-irrelevance mechanisms by \citet{pfenning:modal,
+%   abel:irrelevance} are too restrictive for expressing the erasability
+% of irrelevant type indices. The same issue is not present in \name
+% since types and terms can be checked at different levels. A run-time
+% irrelevant variable can still be used relevantly at the
+% type level. However, we note that our observation in
+% \cref{sec:castirrel} is consistent with
+% \citeauthor{tejiscak:erasure}'s view that internal erasure is more limited
+% than external erasure. Since external erasure does not affect
+% typing, it is possible to erase more aggressively
+% without affecting metatheoretic properties such as decidability or
+% logical consistency.
+
+% Unlike in ICC, ICC*, EPTS, and \name, an irrelevant binder in \citet{pfenning:modal,
+%   abel:irrelevance}'s systems must be treated as
+% irrelevant in both a function's body and its output type. As a result,
+% a run-time erasable type variable must be marked as relevant if the
+% variable appears relevantly in the type signature. One such example is
+% the type variable from the polymorphic identity
+% function. \citet{abel:irrelevance} observe that allowing
+% run-time irrelevant but compile-time relevant binders
+% makes it difficult to define a
+% type-directed checking algorithm, an issue that is side-stepped by our
+% use of an untyped conversion rule. In Section~\ref{sec:typeddefeq}, we
+% observe a technical issue related to extending \name with typed
+% equality, though we formulate this issue in the simpler context of a
+% declarative judgmental equality.
+
+% \citet{paulin-mohring:coc} introduces the
+% $[[Prop]]$ to distinguish between computationally relevant and
+% irrelevant types during program extraction. This mechanism is used in
+% the Coq proof assistant to ensure that proofs do not appear in
+% extracted programs.
+
+\paragraph{Dependent types and counting}
+
+Quantitative type systems provide a type of fine-grained static analysis that counts the
+number of times a computation uses each of its inputs. For flexibility, counting
+uses an abstract semiring, generalizing type systems for bounded linearity,
+information flow, and differential privacy. Using a boolean semiring, quantitative
+type systems can track dependency and perform external erasure.
+
+\citet{mcbride:plentyo} extends a dependently typed system with usage
+tracking for computationally relevant terms.
+% Usage tracking is disabled in type formation rules and
+% therefore allows him to embed his system into a predicative type
+% theory, whose normalization property is given by
+% \citet{abel:normalization}.
+However, the typing judgment in his system
+fails to admit the substitution property, an issue that is later
+addressed by \citep{atkey:qtt} in the design of the
+Quantitative Type Theory
+(QTT). The typing judgment in QTT takes the form
+$\Gamma \vdash M :^{\sigma} T$ where $\sigma$ ranges over the
+constants $0$ and $1$ from the semiring, reminiscent of \citeauthor{pfenning:modal}'s
+$\div$ and $:$ modalities.
+% In QTT, usage annotations are only enforced at the term level, not at the
+% type level. In the following QTT formation rule for function
+% types, the usage annotation $\pi$ for the variable $x$ is ignored and
+% set to $0$ when checking the output type $T$.
+% \begin{mathpar}
+%   \infer{
+%     0 \Gamma \vdash S \\
+%     0 \Gamma \vdash x:^0 S \vdash T
+%   }{
+%     0 \Gamma \vdash (x :^\pi S) \rightarrow T
+%   }
+% \end{mathpar}
+Similar to the system by \citet{mcbride:plentyo}, usage tracking does
+not apply to types and is disabled in type formation rules.
+
+GraD~\citep{choudhury:grad} later gives a more uniform design where
+type formation rules are presented in the style of a PTS and share the
+same judgment form as typing for terms. This allows one to analyze
+usage information for a type expression. % \citet{choudhury:grad}
+% point out the possibility of leveraging usage information for type
+% conversion.
+Unlike QTT, the type soundness of resource tracking in GraD is
+proven using a syntactic approach through heap semantics. No instances
+of GraD have been proven consistent as a logic.
+
+Graded Modal Dependent Type Theory (GRTT)~\citep{moon:graded} is a
+predicative type theory that tracks
+resource usage separately for types and terms.
+The fine-grained
+usage tracking allows one to recover parametricity by rejecting
+undesired type- or term-level access of
+variables. \citet{moon:graded} take
+advantage of the usage information to optimize type checking
+through their prototype implementation. % For example,
+% given a dependent function type $(x : A) \rightarrow B$, if
+% $x$ has $0$ usage in $B$, then the substitution $[[B {t / x}]]$
+% can be ignored.
+However, this optimization, while reminiscent of the proof irrelevance
+feature discussed in \cref{sec:discuss-irrel}, is not
+formalized. Type conversion in GRTT is oblivious of the usage
+information. The lack of interaction between modalities and type
+conversion allows them to recover strong normalization by adapting
+strong normalization for CC by \citet{geuvers:cc-sn}.
+
+\citet{abel:grade} introduce a graded modal dependent
+type theory that also allows tracking usage for both terms and
+types. % This language supports large elimination, though its definitional
+% equality, like GRTT, is also defined independently of the
+% modalities.
+Since modalities do not interact with type conversion,
+they reuse the technique in \citet{abel:dectt} to mechanically prove
+metatheoretic results including normalization and decidable type
+conversion for a standard dependently typed language that is free of
+usage tracking.  Grading is then defined separately from the typing
+judgment and their semantics is refined to account for usage. In
+\name, since type conversion relies on indistinguishability,
+properties about dependency tracking must be developed before we
+define our semantic model.
+
+\paragraph{Dependent types and indistinguishability}
+
+% Compared to the languages that track
+% relevance (Section~\ref{sec:discuss-irrel}), the most notable
+% feature of \dcoi and \name is the ability to reason about dependency
+% from different observer levels that range over a lattice through the
+% internalized indistinguishability judgment.
+% In \citet{abel:irrelevance, gilbert:sprop}, equalities are always based
+% on an observer who can only access relevant information.
+
+The design of \dcoi~\citep{liu:dcoi} and its instantiation \name is
+directly inspired by the Dependent Dependency Calculus
+(DDC)~\citep{choudhury:ddc}. Similar to \dcoi,
+DDC supports both run-time and compile-time irrelevance. However, it achieves
+this goal by combining two different mechanisms.
+For run-time irrelevance, DDC uses a mechanism similar to
+EPTS~\citep{mishra:erasure} to allow erasable irrelevant type indices.
+For compile-time irrelevance, it uses the resurrection mechanism from
+\citet{pfenning:modal, abel:irrelevance}.
+% mechanism for run-time dependency tracking is based on
+% the same mechanism found in simply typed languages such as the Sealing
+% Calculus~\citep{shikuma:noninterference}.
+% Unlike \citet{abel:irrelevance}, DDC
+% indexes its typing judgment by an observer level drawn from an arbitrary
+% lattice so it can analyze dependency from different view
+% points. Unlike the systems discussed in Section~\ref{sec:discuss-irrel},
+% DDC's run-time dependency tracking mechanism is flexible and allows
+% one to encode strong irrelevant projections and irrelevant type
+% indices.
+% A disjoint mechanism based on \citet{pfenning:modal} is
+% introduced to separately track compile-time irrelevance. This requires
+% DDC to augment the lattice structure with two upper bounds $C$ and $T$
+% such that $C < T$. The typing judgment can never be indexed by the top
+% element $T$ from the augmented lattice. Instead, Pfenning's
+% resurrection mechanism is used to resurrect the context to the level
+% $C$.
+While their system includes a indistinguishability relation
+similar to ours, their type
+conversion rule performs conversion at some fixed level
+$C$. \citet{liu:dcoi} show that as a result,
+it is difficult to generalize DDC's conversion rule to support
+indistinguishability at different levels, necessary for
+the elimination of indexed equality types.
+
+% The restrictive conversion rule makes it difficult to define the
+% elimination form for an indexed equality type since levels below $C$
+% do not affect conversion. In the other direction, the compile-time irrelevance fragment
+% does not enjoy the same flexibility as the run-time irrelevance
+% fragment.
+% For example, strong irrelevant projection is not admissible when the
+% irrelevance level is $T$.
+
+% \citet{liu:dcoi} introduce a unified mechanism for handling both
+% run-time and compile-time dependency tracking. The generalized type
+% conversion rule based on indistinguishability allows one to define
+% elimination rules for indexed equality types. This unified mechanism
+% also retains the flexibility of DDC's run-time dependency tracking
+% mechanism. It supports irrelevant type parameters and strong
+% irrelevant projections at any levels from the lattice. However, their
+% metatheoretic results are limited to syntactic soundness and the
+% consistency of the equational theory.
+
+% DDC combines the dependency tracking
+% mechanism from  and Pfenning's resurrection
+% mechanism in the same language. The observer level of the typing
+% judgment ranges over a lattice structure augmented with two upper
+% bounds $C$ and $T$ with $T$ being the top element.
+
+% combines the
+% dependency tracking mechanism found in simply typed languages such as
+% the Dependent Core Calculus~\citep{abadi:dcc} and the Sealing
+% Calculus~\citep{shikuma:noninterference} and the proof-irrelevance
+% mechanism found in dependently typed languages \citet{pfenning:modal}.
+
+% and then \citet{liu:dcoi} \todo{complete the discussion about DDC and DCOI}
+Type-theory in color (TTC)~\citep{bernardy:color} indexes the judgments of the
+Calculus of Constructions with sets of colors, called taints, to support run-time erasure
+and internalize parametricity. TTC does not include compile-time irrelevance.
+While \name does not internalize parametricity, TTC's
+dependency tracking through taints is similar to dependency levels in \name.
+% Taints are sets of colors, which represent the
+% resources that a computation may depend on.
+% Taints can be viewed as a lattice with set intersection and union as
+% meet and join.
+% The typing judgment in TTC takes the form $\Gamma
+% \vdash a :_\theta A$ where $\theta$ is a metavariable representing
+% taints, a set of colors. The taint determines the variables that the term $a$ may
+% access.
+However, in TTC, variables can be used only if their
+taint \emph{exactly} matches the current taint. Functions keep track of a
+set of anti-taints, colors that the argument is oblivious to, in
+addition to the set of colors that the argument depends on.
+The erasure operator $\lfloor a
+\rfloor_i$ erases all components dependent on the color $i$ from the
+term $a$ and also serves the purpose of interpreting types as
+predicates. The ability to shift the view by choosing which color to erase is like
+the observer level from the indistinguishability
+judgment of \name.
+% The internalized reasoning about
+% erasure is achieved by adding a parametricity rule to the type
+% system.
+Furthermore, like \citet{pfenning:modal,
+abel:irrelevance} and unlike \name, in TTC, the same taint is used for
+checking a term and the well-formedness of its type. In \name, the
+observer level between terms and types are decoupled.
+
+% The set of taints form a lattice with set
+% intersection and union as meet and join.
+
+% Taints form a lattice with
+% the set union and intersection operations and thus is highly related
+% to the dependency tracking mechanism found in \name.
+
+\paragraph{Dependent types and mechanized logical relations}
+\citet{barras:coq-coq} proves strong normalization for the Calculus of
+Constructions in Coq using  a generalized
+notion of Girard's reducibility candidates~\citep{girard:proofs}
+to model the system. Similar to \citet{geuvers:cc-sn}, Barras
+leverages the fact that CC does not have large eliminations, so
+that terms can be erased from type level computations.
+The technique is not applicable to systems with large eliminations. % and thus requires resolving the
+%mutual dependency between the semantic well-formedness and the interpretations of types.
+% \sw{Is the predicative universe relevant here? or just large eliminations?}
+
+Mechanizing a logical relation for a dependently typed language with large
+eliminations is difficult because it requires one to specify the set of
+semantically well-formed types while simultaneously interpreting those
+types as sets of terms.
+Therefore, \citet{abel:dectt} use induction--recursion in Agda to define a Kripke-style
+logical relation for a dependent type theory with judgmental equality and
+large eliminations. The inductive part specifies the set of valid types and
+the recursive part assigns meanings to the types. \citet{abel:grade} builds
+off their mechanization to prove decidable type checking, consistency, and
+preservation for a graded modal type theory.
+
+Similar to our approach, \citet{anand:corenuprl,
+wieczorek:coqnbe, adjedj:mltt-coq} define their logical relations
+as an inductive type in Coq and then prove functionality \aposteriori.
+% One can view this definition as
+% defining the logical relation as a partial function, whose
+% functionality is proven \aposteriori.
+Compared to \citet{abel:dectt}'s
+inductive--recursive model, this approach requires less power from the
+metalanguage~\citep{adjedj:mltt-coq}. However, an impredicative
+$[[Prop]]$ sort is required to model an object language with infinitely
+many universe levels~\citep{anand:corenuprl}.
+
+\section{Conclusion}
+
+In this work, we define \name, an instantiation of \dcoi with a
+predicative universe hierarchy, and extended with more expressive
+elimination forms. We use a syntactic logical predicate to show that
+\name satisfies normalization, logical consistency, and decidable type
+conversion in addition to the syntactic soundness results previously established; these results are all mechanized in Coq.
+Logical consistency makes \name suitable for both
+programming and internalized verification.
+\jc{I don't think logical consistency says anything about programming
+and we probably shouldn't mention information flow
+if all of our examples have been about irrelevance?}
+\sw{I removed information flow, but I'd like to get a hint of trellys
+style termination modalities here...}
+
+In future work, we plan to further explore the use of \name as the foundation for a practical system. First, we will show that the annotations employed by our prototype implementation support full
+decidable type checking in the style of a bidirectional system
+\citet{dunfield-krishnaswami:bidirection,adjedj:mltt-coq}. In this context we can then explore various extensions of the system, including dependency level inference, dependency level quantification, and subtyping. We also plan to investigate applications of dependency tracking beyond irrelevance, such as safe interoperability, information flow and staged computation. \sw{Also mention inductive datatypes? Prop sort? type-directed equality? }
+
+% We complete the semantic side of the story by
+% proving logical consistency, normalization, and decidable type
+% conversion, thus making \name suitable as the core language of theorem provers.
+
+\begin{acks}
+The authors would like to thank the anonymous reviewers for their comments and suggestions.
+This work was supported by the \grantsponsor{}{National Science Foundation}{} under Grant Nos.~\grantnum{}{2006535} and \grantnum{}{2327738}.
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\ifsubmission
+\else
+\appendix
+
+\section{Omitted Judgment Rules}
+
+\subsection{Naturals} \label{app:naturals}
+
+\drules[Wt]{$[[G |- a : l A]]$}{Type checking}{Nat,Zero,Succ,Ind}
+\drules[P]{$[[a => b]]$}{Parallel reduction}{IndZero,IndSucc}
+\drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
+\drules[L]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
+
+\subsection{Context well-formedness} \label{app:wf}
+
+\drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
+
+\subsection{Parallel reduction} \label{app:par}
+
+\drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq,Nat,Zero,Succ,Ind}
+\drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
+
+\subsection{Level checking} \label{app:levelling}
+
+\drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq}
+
+\subsection{Normal and Neutral Forms} \label{app:neutrals}
+
+\drules[Ne]{$[[ne a]]$}{Neutral forms}{Var,App,Absurd,Seq,J,Let}
+\drules[Nf]{$[[nf a]]$}{Normal forms}{Pi,Abs,Univ,Void,Unit,TT,Eq,Refl,Sig,Pair}
+
+\subsection{Logical Predicate for Unit and Naturals} \label{app:logpredfull}
+
+\drules[N]{$[[wfnat a]]$}{Natural Values}{Ne,Zero,Succ}
+
+\begin{center}
+\fbox{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$} \hfill\textit{(Logical predicate)}
+  \begin{mathpar}
+    \infer[\ottdrulename{SWt\_Nat}]{~}{
+      \interp{[[E]]}{[[i]]}{[[Nat]]}{\buildset{[[a]]}{[[l]]}{[[E |- a :
+          l]] \wedge \exists [[b]], [[wfnat b]] \wedge [[a =>* b]]}}}
+  \end{mathpar}
+\end{center}
+\fi
+
+\end{document}
