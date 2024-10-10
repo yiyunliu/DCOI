@@ -10,7 +10,7 @@
 \submissiontrue       %% at most one of these must be true (neither for draft version)
 \publicfalse          %% but if you want to see comments, these should both be off
 
-% If we are going to make a version public, i.e. on arXiv, we should 
+% If we are going to make a version public, i.e. on arXiv, we should
 % make sure that there are no comments and our names are on it.
 \ifpublic
 \submissionfalse
@@ -18,7 +18,7 @@
 \anonymousfalse
 \fi
 
-%% If we are submission, make sure there are no comments and our names 
+%% If we are submission, make sure there are no comments and our names
 %% are NOT on it.
 \ifsubmission
 \publicfalse
@@ -211,7 +211,7 @@
   The Dependent Calculus of Indistinguishability (\dcoi) uses dependency
   tracking to identify irrelevant arguments and uses indistinguishability
   during type conversion to enable proof irrelevance, supporting run-time and
-  compile-time irrelevance with the same uniform mechanism. \dcoi also 
+  compile-time irrelevance with the same uniform mechanism. \dcoi also
   internalizes reasoning about indistinguishability through the use of a
   propositional equality type indexed by an observer level.
 
@@ -261,7 +261,7 @@ Furthermore, the \dcoi type system also uses indistinguishability in its
 conversion rule. If two types cannot be distinguished by some observer, then
 it is sound to replace one with another at compile time. Thus, \dcoi supports
 compile-time irrelevance, and may ignore irrelevant arguments when checking
-for type equality. \dcoi also internalizes indistinguishability as a type, 
+for type equality. \dcoi also internalizes indistinguishability as a type,
 with a level-indexed elimination form.
 
 \citet{liu:dcoi} use syntactic methods to show the soundness of \dcoi's type
@@ -341,7 +341,7 @@ results about this well-behaved instance of the system.
   reduced to normal form by the deterministic leftmost-outermost reduction
   strategy. From the standardization theorem and the weak
   normalization property, we show that type conversion is decidable.
-  Furthermore, we can extract from our Coq proof an OCaml function that can 
+  Furthermore, we can extract from our Coq proof an OCaml function that can
   be used as a decision procedure.
 \end{itemize}
 
@@ -352,8 +352,8 @@ Furthermore, we have extended the prototype type checker by
 suitable for experimenting with the newly introduced features,
 which is also available under the \texttt{impl} directory.
 \ifsubmission
-Finally, for reasons of space, not all rules specifying \name can be included 
-in this document. The remaining rules can be found in the reference appendix 
+Finally, for reasons of space, not all rules specifying \name can be included
+in this document. The remaining rules can be found in the reference appendix
 bundled in our supplementary material.
 \fi
 
@@ -363,9 +363,9 @@ We start with examples that demonstrate \name in action, with emphasis on its
 support for run-time and compile-time irrelevance.  To make these examples more
 realistic, our presentation uses the syntax of our prototype
 implementation, which is based on a bidirectional type system and
-relies on a constraint solver to infer level annotations.  
+relies on a constraint solver to infer level annotations.
 
-In these examples, we use the naturals as concrete dependency levels. For example, 
+In these examples, we use the naturals as concrete dependency levels. For example,
 we use level \texttt{L} for run-time relevant code and level \texttt{H} for irrelevant terms. Some level annotations are omitted when they can be inferred by the type checker, though many are retained for
 clarity.
 
@@ -391,8 +391,8 @@ are never used in a relevant function.
 
 Consider the following polymorphic identity function,
 with an irrelevant type argument (\lstinline{@H})
-and relevant term argument (\lstinline{@L}). This 
-function is defined at level \lstinline{@L}, which is the level of 
+and relevant term argument (\lstinline{@L}). This
+function is defined at level \lstinline{@L}, which is the level of
 its output.
 
 \begin{lstlisting}
@@ -484,15 +484,15 @@ in those scenarios.
 % \lstinline{f False} are convertible and therefore \lstinline{irr} is
 % well-typed.
 % On the other hand, if we instantiate \lstinline{?} by \lstinline{1},
-% then 
+% then
 
 % If we treat the \lstinline{@1} annotation on \lstinline{A} as being
 % always irrelevant, then we are at trouble since the type
-% \lstinline{A @ 0 -> A @ 0} would be ill-formed. 
+% \lstinline{A @ 0 -> A @ 0} would be ill-formed.
 
 % Existing systems either disallow irrelevant type
 % parameters~\citep{abel:irrelevance} or disable tracking on type
-% expressions completely~\citep{mcbride:plentyo, atkey:qtt}. 
+% expressions completely~\citep{mcbride:plentyo, atkey:qtt}.
 
 % For instance, a term at level \lstinline{1} is irrelevant to one at level \lstinline{0},
 % and a term at level \lstinline{2} is irrelevant to terms at both level \lstinline{0} and \lstinline{1}.
@@ -641,8 +641,8 @@ regardless of the level of its scrutinee.
 %(In \name, there is a single empty type. However, in our implementation, this principle applies to any inductive type that has no constructors.)
 This feature, new to \name, allows us to handle impossible match cases,
 even when the proof of impossibility is irrelevant.
-For example, consider taking the head of a nonempty list 
-given an irrelevant proof of its nonemptiness. The definitions of the 
+For example, consider taking the head of a nonempty list
+given an irrelevant proof of its nonemptiness. The definitions of the
 list type and its length are standard.
 
 \begin{lstlisting}
@@ -653,8 +653,8 @@ list type and its length are standard.
 \end{lstlisting}
 
 A safe \lstinline{head} function requires a proof
-that the length of the given list is not equal to zero, \emph{i.e.} that 
-\lstinline{(@H (@H (length Nat l) ~ zero) -> Empty)}. This proof 
+that the length of the given list is not equal to zero, \emph{i.e.} that
+\lstinline{(@H (@H (length Nat l) ~ zero) -> Empty)}. This proof
 should be irrelevant, so it is marked with \lstinline{@H}.
 In the \lstinline{nil} case, the type of the proof is
 \lstinline{(zero ~ zero) -> Empty},
@@ -693,10 +693,10 @@ The grammar is given in \cref{fig:grammar}.
 \end{figure}
 
 Following \citet{abadi:dcc}, \name is parameterized over a meet-semilattice of dependency levels, $[[l]]$.
-We use $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$. In the following examples, 
+We use $[[l0 /\ l1]]$ for the meet of $[[l0]]$ and $[[l1]]$. In the following examples,
 we use concrete levels low $[[L]]$ and high $[[H]]$, where $[[L < H]]$.
 
-Universe levels ($[[i]], [[j]], [[k]]$) are (meta-level) naturals 
+Universe levels ($[[i]], [[j]], [[k]]$) are (meta-level) naturals
 and $[[max i j]]$ computes the maximum of $[[i]]$ and $[[j]]$.
 
 Function types, abstractions, pair types, matching and induction are all
@@ -735,8 +735,8 @@ and consequently the typing judgment is not decidable.
 This minimalist design lends flexibility in which annotations
 a type checker implementation may choose to add to the syntax.
 
-\sw{We need to say up front that this typing judgment is not designed to be decidable as the 
-  syntax does not include enough annotations. We design it this way to highlight the relevant parts of 
+\sw{We need to say up front that this typing judgment is not designed to be decidable as the
+  syntax does not include enough annotations. We design it this way to highlight the relevant parts of
 the terms. We also have flexibility in where we add annotations, none or relevant so we can add as many or as few as we need depending on how sophisticated we would like the type checking algorithm to be.}
 
 The typing rules are defined mutually with the context well-formedness rules,
@@ -746,7 +746,7 @@ to the sort axioms $([[Univ i]], [[Univ i + 1]])$ for every $[[i]]$
 and the sort rules $([[Univ i]], [[Univ j]], [[Univ max i j]])$ for every $[[i]], [[j]]$.
 
 Except for the use of levels for dependency tracking, typing rules of \name
-are standard for dependent type theory. In the rest of this section, we 
+are standard for dependent type theory. In the rest of this section, we
 discuss how dependency levels interact with the rules of \cref{fig:typing:dep}
 in \cref{sec:dep}. We discuss how the conversion rule, which changes the type of a term to an equivalent one,
 uses a definitional equality defined in terms of indistinguishability in \cref{sec:indist}.
@@ -846,11 +846,11 @@ The typing rules also include \rref{Wt-Conv}, shown in \cref{fig:conv},
 which allows converting the type of a well-typed term to a definitionally equal type.
 Our definitional equality is untyped, but eventually relies on the levels of variables,
 so its judgment form \judgement{$[[E |- a == b]]$} requires a level context $[[E]]$ that maps variables to levels (only).
-In \rref{Wt-Conv}, this level context is produced by erasing the typing context, 
+In \rref{Wt-Conv}, this level context is produced by erasing the typing context,
 denoted \judgement{$[[| G |]]$}, and dropping all type annotations.
 
-Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv}, which 
-states that terms are equal when they reduce to terms that are 
+Definitional equality is defined by \rref{E-Conv} in \cref{fig:conv}, which
+states that terms are equal when they reduce to terms that are
 \emph{indistinguishable} by some observer $[[l]]$, defined in \cref{fig:indist} and described below.
 To make this level visible in the judgment, we also define \judgement{$[[E |- a <=> b @ l]]$}
 as a level-annotated form of definitional equality:
@@ -881,7 +881,7 @@ Multi-step parallel reduction \judgement{$[[a =>* b]]$} is the transitive closur
     % \drule{I-Univ}
   \end{gather*}
   % \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Var,Univ,Empty,Absurd,Pi,Abs,App}
-  % \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability}{Dist,Indist}    
+  % \drules[GI]{$[[E |- a == b @ l l0]]$}{Guarded indistinguishability}{Dist,Indist}
   \caption{(Guarded) indistinguishability rules (empty, functions)}
   \Description{}
   \label{fig:indist}
@@ -890,13 +890,13 @@ Multi-step parallel reduction \judgement{$[[a =>* b]]$} is the transitive closur
 Two terms are indistinguishable at observer level $[[l]]$ if they have the
 same shape and their subterms are also indistinguishable at $[[l]]$.  The only
 exception is \rref{I-App} that uses \emph{guarded indistinguishability},
-\judgement{$[[E |- a == b @ l]]$}, which is 
+\judgement{$[[E |- a == b @ l]]$}, which is
 mutually defined with indistinguishability in \cref{fig:indist}.
 
 Indistinguishability is \emph{coarser} than mere $\alpha$-equivalence
 (and hence $[[E |- a == b]]$ is coarser than mere $\beta$-equivalence of $[[a]]$ and $[[b]]$)
-because guarded indistinguishability sometimes identifies terms that are not 
-$\alpha$-equivalent. In \rref{I-App}, if the arguments are labeled at $[[l0]]$, but observed at $[[l]]$, 
+because guarded indistinguishability sometimes identifies terms that are not
+$\alpha$-equivalent. In \rref{I-App}, if the arguments are labeled at $[[l0]]$, but observed at $[[l]]$,
 guarded indistinguishability compares the arguments based on the relationship between $[[l0]]$ and $[[l]]$.
 If $[[l0 <= l]]$, meaning that the observer can fully see the arguments,
 then \rref{GI-Dist} applies, and the arguments must themselves be
@@ -913,7 +913,7 @@ Indistinguishability of unobservable arguments articulates the intuition that
 functions may safely ignore these arguments that they cannot meaningfully use.
 
 Indistinguishability is a partial equivalence relation. The source of
-partiality is due to the 
+partiality is due to the
 level comparison that occurs in \rref{I-Var},
 where a variable may only be indistinguishable from itself
 if the observer level is high enough to observe it.
@@ -947,8 +947,8 @@ undecidable relation
 that incorporates both $\beta$-reduction and conversion of irrelevant components,
 our formulation of type conversion is more structured and breaks
 down type conversion into two separate steps: reduction and
-checking indistinguishability. 
-This algorithmic version of indistinguishability 
+checking indistinguishability.
+This algorithmic version of indistinguishability
 allows us to reduce the problem of proving
 decidability of type conversion to the problem of finding a
 normalization procedure for well-typed terms
@@ -1176,8 +1176,8 @@ equal. The necessity of the flexibility is discussed in
 % this is a subtle technical issue,
 % which we defer to \cref{sec:scrutinee-level}.
 
-% \sw{Maybe we should say here that eliminating an equality proof always counts as an 
-% observation even though no branching happens. As a result we have decidable type checking 
+% \sw{Maybe we should say here that eliminating an equality proof always counts as an
+% observation even though no branching happens. As a result we have decidable type checking
 % and we don't have axiom K. }
 
 The other level constraint in \rref{Wt-J},
@@ -1500,7 +1500,7 @@ are free of redexes.
     }{
       \interp{[[E]]}{[[i]]}{[[Univ j]]}{\buildset{[[A]]}{[[l]]}{[[E |- A : l]] \wedge \interpU{[[E]]}{[[j]]}{[[A]]}}}
     }
-  \end{mathpar}  
+  \end{mathpar}
   \caption{Logical predicate}
   \Description{}
   \label{fig:logpred}
@@ -1512,10 +1512,10 @@ found in
 \ifsubmission the supplementary appendix A.6.
 \else \cref{app:logpredfull}.
 \fi
-Similar to \citet{abel:irrelevance}'s semantic interpretation of types, 
+Similar to \citet{abel:irrelevance}'s semantic interpretation of types,
 we define our logical predicate \judgement{$\interp{[[E]]}{[[i]]}{[[A]]}{S}$}
 as an inductive relation recursively defined over the universe level $[[i]]$,
-where $S$ is a family of terms indexed by dependency levels. 
+where $S$ is a family of terms indexed by dependency levels.
 The judgment \judgement{$\member{a}{[[l]]}{S}$} indicates that $[[a]]$ is
 a term belonging to the set in $[[S]]$ indexed by $[[l]]$.
 When constructing indexed sets, we use
@@ -1538,7 +1538,7 @@ avoid mentioning the type well-formedness side condition
 when talking about a term inhabiting the set interpretation of a type.
 
 \begin{definition}[Semantic inhabitance]
-  Given a context $[[E]]$ and a level $[[l]]$, 
+  Given a context $[[E]]$ and a level $[[l]]$,
   we say that $[[a]]$ \emph{semantically inhabits} the type $[[A]]$
   at level $[[l]]$ if there exists some $[[i]]$ and $[[S]]$ such that
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{a}{[[l]]}{S}$.
@@ -1546,7 +1546,7 @@ when talking about a term inhabiting the set interpretation of a type.
 
 In \rref{SWt-Pi,SWt-Sigma}, the
 metavariable $R$ represents a relation between terms and the
-indexed family of terms $S$. Ignoring the conclusion of the rules, 
+indexed family of terms $S$. Ignoring the conclusion of the rules,
 \rref*{SWt-Pi} and \rref*{SWt-Sigma} share the same preconditions
 ensuring their well-formedness:
 for every term $[[a]]$ that semantically inhabits the type $[[A]]$ at
@@ -1600,7 +1600,7 @@ Next, we show some properties which will be useful for proving the fundamental t
 We omit some uses of syntactic lemmas about reduction and indistinguishability
 in the proof sketches.
 
-The logical predicate satisfies the following inversion principles. 
+The logical predicate satisfies the following inversion principles.
 They are not immediately obtainable by inverting
 the derivation because we close our interpretation with parallel
 reduction in \rref{SWt-Step}. For brevity, we show only the cases
@@ -1794,7 +1794,7 @@ In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
 because of the scoping constraint imposed by level checking. Instead, we define
 $[[dummy]]$ as $[[absurd Void]]$. Note that the term appearing in the body of $\ottkw{absurd}$
-is flexible: all we need is a term in normal form 
+is flexible: all we need is a term in normal form
 that has no reference to variables, so we do not violate scoping.
 
 Finally, we state and prove the adequacy lemma.
@@ -1822,7 +1822,7 @@ Finally, we state and prove the adequacy lemma.
   terms $[[a]]$ that semantically inhabit $[[A0]]$, the term $[[B0 {a
     / x}]]$ is weakly normalizing. To show that $[[Pi x : l0 A0. B0]]$
   is weakly normalizing, it suffices to show that $[[B0]]$ is weakly
-  normalizing. 
+  normalizing.
 
   % Since the induction hypothesis for $[[B0]]$ is universally
   % quantified, we need to find a concrete term to instantiate $[[a]]$
@@ -1861,13 +1861,13 @@ and simultaneous substitutions.
 \begin{definition}[Valid substitutions]
   \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
   \label{def:semwf}
-  A substitution map is a valid substitution 
+  A substitution map is a valid substitution
   from $[[G]]$ to $[[D]]$,
   written \judgement{$\sws{[[D]]}{\rho}{[[G]]}$},
   if for every $[[x : l A in G]]$,
   $[[| D | |- rho(x) : l]]$ holds,
   and for all $i$, $S$ such that
-  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$, 
+  $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$,
   we have $\member{\rho(x)}{[[l]]}{S}$.
 \end{definition}
 
@@ -1918,7 +1918,7 @@ Valid substitutions satisfy the following admissible structural rules.
   definition of valid substitutions.
 \end{proof}
 
-% The dependency on the functionality property in the proof of \rref{V-cons} makes 
+% The dependency on the functionality property in the proof of \rref{V-cons} makes
 % it tempting to simply replace the universal quantifier in the definition
 % of valid substitutions with an existential quantifier. This change
 % would allow us to omit the well-gradedness side condition for each
@@ -1972,7 +1972,7 @@ $[[G]]$ to $[[D]]$, the validity of $[[rho]]$ does not necessarily
 imply the well-formedness of the types in $[[G]]$. % The universal
 % quantifier in the definition of $\sws{[[D]]}{\rho}{[[G]]}$ does not
 % imply that there always exists an interpretation
-% for types in $[[G]]$. 
+% for types in $[[G]]$.
 Instead, the existence of interpretations
 for types in $[[G]]$ is separately provided by the semantic
 context well-formedness judgment \judgement{$\swf{[[G]]}$}.
@@ -2172,7 +2172,7 @@ with a bottom element.
   B]]$ if \name is instantiated with a lattice with a bottom.
 \end{theorem}
 
-Independent of the underlying lattice structure, the 
+Independent of the underlying lattice structure, the
 indexed version of definitional equality is always decidable since it
 allows us to skip the level inference from step (\ref{item:min}).
 \begin{theorem}[Decidability of indexed type conversion]
@@ -2355,7 +2355,7 @@ since they both involve binders.
 % quantifier.
 % \begin{definition}[Valid Substitutions (Existential)]
 %   \label{def:semwfex}
-%   A substitution map is a valid substitution 
+%   A substitution map is a valid substitution
 %   from $[[G]]$ to $[[D]]$,
 %   written $\sws{[[D]]}{\rho}{[[G]]}$,
 %   if for every $[[x : l A in G]]$,
@@ -2408,7 +2408,7 @@ depending on the variable $[[x]]$ as the type $[[Pi x : l0 A . B]]$
 can be well formed at a level unrelated to the observer level $[[l]]$
 by \nameref{lem:regularity}.
 As a result, there is no guarantee that $[[B {a0 / x}]]$ and $[[B {a1
-  / x}]]$ are indistinguishable types. 
+  / x}]]$ are indistinguishable types.
 
 As a simple counterexample, we can pick $[[b0]]$ and $[[b1]]$ to be
 level $[[L]]$ polymorphic identity functions with a level $[[H]]$
@@ -2445,7 +2445,7 @@ example where $[[b0 l0 a0]]$ and $[[b1 l0 a1]]$ do not behave
 like terms from both $[[B {a0 / x}]]$ and $[[B {a1 / x}]]$.
 To be more adversarial, suppose that $[[B]]$ contains a large elimination so that $[[B
 {a0 /x}]]$ and $[[B {a1 / x}]]$ are incompatible types. If $[[b0 l0
-a0]]$ and $[[b1 l0 a1]]$ evaluate to different head forms, then 
+a0]]$ and $[[b1 l0 a1]]$ evaluate to different head forms, then
 semantic soundness would fail. However, knowing that $[[b0 l0 a0]]$ and
 $[[b1 l0 a1]]$ are indistinguishable at $[[l]]$ \emph{already} rules out the
 case where they have different head forms. Therefore, such a counterexample
@@ -2453,7 +2453,7 @@ cannot be derived.
 
 As a result, despite the technical issues demonstrated in this section,
 we are optimistic that our logical predicate can be further extended to
-a relational model to justify more complex properties. 
+a relational model to justify more complex properties.
 
 % To solve the problem on the syntactic side, it is tempting to add a side
 % condition to \rref{I-AppTy} to ensure the
@@ -2479,7 +2479,7 @@ In \cref{sec:scrutinee-level}, we see that this restriction is
 necessary for the simulation property to hold since an open equality
 proof can normalize to either $[[refl]]$ or to a neutral term.
 
-Do we need to evaluate equality proofs? Suppose that we 
+Do we need to evaluate equality proofs? Suppose that we
 modify the operational semantics of \name
 by replacing \rref*{P-JRefl} and the congruence rule with the single rule $[[J c l p => c]]$ % should this be fboxed/mathboxed?
 \sw{Maybe we should write this rule as a rule and give it name, if we have space.}
@@ -2488,8 +2488,8 @@ to reduce $[[p]]$.
 In a system with this rule, because the equality proof is discarded during evaluation, it can be ignored by
 indistinguishability and still validate the simulation property.
 
-The addition of this rule does not invalidate logical consistency or the fact that 
-our equational theory is consistent. However, in the presence of this rule, 
+The addition of this rule does not invalidate logical consistency or the fact that
+our equational theory is consistent. However, in the presence of this rule,
 we lose decidable type conversion.
 With a proof of $A = A \rightarrow A$ in the context,
 one can define a well-typed term that reduces to the diverging
@@ -2543,7 +2543,7 @@ abstraction, $\forall x\!\!:\!\!A.B$, the parameter $x$ may relevantly
 appear in $B$. Thus, there is no way to express that the output \emph{type}
 of a function does not depend on its input.  ICC and ICC* allow
 compile-time irrelevance by erasing irrelevant components before
-conversion. But, these systems cannot support irrelevent projections 
+conversion. But, these systems cannot support irrelevent projections
 as erasure would allow conversion between distinct types.
 %% SW: I don't know what you mean by this part?
 % \citet{mishra:erasure} discusses a variant of their
@@ -2556,17 +2556,17 @@ appearing in both the body of an abstraction \emph{and} its result type.
 As a result, irrelevent function types cannot model type polymorphism,
 and the system does not include irrelevant projections.
 % so they can be erased for both program extraction and type
-% conversion. 
-%% The focus of Pfenning and Abel's systems is conversion only. They 
+% conversion.
+%% The focus of Pfenning and Abel's systems is conversion only. They
 %% don't talk about runtime erasure very much, and Agda uses a complete
 %% separate mechanism.
 Furthermore, as pointed out by
-\citet{tejiscak:erasure}, Pfenning's style of relevance tracking 
+\citet{tejiscak:erasure}, Pfenning's style of relevance tracking
 prevents the definition of type families indexed by an
 irrelevant argument. One such example is the binary type
 \lstinline{Bin n}, whose index \lstinline{n} keeps track of the
 natural number it corresponds to. To avoid exponential overhead during
-execution, the index \lstinline{n} should be marked as irrelevant. 
+execution, the index \lstinline{n} should be marked as irrelevant.
 However, this is impossible with Pfenning's system
 as irrelevant arguments are convertible, but
 \lstinline{Bin n} and \lstinline{Bin m} are different types for
@@ -2589,7 +2589,7 @@ both terms and types.
 % arguments is unsound for type conversion, as
 
 % One specific use case of dependency tracking in dependently typed
-% languages is relevance tracking. 
+% languages is relevance tracking.
 
 % The Implicit Calculus of Constructions (ICC)~\citep{miquel:icc} and
 % its decidable variant ICC*~\citep{barras:icc} extend the Extended
@@ -2629,7 +2629,7 @@ both terms and types.
 % Kripke-style logical relation. Similar to \citet{pfenning:modal}, the
 % system by Abel and Scherer satisfies soundness of \emph{internal erasure},
 % meaning that erasure of irrelevant terms can be carried out for open terms
-% without sacrificing consistency or decidability. 
+% without sacrificing consistency or decidability.
 % \name also enjoys the internal erasure
 % property. In fact, the consistency of \name relies on the soundness of
 % internal erasure since type conversion is defined using the
@@ -2642,7 +2642,7 @@ both terms and types.
 % definitional equality; relevance levels do not affect type conversion.
 
 \citet{mishra:erasure} distinguish between extrinsic and intrinsic
-relevance tracking. The former determines relevance purely based on 
+relevance tracking. The former determines relevance purely based on
 how terms are used. All systems we have discussed so
 far, including \dcoi and \name, are extrinsic systems.
 
@@ -2712,7 +2712,7 @@ terms cannot access the hidden content. Squash types can also be viewed
 as an intrinsic treatment of irrelevance since a squashed type is always
 irrelevant regardless of usage.
 
-Despite the differences between extrinsic and intrinsic irrelevance, 
+Despite the differences between extrinsic and intrinsic irrelevance,
 they bear many similarities. For example, irrelevant function
 types can be implemented as regular function types with a squashed input type in
 the systems by \citet{gilbert:sprop, awodey:propastype, mendler:quotient}. For the
@@ -2760,7 +2760,7 @@ our encoding of the box type.
 % equality, though we formulate this issue in the simpler context of a
 % declarative judgmental equality.
 
-% \citet{paulin-mohring:coc} introduces the 
+% \citet{paulin-mohring:coc} introduces the
 % $[[Prop]]$ to distinguish between computationally relevant and
 % irrelevant types during program extraction. This mechanism is used in
 % the Coq proof assistant to ensure that proofs do not appear in
@@ -2770,8 +2770,8 @@ our encoding of the box type.
 
 Quantitative type systems provide a type of fine-grained static analysis that counts the
 number of times a computation uses each of its inputs. For flexibility, counting
-uses an abstract semiring, generalizing type systems for bounded linearity, 
-information flow, and differential privacy. Using a boolean semiring, quantitative 
+uses an abstract semiring, generalizing type systems for bounded linearity,
+information flow, and differential privacy. Using a boolean semiring, quantitative
 type systems can track dependency and perform external erasure.
 
 \citet{mcbride:plentyo} extends a dependently typed system with usage
@@ -2779,9 +2779,9 @@ tracking for computationally relevant terms.
 % Usage tracking is disabled in type formation rules and
 % therefore allows him to embed his system into a predicative type
 % theory, whose normalization property is given by
-% \citet{abel:normalization}. 
+% \citet{abel:normalization}.
 However, the typing judgment in his system
-fails to admit the substitution property, an issue that is later 
+fails to admit the substitution property, an issue that is later
 addressed by \citep{atkey:qtt} in the design of the
 Quantitative Type Theory
 (QTT). The typing judgment in QTT takes the form
@@ -2808,7 +2808,7 @@ type formation rules are presented in the style of a PTS and share the
 same judgment form as typing for terms. This allows one to analyze
 usage information for a type expression. % \citet{choudhury:grad}
 % point out the possibility of leveraging usage information for type
-% conversion. 
+% conversion.
 Unlike QTT, the type soundness of resource tracking in GraD is
 proven using a syntactic approach through heap semantics. No instances
 of GraD have been proven consistent as a logic.
@@ -2836,7 +2836,7 @@ strong normalization for CC by \citet{geuvers:cc-sn}.
 type theory that also allows tracking usage for both terms and
 types. % This language supports large elimination, though its definitional
 % equality, like GRTT, is also defined independently of the
-% modalities. 
+% modalities.
 Since modalities do not interact with type conversion,
 they reuse the technique in \citet{abel:dectt} to mechanically prove
 metatheoretic results including normalization and decidable type
@@ -2866,7 +2866,7 @@ For run-time irrelevance, DDC uses a mechanism similar to
 EPTS~\citep{mishra:erasure} to allow erasable irrelevant type indices.
 For compile-time irrelevance, it uses the resurrection mechanism from
 \citet{pfenning:modal, abel:irrelevance}.
-% mechanism for run-time dependency tracking is based on 
+% mechanism for run-time dependency tracking is based on
 % the same mechanism found in simply typed languages such as the Sealing
 % Calculus~\citep{shikuma:noninterference}.
 % Unlike \citet{abel:irrelevance}, DDC
@@ -2907,34 +2907,34 @@ the elimination of indexed equality types.
 % mechanism. It supports irrelevant type parameters and strong
 % irrelevant projections at any levels from the lattice. However, their
 % metatheoretic results are limited to syntactic soundness and the
-% consistency of the equational theory. 
+% consistency of the equational theory.
 
 % DDC combines the dependency tracking
 % mechanism from  and Pfenning's resurrection
 % mechanism in the same language. The observer level of the typing
 % judgment ranges over a lattice structure augmented with two upper
-% bounds $C$ and $T$ with $T$ being the top element. 
+% bounds $C$ and $T$ with $T$ being the top element.
 
-% combines the 
+% combines the
 % dependency tracking mechanism found in simply typed languages such as
 % the Dependent Core Calculus~\citep{abadi:dcc} and the Sealing
 % Calculus~\citep{shikuma:noninterference} and the proof-irrelevance
-% mechanism found in dependently typed languages \citet{pfenning:modal}. 
+% mechanism found in dependently typed languages \citet{pfenning:modal}.
 
 % and then \citet{liu:dcoi} \todo{complete the discussion about DDC and DCOI}
 Type-theory in color (TTC)~\citep{bernardy:color} indexes the judgments of the
 Calculus of Constructions with sets of colors, called taints, to support run-time erasure
-and internalize parametricity. TTC does not include compile-time irrelevance. 
-While \name does not internalize parametricity, TTC's 
+and internalize parametricity. TTC does not include compile-time irrelevance.
+While \name does not internalize parametricity, TTC's
 dependency tracking through taints is similar to dependency levels in \name.
 % Taints are sets of colors, which represent the
-% resources that a computation may depend on. 
+% resources that a computation may depend on.
 % Taints can be viewed as a lattice with set intersection and union as
-% meet and join. 
+% meet and join.
 % The typing judgment in TTC takes the form $\Gamma
 % \vdash a :_\theta A$ where $\theta$ is a metavariable representing
 % taints, a set of colors. The taint determines the variables that the term $a$ may
-% access. 
+% access.
 However, in TTC, variables can be used only if their
 taint \emph{exactly} matches the current taint. Functions keep track of a
 set of anti-taints, colors that the argument is oblivious to, in
@@ -2944,26 +2944,26 @@ The erasure operator $\lfloor a
 term $a$ and also serves the purpose of interpreting types as
 predicates. The ability to shift the view by choosing which color to erase is like
 the observer level from the indistinguishability
-judgment of \name. 
+judgment of \name.
 % The internalized reasoning about
 % erasure is achieved by adding a parametricity rule to the type
-% system. 
+% system.
 Furthermore, like \citet{pfenning:modal,
 abel:irrelevance} and unlike \name, in TTC, the same taint is used for
 checking a term and the well-formedness of its type. In \name, the
 observer level between terms and types are decoupled.
 
 % The set of taints form a lattice with set
-% intersection and union as meet and join. 
+% intersection and union as meet and join.
 
 % Taints form a lattice with
 % the set union and intersection operations and thus is highly related
-% to the dependency tracking mechanism found in \name. 
+% to the dependency tracking mechanism found in \name.
 
 \paragraph{Dependent types and mechanized logical relations}
 \citet{barras:coq-coq} proves strong normalization for the Calculus of
 Constructions in Coq using  a generalized
-notion of Girard's reducibility candidates~\citep{girard:proofs} 
+notion of Girard's reducibility candidates~\citep{girard:proofs}
 to model the system. Similar to \citet{geuvers:cc-sn}, Barras
 leverages the fact that CC does not have large eliminations, so
 that terms can be erased from type level computations.
@@ -2984,10 +2984,10 @@ preservation for a graded modal type theory.
 
 Similar to our approach, \citet{anand:corenuprl,
 wieczorek:coqnbe, adjedj:mltt-coq} define their logical relations
-as an inductive type in Coq and then prove functionality \aposteriori. 
+as an inductive type in Coq and then prove functionality \aposteriori.
 % One can view this definition as
 % defining the logical relation as a partial function, whose
-% functionality is proven \aposteriori. 
+% functionality is proven \aposteriori.
 Compared to \citet{abel:dectt}'s
 inductive--recursive model, this approach requires less power from the
 metalanguage~\citep{adjedj:mltt-coq}. However, an impredicative
@@ -3017,7 +3017,7 @@ decidable type checking in the style of a bidirectional system
 % proving logical consistency, normalization, and decidable type
 % conversion, thus making \name suitable as the core language of theorem provers.
 
-\begin{acks} 
+\begin{acks}
 The authors would like to thank the anonymous reviewers for their comments and suggestions.
 This work was supported by the \grantsponsor{}{National Science Foundation}{} under Grant Nos.~\grantnum{}{2006535} and \grantnum{}{2327738}.
 \end{acks}
