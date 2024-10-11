@@ -24,6 +24,6 @@ $(SYNTAX_FILE) : syntax.sig
 
 clean:
 	test ! -f $(COQMAKEFILE) || ( $(MAKE) -f $(COQMAKEFILE) clean && rm $(COQMAKEFILE) )
-	rm -f $(SYNTAX_FILE)
+#	rm -f $(SYNTAX_FILE)
 
 FORCE:
