@@ -61,6 +61,7 @@ with nf (a : tm) : bool :=
   | tSeq _ a b => ne a && nf b
   end.
 
+(* Definition 5.1 (Weakly normalizing terms) *)
 (* Terms that are weakly normalizing to a neutral or normal form. *)
 Definition wn (a : tm) := exists b, a ⇒* b /\ nf b.
 Definition wne (a : tm) := exists b, a ⇒* b /\ ne b.
@@ -120,6 +121,7 @@ Proof.
   elim : a; solve [auto; hauto b:on].
 Qed.
 
+(* Lemma 5.2 *)
 Lemma nf_refl a b (h: a ⇒ b) : (nf a -> b = a) /\ (ne a -> b = a).
 Proof.
   elim : a b / h => // ; hauto b:on.
@@ -173,6 +175,7 @@ Lemma ren_with_d_imp ξ i a :
   var_or_d a.
 Proof. scongruence. Qed.
 
+(* Lemma 5.13 (Antirenaming for normal and neutral forms) *)
 Lemma ne_nf_renaming_with_d (a : tm) :
   forall ξ, ren_with_d ξ ->
     (ne a = ne (a[ξ])) /\ (nf a = nf (a[ξ])).
@@ -180,8 +183,7 @@ Proof.
   elim : a; try solve [auto; hauto use:ren_with_d_ne, ren_with_d_up_tm b:on].
 Qed.
 
-(* Next we show that if a renamed term reduces, then
-   we can extract the unrenamed term from the derivation. *)
+(* Lemma 5.12 (Antirenaming for parallel reduction) *)
 Local Lemma Par_antirenaming (a b0 : tm) ξ
   (hξ : ren_with_d ξ)
   (h : a[ξ] ⇒ b0) : exists b, (a ⇒ b) /\ b0 = b[ξ].
@@ -318,6 +320,7 @@ Proof.
     hauto lq:on ctrs:rtc, eq.
 Qed.
 
+(* Lemma 5.14 (Antirenaming for weak normalization) *)
 Lemma wn_antirenaming a (ξ : nat -> tm) (hξ : ren_with_d ξ) : wn (a[ξ]) -> wn a.
 Proof.
   rewrite /wn.

@@ -79,6 +79,7 @@ Module conv_dec_bot
       end.
   Qed.
 
+  (* Definition 5.28 (Algorithm for type conversion) *)
   Definition convb {ℓ ℓ0 i a} Γ A B (h0 : Γ ⊢ a ; ℓ ∈ A) (h1 : Γ ⊢ B ; ℓ0 ∈ tUniv i ) : bool :=
     let Ξ := c2e Γ in
     let A' := proj1_sig (LoRed_normalize A ltac:(hauto q:on use:normalization, Wt_regularity)) in
@@ -120,6 +121,7 @@ Module conv_dec_bot
     sfirstorder use:iok_ieq_downgrade.
   Qed.
 
+  (* Theorem 5.29 (Decidability of type conversion with bottom) *)
   Lemma conv_dec {ℓ ℓ0 i a} Γ A B (h0 : Γ ⊢ a ; ℓ ∈ A) (h1 : Γ ⊢ B ; ℓ0 ∈ tUniv i) :
     Bool.reflect (conv (c2e Γ) A B) (convb Γ A B h0 h1).
   Proof. hauto l:on use:Bool.iff_reflect, convb_conv, conv_convb. Qed.
@@ -170,6 +172,7 @@ Module iconv_dec
     hauto lq:on.
   Qed.
 
+  (* Theorem 5.30 (Decidability of indexed type conversion) *)
   Lemma iconv_dec Ξ ℓ a b (h0 : wn a) (h1 : wn b) : Bool.reflect (iconv Ξ ℓ a b) (iconvb Ξ ℓ a b h0 h1).
   Proof. hauto l:on use:Bool.iff_reflect, iconvb_iconv, iconv_iconvb. Qed.
 

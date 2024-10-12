@@ -133,6 +133,7 @@ Proof. move => ->->. apply T_Let. Qed.
 (* ------------------------------------- *)
 (* If a term is well-typed, then the context must be well-formed. *)
 
+(* Lemma 3.1 (Context) *)
 Lemma Wt_Wff Γ ℓ a A (h : Γ ⊢ a ; ℓ ∈ A) : ⊢ Γ.
 Proof. elim : Γ ℓ a A / h => //. Qed.
 
@@ -232,6 +233,7 @@ Proof.
   - hauto lq:on use:typing_conv.
 Qed.
 
+(* Fig. 11 Wt-Sub *)
 Lemma subsumption Γ ℓ a A (h : Γ ⊢ a ; ℓ ∈ A) :
   forall ℓ', ℓ ⊆ ℓ' -> Γ ⊢ a ; ℓ' ∈ A.
 Proof.
@@ -503,6 +505,7 @@ Proof.
   eauto using morphing_Syn.
 Qed.
 
+(* Fig. 11 Wt-Subst *)
 Lemma subst_Syn Γ ℓ ℓ0 A a b B
   (h0 : ((ℓ0, A) :: Γ) ⊢ b ; ℓ ∈ B)
   (h1 : Γ ⊢ a ; ℓ0 ∈ A) :
@@ -535,6 +538,7 @@ Proof.
       exists ℓ2, j. eauto using weakening_Syn_Univ.
 Qed.
 
+(* Lemma 3.1 (Typing) *)
 Lemma Wt_regularity Γ ℓ a A
   (h : Γ ⊢ a ; ℓ ∈ A) :
   exists ℓ0 i, Γ ⊢ A ; ℓ0 ∈ (tUniv i).
@@ -847,6 +851,7 @@ Proof.
   - hauto lq:on ctrs:Wt use:T_Nat, typing_conv db:wff.
 Qed.
 
+(* Lemma 4.4 *)
 Lemma Wt_Refl_Coherent Γ ℓ ℓ0 a b (h : Γ ⊢ tRefl ; ℓ ∈ (tEq ℓ0 a b)) :
   iconv (c2e Γ) ℓ0 a b.
 Proof.
@@ -974,6 +979,7 @@ Proof.
     | solve_lattice].
 Qed.
 
+(* Lemma 4.5 (Type Preservation) *)
 Lemma subject_reduction a b (h : a ⇒ b) : forall Γ ℓ A,
     Γ ⊢ a ; ℓ ∈ A -> Γ ⊢ b ; ℓ ∈ A.
 Proof.

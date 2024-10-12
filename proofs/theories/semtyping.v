@@ -38,6 +38,7 @@ Definition SumSpace Ξ ℓ0 (PA : T -> tm -> Prop) (PF : tm -> (T -> tm -> Prop)
  *)
 
 
+(* Fig. 12 (Definition of the logical predicate) *)
 Reserved Notation " ⟦ Ξ ⊨ A ⟧ i ; I ↘ S" (at level 70, no associativity).
 Inductive InterpExt Ξ i (I : nat -> tm -> Prop) : tm -> (T -> tm -> Prop) -> Prop :=
 | InterpExt_Ne A : ne A -> ⟦ Ξ ⊨ A ⟧ i ; I ↘ (fun ℓ a => IOk Ξ ℓ a /\ wne a)
@@ -232,6 +233,7 @@ Proof.
     hauto l:on ctrs:InterpExt use:PeanoNat.Nat.le_trans.
 Qed.
 
+(* Lemma 5.8 (Cumulativity) *)
 Lemma InterpUnivN_cumulative Ξ i A PA :
    ⟦ Ξ ⊨ A ⟧ i ↘ PA -> forall j, i <= j ->
    ⟦ Ξ ⊨ A ⟧ j ↘ PA.
@@ -284,6 +286,7 @@ Proof.
   - hauto lq:on inv:Par ctrs:InterpExt.
 Qed.
 
+(* Lemma 5.9 (Reduction preserves interpretation) *)
 Lemma InterpUnivN_preservation Ξ i A B P (h : ⟦ Ξ ⊨ A ⟧ i ↘ P) :
   (A ⇒ B) ->
   ⟦ Ξ ⊨ B ⟧ i ↘ P.
@@ -316,6 +319,7 @@ Proof.
     hauto lq:on use:ifacts.iok_subsumption unfold:ProdSpace.
 Qed.
 
+(* Lemma 5.5 (Subsumption for the logical predicate) *)
 Lemma InterpUnivN_subsumption Ξ i A P : ⟦ Ξ ⊨ A ⟧ i ↘ P ->
   forall ℓ ℓ0 a, ℓ ⊆ ℓ0 -> P ℓ a -> P ℓ0 a.
 Proof. simp InterpUnivN. apply InterpExt_subsumption. Qed.
@@ -388,11 +392,13 @@ Proof.
     + hauto lq:on use:iconv_par2.
 Qed.
 
+(* Lemma 5.6 (1) *)
 Lemma InterpUnivN_Eq_inv Ξ i ℓ0 a b P :
   ⟦ Ξ ⊨ tEq ℓ0 a b ⟧ i ↘ P ->
   P = (fun ℓ p => IOk Ξ ℓ p /\ ((p ⇒* tRefl /\ iconv Ξ ℓ0 a b) \/ wne p)).
 Proof. simp InterpUniv; apply InterpExt_Eq_inv. Qed.
 
+(* Lemma 5.6 (3) *)
 Lemma InterpUnivN_Void Ξ i :
   ⟦ Ξ ⊨ tVoid ⟧ i ↘ (fun ℓ a => IOk Ξ ℓ a /\ wne a).
 Proof. simp InterpUniv; apply InterpExt_Void. Qed.
@@ -406,6 +412,7 @@ Lemma InterpUnivN_Unit i Ξ :
   ⟦ Ξ ⊨ tUnit ⟧ i ↘ fun ℓ a => IOk Ξ ℓ a /\ exists v, a ⇒* v /\ (v = tTT \/ ne v).
 Proof. sfirstorder use:InterpExt_Unit rew:db:InterpUniv. Qed.
 
+(* Lemma 5.11 (Functionality for indistinguishable terms) *)
 Lemma InterpUnivN_Eq Ξ i ℓ0 a b :
   wn a -> wn b ->
   ⟦ Ξ ⊨ tEq ℓ0 a b ⟧ i ↘ (fun ℓ p => IOk Ξ ℓ p /\ ((p ⇒* tRefl /\ iconv Ξ ℓ0 a b) \/ wne p)).
@@ -470,6 +477,7 @@ Proof.
   - hauto lq:on rew:off inv:InterpExt ctrs:InterpExt use:InterpExt_Unit_inv.
 Qed.
 
+(* Lemma 5.10 (Functionality) *)
 Lemma InterpUnivN_deterministic Ξ i A PA PB :
   ⟦ Ξ ⊨ A ⟧ i ↘ PA ->
   ⟦ Ξ ⊨ A ⟧ i ↘ PB ->
@@ -515,6 +523,7 @@ Proof.
   - sfirstorder.
 Qed.
 
+(* Lemma 5.4 (Escape) *)
 Lemma InterpUniv_Ok Ξ i A PA :
   InterpUnivN Ξ i A PA -> forall ℓ a, PA ℓ a -> IOk Ξ ℓ a.
 Proof. simp InterpUniv. apply InterpExt_Ok. Qed.
@@ -597,6 +606,7 @@ Proof.
 Qed.
 
 
+(* Lemma 5.15 (Adequacy) *)
 Lemma adequacy Ξ i A PA
   (h :  ⟦ Ξ ⊨ A ⟧ i ↘ PA) :
   CR Ξ PA /\ wn A.
@@ -745,6 +755,7 @@ Proof.
   hauto lq:on use:InterpUnivN_IEq.
 Qed.
 
+(* Lemma 5.6 (2) *)
 Lemma InterpUnivN_Fun_inv_nopf Ξ i ℓ0 A B P  (h : InterpUnivN Ξ i (tPi ℓ0 A B) P) :
   exists PA,
     ⟦ Ξ ⊨ A ⟧ i ↘ PA /\
@@ -810,6 +821,7 @@ Proof.
 Qed.
 
 
+(* Lemma 5.7 (Backward closure) *)
 Lemma InterpUnivN_back_clos Ξ i A PA :
     ⟦ Ξ ⊨ A ⟧ i ↘ PA ->
     forall ℓ0 a b, IOk Ξ ℓ0 a -> (a ⇒ b) ->

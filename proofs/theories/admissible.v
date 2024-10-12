@@ -27,6 +27,7 @@ Import solver.
 
 (* Downgrade operator *)
 
+(* Lemma 3.3 (Downgrade) *)
 Lemma T_Down_Alt Γ ℓ ℓ0 ℓ1 a b A p :
   ℓ1 ⊆ ℓ0 ->
   Γ ⊢ a ; ℓ1 ∈ A ->

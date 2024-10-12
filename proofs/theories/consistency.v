@@ -36,7 +36,7 @@ Proof.
   - hauto lqb:on.
 Qed.
 
-
+(* Corollary 5.24 (Logical consistency) *)
 Lemma consistency a ℓ : ~nil ⊢ a ; ℓ ∈ tVoid.
 Proof.
   move => /[dup] h /(proj1 soundness) /(_ nil var_tm ltac:(hauto lq:on use:ρ_ok_id)).

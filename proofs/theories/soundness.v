@@ -22,11 +22,10 @@ Import tcfacts.
 Module solver := Solver lattice.
 Import solver.
 
-(* Semantic substitution well-formedness *)
-(* Try use the existential version of ρ_ok and then derive the universal version of ρ_ok as a lemma *)
+(* Definition 5.17 (Valid substitutions) *)
 Definition ρ_ok Γ Δ ρ := forall i ℓ A, lookup i Γ ℓ A -> IOk (c2e Δ) ℓ (ρ i) /\ forall m PA, ⟦ c2e Δ ⊨ A [ρ] ⟧ m ↘ PA -> PA ℓ (ρ i).
 
-(* Semantic typing, written Γ ⊨ a : A in the paper *)
+(* Definition 5.20 (Semantic well-typedness) *)
 Definition SemWt Γ ℓ a A := forall Δ ρ, ρ_ok Γ Δ ρ -> exists m PA, ( ⟦ c2e Δ ⊨ A [ρ] ⟧ m ↘ PA)  /\ PA ℓ (a [ρ]).
 
 (* Semantic context wellformedness *)
@@ -40,7 +39,6 @@ Inductive SemWff : context -> Prop :=
 (* ----------------- *)
   SemWff ((ℓ0, A) :: Γ).
 
-(* TODO: Fix the order of the arguments of iok_subst_ok *)
 Lemma ρ_ok_iok Γ Δ ρ (h : ρ_ok Γ Δ ρ) :
   iok_subst_ok ρ (c2e Γ) (c2e Δ).
 Proof.
@@ -49,6 +47,7 @@ Proof.
   hauto l:on use:InterpUniv_Ok, elookup_lookup.
 Qed.
 
+(* Lemma 5.19 (Structural rules for valid substitutions) *)
 Lemma ρ_ok_id Γ : ρ_ok Γ Γ var_tm.
 Proof.
   rewrite /ρ_ok.
@@ -89,7 +88,7 @@ Proof.
     hauto l:on.
 Qed.
 
-(* Well-formed substitutions are stable under renaming *)
+(* Lemma 5.21 (Weakening for valid substitutions and semantic well-typedness) *)
 Lemma ρ_ok_renaming Γ Ξ ρ :
   forall Δ ξ,
     lookup_good_renaming ξ Γ Δ ->
@@ -168,6 +167,7 @@ Proof.
       hauto l:on solve+:solve_lattice.
 Qed.
 
+(* Lemma 5.18 *)
 Lemma iok_ρ_ok_morphing :
   forall Γ Δ a ℓ ρ, IOk (c2e Γ) ℓ a -> ρ_ok Γ Δ ρ -> IOk (c2e Δ) ℓ a[ρ].
 Proof.
@@ -179,7 +179,7 @@ Proof.
   eauto using iok_ρ_ok_morphing, typing_iok.
 Qed.
 
-(* Fundamental theorem: Syntactic typing implies semantic typing *)
+(* Theorem 5.22 (Fundamental theorem) *)
 Theorem soundness :
   (forall Γ ℓ a A, Wt Γ ℓ a A -> SemWt Γ ℓ a A) /\
   (forall Γ, Wff Γ -> SemWff Γ).
@@ -624,6 +624,7 @@ Proof.
   - eauto using SemWff_cons.
 Qed.
 
+(* Corollary 5.23 (Weak normalization for well-typed terms) *)
 Lemma normalization Γ a ℓ A : Γ ⊢ a ; ℓ ∈ A -> wn a /\ wn A.
 Proof.
   move /(proj1 soundness) /(_ Γ var_tm ltac:(hauto lq:on use:ρ_ok_id)).

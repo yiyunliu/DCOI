@@ -444,11 +444,13 @@ Module geq_facts
     - hauto q:on ctrs:IEq inv:tm.
   Qed.
 
+  (* Lemma 5.27 (Indistinguishability is decidable) *)
   Lemma IEq_dec Ξ ℓ a b : Bool.reflect (IEq Ξ ℓ a b) (IEqb Ξ ℓ a b).
   Proof.
     hauto l:on use:IEq_IEqb, IEqb_IEq, Bool.iff_reflect.
   Qed.
 
+  (* L-Sub *)
   Lemma iok_subsumption Ξ ℓ a (h : IOk Ξ ℓ a) :
     forall ℓ0, ℓ ⊆ ℓ0 -> IOk Ξ ℓ0 a.
   Proof.
@@ -512,6 +514,7 @@ Module geq_facts
     elim : Ξ ℓ a / h; qauto l:on ctrs:IOk use:iok_subst_ok_up, iok_subsumption unfold:iok_subst_ok, elookup.
   Qed.
 
+  (* Fig.11 L-Subst *)
   Lemma iok_subst Ξ ℓ ℓ0 a b (h : IOk Ξ ℓ0 a)
     (h0 : IOk (ℓ0::Ξ) ℓ b) : IOk Ξ ℓ b[a..].
   Proof. sfirstorder use:iok_morphing, iok_subst_cons, iok_subst_id. Qed.
@@ -544,6 +547,7 @@ Module geq_facts
       ℓ0 = ℓ1.
   Proof. rewrite/elookup =>//. congruence. Qed.
 
+  (* Fig. 11 I-Down *)
   Lemma ieq_downgrade_mutual : forall Ξ ℓ,
       (forall a b, IEq Ξ ℓ a b ->
               forall ℓ0 c , IEq Ξ ℓ0 a c ->
@@ -686,6 +690,7 @@ Lemma ieq_morphing_helper2 ℓ ℓ0 ℓ1 ξ0 ξ1 Ξ Δ :
   ieq_good_morphing ℓ (up_tm_tm (up_tm_tm ξ0)) (up_tm_tm (up_tm_tm ξ1)) (ℓ1 :: (ℓ0 :: Ξ)) (ℓ1 :: (ℓ0 :: Δ)).
 Proof. hauto lq:on use:ieq_morphing_helper. Qed.
 
+(* Fig. 11 I-Cong *)
 Lemma ieq_morphing_mutual : forall Ξ ℓ,
     (forall a b, IEq Ξ ℓ a b ->
             forall ξ0 ξ1 Δ, ieq_good_morphing ℓ ξ0 ξ1 Ξ Δ ->
@@ -718,6 +723,7 @@ Proof.
   sfirstorder use:ieq_morphing_mutual, iok_gieq unfold:ieq_good_morphing.
 Qed.
 
+(* Fig. 11 I-Subst *)
 Lemma ieq_iok_subst Ξ ℓ ℓ0 b0 b1 a (h : IOk Ξ ℓ0 a) (h0 : IEq (ℓ0:: Ξ) ℓ b0 b1) :
   IEq Ξ ℓ b0[a..] b1[a..].
 Proof.

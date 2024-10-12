@@ -1041,6 +1041,7 @@ Proof.
     move : ha2; clear. elim : a2 => //=.
 Qed.
 
+(* Lemma 5.25 (Standardization) *)
 Lemma standardization a b :
   rtc Par a b -> nf b ->
   rtc LoRed a b.
@@ -1481,6 +1482,7 @@ Proof.
   induction 1; hauto l:on inv:rtc unfold:LoRed'.
 Qed.
 
+(* Corollary 5.26 (Normalization is decidable) *)
 Definition LoRed_normalize a (h : wn a) : {x : tm | nf x /\ rtc Par a x}.
 Proof.
   unfold wn in h.

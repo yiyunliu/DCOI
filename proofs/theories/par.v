@@ -629,9 +629,11 @@ Proof.
   - solve_triangle.
 Qed.
 
+(* Lemma 4.1 (Diamond) *)
 Lemma Par_confluent : diamond Par.
 Proof. hauto lq:on use:Par_triangle unfold:diamond. Qed.
 
+(* Lemma 4.2 (Confluence) *)
 Lemma Pars_confluent : confluent Par.
 Proof.
   sfirstorder use:Par_confluent, @diamond_confluent.

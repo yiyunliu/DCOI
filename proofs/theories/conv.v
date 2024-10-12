@@ -171,6 +171,7 @@ Proof.
   - hauto l:on ctrs:Par use:Par_refl.
 Qed.
 
+(* Lemma 3.2 (Simulation) *)
 Lemma simulation_star Ξ ℓ a b a' (h : IEq Ξ ℓ a b) (h0 : a ⇒* a') :
     exists b', b ⇒* b' /\ IEq Ξ ℓ a' b'.
 Proof.
@@ -302,6 +303,7 @@ Proof.
   hauto l:on use:iconv_trans_heterogeneous_leq, meet_idempotent.
 Qed.
 
+(* Lemma 4.3 (Transitivity of Equality) *)
 Lemma conv_trans Ξ a b c : conv Ξ a b -> conv Ξ b c -> conv Ξ a c.
 Proof.
   hauto lq:on use:iconv_trans_heterogeneous unfold:conv.
