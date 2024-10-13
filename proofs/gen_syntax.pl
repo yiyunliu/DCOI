@@ -1,8 +1,8 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 use strict;
 use warnings;
-use Path::Tiny;
 use utf8;
+binmode(STDOUT, ":utf8");
 
 my $prelude = <<'END_PRELUDE';
 Require Export Lattice.All.
@@ -24,10 +24,12 @@ Global Open Scope subst_scope.
 End syntax_sig.
 END_PROLOGUE
 
-my $syntax_path = path('theories/Autosubst2/syntax.v');
+open(my $fh, "<:encoding(UTF-8)", "theories/Autosubst2/syntax.v") or die "Can't open syntax file";
 
-my $syntax = join('',map { (my $s = $_) =~ s/^(Hint|Instance)/#[export]$1/; $s } grep(!/^Require Export/,$syntax_path->lines_utf8));
+my $syntax = join('',map { (my $s = $_) =~ s/^(Hint|Instance)/#[export]$1/; $s } grep(!/^Require Export/,<$fh>));
 
+close $fh;
 $syntax =~ s/\(\(fun \w+ => \(eq_refl\) \w+\) \w+\)/eq_refl/g;
 
-$syntax_path->spew_utf8($prelude,$syntax,$prologue);
+open($fh, ">:encoding(UTF-8)", "theories/Autosubst2/syntax.v") or die "Can't open syntax file";
+print $fh $prelude , $syntax, $prologue;
