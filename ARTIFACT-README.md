@@ -17,16 +17,21 @@ paths accordingly to match the location of the artifact directory on
 your host machine.
 
 If you want to validate the proofs and run the prototype
-type checker through the provided image, you can import the image and
-launch the VM through VirtualBox (following the [Startup instructions for
-VirtualBox](#installation-qemu). The guest system is Arch Linux. You
-can use the `pacman` command to install additional packages if needed.
+type checker through the provided image, you can follow the
+[Installation instructions](#installation) to set up QEMU. The guest
+system is Arch Linux. You can use the `pacman` command to install
+additional packages if needed.
 
 If you have followed the instructions successfully, you should now
 have access to a terminal with the following prompt.
 ```sh
 [dcoi@popl25 ~]$
 ```
+
+Note: The guest system is in x86-64. If your host system has an ARM
+processor, then it's normal for the VM to run a lot slower since QEMU
+would need to emulate x86 instructions.
+
 #### Proof scripts
 To use Coq to verify the claims from the paper, run the following command in the terminal:
 ```sh
@@ -425,65 +430,85 @@ also detailed in the linked documentation.
 The examples in Section 2 can be found in
 [impl/pi/Paper.pi](impl/pi/Paper.pi).
 
-## VirtualBox instructions
-Install VirtualBox through your package manager or by downloading a
-binary release from the [official
-website](https://www.virtualbox.org/wiki/Downloads).
+## QEMU Instructions
 
-If done successfully, you should be able to open VirtualBox's GUI
-interface.
+QEMU is a hosted virtual machine monitor that can emulate a host processor
+via dynamic binary translation. On common host platforms QEMU can also use
+a host provided virtualization layer, which is faster than dynamic binary
+translation.
+
+QEMU homepage: https://www.qemu.org/
+
+### Installation
+
+#### OSX
+``brew install qemu``
+
+#### Debian and Ubuntu Linux
+``apt-get install qemu-kvm``
+
+On x86 laptops and server machines you may need to enable the
+"Intel Virtualization Technology" setting in your BIOS, as some manufacturers
+leave this disabled by default.
+
+
+#### Arch Linux
+
+``pacman -Sy qemu``
+
+See the [Arch wiki](https://wiki.archlinux.org/title/QEMU) for more info.
+
+
+#### Windows 10/11
+
+Download and install QEMU via the links at
+
+https://www.qemu.org/download/#windows.
+
+Ensure that `qemu-system-x86_64.exe` is in your path.
+
+Start Bar -> Search -> "Windows Features"
+          -> enable "Hyper-V" and "Windows Hypervisor Platform".
+
+Restart your computer.
+
 
 ### Startup
-The artifact provides the VM image in the standard `.ova` format. You
-can import it to VirtualBox by clicking `File -> Import
-Appliance...`. This should open up a dialogue where you can type
-in the path of the file [dcoi.ova](dcoi.ova) extracted from the
-tarball or interactively select its location by clicking the
-directory icon. Make sure that Source is selected to be "Local File System".
 
-After selecting the image file, you can click on the "Settings" tab in the
-dialogue to fine-tune the settings of the VM. For example, you can
-allocate more memories or more cpu cores depending on the computing
-power of your host system.
+The base artifact provides a `start.sh` script to start the VM on unix-like
+systems and `start.bat` for Windows. Running this script will open a graphical
+console on the host machine, and create a virtualized network interface.
+On Linux you may need to run with `sudo` to start the VM.
 
-If the setup was successful, a new VM named `dcoi` should appear in the
-GUI. Double click that entry to launch the VM. Once the VM finishes
-the boot process, you will see a login prompt. The username and
-password are both `dcoi`.
+Once the VM has started you can login to the guest system from the host.
+Whenever you are asked for a password, the answer is `dcoi`. The default
+username is `dcoi`.
 
-At this point, you can either directly interact with the VM, or you
-can ssh into the VM through a terminal from your host by running the
-following command.
 ```
 $ ssh -p 5557 dcoi@localhost
 ```
-Again, you need to type `dcoi` for the password.
-
-Note: If `ssh` complains about mismatching host fingerprint, it's
-likely that you have previously launched and `ssh`'ed into a VM or
-container that uses the same port `127.0.0.1:5557`. To resolve the
-issue, simply remove the relevant entries from your
-`~/.ssh/known_hosts` file (or back them up and recover them if they
-turn out to be important).
-
 
 You can also copy files to and from the host using scp.
+
 ```
 $ scp -P 5557 dcoi@localhost:somefile .
 ```
 
-If you only interact with the VM through `ssh` (rather than the GUI
-window created by VirtualBox), you can right click your VM entry in
-VirtualBox and choose the option to launch the VM in headless mode.
-
 ### Shutdown
 
-To shutdown the guest system cleanly, run the following command either
-through ssh or through the VM window
+To shutdown the guest system cleanly, login to it via ssh and use
+
 ```
-$ sudo poweroff
+$ sudo shutdown now
 ```
 
+### Reset the state of the VM
+
+If you corrupted the VM state by accident, you can simply reset the VM
+state through QEMU's snapshot feature.
+```sh
+qemu-img snapshot -a initial-state disk.qcow2
+```
 
 ## Steps to recreate the artifact environment
 This section describes how to recreate the artifact environment 
