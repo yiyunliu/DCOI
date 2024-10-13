@@ -21,7 +21,7 @@ VirtualBox](#installation-qemu).
 If you have followed the instructions successfully, you should now
 have access to a terminal with the following prompt.
 ```sh
-[dcoi@dcoi ~]$
+[dcoi@popl25 ~]$
 ```
 #### Proof scripts
 To use Coq to verify the claims from the paper, run the following command in the terminal:
@@ -104,7 +104,7 @@ dcoi pi/Equal.pi
 ```
 The above command should produce the following output.
 ```sh
-[dcoi@dcoi pi]$ dcoi Equal.pi
+[dcoi@popl25 pi]$ dcoi Equal.pi
 ================================================================================
 processing Equal.pi...
 Parsing File "Equal.pi"
