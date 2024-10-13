@@ -11,12 +11,16 @@ If you want to replicate
 the environment on your host machine, you
 can refer to the section [Steps to recreate the artifact
 environment](#steps-to-recreate-the-artifact-environment) to install
-the necessary dependencies.
+the necessary dependencies. The rest of the instructions assume that
+the commands are executed from within the VM. You should adjust the
+paths accordingly to match the location of the artifact directory on
+your host machine.
 
 If you want to validate the proofs and run the prototype
 type checker through the provided image, you can import the image and
 launch the VM through VirtualBox (following the [Startup instructions for
-VirtualBox](#installation-qemu).
+VirtualBox](#installation-qemu). The guest system is Arch Linux. You
+can use the `pacman` command to install additional packages if needed.
 
 If you have followed the instructions successfully, you should now
 have access to a terminal with the following prompt.
@@ -41,8 +45,8 @@ Note: On a Linux machine with Intel 12700k, the development took 2
 minutes 15 seconds to compile with `make`.
 
 A successful compilation should produce the following output, which
-includes near the end the signatures of the top-level claims and the
-axioms they depend on.
+should include signatures of the top-level claims and the
+axioms they depend on near the end.
 ```sh
 as2-exe -i syntax.sig -p UCoq > theories/Autosubst2/syntax.v
 perl gen_syntax.pl
@@ -134,7 +138,7 @@ This artifact has two components: a Coq development and a Haskell prototype
 implementation of DCOI.
 
 The Coq development substantiates the results claimed in the paper as indicated by
-the footnotes. All results are proved about DCOI^$\omega$, presented in
+the footnotes. All results are proved about DCOI$^\omega$, presented in
 Sections 3-5.
 
 The code examples presented in Section 2 can be found in
@@ -358,13 +362,6 @@ propositional_extensionality : forall P Q : Prop, P <-> Q -> P = Q
 functional_extensionality_dep
   : forall (A : Type) (B : A -> Type) (f g : forall x : A, B x),
     (forall x : A, f x = g x) -> f = g
-dcoi_with_nat_lattice.preservation.subject_reduction
-     : forall a b : dcoi_with_nat_lattice.syntax.tm,
-       dcoi_with_nat_lattice.par.Par a b ->
-       forall (Γ : dcoi_with_nat_lattice.typing.context) 
-         (ℓ : nat_lattice.T) (A : dcoi_with_nat_lattice.syntax.tm),
-       dcoi_with_nat_lattice.typing.Wt Γ ℓ a A ->
-       dcoi_with_nat_lattice.typing.Wt Γ ℓ b A
 ```
 
 The command `make validate` runs `coqchk` to dump all axioms used in our development.
@@ -399,7 +396,7 @@ the `Print Assumptions` command. `coqchk` is known to report axioms
 that are part of external modules despite them not being used by the
 development.
 
-Functional and propositional extensionality allows us to recover the
+Functional and propositional extensionality allow us to recover the
 type of reasoning in set theory where two sets are considered equal if
 and only if they contain the same elements (in Coq, the predicate `A
 -> Prop` can be thought of as a subset of the type `A`). These two
@@ -418,13 +415,6 @@ To extend DCOI$^\omega$ with extra features, one can modify
 new rules for the typing and equality judgments in
 [typing.v](proofs/theories/typing.v) and [geq.v](proofs/theories/geq.v).
 
-Once changes have been made to the ott file, running `make` will
-first invoke `as2-exe` to regenerate the Coq syntax file
-[syntax.v](proofs/theories/Autosubst2/syntax.v), postprocess the file
-with the perl script [gen_syntax.pl](proofs/gen_syntax.pl),
-and then use `coqc` to recheck the proofs. Most likely, the proofs will break and
-you are expected to use an IDE (proof general or vscoq) to
-interactively fix the proofs.
 
 #### Prototype implementation
 The file [impl/README.pi](impl/README.pi) contains the details
@@ -469,14 +459,22 @@ $ ssh -p 5557 dcoi@localhost
 ```
 Again, you need to type `dcoi` for the password.
 
+Note: If `ssh` complains about mismatching host fingerprint, it's
+likely that you have previously launched and `ssh`'ed into a VM or
+container that uses the same port `127.0.0.1:5557`. To resolve the
+issue, simply remove the relevant entries from your
+`~/.ssh/known_hosts` file (or back them up and recover them if they
+turn out to be important).
+
 
 You can also copy files to and from the host using scp.
 ```
 $ scp -P 5557 dcoi@localhost:somefile .
 ```
 
-If you only interact with the VM through `ssh`, you can right click
-and choose the option to launch the VM in headless mode.
+If you only interact with the VM through `ssh` (rather than the GUI
+window created by VirtualBox), you can right click your VM entry in
+VirtualBox and choose the option to launch the VM in headless mode.
 
 ### Shutdown
 
@@ -555,13 +553,13 @@ executable to a location `DIR` that's available in your `PATH`.
 cd autosubst2
 # Remove the malformed part of the cabal file
 sed -i 52,63d as2.cabal 
-# Install with stack
+# Install with cabal
 cabal install --installdir=DIR --install-method=copy
 ```
 Remember to replace `DIR` with the location you want the executable to
 be copied into.
 
-If the `as2-exe` was built successfully and available in your `PATH`,
+If `as2-exe` was built successfully and available in your `PATH`,
 then the following command should print out the help messages of Autosubst2.
 ```sh
 as2-exe -h
