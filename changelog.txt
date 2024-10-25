@@ -1,0 +1,12 @@
+1. Changed the title to "Consistency of a Dependent Calculus of Indistinguishability".
+2. Added a paragraph about Sterling's work on phase distinction and non-interference when we discuss indistinguishability and dependent types in Section 7.
+3. Changed the examples in Section 3 to use L and H instead of 0 and 1 for levels
+4. Fixed the following typos:
+- L117-118 "during computation" → "when executed"
+- L122-123  "(marked as @1)" → "(marked as @L)"
+- L166-167 "is less than" → "are fewer terms that"
+- L278-280 "well type" → "well typed"
+- L530 "f : L, x : H, y : H, f : L" → "f : L, x : H, y : H"
+- L763-764: ⟦Ξ ⊧ᵢ A⟧ ↘ S → ⟦Ξ ⊧ᵢ B⟧ ↘ S.
+- L1038 "then break semantic soundness would fail" → "then semantic soundness would fail"
+- L1108 "purely based purely on" → "purely based on"

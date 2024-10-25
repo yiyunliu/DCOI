@@ -1,7 +1,7 @@
 \newif\ifcomments     %% include author discussion
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL old.tex     Thu Oct 10 13:42:43 2024
-%DIF ADD paper.tex   Thu Oct 10 14:04:27 2024
+%DIF DEL old.tex     Fri Oct 11 21:16:38 2024
+%DIF ADD paper.tex   Thu Oct 24 21:23:21 2024
 \newif\ifanonymous    %% include author identities
 \newif\ifextended     %% include appendix
 \newif\ifsubmission   %% prepare the submitted version
@@ -10,8 +10,13 @@
 \commentsfalse         %% toggle comments here
 \extendedfalse
 
-\submissiontrue       %% at most one of these must be true (neither for draft version)
-\publicfalse          %% but if you want to see comments, these should both be off
+%DIF 10-11c10-11
+%DIF < \submissiontrue       %% at most one of these must be true (neither for draft version)
+%DIF < \publicfalse          %% but if you want to see comments, these should both be off
+%DIF -------
+\submissionfalse       %% at most one of these must be true (neither for draft version) %DIF > 
+\publictrue          %% but if you want to see comments, these should both be off %DIF > 
+%DIF -------
 
 % If we are going to make a version public, i.e. on arXiv, we should
 % make sure that there are no comments and our names are on it.
@@ -3186,7 +3191,30 @@ judgment of \name.
 Furthermore, like \citet{pfenning:modal,
 abel:irrelevance} and unlike \name, in TTC, the same taint is used for
 checking a term and the well-formedness of its type. In \name, the
-observer level between terms and types are decoupled.
+observer level between terms and types are decoupled\DIFaddbegin \DIFadd{.
+}
+
+
+\DIFadd{\mbox{%DIFAUXCMD
+\citet{sterling:noninterference} }\hskip0pt%DIFAUXCMD
+interpret information flow through
+the new perspective of phase distinctions. For each dependency level
+$\ell$, there is a corresponding proposition $\langle \ell \rangle$,
+which, if inhabited, indicates that program lacks clearance to access
+data at level $\ell$. Data sealed behind level $\ell$ thus becomes
+indistinguishable. %DIF >  More generally, % The synthetic approach
+%DIF >  described % in \citet{sterling:logrelastypes} is a powerful technique
+%DIF >  for % proving semantic properties such as parametricity and %
+%DIF >  normalization.
+In future work, we would like to explore whether we
+can reformulate DCOI from this perspective, and how
+we can leverage the synthetic methods described in
+\mbox{%DIFAUXCMD
+\citet{sterling:noninterference, sterling:logrelastypes} }\hskip0pt%DIFAUXCMD
+to give a
+more semantic account of our non-interference result}\DIFaddend .
+
+
 
 % The set of taints form a lattice with set
 % intersection and union as meet and join.
@@ -3228,6 +3256,9 @@ inductive--recursive model, this approach requires less power from the
 metalanguage~\citep{adjedj:mltt-coq}. However, an impredicative
 $[[Prop]]$ sort is required to model an object language with infinitely
 many universe levels~\citep{anand:corenuprl}.
+
+
+
 
 \section{Conclusion}
 
