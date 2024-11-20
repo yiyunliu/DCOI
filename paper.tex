@@ -380,7 +380,7 @@ not found in the core \name system that we describe in this paper.
   although it is a lot more complicated of an example.}
 \sw{I wish we had more space around the code to set it off in this section}
 
-\subsection{Run- and compile-time irrelevance}
+\subsection{Run- and Compile-Time Irrelevance}
 
 Parts of programs that are not meaningfully used during computation
 can be considered \emph{run-time irrelevant}.
@@ -441,7 +441,7 @@ proof in the body of \lstinline{cong} does not refer to any of the
 function arguments, allowing us to type \lstinline{cong} at level
 \lstinline{L} to indicate that it is a constant function itself.
 
-\subsection{Irrelevance is relative}
+\subsection{Irrelevance is Relative}
 
 In the polymorphic identity function, the type parameter \lstinline{A}
 is irrelevant in the function body but makes a relevant appearance in
@@ -557,7 +557,7 @@ for \lstinline{downcast} above to be provable.
 % that allows us to generalize the two-point lattice used for
 % erasure to an arbitrary lattice structure.
 
-\subsection{Irrelevant constructor components}
+\subsection{Irrelevant Constructor Components}
 
 We now introduce inductive types
 that package up irrelevant terms
@@ -628,7 +628,7 @@ we would have the additional proof obligation of showing that
 \lstinline{(esum n m en' em')} and
 \lstinline{(esum m n em' en')} are equal.
 
-\subsection{Eliminating empty types}
+\subsection{Eliminating Empty Types}
 
 In general, irrelevant inductives may not be eliminated to relevant terms.
 The exception in \name is the empty type,
@@ -763,7 +763,7 @@ from our discussion and only list their rules in
 \else \cref{app:naturals}.
 \fi
 
-\subsection{Dependency tracking} \label{sec:dep}
+\subsection{Dependency Tracking} \label{sec:dep}
 
 The observer level $[[l]]$ of a typing judgment $[[G |- a : l A]]$
 tracks what variables $[[a]]$ may use, as well as the level at which $[[a]]$ itself may be used in later computation.
@@ -829,7 +829,7 @@ From a type-theoretic perspective,
 the unconstrained elimination level allows us to handle impossible cases of a lower-level term
 using a higher-level proof of its impossibility.
 
-\subsection{Definitional equality and indistinguishability} \label{sec:indist}
+\subsection{Definitional Equality and Indistinguishability} \label{sec:indist}
 
 \begin{figure}[h]
   \begin{gather*}
@@ -957,7 +957,7 @@ normalization procedure for well-typed terms
 into $\alpha$-equivalence, and the definitional equality degenerates
 into $\beta$-equivalence.
 
-\subsection{Dependent pairs and unit} \label{sec:pairs}
+\subsection{Dependent Pairs and Unit} \label{sec:pairs}
 
 \begin{figure}[h]
   \begin{gather*}
@@ -1120,7 +1120,7 @@ are required due to their presence in \rref{Wt-Let,Wt-Seq}.
   \label{fig:conv:pair}
 \end{figure}
 
-\subsection{Propositional equality} \label{sec:eq}
+\subsection{Propositional Equality} \label{sec:eq}
 
 \begin{figure}[h]
   \begin{gather*}
@@ -1353,7 +1353,7 @@ downgrade (\rref*{I-down}),
 %   If $[[E |- Univ i == Univ j]]$ then $[[i]] = [[j]]$.
 % \end{lemma}
 
-\subsection{Type preservation}
+\subsection{Type Preservation}
 
 Like level checking, type checking admits substitution
 (\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}})
@@ -1401,7 +1401,7 @@ weak normalization and consistency. In \cref{sec:decconv}, we combine
 weak normalization and the standardization theorem to recover a decidable
 type conversion algorithm.
 
-\subsection{A logical predicate for \name}
+\subsection{A Logical Predicate for \name}
 \label{sec:logpred}
 
 To characterize semantically well-behaved terms through the logical predicate,
@@ -2058,7 +2058,7 @@ right scope.
   (\ref{lem:vnil}), and \cref{lem:interpinv} (\ref{lem:interpinvvoid}).
 \end{proof}
 
-\subsection{Decidability of type conversion}
+\subsection{Decidability of Type Conversion}
 \label{sec:decconv}
 
 We can use the normalization theorem
@@ -2188,7 +2188,7 @@ of conversion in \rref{Wt-Conv}.
 
 \section{Discussion and Future Work}
 
-\subsection{Scrutinee level constraints} \label{sec:scrutinee-level}
+\subsection{Scrutinee Level Constraints} \label{sec:scrutinee-level}
 \sw{I wish this section talked a little more about strictness. If we had a CBV application,
 then I guess we would need to have a scrutinee constraint in application. OTOH, if we have
 a lazy let term, we would not need this constraint.}
@@ -2368,8 +2368,7 @@ since they both involve binders.
 % universally quantified definition of valid substitutions since the
 % logical predicate is a partial function (\ref{lem:lrfunc}).
 
-\subsection{Typed definitional equality
-  and relational semantic models}
+\subsection{Typed Definitional Equality and Relational Semantic Models}
 
 \label{sec:typeddefeq}
 Following \citet{liu:dcoi}, we formulate \name as an instantiation of
@@ -2462,7 +2461,7 @@ a relational model to justify more complex properties.
 % judgmental equality. However, this simple remedy still does not give a
 % satisfying answer to defining a relational semantic model.
 
-\subsection{Casting with irrelevant equalities}
+\subsection{Casting with Irrelevant Equalities}
 \label{sec:castirrel}
 
 Equality type has the special property that
@@ -3059,16 +3058,16 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
 \drules[L]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
 
-\subsection{Context well-formedness} \label{app:wf}
+\subsection{Context Well-Formedness} \label{app:wf}
 
 \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
 
-\subsection{Parallel reduction} \label{app:par}
+\subsection{Parallel Reduction} \label{app:par}
 
 \drules[P]{$[[a => b]]$}{Parallel reduction}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq,Nat,Zero,Succ,Ind}
 \drules[Ps]{$[[a =>* b]]$}{Multi-step parallel reduction}{Refl,Trans}
 
-\subsection{Level checking} \label{app:levelling}
+\subsection{Level Checking} \label{app:levelling}
 
 \drules[L]{$[[E |- a : l]]$}{Level checking}{Var,Pi,Abs,App,Univ,Empty,Absurd,Eq,Refl,J,Sig,Pair,Let,Unit,TT,Seq}
 
