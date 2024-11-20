@@ -26,10 +26,11 @@
 \anonymoustrue
 \fi
 
-\documentclass[acmsmall, screen=true, nonacm=true,
-  review=\ifpublic false\else true\fi,
-  anonymous=\ifanonymous true\else false\fi
-]{acmart}
+% \documentclass[acmsmall, screen=true, nonacm=false,
+%   review=\ifpublic false\else true\fi,
+%   anonymous=\ifanonymous true\else false\fi
+%   ]{acmart}
+\documentclass[acmsmall]{acmart}
 
 % \setcopyright{rightsretained}
 % \acmDOI{}
@@ -50,11 +51,10 @@
 \let\newlist\relax
 \let\renewlist\relax
 \usepackage{enumitem}
-\usepackage{amsmath,amssymb}
 \usepackage{natbib}
 \usepackage{mathpartir,mathtools,stmaryrd}
 \usepackage{todonotes,listings,xspace,color,tcolorbox,doi}
-\usepackage[flushmargin,multiple,para]{footmisc}
+\usepackage[flushmargin,para]{footmisc}
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
 
