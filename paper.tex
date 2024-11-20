@@ -32,18 +32,6 @@
 %   ]{acmart}
 \documentclass[acmsmall]{acmart}
 
-% \setcopyright{rightsretained}
-% \acmDOI{}
-% \acmYear{2025}
-% \copyrightyear{2025}
-% \acmSubmissionID{}
-% \acmJournal{PACMPL}
-% \acmVolume{}
-% \acmNumber{POPL}
-% \acmArticle{}
-% \acmMonth{}
-% \received{}
-% \received[accepted]{}
 
 \let\Bbbk\relax
 \usepackage{draft} % local
@@ -53,18 +41,12 @@
 \usepackage{enumitem}
 \usepackage{natbib}
 \usepackage{mathpartir,mathtools,stmaryrd}
-\usepackage{todonotes,listings,xspace,color,tcolorbox,doi}
+\usepackage{listings,xspace,color,tcolorbox,doi}
 \usepackage[flushmargin,para]{footmisc}
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
 
 \citestyle{acmauthoryear}
-
-\hypersetup{
-  colorlinks=true,
-  urlcolor=blue,
-  citecolor=violet
-}
 
 \lstset{
   basicstyle=\ttfamily\small,
@@ -83,6 +65,7 @@
     {=>}{{$\mathrel{\Rightarrow}$}}2
     {~}{{=}}1
 }
+
 
 \ifcomments
 \newnote{sw}{blue} % Stephanie Weirich
@@ -152,6 +135,12 @@
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
 
 \inputott{dcoi-rules}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=blue,
+  citecolor=violet
+}
 
 \title{Consistency of a Dependent Calculus of Indistinguishability}
 
