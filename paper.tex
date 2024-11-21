@@ -1453,7 +1453,7 @@ are free of redexes.
       \interp{[[E]]}{[[i]]}{[[A]]}{\buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}}
     }
     \qquad
-    \infer[\ottdrulename{SWt\_Eq}]{~}{
+    \infer[\ottdrulename{SWt\_Eq}]{[[nf a]] \\ [[nf b]]}{
       \interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{\buildset{[[p]]}{[[l]]}{\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]]}}
     }
     \and
@@ -1607,7 +1607,7 @@ for equality, function, and empty types.
     If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{S}$, then $S =
     \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge
       (\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]])}$.
-  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv}}
+  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv\_nopf}}
     \label{lem:interpinvfun}
     If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
     exist $S_A$ and $R$ such that following hold:

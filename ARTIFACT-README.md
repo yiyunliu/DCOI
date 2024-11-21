@@ -577,6 +577,8 @@ executable to a location `DIR` that's available in your `PATH`.
 ```sh
 cd autosubst2
 # Remove the malformed part of the cabal file
+# Run the following command only on Linux
+# If on Mac, manually remove lines 52 to 63 from the file
 sed -i 52,63d as2.cabal 
 # Install with cabal
 cabal install --installdir=DIR --install-method=copy
