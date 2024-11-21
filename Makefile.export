@@ -1,0 +1,11 @@
+PDFLATEX = pdflatex -shell-escape
+BIBTEX = bibtex
+MAKEDEPS  = Makefile
+LATEXDEPS = refs.bib
+MAIN = paper
+
+paper-output.pdf : $(MAIN)-output.tex $(MAKEDEPS) $(LATEXDEPS)
+	$(PDFLATEX) $(MAIN)-output.tex
+	$(BIBTEX) $(MAIN)-output
+	$(PDFLATEX) $(MAIN)-output.tex
+	$(PDFLATEX) $(MAIN)-output.tex

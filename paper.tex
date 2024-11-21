@@ -28,9 +28,20 @@
 
 \documentclass[acmsmall]{acmart}
 \citestyle{acmauthoryear}
+%%% The following is specific to POPL '25 and the paper
+%%% 'Consistency of a Dependent Calculus of Indistinguishability'
+%%% by Yiyun Liu, Jonathan Chan, and Stephanie Weirich.
+%%%
 \setcopyright{rightsretained}
+\acmDOI{10.1145/3704843}
+\acmYear{2025}
 \acmJournal{PACMPL}
-\acmYear{2025} \acmVolume{9} \acmNumber{POPL} \acmArticle{7} \acmMonth{1}\acmDOI{10.1145/3704843}
+\acmVolume{9}
+\acmNumber{POPL}
+\acmArticle{7}
+\acmMonth{1}
+\received{2024-07-11}
+\received[accepted]{2024-11-07}
 
 
 \let\Bbbk\relax
@@ -90,11 +101,7 @@
 \newcommand{\judgement}[1]{{\setlength{\fboxsep}{1.5pt}\fbox{#1}}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
-\newcommand{\repo}{%
-  \ifpublic our public repository at \jc{TODO: replace with repo URL}%
-  \else the supplementary materials%
-  \fi
-}
+\newcommand{\repo}{the supplementary materials}
 
 \newcommand{\interp}[4]{\bracks{#1 \vDash_{#2} #3} \searrow #4}
 \newcommand{\interpU}[3]{\bracks{#1 \vDash_{#2} #3}}
@@ -140,6 +147,27 @@
   citecolor=violet
 }
 
+
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+% \renewcommand{\shortauthors}{Liu et al.}
+
+\begin{CCSXML}
+<ccs2012>
+  <concept>
+    <concept_id>10003752.10003790.10011740</concept_id>
+    <concept_desc>Theory of computation~Type theory</concept_desc>
+    <concept_significance>500</concept_significance>
+  </concept>
+</ccs2012>
+\end{CCSXML}
+\ccsdesc[500]{Theory of computation~Type theory}
+\keywords{Modes, Dependent Types, Coq, Formalization}
+
+\begin{document}
 \title{Consistency of a Dependent Calculus of Indistinguishability}
 
 \author{Yiyun Liu}
@@ -168,27 +196,6 @@
   \country{USA}
 }
 \email{sweirich@seas.upenn.edu}
-
-%% By default, the full list of authors will be used in the page
-%% headers. Often, this list is too long, and will overlap
-%% other information printed in the page headers. This command allows
-%% the author to define a more concise list
-%% of authors' names for this purpose.
-% \renewcommand{\shortauthors}{Liu et al.}
-
-\begin{CCSXML}
-<ccs2012>
-  <concept>
-    <concept_id>10003752.10003790.10011740</concept_id>
-    <concept_desc>Theory of computation~Type theory</concept_desc>
-    <concept_significance>500</concept_significance>
-  </concept>
-</ccs2012>
-\end{CCSXML}
-\ccsdesc[500]{Theory of computation~Type theory}
-\keywords{Modes, Dependent Types, Coq, Formalization}
-
-\begin{document}
 
 % squish lines in align environments
 % inexplicably this has to be inside the document
@@ -3027,6 +3034,9 @@ decidable type checking in the style of a bidirectional system
 The authors would like to thank the anonymous reviewers for their comments and suggestions.
 This work was supported by the \grantsponsor{}{National Science Foundation}{} under Grant Nos.~\grantnum{}{2006535} and \grantnum{}{2327738}.
 \end{acks}
+
+\section*{Data Availability Statement}
+The Coq proofs and the Haskell prototype implementation are available on Zenodo~\citep{dcoiartifact}.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{refs}

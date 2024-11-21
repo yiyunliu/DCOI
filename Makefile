@@ -36,10 +36,12 @@ $(DIFF).pdf : $(MAKEDEPS) $(OTTDEPS) $(RULES).tex
 $(RULES).tex : $(MAKEDEPS) $(OTTDEPS)
 	$(OTT) -o $(RULES).tex $(OTTDEPS)
 
-source.zip : $(MAKEDEPS) $(MAIN)-output.tex $(LATEXDEPS) $(MOREDEPS)
+source.zip : paper-output.tex Makefile refs.bib ACM-Reference-Format.bst acmart.cls
 	rm -rf source source.zip
 	mkdir source
-	cp $(MAKEDEPS) $(MAIN)-output.tex $(LATEXDEPS) $(MOREDEPS) latex.out/$(MAIN).bbl $(RULES).tex source/
+	cp acmart.cls  listproc.sty  ottalt.sty   draft.sty dcoi-rules.tex  paper-output.tex  refs.bib ACM-Reference-Format.bst source/
+	cp latex.out/paper.bbl source/paper-out.bbl
+	cp Makefile.export source/Makefile
 	zip -r source source
 
 .PHONY: clean
