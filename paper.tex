@@ -26,11 +26,11 @@
 \anonymoustrue
 \fi
 
-% \documentclass[acmsmall, screen=true, nonacm=false,
-%   review=\ifpublic false\else true\fi,
-%   anonymous=\ifanonymous true\else false\fi
-%   ]{acmart}
 \documentclass[acmsmall]{acmart}
+\citestyle{acmauthoryear}
+\setcopyright{rightsretained}
+\acmJournal{PACMPL}
+\acmYear{2025} \acmVolume{9} \acmNumber{POPL} \acmArticle{7} \acmMonth{1}\acmDOI{10.1145/3704843}
 
 
 \let\Bbbk\relax
@@ -45,8 +45,6 @@
 \usepackage[flushmargin,para]{footmisc}
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
-
-\citestyle{acmauthoryear}
 
 \lstset{
   basicstyle=\ttfamily\small,
