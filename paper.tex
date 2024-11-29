@@ -101,7 +101,7 @@
 \newcommand{\judgement}[1]{{\setlength{\fboxsep}{1.5pt}\fbox{#1}}}
 \newcommand{\mathcolorbox}[2]{\colorbox{#1}{$#2$}}
 \newcommand{\hlcolor}{yellow}
-\newcommand{\repo}{the supplementary materials}
+% \newcommand{\repo}{the supplementary materials}
 
 \newcommand{\interp}[4]{\bracks{#1 \vDash_{#2} #3} \searrow #4}
 \newcommand{\interpU}[3]{\bracks{#1 \vDash_{#2} #3}}
@@ -339,16 +339,16 @@ results about this well-behaved instance of the system.
 \end{itemize}
 
 All of our results have been developed using the Coq proof
-assistant and our proofs are available in \repo{} under the \texttt{proofs} directory.
+assistant and our proofs are available in the supplementary materials under the \texttt{proofs} directory.
 Furthermore, we have extended the prototype type checker by
 \citet{liu:dcoi},
 suitable for experimenting with the newly introduced features,
 which is also available under the \texttt{impl} directory.
-\ifsubmission
+% \ifsubmission
 Finally, for reasons of space, not all rules specifying \name can be included
 in this document. The remaining rules can be found in the reference appendix
 bundled in our supplementary material.
-\fi
+% \fi
 
 \section{Examples} \label{sec:examples}
 
@@ -1225,7 +1225,7 @@ Because the syntactic metatheory has already been established for \dcoi by \cite
 here we only state without proof the most important lemmas,
 some of which are used in the next section for the semantic metatheory.
 Nevertheless, everything has been mechanized in Coq,
-and the development can be found in \repo{} under the \texttt{proofs/theories} directory.
+and the development can be found in the supplementary materials under the \texttt{proofs/theories} directory.
 
 Definitions, lemmas, and theorems given here are annotated with a footnote
 to the corresponding file and top-level name in the development.
