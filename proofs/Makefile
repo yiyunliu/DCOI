@@ -1,6 +1,8 @@
 SYNTAX_FILE=theories/Autosubst2/syntax.v
 COQMAKEFILE=CoqMakefile
 
+include coqdocjs/Makefile.doc
+
 theories: $(COQMAKEFILE) FORCE
 	$(MAKE) -f $(COQMAKEFILE)
 

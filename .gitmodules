@@ -1,0 +1,3 @@
+[submodule "proofs/coqdocjs"]
+	path = proofs/coqdocjs
+	url = git@github.com:coq-community/coqdocjs
