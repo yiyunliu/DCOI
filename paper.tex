@@ -434,7 +434,7 @@ proof in the body of \lstinline{cong} does not refer to any of the
 function arguments, allowing us to type \lstinline{cong} at level
 \lstinline{L} to indicate that it is a constant function itself.
 
-\subsection{Irrelevance is Relative}
+\subsection{Irrelevance Is Relative}
 
 In the polymorphic identity function, the type parameter \lstinline{A}
 is irrelevant in the function body but makes a relevant appearance in
@@ -3038,8 +3038,6 @@ This work was supported by the \grantsponsor{}{National Science Foundation}{} un
 \section*{Data Availability Statement}
 The Coq proofs and the Haskell prototype implementation are available on Zenodo~\citep{dcoiartifact}.
 
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{refs}
 
 \ifsubmission
 \else
@@ -3054,7 +3052,7 @@ The Coq proofs and the Haskell prototype implementation are available on Zenodo~
 \drules[I]{$[[E |- a == b @ l]]$}{Indistinguishability}{Nat,Zero,Succ,Ind}
 \drules[L]{$[[E |- a : l]]$}{Level checking}{Nat,Zero,Succ,Ind}
 
-\subsection{Context Well-Formedness} \label{app:wf}
+\subsection{Context Well-Formedness}
 
 \drules[Wf]{$[[ |- G]]$}{Context well-formedness}{Nil, Cons}
 
@@ -3085,5 +3083,8 @@ The Coq proofs and the Haskell prototype implementation are available on Zenodo~
   \end{mathpar}
 \end{center}
 \fi
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
 
 \end{document}
