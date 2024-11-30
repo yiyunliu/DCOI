@@ -7,5 +7,5 @@ cd system-dcr/pi-forall
 git archive --prefix='artifact/impl/' --format=tar HEAD | tar -xf - --exclude=.github  -C ../../
 cd ../..
 cp reference-appendix.pdf artifact/
-tar cf artifact.tar artifact
+tar --create --numeric-owner --file artifact.tar artifact
 rm -r artifact
