@@ -3358,6 +3358,18 @@
 \or % acmengage
 \or % acmcp
 \fi
+\newtheoremstyle{linked}
+  {.5\baselineskip\@plus.2\baselineskip
+    \@minus.2\baselineskip}% space above
+  {.5\baselineskip\@plus.2\baselineskip
+    \@minus.2\baselineskip}% space below
+  {\@acmplainbodyfont}% body font
+  {\@acmplainindent}% indent amount
+  {\@acmplainheadfont}% head font
+  {.}% punctuation after head
+  {.5em}% spacing after head
+  {\href{\thislink}{\thmname{#1}\thmnumber{ #2}}\thmnote{ {\@acmplainnotefont(#3)}}}% head spec
+
 \newtheoremstyle{acmplain}%
   {.5\baselineskip\@plus.2\baselineskip
     \@minus.2\baselineskip}% space above
@@ -3390,6 +3402,17 @@
 \or % acmengage
 \or % acmcp
 \fi
+\newtheoremstyle{deflinked}
+  {.5\baselineskip\@plus.2\baselineskip
+    \@minus.2\baselineskip}% space above
+  {.5\baselineskip\@plus.2\baselineskip
+    \@minus.2\baselineskip}% space below
+  {\@acmdefinitionbodyfont}% body font
+  {\@acmdefinitionindent}% indent amount
+  {\@acmdefinitionheadfont}% head font
+  {.}% punctuation after head
+  {.5em}% spacing after head
+  {\href{\thislink}{\thmname{#1}\thmnumber{ #2}}\thmnote{ {\@acmdefinitionnotefont(#3)}}}% head spec
 \newtheoremstyle{acmdefinition}%
   {.5\baselineskip\@plus.2\baselineskip
     \@minus.2\baselineskip}% space above

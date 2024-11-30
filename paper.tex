@@ -57,6 +57,59 @@
 \usepackage[noend]{algpseudocode}
 \usepackage[capitalize,noabbrev,nameinlink]{cleveref}
 
+
+
+% \newtheoremstyle{linked}
+%   {.5\baselineskip\@plus.2\baselineskip
+%     \@minus.2\baselineskip}%      Space above, empty = `usual value'
+%   {.5\baselineskip\@plus.2\baselineskip
+%     \@minus.2\baselineskip}%      Space below
+%   {\itshape}% Body font
+%   {}%         Indent amount (empty = no indent, \parindent = para indent)
+%   {\scshape}% Thm head font
+%   {.}%        Punctuation after thm head
+%   { }%     Space after thm head: " " = normal interword space;
+%      %     \newline = linebreak
+%   {\href{\thislink}{\thmname{#1} \thmnumber{#2}}\thmnote{ (#3)}}% Thm head spec
+
+% \newtheoremstyle{unlinked}
+%   {}%      Space above, empty = `usual value'
+%   {}%      Space below
+%   {\itshape}% Body font
+%   {}%         Indent amount (empty = no indent, \parindent = para indent)
+%   {\scshape}% Thm head font
+%   {.}%        Punctuation after thm head
+%   { }%     Space after thm head: " " = normal interword space;
+%      %     \newline = linebreak
+%   {{\thmname{#1} \thmnumber{#2}}\thmnote{ (#3)}}% Thm head spec
+
+\theoremstyle{linked}
+  \newtheorem{thm}{Theorem}[section] % normal theorems
+  \newtheorem{innlinkthm}[thm]{Theorem}
+  \newenvironment{linkthm}[1]
+  {\def\thislink{#1}\innlinkthm}
+  {\endinnlinkthm}
+
+  \newtheorem{innlinkcor}[thm]{Corollary}
+  \newenvironment{linkcor}[1]
+  {\def\thislink{#1}\innlinkcor}
+  {\endinnlinkcor}
+
+  \newtheorem{innlinklem}[thm]{Lemma}
+  \newenvironment{linklem}[1]
+  {\def\thislink{#1}\innlinklem}
+  {\endinnlinklem}
+
+\theoremstyle{deflinked}
+  \newtheorem{innlinkdef}[thm]{Definition}
+  \newenvironment{linkdef}[1]
+  {\def\thislink{#1}\innlinkdef}
+  {\endinnlinkdef}
+
+  \theoremstyle{acmdefinition}
+  \newtheorem{nolinkdef}[thm]{Definition}
+
+
 \lstset{
   basicstyle=\ttfamily\small,
   basewidth=0.5em,
@@ -803,13 +856,13 @@ Intuitively, this is permitted because there is no way for a term to depend on i
 so the type of a lower-level term can safely use higher-level information
 without it leaking into the term.
 
-\begin{lemma}[Regularity]
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Wff}, \suppl{theories}{preservation.v}{Wt\_regularity}}
+
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.preservation.html\#preservation.Wt_regularity}[Regularity]
   \label{lem:regularity}
   If $[[G |- a : l A]]$, then $[[|- G]]$ holds,
   and there exist $[[l0]], [[i]]$
   such that $[[G |- A : l0 Univ i]]$.
-\end{lemma}
+\end{linklem}
 
 While generally a lower-level term may not meaningfully use higher-level information,
 a proof of the empty type $[[Void]]$ at \emph{any} level
@@ -926,13 +979,12 @@ This is crucial for proving further syntactic and semantic lemmas in
 such as the preservation of definitional equality between two terms as
 they reduce and the preservation of meaning for indistinguishable types.
 
-\begin{lemma}[Simulation]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{simulation\_star}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.conv.html\#conv_facts.simulation_star}[Simulation]
   \label{lem:simulation}
   If $[[E |- a0 == b0 @ l]]$ and $[[a0 =>* a1]]$,
   then there exists some $[[b1]]$ such that $[[b0 =>* b1]]$
   and $[[E |- a1 == b1 @ l]]$.
-\end{lemma}
+\end{linklem}
 
 Compared to prior work by
 \citet{liu:dcoi}, where indistinguishability is defined as an
@@ -1006,8 +1058,8 @@ can be recovered as follows.
 The typing rules for the projections can be stated as admissible rules
 with the same premises as the rules in \dcoi,
 and are given in \cref{fig:typing:proj} as
-\rref*{Wt-proj1}\footnote{\suppl{theories}{admissible.v}{T\_Proj1}}
-and \rref*{Wt-proj2}\punctstack{.}\footnote{\suppl{theories}{admissible.v}{T\_Proj2}}
+\href{https://yiyunliu.github.io/dcoi/DCOIOmega.admissible.html\#admissible.T_Proj1}{\textsc{Wt-proj1}}
+and \href{https://yiyunliu.github.io/dcoi/DCOIOmega.admissible.html\#admissible.T_Proj2}{\textsc{Wt-proj2}}.
 The first projection is well typed only if the first component's level
 is bounded by the level of the pair:
 we can only project an observable component.
@@ -1069,9 +1121,9 @@ and can be encoded as a unary tuple.
 
 By these encodings and the typing rules for pairs,
 we obtain the admissible typing rules for box types
-(\rref*{Wt-T}\footnote{\suppl{theories}{admissible.v}{T\_T}}),
-boxes (\rref*{Wt-Box}\footnote{\suppl{theories}{admissible.v}{T\_Box}}),
-and unboxing (\rref*{Wt-Unbox}\footnote{\suppl{theories}{admissible.v}{T\_Unbox}})
+(\href{https://yiyunliu.github.io/dcoi/DCOIOmega.admissible.html\#admissible.T_T}{\textsc{Wt-T}}),
+boxes (\href{https://yiyunliu.github.io/dcoi/DCOIOmega.admissible.html\#admissible.T_Box}{\textsc{Wt-Box}}),
+and unboxing (\href{https://yiyunliu.github.io/dcoi/DCOIOmega.admissible.html\#admissible.T_Unbox}{\textsc{Wt-Unbox}})
 in \cref{fig:typing:box}.
 The level constraint in \rref*{Wt-Unbox} comes from the corresponding constraint in \rref{Wt-Let},
 and intuitively says that the only values that can be unboxed are observable ones.
@@ -1180,13 +1232,12 @@ increases the expressivity of the eliminator,
 since the motive $[[C]]$ is able to abstract over $[[x]]$ at the lower level $[[l1]]$.
 In particular, it allows us to show the following lemma.
 
-\begin{lemma}[Downgrade]
-  \stack{.~}\footnote{\suppl{theories}{admissible.v}{T\_Down\_Alt}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.admissible.html\#admissible.T_Down_Alt}[Downgrade]
   \label{lem:downgrade}
   Suppose $[[G |- a : l0 A]]$ and $[[G |- b : l0 A]]$.
   If $[[G |- p : l a ~ l1 b]]$ and $[[l0 <= l1]]$,
   then $[[G |- J refl l p : l a ~ l0 b]]$.
-\end{lemma}
+\end{linklem}
 
 \nameref{lem:downgrade} permits lowering the observer level of an equality proof.
 Here, the motive is $[[a ~ l0 x]]$,
@@ -1227,8 +1278,8 @@ some of which are used in the next section for the semantic metatheory.
 Nevertheless, everything has been mechanized in Coq,
 and the development can be found in the supplementary materials under the \texttt{proofs/theories} directory.
 
-Definitions, lemmas, and theorems given here are annotated with a footnote
-to the corresponding file and top-level name in the development.
+% Definitions, lemmas, and theorems given here are annotated with a link
+% to the corresponding file and top-level name in the development.
 Some lemmas are presented as admissible derivation rules of the corresponding judgment,
 which are written with a double horizontal bar instead of a single bar.
 Their corresponding mechanizations are annotated where mentioned in the prose.
@@ -1267,41 +1318,38 @@ We omit them here, but they are listed in
 The level checking and indistinguishability judgments
 satisfy some standard properties,
 listed as admissible rules in \cref{fig:lemmas}.
-\Rref*{L-subst}\footnote{\suppl{theories}{geq.v}{iok\_subst}} and
-\rref*{I-subst}\footnote{\suppl{theories}{geq.v}{ieq\_iok\_subst}}
+\href{https://yiyunliu.github.io/dcoi/DCOIOmega.geq.html\#geq_facts.iok_subst}{\textsc{L-subst}} and
+\href{https://yiyunliu.github.io/dcoi/DCOIOmega.geq.html\#geq_facts.ieq_iok_subst}{\textsc{I-subst}}
 permit substituting in a level-checked term of the appropriate level
 in place of a variable of that level in the context.
 Indistinguishability also satisfies a congruence property
-\rref*{I-cong}\footnote{\suppl{theories}{geq.v}{ieq\_morphing\_mutual}},
+\href{https://yiyunliu.github.io/dcoi/DCOIOmega.geq.html\#geq_facts.ieq_morphing_mutual}{\textsc{I-cong}}
 where indistinguishable terms may be substituted into a level-checked term.
 Level checking is subsumptive
-(\rref*{L-sub}\footnote{\suppl{theories}{geq.v}{iok\_subsumption}}):
+(\href{https://yiyunliu.github.io/dcoi/DCOIOmega.geq.html\#geq_facts.iok_subsumption}{\textsc{L-sub}}):
 the level of a level-checked term may be raised.
 Indistinguishability satisfies a downgrade property
-(\rref*{I-down}\footnote{\suppl{theories}{geq.v}{ieq\_downgrade\_mutual}}),
+(\href{https://yiyunliu.github.io/dcoi/DCOIOmega.geq.html\#geq_facts.ieq_downgrade_mutual}{\textsc{I-down}}),
 where knowing that a term is indistinguishable from another at two different levels
 permits concluding that it is also indistinguishable at the meet of the levels.
 
 The key lemmas of parallel reduction are the diamond property and confluence,
 which state that if a term reduces to two different terms,
 those two terms themselves must converge back to the same term.
-The proof uses the notion of complete development%
-\footnote{\suppl{theories}{par.v}{tstar}}
+The proof uses the notion of complete development
 by \citet{takahashi:par}.
 
-\begin{lemma}[Diamond]
-  \stack{.~}\footnote{\suppl{theories}{par.v}{Par\_confluent}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.par.html\#par_facts.Par_confluent}[Diamond]
   \label{lem:diamond}
   If $[[a => b0]]$ and $[[a => b1]]$, then
   there exists $[[c]]$ s.t. $[[b0 => c]]$ and $[[b1 => c]]$.
-\end{lemma}
+\end{linklem}
 
-\begin{lemma}[Confluence]
-  \stack{.~}\footnote{\suppl{theories}{par.v}{Pars\_confluent}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.par.html\#par_facts.Pars_confluent}[Confluence]
   \label{lem:confluence}
   If $[[a =>* b0]]$ and $[[a =>* b1]]$, then
   there exists $[[c]]$ s.t. $[[b0 =>* c]]$ and $[[b1 =>* c]]$.
-\end{lemma}
+\end{linklem}
 
 Injectivity of type constructors are trivial to prove in our system since
 definitional equality is directly defined in terms of
@@ -1311,47 +1359,16 @@ that the definitional equality is transitive, which requires
 downgrade (\rref*{I-down}),
 \nameref{lem:confluence}, and \nameref{lem:simulation}.
 
-\begin{lemma}[Transitivity of equality]
-  \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_trans}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.conv.html\#conv_facts.conv_trans}[Transitivity of equality]
   If $[[E |- a == b]]$ and $[[E |- b == c]]$, then $[[E |- a == c]]$.
-\end{lemma}
-
-% Finally, we need inversion lemmas for definitional equality
-% (\ie injectivity of type constructors).
-
-% \begin{lemma}[Injectivity of function types]
-%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_pi\_inj}}
-%   If $[[E |- Pi x : l0 A0 . B0 == Pi x : l1 A1 . B1]]$
-%   then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
-%   and $[[E ++ x : l0 |- B0 == B1]]$.
-% \end{lemma}
-
-% \begin{lemma}[Injectivity of pair types]
-%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_sig\_inj}}
-%   If $[[E |- Sig x : l0 A0 . B0 == Sig x : l1 A1 . B1]]$
-%   then $[[l0]] = [[l1]]$, $[[E |- A0 == A1]]$,
-%   and $[[E ++ x : l0 |- B0 == B1]]$.
-% \end{lemma}
-
-% \begin{lemma}[Injectivity of equality types]
-%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_eq\_inj}}
-%   If $[[E |- a0 ~ l0 b0 == a1 ~ l1 b1]]$
-%   then $[[l0]] = [[l1]]$,
-%   and there exists an $[[l >= l0]]$
-%   such that $[[E |- a0 <=> a1 @ l]]$ and $[[E |- b0 <=> b1 @ l]]$.
-% \end{lemma}
-
-% \begin{lemma}[Injectivity of universes]
-%   \stack{.~}\footnote{\suppl{theories}{conv.v}{conv\_univ\_inj}}
-%   If $[[E |- Univ i == Univ j]]$ then $[[i]] = [[j]]$.
-% \end{lemma}
+\end{linklem}
 
 \subsection{Type Preservation}
 
 Like level checking, type checking admits substitution
-(\rref*{Wt-subst}\footnote{\suppl{theories}{preservation.v}{subst\_Syn}})
+(\href{https://yiyunliu.github.io/dcoi/DCOIOmega.preservation.html\#preservation.subst_Syn}{\textsc{Wt-subst}})
 and subsumption
-(\rref*{Wt-sub}\footnote{\suppl{theories}{preservation.v}{subsumption}}),
+(\href{https://yiyunliu.github.io/dcoi/DCOIOmega.preservation.html\#preservation.subsumption}{\textsc{Wt-sub}}),
 as stated in \cref{fig:lemmas}.
 Due to \rref{Wt-Conv},
 deducing the well-typedness of subterms of a well-typed term
@@ -1363,18 +1380,16 @@ then they are definitionally equal at that level.
 Finally, we are able to prove type preservation,
 which proceeds by induction on the typing derivation.
 
-\begin{lemma}
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{Wt\_Refl\_Coherent}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.preservation.html\#preservation.Wt_Refl_Coherent}
   If $[[G |- refl : l a ~ l0 b]]$,
   then $[[| G | |- a <=> b @ l0]]$.
-\end{lemma}
+\end{linklem}
 
-\begin{theorem}[Type preservation]
-  \stack{.~}\footnote{\suppl{theories}{preservation.v}{subject\_reduction},\suppl{theories}{preservation.v}{subject\_reduction\_star}}
+\begin{linkthm}{https://yiyunliu.github.io/dcoi/DCOIOmega.preservation.html\#preservation.subject_reduction}[Type preservation]
   \label{thm:preservation}
   If $[[a => b]]$ (or $[[a =>* b]]$) and $[[G |- a : l A]]$
   then $[[G |- b : l A]]$.
-\end{theorem}
+\end{linkthm}
 
 \section{Semantic Metatheory}
 \label{sec:semmeta}
@@ -1412,23 +1427,21 @@ standard and can be found in
 \fi
 Weakly normalizing terms are then terms which reduce to a normal form.
 
-\begin{definition}[Weakly normalizing terms]
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn}, \suppl{theories}{normalform.v}{wne}}
+\begin{linkdef}{https://yiyunliu.github.io/dcoi/DCOIOmega.normalform.html\#normalform_sig.wn}[Weakly normalizing terms]
   Given a term $[[a]]$, if there exists some term $[[b]]$ such that
   $[[a =>* b]]$ and $[[nf b]]$ (resp. $[[ne b]]$),
   then we say that $[[a]]$ weakly normalizes to a
   normal (resp. neutral) form, which we denote as
   \judgement{$[[wnf a]]$} (resp. \judgement{$[[wne a]]$}).
-\end{definition}
+\end{linkdef}
 
 The following lemma captures the idea that neutral and normal forms
 are free of redexes.
 
-\begin{lemma}
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{nf\_refl}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.normalform.html\#normalform_fact.nf_refl}
   If $[[nf a]]$ or $[[ne a]]$, then for all $[[b]]$ such that $[[a =>
   b]]$, we have $[[a]] = [[b]]$.
-\end{lemma}
+\end{linklem}
 
 \begin{figure}[h]
   \centering
@@ -1530,12 +1543,12 @@ For concision, we introduce \emph{semantic inhabitance} to
 avoid mentioning the type well-formedness side condition
 when talking about a term inhabiting the set interpretation of a type.
 
-\begin{definition}[Semantic inhabitance]
+\begin{nolinkdef}[Semantic inhabitance]
   Given a context $[[E]]$ and a level $[[l]]$,
   we say that $[[a]]$ \emph{semantically inhabits} the type $[[A]]$
   at level $[[l]]$ if there exists some $[[i]]$ and $[[S]]$ such that
   $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{a}{[[l]]}{S}$.
-\end{definition}
+\end{nolinkdef}
 
 In \rref{SWt-Pi,SWt-Sigma}, the
 metavariable $R$ represents a relation between terms and the
@@ -1555,12 +1568,11 @@ This property is
 formally stated as follows and can be proven by straightforward
 induction on the logical predicate.
 
-\begin{lemma}[Escape]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUniv\_Ok}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUniv_Ok}[Escape]
   \label{lem:escape}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $\member{[[a]]}{[[l]]}{S}$,
   then $[[E |- a : l]]$.
-\end{lemma}
+\end{linklem}
 
 We refer to \cref{lem:escape} as the escape lemma as it is
 reminiscent of the escape lemmas by \citet{abel:irrelevance} and
@@ -1574,12 +1586,11 @@ Similar to its syntactic counterpart, the logical predicate satisfies
 the subsumption property,
 proven by straightforward induction using \rref*{L-sub}.
 
-\begin{lemma}[Subsumption for the logical predicate]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_subsumption}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUnivN_subsumption}[Subsumption for the logical predicate]
   Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$.
   If $[[l0 <= l1]]$ and $\member{[[a]]}{[[l0]]}{S}$,
   then $\member{[[a]]}{[[l1]]}{S}$.
-\end{lemma}
+\end{linklem}
 
 % The relaxation is possible thanks to
 % the untyped conversion rule, which allows us to derive properties
@@ -1599,16 +1610,14 @@ the derivation because we close our interpretation with parallel
 reduction in \rref{SWt-Step}. For brevity, we show only the cases
 for equality, function, and empty types.
 
-\begin{lemma}[Inversion of the logical predicate (selected)]
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUnivN_Eq_inv}[Inversion of the logical predicate (selected)]
   \label{lem:interpinv}\leavevmode
   \begin{enumerate}
-  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Eq\_inv}}
-    \label{lem:interpinveq}
+  \item \label{lem:interpinveq}
     If $\interp{[[E]]}{[[i]]}{[[a ~ l0 b]]}{S}$, then $S =
     \buildset{[[p]]}{[[l]]}{[[E |- p : l]] \wedge
       (\eqspace{[[p]]}{[[E]]}{[[a]]}{[[b]]}{[[l0]]} \vee [[wne p]])}$.
-  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Fun\_inv\_nopf}}
-    \label{lem:interpinvfun}
+  \item \label{lem:interpinvfun}
     If $\interp{[[E]]}{[[i]]}{[[Pi x : l0 A . B]]}{S}$, then there
     exist $S_A$ and $R$ such that following hold:
     \begin{itemize}
@@ -1619,12 +1628,11 @@ for equality, function, and empty types.
     \item $\forall a, S_B, \member{a}{[[l0]]}{S_A} \to R(a, S_B) \to
       \interp{[[E]]}{[[i]]}{[[B {a / x}]]}{S_B}$.
     \end{itemize}
-  \item \stack{~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_Void\_inv}}
-    \label{lem:interpinvvoid}
+  \item \label{lem:interpinvvoid}
     If $\interp{[[E]]}{[[i]]}{[[Void]]}{S}$, then $S =
     \buildset{[[a]]}{[[l]]}{[[E |- a : l]] \wedge [[wne a]]}$.
   \end{enumerate}
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   Immediate by induction on the derivation of the logical
@@ -1634,13 +1642,12 @@ for equality, function, and empty types.
 The set of terms that semantically inhabit a type is closed by
 expansion (\ie backward reduction).
 
-\begin{lemma}[Backward closure]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_back\_clos}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUnivN_back_clos}[Backward closure]
   \label{lem:backclos}
   Suppose $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[E |- a : l]]$.
   If $[[a => b]]$ and $\member{[[b]]}{[[l]]}{S}$,
   then $\member{[[a]]}{[[l]]}{S}$.
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   By induction on the derivation of the logical predicate. The
@@ -1653,12 +1660,11 @@ The logical predicate satisfies cumulativity: if a type has an
 interpretation at a lower level, then it must also have the same
 interpretation at a higher level.
 
-\begin{lemma}[Cumulativity]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_cumulative}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUnivN_cumulative}[Cumulativity]
   \label{lem:cumulativity}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[i]] \leq [[j]]$, then
   $\interp{[[E]]}{[[j]]}{[[A]]}{S}$.
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   By induction on the derivation of $\interp{[[E]]}{[[i]]}{[[A]]}{S}$
@@ -1669,12 +1675,11 @@ interpretation at a higher level.
 expansion. We can also show that the interpretation of types is
 preserved under forward reduction through the following lemma.
 
-\begin{lemma}[Reduction preserves interpretation]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_preservation}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUnivN_preservation}[Reduction preserves meaning]
 \label{lem:lrpreservation}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$ and $[[A => B]]$, then
   $\interp{[[E]]}{[[i]]}{[[B]]}{S}$.
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   By induction on the derivation of
@@ -1689,12 +1694,11 @@ Next, we prove that the logical predicate is functional. That is,
 given a context $[[E]]$ and a universe level $[[i]]$, a type $[[A]]$
 can correspond to at most one interpretation $[[S]]$.
 
-\begin{lemma}[Functionality]
-\stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_deterministic}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUnivN_deterministic}[Functionality]
 \label{lem:lrfunc}
 If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$ and
 $\interp{[[E]]}{[[i]]}{[[A]]}{S_1}$, then $S_0 = S_1$.
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   By induction on the derivation of
@@ -1712,14 +1716,13 @@ indistinguishable. This property is needed to fully justify the
 soundness of the type conversion rule, since the type conversion
 involves both reduction and indistinguishability.
 
-\begin{lemma}[Functionality for indistinguishable types]
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.InterpUnivN_IEq}[Functionality for indistinguishable types]
   \label{lem:lrfunci}
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{InterpUnivN\_IEq}}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S_0}$,
   $\interp{[[E]]}{[[i]]}{[[B]]}{S_1}$, and
   $[[E |- A == B @ l ]]$ for some $[[l]]$,
   then $S_0 = S_1$.
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   The argument is similar to the one for \cref{lem:lrfunc}.
@@ -1760,28 +1763,25 @@ term that level checks under any context and parallel reduces only to itself.
 First, reductions and normal forms are preserved when we undo substitutions
 involving $[[dummy]]$.
 
-\begin{lemma}[Antirenaming for Par]
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{Par\_antirenaming}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.normalform.html\#normalform_fact.Par_antirenaming}% [Antirenaming for Par]
   \label{lem:paranti}
   If $[[a {dummy / x} => b]]$, then there exists some term $[[b0]]$
   such that $[[b]] = [[b0 {dummy / x}]]$ and $[[a => b0]]$.
-\end{lemma}
+\end{linklem}
 
-\begin{lemma}[Antirenaming for normal and neutral forms]
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{ne\_nf\_renaming\_with\_d}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.normalform.html\#normalform_fact.ne_nf_renaming_with_d}% [Antirenaming
+  % for nf and ne]
   \label{lem:nfneanti}
   If $[[nf a {dummy / x}]]$ (resp. $[[ne a {dummy / x}]]$), then $[[nf
   a]]$ (resp. $[[ne a]]$).
-\end{lemma}
-
-From \cref{lem:paranti,lem:nfneanti}, we derive the
+\end{linklem}
+From Lemmas \ref{lem:paranti} and \ref{lem:nfneanti}, we derive the
 following corollary about weak normalization.
 
-\begin{lemma}[Antirenaming for weak normalization]
-  \stack{.~}\footnote{\suppl{theories}{normalform.v}{wn\_antirenaming}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.normalform.html\#normalform_fact.wn_antirenaming}[Antirenaming for weak normalization]
   \label{lem:wnanti}
   If $[[wnf a {dummy / x}]]$, then $[[wnf a]]$.
-\end{lemma}
+\end{linklem}
 
 In \citet{geuvers:cc-sn}, the $[[dummy]]$ constant can be defined as
 syntactic sugar for a fresh variable. However, this is not possible in \name
@@ -1792,15 +1792,14 @@ that has no reference to variables, so we do not violate scoping.
 
 Finally, we state and prove the adequacy lemma.
 
-\begin{lemma}[Adequacy]
-  \stack{.~}\footnote{\suppl{theories}{semtyping.v}{adequacy}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.semtyping.html\#lr_sig.adequacy}[Adequacy]
   \label{lem:adequacy}
   If $\interp{[[E]]}{[[i]]}{[[A]]}{S}$, then $[[wnf A]]$ and the following hold:
   \begin{itemize}
   \item If $\member{a}{[[l]]}{S}$, then $[[wnf a]]$;
   \item If $[[E |- a : l]]$ and $[[wne a]]$, then $\member{a}{[[l]]}{S}$.
   \end{itemize}
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   By induction on the derivation of
@@ -1837,7 +1836,7 @@ in this section we frame substitution in terms of \emph{substitution maps}
 (or simply \emph{substitutions} for short)
 and simultaneous substitutions.
 
-\begin{definition}[Substitution maps]
+\begin{nolinkdef}[Substitution maps]
   A substitution map $\rho$ is a mapping from variables to terms.
   We use $\dom(\rho)$~to denote the variables in the domain of $\rho$,
   $\rho(x)$~the term to which $\rho$ maps $[[x]]$,
@@ -1849,10 +1848,9 @@ and simultaneous substitutions.
   The singleton substitution map $[[{ a / x }]]$
   is then defined as $[[(nil ++ { a / x })]]$,
   the single extension of the identity substitution map.
-\end{definition}
+\end{nolinkdef}
 
-\begin{definition}[Valid substitutions]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok}}
+\begin{linkdef}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#ce229b389eb44d1584dd9c9c76a60641}[Valid substitutions]
   \label{def:semwf}
   A substitution map is a valid substitution
   from $[[G]]$ to $[[D]]$,
@@ -1862,17 +1860,16 @@ and simultaneous substitutions.
   and for all $i$, $S$ such that
   $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$,
   we have $\member{\rho(x)}{[[l]]}{S}$.
-\end{definition}
+\end{linkdef}
 
 By definition, every term $[[rho(x)]]$ in a valid substitution map
 $[[rho]]$ from $[[G]]$ to $[[D]]$ level checks with respect to the erased context
 $[[|D|]]$. Applying the substitution then yields a term that level checks.
 
-\begin{lemma}
-\stack{.~}\footnote{\suppl{theories}{soundness.v}{iok\_$\rho$\_ok\_morphing}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#4a8b83de4087d81539bd6cdd07ee4f12}
   If $[[|G| |- a : l]]$ and $\sws{[[D]]}{\rho}{[[G]]}$, then $[[|D| |-
   a{rho} : l ]]$.
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   Immediate by iterating the substitution principle for level checking (\rref*{L-subst}).
@@ -1884,8 +1881,7 @@ $[[|D|]]$. Applying the substitution then yields a term that level checks.
 % not imply the existence of interpretations for types in the context.
 Valid substitutions satisfy the following admissible structural rules.
 
-\begin{lemma}[Structural rules for valid substitutions]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_id}, \suppl{theories}{soundness.v}{$\rho$\_ok\_cons}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#17b452d9ad362de901c7044deccf7105}[Structural rules for valid substitutions]
   \label{lem:vsubst}
   \leavevmode
   \begin{enumerate}
@@ -1895,7 +1891,7 @@ Valid substitutions satisfy the following admissible structural rules.
       at level $[[l0]]$ under level context $[[| D |]]$,
       then $\sws{[[D]]}{[[rho ++ {a / x} ]]}{[[G ++ x : l0 A ]]}$ holds.
   \end{enumerate}
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   (\ref{lem:vnil}) is easily justified by the part of the adequacy lemma
@@ -1923,9 +1919,8 @@ Valid substitutions satisfy the following admissible structural rules.
 
 Next, we define semantic typing based on valid substitutions and the logical predicate.
 
-\begin{definition}[Semantic well-typedness]
+\begin{linkdef}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#soundness.SemWt}[Semantic well-typedness]
   \label{def:semwt}
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt}}
   A term $[[a]]$ is semantically well typed with type $[[A]]$
   at level $[[l]]$ under context $[[G]]$,
   written \judgement{$\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$},
@@ -1933,7 +1928,7 @@ Next, we define semantic typing based on valid substitutions and the logical pre
   given $\sws{[[D]]}{\rho}{[[G]]}$,
   the term $[[a {rho}]]$ semantically inhabits the type $[[A {rho}]]$
   under the level context $[[|D|]]$.
-\end{definition}
+\end{linkdef}
 
 Valid substitutions and semantic well-typedness both satisfy weakening
 properties,
@@ -1941,19 +1936,19 @@ which align with the intuition that a
 substitution map for a context $[[G]]$ also closes over any
 prefixes of $[[G]]$.
 
-\begin{lemma}[Weakening for valid substitutions and
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#b695741f8a26fc60864d93cad36fc320}[Weakening for valid substitutions and
   semantic well-typedness]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}, \suppl{theories}{soundness.v}{weakening\_Sem}}
   \label{lem:semweak}
   \leavevmode
   \begin{itemize}
-    \item \stack{~}\footnote{\suppl{theories}{soundness.v}{$\rho$\_ok\_renaming}}
-      If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then $\sws{[[D]]}{\rho}{[[G]]}$.
-    \item \stack{~}\footnote{\suppl{theories}{soundness.v}{weakening\_Sem}}
+  \item
+      If $\sws{[[D]]}{\rho}{[[G ++ x : l A]]}$, then
+      $\sws{[[D]]}{\rho}{[[G]]}$.
+    \item
       If $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$,
       then $\swt{[[G ++ x : l0 A]]}{[[a]]}{[[l]]}{[[A]]}$.
   \end{itemize}
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   Immediate by the definitions of valid
@@ -1981,8 +1976,7 @@ context well-formedness judgment \judgement{$\swf{[[G]]}$}.
 \ifextended
 The following lemma is useful when working with judgments of the form
 $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
-\begin{lemma}[Semantic type inversion]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{SemWt\_Univ}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#soundness.SemWt_Univ}[Semantic type inversion]
   The following are equivalent:
   \begin{itemize}
     \item $\swt{[[G]]}{[[A]]}{[[l]]}{[[Univ i]]}$;
@@ -1992,7 +1986,7 @@ $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
         \item There exists an interpretation $S$ such that $\interp{[[|D|]]}{[[i]]}{[[A { rho }]]}{S}$.
       \end{itemize}
   \end{itemize}
-\end{lemma}
+\end{linklem}
 \begin{proof}
   Immediate by the inversion lemma for types of the form $[[Univ i]]$ (\cref{lem:interpinv}).
 \end{proof}
@@ -2001,12 +1995,11 @@ $\swt{[[G]]}{[[A]]}[[l]][[Univ i]]$.
 We now specify the fundamental theorem and provide proof
 sketches for the interesting cases.
 
-\begin{theorem}[Fundamental theorem]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{soundness}}
+\begin{linkthm}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#soundness.soundness}[Fundamental theorem]
   \label{thm:fundamental}
   If $[[G |- a : l A]]$ then $\swt{[[G]]}{[[a]]}{[[l]]}{[[A]]}$;
   if $[[|- G]]$ then $\swf{[[G]]}$.
-\end{theorem}
+\end{linkthm}
 \begin{proof}
 By mutual induction on syntactic typing and
 well-formedness. Despite the complex setup of the logical predicate,
@@ -2032,20 +2025,19 @@ The \rref*{Wt-Var} case requires weakening for semantic typing
 right scope.
 \end{proof}
 
-\begin{corollary}[Weak normalization for well-typed terms]
-  \stack{.~}\footnote{\suppl{theories}{soundness.v}{normalization}}
+\begin{linkcor}{https://yiyunliu.github.io/dcoi/DCOIOmega.soundness.html\#soundness.normalization}[Weak normalization for well-typed terms]
+  % \stack{.~}\footnote{\suppl{theories}{soundness.v}{normalization}}
   \label{cor:wtwn}
   If $[[G |- a : A]]$, then $[[wnf a]]$.
-\end{corollary}
+\end{linkcor}
 \begin{proof}
   Immediate by the \nameref{thm:fundamental} and \cref{lem:vsubst} (\ref{lem:vnil}).
 \end{proof}
 
-\begin{corollary}[Logical consistency]
-  \stack{.~}\footnote{\suppl{theories}{consistency.v}{consistency}}
+\begin{linkcor}{https://yiyunliu.github.io/dcoi/DCOIOmega.consistency.html\#consistency}[Logical consistency]
   The judgment $[[nil |- a : l Void]]$ is not derivable for any
   $[[a]]$ or $[[l]]$.
-\end{corollary}
+\end{linkcor}
 \begin{proof}
   Immediate by the \nameref{thm:fundamental}, \cref{lem:vsubst}
   (\ref{lem:vnil}), and \cref{lem:interpinv} (\ref{lem:interpinvvoid}).
@@ -2065,11 +2057,10 @@ leftmost-outermost reduction relation for \name.
 %   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{h}[[b]]$.
 % \end{lemma}
 
-\begin{lemma}[Standardization]
-  \stack{.~}\footnote{\suppl{theories}{factorization.v}{standardization}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.factorization.html\#factorization_sig.standardization}[Standardization]
   \label{lem:standardization}
   If $[[a =>* b]]$ and $[[nf b]]$, then $[[a]]\leadsto^{lo}[[b]]$.
-\end{lemma}
+\end{linklem}
 
 Its proof, which we omit here,
 is adapted from the standardization proof for the untyped lambda
@@ -2085,26 +2076,24 @@ postponement for weak head reduction instead of head reduction since
 the former admits a simpler specification.
 \fi
 
-\begin{corollary}[Normalization is decidable]
-  \stack{.~}\footnote{\suppl{theories}{factorization.v}{LoRed\_normalize}}
+\begin{linkcor}{https://yiyunliu.github.io/dcoi/DCOIOmega.factorization.html\#factorization_sig.LoRed_normalize}[Normalization is decidable]
   \label{lem:nomdec}
   If $[[wnf a]]$, then its normal form can be computed.
-\end{corollary}
+\end{linkcor}
 \begin{proof}
   By \nameref{lem:standardization} and the fact that
   leftmost-outermost reduction is deterministic, we can repeatedly
   apply leftmost-outermost reduction to find the normal form for $[[a]]$.
 \end{proof}
 
-\begin{lemma}[Indistinguishability is decidable]
-  \stack{.~}\footnote{\suppl{theories}{geq.v}{IEq\_dec}}
+\begin{linklem}{https://yiyunliu.github.io/dcoi/DCOIOmega.geq.html\#geq_facts.IEq_dec}[Indistinguishability is decidable]
   \label{lem:indistdec}
   If the lattice admits a decidable comparison operator, then indistinguishability
   is decidable. That is, given a level context $[[E]]$, terms
   $[[A]]$ and $[[B]]$, and a level $[[l]]$, there is an algorithm that
   terminates with \texttt{true} or \texttt{false} depending on whether
   $[[E |- A == B @ l]]$.
-\end{lemma}
+\end{linklem}
 
 \begin{proof}
   The algorithm, whose definition we omit, simply recurs over the
@@ -2114,8 +2103,7 @@ the former admits a simpler specification.
   comparison $[[l0 <= l]]$ be decidable.
 \end{proof}
 
-\begin{definition}[Algorithm for type conversion]
-  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{convb}}
+\begin{linkdef}{https://yiyunliu.github.io/dcoi/DCOIOmega.iconv_dec.html\#conv_dec_bot.convb}[Algorithm for type conversion]
   \label{def:convalg}
   Given a level context $[[E]]$ and two well-formed types $[[A]]$
   and $[[B]]$, the algorithm deciding their equality is as follows.
@@ -2131,7 +2119,7 @@ the former admits a simpler specification.
     \cref{lem:indistdec} on the relation
     $[[E |- A0 == B0 @ l]]$.
   \end{enumerate}
-\end{definition}
+\end{linkdef}
 
 In (\ref{item:decide}), \nameref{lem:simulation} justifies the use of
 normal forms $[[A0]]$ and $[[B0]]$
@@ -2157,23 +2145,21 @@ $[[A]]$ and $[[B]]$. While there are other sufficient conditions for
 inferring the level $[[l]]$, such as the size of the lattice being
 countable, we focus on the correctness of the algorithm for a lattice
 with a bottom element.
-\begin{theorem}[Decidability of type conversion with bottom]
-  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{conv\_dec}}
+\begin{linkthm}{https://yiyunliu.github.io/dcoi/DCOIOmega.iconv_dec.html\#conv_dec_bot.conv_dec}[Decidability of type conversion with bottom]
   \label{lem:decconv}
   Given $[[G |- a : l A]]$ and $[[G |- B : Univ i]]$, the algorithm
   described in \cref{def:convalg} decides the relation $[[|G| |- A ==
   B]]$ if \name is instantiated with a lattice with a bottom.
-\end{theorem}
+\end{linkthm}
 
 Independent of the underlying lattice structure, the
 indexed version of definitional equality is always decidable since it
 allows us to skip the level inference from step (\ref{item:min}).
-\begin{theorem}[Decidability of indexed type conversion]
-  \stack{.~}\footnote{\suppl{theories}{iconv\_dec.v}{iconv\_dec}}
+\begin{linkthm}{https://yiyunliu.github.io/dcoi/DCOIOmega.iconv_dec.html\#iconv_dec.iconv_dec}[Decidability of indexed type conversion]
   \label{lem:deciconv}
   Given a context $[[E]]$, syntactically well-formed types $[[A]]$ and
   $[[B]]$, and a level $[[l]]$, $[[E |- A0 <=> B0 @ l]]$ is decidable.
-\end{theorem}
+\end{linkthm}
 Note that $[[E |- A0 <=> B0 @ l]]$ is equivalent to the preconditions of \rref{E-Conv}.
 For finite or countable lattices, the decision procedure from
 \cref{lem:deciconv} can be iterated to recover the decidability
