@@ -210,9 +210,8 @@ Proof.
       asimpl. substify. eauto.
       solve_lattice.
     + move => n A1 Γ0 ℓ3 B0 ? ? [*]. subst.
-      asimpl.
-      have -> :  var_tm (S n) = (var_tm n)⟨S⟩ by asimpl.
-      renamify.
+      asimpl. renamify.
+      change ((shift >> var_tm) n) with (ren_tm shift (var_tm n)).
       apply : weakening_Syn; eauto.
       apply : T_Var; eauto. eauto with wff. solve_lattice.
 Qed.

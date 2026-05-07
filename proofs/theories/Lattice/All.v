@@ -1,7 +1,7 @@
 (** * Signature for lattices *)
 (** I tried using the lattice library from mathcomp but their whole
 set-up felt too heavy and I'm not sure what the best practice is. *)
-From Coq Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 From Equations Require Import Equations.
 From Hammer Require Import Tactics.
 From Ltac2 Require Ltac2.

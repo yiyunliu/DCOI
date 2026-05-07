@@ -189,9 +189,9 @@ Lemma HRed_renaming a b (h : HRed a b) :
   forall ξ, HRed (ren_tm ξ a) (ren_tm ξ b).
 Proof.
   elim:a b/h; try qauto ctrs:HRed.
-  - move => *; apply : HR_AppAbs'; by asimpl.
-  - move => *; apply : HR_LetPack'; by asimpl.
-  - move => *; apply : HR_IndSuc'; by asimpl.
+  - move => *; cbn; apply : HR_AppAbs'; by asimpl.
+  - move => *; cbn; apply : HR_LetPack'; by asimpl.
+  - move => *; cbn; apply : HR_IndSuc'; by asimpl.
 Qed.
 
 Lemma merge t a u :
@@ -1327,11 +1327,11 @@ Proof.
     hauto b:on drew:off inv:tm use:nf_no_red, ne_nf.
   - hauto lq:on.
   - move => ℓ a0 a1 b h  /[dup] ? ->.
-    have : a0 <> tTT by hauto lq:on. clear.
+    have : a0 <> tTT by hauto lq:on inv:LoRed. clear.
     case : a0 => //=.
   - move => ℓ a b0 b1 ha hb /[dup] h ->.
     move E : (LoRedOpt a) => T.
-    have : a <> tTT by hauto lq:on.
+    have : a <> tTT by hauto lq:on inv:LoRed.
     case : T a ha E => //=.
     hauto l:on use:nf_no_red, ne_nf.
     hauto lq:on rew:off.

@@ -1,0 +1,4 @@
+(coq.theory
+  (name DCOIOmega)
+  (synopsis "DCOI omega: dependent calculus of opaqueness and irrelevance"))
+(include_subdirs qualified)

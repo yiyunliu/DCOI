@@ -681,8 +681,15 @@ Proof.
   rewrite /ieq_good_morphing => h.
   case => [|i] ℓ1 //=.
   - sfirstorder use:gieq_refl.
-  - asimpl.
-    hauto lq:on rew:off use:ieq_weakening_mutual unfold:iok_ren_ok solve+:solve_lattice.
+  - rewrite /up_tm_tm /= => hi.
+    have hren : iok_ren_ok shift Δ (ℓ0 :: Δ).
+    { rewrite /iok_ren_ok /elookup /=. move => j ℓ2 hj. exists ℓ2.
+      rewrite hj. split; [reflexivity|]. by rewrite meet_idempotent. }
+    move : (h _ _ hi) => hg {h hi}.
+    inversion hg; subst.
+    + apply GI_Dist; eauto.
+      hauto lq:on use:ieq_weakening_mutual.
+    + by apply GI_InDist.
 Qed.
 
 Lemma ieq_morphing_helper2 ℓ ℓ0 ℓ1 ξ0 ξ1 Ξ Δ :
